@@ -1,5 +1,7 @@
 # Smart Home Dashboard v2 🏠👻
 
+![Dashboard Vorschau](preview.png)
+
 Ein hochmodernes, responsives Smart Home Dashboard, speziell optimiert für die ständige Anzeige auf einem **Lenovo Tab M10 FHD Plus (10.3", 1920x1200)** im Querformat (Nutzung mit *Fully Kiosk Browser*).
 
 ## 🌟 Features
