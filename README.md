@@ -12,6 +12,7 @@ Ein modernes Smart-Home-Wandpanel für ein **Lenovo Tab M10 FHD Plus (10.3", 192
 - **Smart Home / Tasmota:** lokale Geräteverwaltung, Scan im privaten Heimnetz, Toggle-Buttons mit Statusanzeige und Offline-Dimmung.
 - **Abfallkalender:** `.ics` Upload, kommende Leerungen und farbige Mülltonnen-Icons für Bio, Papier, Gelb/Plastik und Restmüll.
 - **Live Radio:** Preset-Tasten im Dashboard, Senderverwaltung in den Präferenzen, HLS/MP3/AAC-Unterstützung und Schutz gegen ungewollten Autostart beim Tablet-Wakeup.
+- **Neo Talk:** Mikrofon-Widget für Speech-to-Text im Browser, Antwort über lokale OpenClaw-Anbindung und Text-to-Speech auf dem Tablet.
 - **System Status:** Live CPU/RAM/Temperatur/Netzwerk per Socket.IO.
 - **Touch-ready:** Drag & Drop via Sortable.js mit Fully-Kiosk-kompatibler Verzögerung.
 
@@ -25,6 +26,7 @@ Ein modernes Smart-Home-Wandpanel für ein **Lenovo Tab M10 FHD Plus (10.3", 192
 - Abfallkalender-Upload
 - Wetterstandort
 - Radio-Sender und Preset-Tasten
+- Neo-Talk-Sprachausgabe
 
 ### Radio-Autoplay-Schutz
 Das Radio startet **nur** noch durch expliziten Klick auf:
@@ -81,6 +83,22 @@ Optional per Environment überschreibbar:
 
 ```bash
 PORT=8443 HOST=0.0.0.0 npm start
+```
+
+### Neo Talk aktivieren
+
+Das Voice-Widget ist im Code generisch und enthält keine privaten URLs, Tunnel oder Tokens. Die lokale OpenClaw-Anbindung wird bewusst nur per Environment aktiviert:
+
+```bash
+OPENCLAW_VOICE_TALK=1 npm start
+```
+
+Optionale Variablen:
+
+```bash
+OPENCLAW_VOICE_SESSION=smart-home-dashboard-voice
+OPENCLAW_VOICE_TIMEOUT_MS=120000
+OPENCLAW_CLI=/root/.npm-global/bin/openclaw
 ```
 
 ## 🧪 Checks

@@ -21,6 +21,7 @@ function init() {
   loadRadioSync();
   initAudioPlayer();
   initRadioWakeGuards();
+  initTalkWidget();
   initSystemBargraph();
   initTasmota();
 }
@@ -257,7 +258,7 @@ function loadSavedSettings() {
     });
   }
 
-  ['weather', 'waste', 'player', 'system', 'tasmota'].forEach(type => {
+  ['weather', 'waste', 'player', 'talk', 'system', 'tasmota'].forEach(type => {
     const isVisible = localStorage.getItem('show_' + type) !== 'false';
     const widget = document.querySelector(`.widget[data-type="${type}"]`);
     const toggle = document.getElementById('toggle-' + type);
@@ -349,7 +350,13 @@ function initSettings() {
     });
   }
 
-  ['weather', 'waste', 'player', 'system', 'tasmota'].forEach(type => {
+  const talkSpeechToggle = document.getElementById('toggleTalkSpeech');
+  if(talkSpeechToggle) {
+    talkSpeechToggle.checked = localStorage.getItem('talkSpeechEnabled') !== 'false';
+    talkSpeechToggle.addEventListener('change', e => localStorage.setItem('talkSpeechEnabled', e.target.checked ? 'true' : 'false'));
+  }
+
+  ['weather', 'waste', 'player', 'talk', 'system', 'tasmota'].forEach(type => {
     const toggle = document.getElementById('toggle-' + type);
     if(toggle) {
       toggle.addEventListener('change', (e) => {
@@ -506,6 +513,132 @@ function initRadioWakeGuards() {
   window.addEventListener('pagehide', hardStop);
   window.addEventListener('pageshow', hardStop);
   document.addEventListener('freeze', hardStop);
+}
+
+let talkRecognition = null;
+let talkLastText = '';
+let talkEnabled = false;
+
+function setTalkStatus(text, busy = false) {
+  const status = document.getElementById('talkStatus');
+  const orb = document.getElementById('talkMicBtn');
+  if(status) status.textContent = text;
+  if(orb) orb.classList.toggle('listening', busy);
+}
+
+function setTalkTranscript(text) {
+  const box = document.getElementById('talkTranscript');
+  if(box) box.textContent = text || 'Bereit.';
+}
+
+function speakTalkReply(text) {
+  if(localStorage.getItem('talkSpeechEnabled') === 'false') return;
+  if(!('speechSynthesis' in window) || !text) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'de-DE';
+  utterance.rate = 1;
+  utterance.pitch = 1;
+  window.speechSynthesis.speak(utterance);
+}
+
+async function sendTalkText(text) {
+  const sendBtn = document.getElementById('sendTalkBtn');
+  const micBtn = document.getElementById('talkMicBtn');
+  if(!text || !talkEnabled) return;
+  if(sendBtn) sendBtn.disabled = true;
+  if(micBtn) micBtn.disabled = true;
+  setTalkStatus('Neo denkt nach ...', true);
+  try {
+    const res = await fetch('/api/neo-talk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+    const data = await res.json();
+    if(!res.ok || !data.success) throw new Error(data.error || 'Neo Talk fehlgeschlagen');
+    const reply = data.reply || 'Ich habe keine Antwort bekommen.';
+    setTalkTranscript(`Du: ${data.text}\nNeo: ${reply}`);
+    setTalkStatus('Antwort wird vorgelesen');
+    speakTalkReply(reply);
+  } catch(e) {
+    setTalkStatus('Fehler');
+    setTalkTranscript(e.message || 'Neo konnte gerade nicht antworten.');
+  } finally {
+    if(micBtn) micBtn.disabled = false;
+    if(sendBtn) sendBtn.disabled = !talkLastText;
+  }
+}
+
+function initSpeechRecognition() {
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!Recognition) {
+    setTalkStatus('Spracheingabe nicht unterstützt');
+    setTalkTranscript('Dieser Browser unterstützt die Web Speech API nicht.');
+    return null;
+  }
+  const recognition = new Recognition();
+  recognition.lang = 'de-DE';
+  recognition.interimResults = true;
+  recognition.continuous = false;
+  recognition.maxAlternatives = 1;
+  recognition.onstart = () => setTalkStatus('Ich höre zu ...', true);
+  recognition.onerror = event => {
+    setTalkStatus('Nicht verstanden');
+    setTalkTranscript(event.error === 'not-allowed' ? 'Mikrofon-Berechtigung fehlt.' : 'Spracheingabe abgebrochen.');
+  };
+  recognition.onend = () => {
+    setTalkStatus(talkLastText ? 'Erkannt – sende an Neo' : 'Drücken und sprechen');
+    if(talkLastText) sendTalkText(talkLastText);
+  };
+  recognition.onresult = event => {
+    let finalText = '';
+    let interimText = '';
+    for(let i = event.resultIndex; i < event.results.length; i++) {
+      const part = event.results[i][0].transcript.trim();
+      if(event.results[i].isFinal) finalText += `${part} `;
+      else interimText += `${part} `;
+    }
+    const current = (finalText || interimText).trim();
+    if(current) {
+      talkLastText = current;
+      setTalkTranscript(`Du: ${current}`);
+      const sendBtn = document.getElementById('sendTalkBtn');
+      if(sendBtn) sendBtn.disabled = false;
+    }
+  };
+  return recognition;
+}
+
+async function initTalkWidget() {
+  const micBtn = document.getElementById('talkMicBtn');
+  const sendBtn = document.getElementById('sendTalkBtn');
+  if(!micBtn) return;
+  try {
+    const res = await fetch('/api/talk-config');
+    const cfg = await res.json();
+    talkEnabled = !!cfg.enabled;
+  } catch(e) {
+    talkEnabled = false;
+  }
+  if(!talkEnabled) {
+    micBtn.disabled = true;
+    if(sendBtn) sendBtn.disabled = true;
+    setTalkStatus('Serverseitig deaktiviert');
+    setTalkTranscript('Neo Talk muss lokal auf dem Dashboard-Server aktiviert werden.');
+    return;
+  }
+  talkRecognition = initSpeechRecognition();
+  if(!talkRecognition) {
+    micBtn.disabled = true;
+    return;
+  }
+  micBtn.addEventListener('click', () => {
+    talkLastText = '';
+    setTalkTranscript('Höre zu ...');
+    try { talkRecognition.start(); } catch(e) {}
+  });
+  if(sendBtn) sendBtn.addEventListener('click', () => sendTalkText(talkLastText));
 }
 
 function initAudioPlayer() {

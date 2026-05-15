@@ -5,6 +5,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const si = require('systeminformation');
+const { execFile } = require('child_process');
 
 const app = express();
 const PORT = Number(process.env.PORT || 8443);
@@ -13,6 +14,12 @@ const TASMOTA_FILE = path.join(__dirname, 'tasmota.json');
 const RADIO_FILE = path.join(__dirname, 'radio.json');
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
 const SSL_DIR = path.join(__dirname, 'ssl');
+const VOICE_TALK_ENABLED = process.env.OPENCLAW_VOICE_TALK === '1';
+const VOICE_TALK_SESSION = process.env.OPENCLAW_VOICE_SESSION || 'smart-home-dashboard-voice';
+const VOICE_TALK_TIMEOUT_MS = Math.max(10_000, Number(process.env.OPENCLAW_VOICE_TIMEOUT_MS || 120_000));
+const OPENCLAW_CLI = (process.env.OPENCLAW_CLI && process.env.OPENCLAW_CLI !== '1')
+  ? process.env.OPENCLAW_CLI
+  : '/root/.npm-global/bin/openclaw';
 
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
@@ -81,6 +88,62 @@ function sanitizeStations(value) {
       return acc;
     }, [])
   };
+}
+
+function extractAgentReply(stdout) {
+  const text = String(stdout || '').trim();
+  if (!text) return '';
+  try {
+    const parsed = JSON.parse(text);
+    const payloadText = Array.isArray(parsed?.payloads)
+      ? parsed.payloads.map(p => p?.text).filter(Boolean).join('\n\n').trim()
+      : '';
+    return payloadText || parsed?.meta?.finalAssistantVisibleText || parsed?.meta?.finalAssistantRawText || '';
+  } catch (e) {
+    const firstJson = text.indexOf('{');
+    const lastJson = text.lastIndexOf('}');
+    if (firstJson >= 0 && lastJson > firstJson) {
+      try {
+        const parsed = JSON.parse(text.slice(firstJson, lastJson + 1));
+        return parsed?.payloads?.[0]?.text || parsed?.meta?.finalAssistantVisibleText || '';
+      } catch (_) {}
+    }
+    return text;
+  }
+}
+
+function askOpenClaw(message) {
+  const prompt = [
+    'Du bist Neo im Smart-Home-Dashboard auf Steffens Tablet.',
+    'Antworte kurz, natürlich und gut vorlesbar auf Deutsch.',
+    'Die Antwort wird per Text-to-Speech vorgelesen, also keine Markdown-Tabellen und keine langen Listen.',
+    'Wenn der Nutzer eine externe, destruktive oder private Aktion verlangt, sag kurz, dass du dafür erst Bestätigung im normalen Chat brauchst.',
+    '',
+    `Gesprochene Eingabe: ${message}`
+  ].join('\n');
+
+  return new Promise((resolve, reject) => {
+    execFile(OPENCLAW_CLI, [
+      'agent',
+      '--session-id', VOICE_TALK_SESSION,
+      '--message', prompt,
+      '--json',
+      '--timeout', String(Math.ceil(VOICE_TALK_TIMEOUT_MS / 1000))
+    ], {
+      cwd: __dirname,
+      timeout: VOICE_TALK_TIMEOUT_MS + 5_000,
+      maxBuffer: 1024 * 1024 * 4,
+      env: process.env
+    }, (error, stdout, stderr) => {
+      if (error) {
+        const details = String(stderr || error.message || 'OpenClaw Anfrage fehlgeschlagen').slice(0, 600);
+        reject(new Error(details));
+        return;
+      }
+      const reply = extractAgentReply(stdout).trim();
+      resolve(reply || 'Ich habe keine Antwort bekommen.');
+    });
+  });
 }
 
 // Tasmota Backup Memory (RAM)
@@ -152,6 +215,26 @@ app.get('/api/ics-data', (req, res) => {
     res.json({ success: true, data: fs.readFileSync(icsPath, 'utf-8') });
   } else {
     res.json({ success: false });
+  }
+});
+
+// ==== NEO VOICE TALK ====
+app.get('/api/talk-config', (req, res) => {
+  res.json({ enabled: VOICE_TALK_ENABLED, session: VOICE_TALK_SESSION });
+});
+
+app.post('/api/neo-talk', async (req, res) => {
+  if (!VOICE_TALK_ENABLED) {
+    return res.status(403).json({ success: false, error: 'Neo Talk ist serverseitig nicht aktiviert.' });
+  }
+  const text = String(req.body?.text || '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 800);
+  if (!text) return res.status(400).json({ success: false, error: 'Keine Spracheingabe erkannt.' });
+  try {
+    const reply = await askOpenClaw(text);
+    res.json({ success: true, text, reply });
+  } catch (e) {
+    console.error('Neo Talk Error:', e.message);
+    res.status(500).json({ success: false, error: 'Neo konnte gerade nicht antworten.' });
   }
 });
 
