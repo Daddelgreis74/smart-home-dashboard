@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Smart Home</title>
+  <title>Neo Deck · Smart Home</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css?v=radio-clean-20260515-1">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
@@ -22,6 +23,10 @@
     <header class="header">
       <div class="logo">
         <div class="header-time" id="headerTime">--:--</div>
+        <div class="deck-title">
+          <span>Neo Deck</span>
+          <small>Smart Home Command Center</small>
+        </div>
       </div>
       <div class="header-right">
         <div class="header-date" id="headerDate">---</div>
@@ -32,7 +37,10 @@
     <div class="settings-overlay" id="settingsOverlay">
       <div class="settings-panel">
         <div class="settings-header">
-          <h2><i class="fas fa-sliders-h" style="color: var(--primary); margin-right: 10px;"></i> Präferenzen</h2>
+          <div>
+            <h2><i class="fas fa-sliders-h"></i> Präferenzen</h2>
+            <p>Dashboard, Geräte, Radio und Datenquellen</p>
+          </div>
           <button class="close-btn" id="closeSettings"><i class="fas fa-times"></i></button>
         </div>
         <div class="settings-content">
@@ -106,18 +114,23 @@
             <div class="section-divider"></div>
           </div>
 
-          <!-- 5. MEDIA STREAM -->
+          <!-- 5. LIVE RADIO -->
           <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-broadcast-tower"></i> Radio Stream URL <i class="fas fa-chevron-down acc-icon"></i></h3>
+            <h3 class="accordion-header"><i class="fas fa-broadcast-tower"></i> Live Radio <i class="fas fa-chevron-down acc-icon"></i></h3>
             <div class="accordion-body">
               <div class="input-group">
-                <label class="setting-sub-label">Gültige MP3, AAC oder .m3u8 Livestream-URL.</label>
+                <label class="setting-sub-label">Sender hinzufügen:</label>
                 <div style="display:flex; gap: 8px;">
-                  <input type="text" id="streamUrl" placeholder="z.B. https://...">
-                  <button class="btn" id="saveStream">Speichern</button>
+                  <input type="text" id="streamName" placeholder="Sendername">
+                  <input type="text" id="streamUrl" placeholder="https://... mp3/aac/m3u8">
+                  <button class="btn" id="addStreamBtn" title="Sender hinzufügen"><i class="fas fa-plus"></i></button>
                 </div>
               </div>
+              <div id="radioList" class="tasmota-list-settings"></div>
+              <label class="setting-sub-label" style="margin-top: 15px;">Preset-Tasten:</label>
+              <div id="radioPresetsSettings" class="radio-presets-settings"></div>
             </div>
+            <div class="section-divider"></div>
           </div>
 
         </div>
@@ -137,31 +150,14 @@
           </div>
           <div class="weather-condition" id="weatherCondition">--</div>
           <div class="weather-details">
-            <div class="w-detail"><i class="fas fa-temperature-half"></i><span id="w-minmax">-- / --</span></div>
-            <div class="w-detail"><i class="fas fa-droplet"></i><span id="w-humidity">-- %</span></div>
-            <div class="w-detail"><i class="fas fa-wind"></i><span id="w-wind">-- km/h</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="widget" data-type="player">
-        <div class="widget-header">
-          <h3>Live Radio</h3>
-          <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
-        </div>
-        <div class="widget-body player-layout">
-          <audio id="audioPlayer"></audio>
-          <div class="audio-controls">
-            <div class="visualizer">
-              <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-              <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-            </div>
-            <button id="togglePlayBtn" class="play-round-btn"><i class="fas fa-play"></i></button>
-            <div class="volume-control">
-              <i class="fas fa-volume-down"></i>
-              <input type="range" id="volumeSlider" min="0" max="100" value="50">
-              <i class="fas fa-volume-up"></i>
-            </div>
+            <div class="w-detail"><i class="fas fa-temperature-half"></i><small>Min/Max</small><span id="w-minmax">-- / --</span></div>
+            <div class="w-detail"><i class="fas fa-person-rays"></i><small>Gefühlt</small><span id="w-feels">--°</span></div>
+            <div class="w-detail"><i class="fas fa-droplet"></i><small>Feuchte</small><span id="w-humidity">-- %</span></div>
+            <div class="w-detail"><i class="fas fa-cloud-rain"></i><small>Regen</small><span id="w-rain">-- %</span></div>
+            <div class="w-detail"><i class="fas fa-wind"></i><small>Wind</small><span id="w-wind">-- km/h</span></div>
+            <div class="w-detail"><i class="fas fa-gauge-high"></i><small>Druck</small><span id="w-pressure">-- hPa</span></div>
+            <div class="w-detail"><i class="fas fa-cloud"></i><small>Wolken</small><span id="w-clouds">-- %</span></div>
+            <div class="w-detail"><i class="fas fa-sun"></i><small>UV</small><span id="w-uv">--</span></div>
           </div>
         </div>
       </div>
@@ -172,6 +168,29 @@
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body" id="wasteBody"></div>
+      </div>
+
+      <div class="widget" data-type="player">
+        <div class="widget-header">
+          <h3><i class="fas fa-radio" style="color:var(--primary)"></i> Live Radio</h3>
+          <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
+        </div>
+        <div class="widget-body player-layout">
+          <div id="radioPresetsWidget" class="radio-presets-widget"></div>
+          <div id="audioPlayerContainer" hidden></div>
+          <div class="audio-controls">
+            <div class="visualizer">
+              <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+              <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            </div>
+            <button id="togglePlayBtn" class="play-round-btn" aria-label="Radio starten oder pausieren"><i class="fas fa-play"></i></button>
+            <div class="volume-control">
+              <i class="fas fa-volume-down"></i>
+              <input type="range" id="volumeSlider" min="0" max="100" value="50" aria-label="Lautstärke">
+              <i class="fas fa-volume-up"></i>
+            </div>
+          </div>
+        </div>
       </div>
       
       <div class="widget" data-type="system">
@@ -213,6 +232,6 @@
   </div>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script src="app.js"></script>
+  <script src="app.js?v=radio-clean-20260515-1"></script>
 </body>
 </html>

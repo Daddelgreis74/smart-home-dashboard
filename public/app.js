@@ -1,6 +1,7 @@
 const socket = io();
 let hlsCore = null;
 let isPlaying = false;
+let tasmotaDevices = [];
 
 document.addEventListener('DOMContentLoaded', () => {
   init();
@@ -17,9 +18,199 @@ function init() {
   
   loadWeather();
   loadICS();
+  loadRadioSync();
   initAudioPlayer();
+  initRadioWakeGuards();
   initSystemBargraph();
   initTasmota();
+}
+
+let globalStations = [];
+
+function optionElement(value, label) {
+  const option = document.createElement('option');
+  option.value = value;
+  option.textContent = label;
+  return option;
+}
+
+async function loadRadioSync() {
+  try {
+    const res = await fetch('/api/radio');
+    const data = await res.json();
+    if(data && data.stations) {
+      globalStations = data.stations;
+      renderRadioUI();
+    }
+  } catch(e) {}
+}
+
+socket.on('radio-updated', (data) => {
+  if (data && data.stations) {
+    globalStations = data.stations;
+    renderRadioUI();
+  }
+});
+
+function assignPreset(slotIndex, url) {
+  const presets = JSON.parse(localStorage.getItem('radioPresets') || '{}');
+  if(!url) {
+      delete presets[slotIndex];
+  } else {
+      presets[slotIndex] = url;
+  }
+  localStorage.setItem('radioPresets', JSON.stringify(presets));
+  renderRadioUI();
+}
+
+function renderRadioUI() {
+  // Update Select for compatibility
+  const select = document.getElementById('radioStationSelect');
+  if(select) {
+    // Verhindere unabsichtliche 'Change' Events beim bloßen Aufbau des Dropdowns
+    const oldOnchange = select.onchange;
+    select.onchange = null;
+    
+    // Hole den gemerkten Sender anstelle des gerade aktiven, da das Select frisch gerendert wird
+    const savedStreamUrl = localStorage.getItem('streamUrl');
+    select.replaceChildren(optionElement('', 'Kein Sender gewählt'));
+    globalStations.forEach(st => select.appendChild(optionElement(st.url, st.name)));
+    
+    if(savedStreamUrl && globalStations.find(s => s.url === savedStreamUrl)) {
+      select.value = savedStreamUrl;
+    } else if (globalStations.length > 0) {
+      select.value = ''; // NULLE das initiale Setzen, um Caching/Autoplay-Bugs vom Kiosk zu vermeiden
+    }
+    
+    // Setze das Event, EGAL ob der Sender gefunden wurde oder nicht, erst danach wieder auf aktiv
+    setTimeout(() => { select.onchange = oldOnchange; }, 50);
+  }
+
+  // Preset Buttons Rendering im Widget
+  const presetsContainer = document.getElementById('radioPresetsWidget');
+  if(presetsContainer) {
+    presetsContainer.innerHTML = '';
+    // Hole Preset Mapping aus LocalStorage, z.B. {1: "url", 2: "url"}
+    const presets = JSON.parse(localStorage.getItem('radioPresets') || '{}');
+    
+    for(let i=1; i<=6; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'btn preset-btn';
+        
+        let assignedStation = null;
+        if(presets[i]) {
+            assignedStation = globalStations.find(s => s.url === presets[i]);
+        }
+        
+        if (assignedStation) {
+            const number = document.createElement('strong');
+            number.textContent = i;
+            const label = document.createElement('span');
+            label.textContent = assignedStation.name.substring(0, 8);
+            btn.replaceChildren(number, label);
+            btn.classList.add('assigned');
+        } else {
+            const number = document.createElement('strong');
+            number.textContent = i;
+            btn.replaceChildren(number);
+            btn.classList.remove('assigned');
+        }
+
+        btn.style.width = '45px';
+        btn.style.height = '45px';
+        btn.style.padding = '0';
+        btn.style.display = 'flex';
+        btn.style.flexDirection = 'column';
+        btn.style.justifyContent = 'center';
+        btn.style.alignItems = 'center';
+
+        // Klick auf Preset = Sender abspielen
+        btn.addEventListener('click', () => {
+            if(presets[i]) {
+                localStorage.setItem('streamUrl', presets[i]); // Merken
+                // Direkt den Stream starten
+                playAudioStream(presets[i], true);
+            } else {
+                alert(`Speicherplatz ${i} ist leer. Bitte weise in den Dashboard-Einstellungen Sender zu.`);
+            }
+        });
+
+        presetsContainer.appendChild(btn);
+    }
+  }
+
+  // Preset Settings Rendering in den Einstellungen
+  const presetsSettings = document.getElementById('radioPresetsSettings');
+  if(presetsSettings) {
+    presetsSettings.innerHTML = '';
+    const presets = JSON.parse(localStorage.getItem('radioPresets') || '{}');
+    
+    for(let i=1; i<=6; i++) {
+      const row = document.createElement('div');
+      row.style.display = 'flex';
+      row.style.alignItems = 'center';
+      row.style.gap = '10px';
+      
+      const label = document.createElement('span');
+      label.textContent = `Taste ${i}:`;
+      label.style.width = '60px';
+      label.style.fontSize = '14px';
+      
+      const sel = document.createElement('select');
+      sel.className = 'radio-select';
+      sel.style.flex = '1';
+      sel.replaceChildren(optionElement('', '- Leer -'));
+      globalStations.forEach(st => sel.appendChild(optionElement(st.url, st.name)));
+      
+      if(presets[i] && globalStations.find(s => s.url === presets[i])) {
+        sel.value = presets[i];
+      }
+      
+      sel.addEventListener('change', (e) => {
+        assignPreset(i, e.target.value);
+      });
+      
+      row.appendChild(label);
+      row.appendChild(sel);
+      presetsSettings.appendChild(row);
+    }
+  }
+
+  // Update Settings List
+  const list = document.getElementById('radioList');
+  if(list) {
+    list.innerHTML = '';
+    globalStations.forEach((st, idx) => {
+      const row = document.createElement('div');
+      row.className = 'tasmota-row';
+      const info = document.createElement('div');
+      info.className = 't-info';
+      const name = document.createElement('span');
+      name.className = 't-name';
+      name.textContent = st.name;
+      const url = document.createElement('span');
+      url.className = 't-ip';
+      url.textContent = ` ${st.url.substring(0, 35)}${st.url.length > 35 ? '...' : ''}`;
+      const button = document.createElement('button');
+      button.className = 't-btn danger';
+      button.innerHTML = '<i class="fas fa-trash"></i>';
+      button.addEventListener('click', () => removeGlobalStation(idx));
+      info.append(name, url);
+      row.append(info, button);
+      list.appendChild(row);
+    });
+  }
+}
+
+async function removeGlobalStation(idx) {
+  globalStations.splice(idx, 1);
+  try {
+    await fetch('/api/radio', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ stations: globalStations })
+    });
+  } catch(e) {}
 }
 
 function initSortable() {
@@ -45,8 +236,15 @@ function loadSavedSettings() {
   
   const savedStream = localStorage.getItem('streamUrl');
   if (savedStream) {
-    document.getElementById('streamUrl').value = savedStream;
-    playAudioStream(savedStream); 
+    const streamInput = document.getElementById('streamUrl');
+    if (streamInput) streamInput.value = savedStream;
+    
+    // Voll-Stille sicherstellen, keine alten Timer oder Eventhänger
+    if(activeAudioElement) {
+        activeAudioElement.pause();
+        activeAudioElement.src = '';
+        activeAudioElement = null;
+    }
   }
 
   // Wende Layout aus dem Socket Layer oder lokalen Storage an (einfachheitshalber Client-Side Render Order)
@@ -59,7 +257,7 @@ function loadSavedSettings() {
     });
   }
 
-  ['weather', 'waste', 'player', 'system'].forEach(type => {
+  ['weather', 'waste', 'player', 'system', 'tasmota'].forEach(type => {
     const isVisible = localStorage.getItem('show_' + type) !== 'false';
     const widget = document.querySelector(`.widget[data-type="${type}"]`);
     const toggle = document.getElementById('toggle-' + type);
@@ -118,20 +316,40 @@ function initSettings() {
     if (loc) { localStorage.setItem('weatherLoc', loc); loadWeather(); }
   });
 
-  document.getElementById('saveStream').addEventListener('click', () => {
-    const url = document.getElementById('streamUrl').value;
-    if(url) { 
-      localStorage.setItem('streamUrl', url); playAudioStream(url);
-      const audio = document.getElementById('audioPlayer');
-      audio.play().then(() => {
-        isPlaying = true;
-        document.getElementById('togglePlayBtn').innerHTML = '<i class="fas fa-pause"></i>';
-        document.querySelector('.visualizer').classList.add('active');
-      }).catch(e=>{});
-    }
-  });
+  const addStreamBtn = document.getElementById('addStreamBtn');
+  if(addStreamBtn) {
+    addStreamBtn.addEventListener('click', async () => {
+      const name = document.getElementById('streamName').value;
+      const url = document.getElementById('streamUrl').value;
+      if(name && url) { 
+        globalStations.push({ name, url });
+        document.getElementById('streamName').value = '';
+        document.getElementById('streamUrl').value = '';
+        try {
+          await fetch('/api/radio', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ stations: globalStations })
+          });
+        } catch(e) {}
+      }
+    });
+  }
 
-  ['weather', 'waste', 'player', 'system'].forEach(type => {
+  const stationSelect = document.getElementById('radioStationSelect');
+  if(stationSelect) {
+    stationSelect.addEventListener('change', (e) => {
+      const url = e.target.value;
+      if(!url) return;
+      localStorage.setItem('streamUrl', url);
+      // Wichtig für Fully Kiosk/Android: Senderauswahl darf nur speichern,
+      // aber noch KEIN Audio-Element mit Stream-Quelle erzeugen.
+      // Einige WebViews starten vorhandene Media-Elemente beim Display-Wakeup sonst eigenständig.
+      stopRadioPlayback(true);
+    });
+  }
+
+  ['weather', 'waste', 'player', 'system', 'tasmota'].forEach(type => {
     const toggle = document.getElementById('toggle-' + type);
     if(toggle) {
       toggle.addEventListener('change', (e) => {
@@ -156,13 +374,38 @@ async function loadWeather() {
     if(geoRes.results && geoRes.results.length > 0) { lat = geoRes.results[0].latitude; lon = geoRes.results[0].longitude; locName = geoRes.results[0].name; }
   } catch(e) {}
   try {
-    const d = await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto`)).json();
+    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+      `&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_gusts_10m,precipitation,rain,pressure_msl,cloud_cover` +
+      `&daily=temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_probability_max,sunrise,sunset` +
+      `&timezone=auto`;
+    const d = await (await fetch(weatherUrl)).json();
     document.getElementById('weatherCity').textContent = locName;
     document.querySelector('.weather-temp').innerHTML = Math.round(d.current.temperature_2m) + '&deg;';
     document.getElementById('w-humidity').textContent = d.current.relative_humidity_2m + ' %';
     document.getElementById('w-wind').textContent = Math.round(d.current.wind_speed_10m) + ' km/h';
     document.getElementById('w-minmax').textContent = Math.round(d.daily.temperature_2m_max[0]) + '° / ' + Math.round(d.daily.temperature_2m_min[0]) + '°';
-    const conditions = { 0:{text:'Klar',icon:'fa-sun',style:'sunny'}, 3:{text:'Bewölkt',icon:'fa-cloud',style:'cloudy'}, 61:{text:'Regen',icon:'fa-cloud-rain',style:'rainy'}, 71:{text:'Schnee',icon:'fa-snowflake',style:'cloudy'} };
+    document.getElementById('w-feels').textContent = Math.round(d.current.apparent_temperature) + '°';
+    document.getElementById('w-rain').textContent = (d.daily.precipitation_probability_max?.[0] ?? Math.round((d.current.rain || d.current.precipitation || 0) * 10)) + ' %';
+    document.getElementById('w-pressure').textContent = Math.round(d.current.pressure_msl) + ' hPa';
+    document.getElementById('w-clouds').textContent = Math.round(d.current.cloud_cover) + ' %';
+    document.getElementById('w-uv').textContent = (d.daily.uv_index_max?.[0] ?? 0).toFixed(1);
+    const conditions = {
+      0:{text:'Klar',icon:'fa-sun',style:'sunny'},
+      1:{text:'Überwiegend klar',icon:'fa-sun',style:'sunny'},
+      2:{text:'Leicht bewölkt',icon:'fa-cloud-sun',style:'cloudy'},
+      3:{text:'Bewölkt',icon:'fa-cloud',style:'cloudy'},
+      45:{text:'Nebel',icon:'fa-smog',style:'cloudy'},
+      48:{text:'Reifnebel',icon:'fa-smog',style:'cloudy'},
+      51:{text:'Nieselregen',icon:'fa-cloud-rain',style:'rainy'},
+      53:{text:'Nieselregen',icon:'fa-cloud-rain',style:'rainy'},
+      55:{text:'Starker Nieselregen',icon:'fa-cloud-rain',style:'rainy'},
+      61:{text:'Regen',icon:'fa-cloud-rain',style:'rainy'},
+      63:{text:'Regen',icon:'fa-cloud-showers-heavy',style:'rainy'},
+      65:{text:'Starker Regen',icon:'fa-cloud-showers-heavy',style:'rainy'},
+      71:{text:'Schnee',icon:'fa-snowflake',style:'cloudy'},
+      80:{text:'Regenschauer',icon:'fa-cloud-sun-rain',style:'rainy'},
+      95:{text:'Gewitter',icon:'fa-cloud-bolt',style:'rainy'}
+    };
     const cond = conditions[d.current.weather_code] || { text: 'Bedeckt', icon: 'fa-cloud', style: 'cloudy' };
     document.getElementById('weatherCondition').textContent = cond.text;
     document.querySelector('.weather-icon').innerHTML = `<i class="fas ${cond.icon}"></i>`;
@@ -207,8 +450,8 @@ async function loadICS() {
 
         html += `
           <div class="waste-item ${type}">
-            <div style="display:flex; align-items:center; gap: 12px;">
-              <i class="fas fa-trash-can icon-${type}"></i>
+            <div class="waste-title">
+              <span class="bin-icon bin-${type}" aria-hidden="true"><span class="bin-lid"></span><span class="bin-body"></span><span class="bin-wheel left"></span><span class="bin-wheel right"></span></span>
               <span>${e.summary.replace(' in Altenburg', '')}</span>
             </div>
             <span>${dateStr}</span>
@@ -220,31 +463,123 @@ async function loadICS() {
   } catch(e) {}
 }
 
+let activeAudioElement = null;
+
+function updateRadioUi(playing) {
+  isPlaying = playing;
+  const playBtn = document.getElementById('togglePlayBtn');
+  const vis = document.querySelector('.visualizer');
+  if(playBtn) playBtn.innerHTML = playing ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+  if(vis) vis.classList.toggle('active', playing);
+}
+
+function stopRadioPlayback(removeSource = true) {
+  if(hlsCore) {
+    try { hlsCore.stopLoad(); hlsCore.detachMedia(); hlsCore.destroy(); } catch(e) {}
+    hlsCore = null;
+  }
+
+  if(activeAudioElement) {
+    try { activeAudioElement.pause(); } catch(e) {}
+    if(removeSource) {
+      try {
+        activeAudioElement.removeAttribute('src');
+        activeAudioElement.load();
+        activeAudioElement.remove();
+      } catch(e) {}
+      activeAudioElement = null;
+      const container = document.getElementById('audioPlayerContainer');
+      if(container) container.replaceChildren();
+    }
+  }
+
+  updateRadioUi(false);
+}
+
+function initRadioWakeGuards() {
+  // Fully Kiosk/Android kann Media beim Screen-Wakeup wiederbeleben.
+  // Deshalb reißen wir den Stream beim Verlassen/Schlafen komplett ab.
+  const hardStop = () => stopRadioPlayback(true);
+  document.addEventListener('visibilitychange', () => {
+    if(document.hidden) hardStop();
+  });
+  window.addEventListener('pagehide', hardStop);
+  window.addEventListener('pageshow', hardStop);
+  document.addEventListener('freeze', hardStop);
+}
+
 function initAudioPlayer() {
-  const audio = document.getElementById('audioPlayer');
   const playBtn = document.getElementById('togglePlayBtn');
   const vol = document.getElementById('volumeSlider');
   const vis = document.querySelector('.visualizer');
-  if(!playBtn||!audio) return;
-  vol.addEventListener('input', e => audio.volume = e.target.value/100);
+  if(!playBtn) return;
+  
+  if(vol) {
+      vol.addEventListener('input', e => {
+          if(activeAudioElement) activeAudioElement.volume = e.target.value / 100;
+      });
+  }
+
   playBtn.addEventListener('click', () => {
-    if(isPlaying) { audio.pause(); isPlaying=false; playBtn.innerHTML='<i class="fas fa-play"></i>'; vis.classList.remove('active');}
+    if(isPlaying && activeAudioElement) { 
+        stopRadioPlayback(true);
+    }
     else {
+      // Wenn nichts spielt, schnappe den zuletzt aktiven Stream aus unserem State oder LocalStorage
       const u = localStorage.getItem('streamUrl');
-      if(u) { if(!audio.src||audio.src!==u) playAudioStream(u);
-        audio.play().then(()=>{isPlaying=true; playBtn.innerHTML='<i class="fas fa-pause"></i>'; vis.classList.add('active');}).catch();
+      if(u) { 
+          playAudioStream(u, true);
+      } else {
+          alert("Kein Sender ausgewählt.");
       }
     }
   });
 }
 
-function playAudioStream(url) {
-  const a = document.getElementById('audioPlayer'); if(!a) return;
-  if(hlsCore) { hlsCore.destroy(); hlsCore=null; }
+function playAudioStream(url, autoPlay = false) {
+  const container = document.getElementById('audioPlayerContainer');
+  if(!container) return;
+  if(!autoPlay) return;
+  
+  // ALLES ABREISSEN
+  stopRadioPlayback(true);
+
+  // NEU BAUEN — nur nach explizitem Klick/Touch.
+  activeAudioElement = document.createElement('audio');
+  activeAudioElement.id = 'audioPlayer';
+  activeAudioElement.preload = 'none';
+  activeAudioElement.autoplay = false;
+  activeAudioElement.controls = false;
+  activeAudioElement.setAttribute('playsinline', '');
+  
+  const vol = document.getElementById('volumeSlider');
+  if(vol) activeAudioElement.volume = vol.value / 100;
+  
+  container.replaceChildren(activeAudioElement);
+
   if(url.includes('.m3u8')) {
-    if(Hls.isSupported()){ hlsCore=new Hls(); hlsCore.loadSource(url); hlsCore.attachMedia(a); }
-    else if(a.canPlayType('application/vnd.apple.mpegurl')) a.src=url;
-  } else a.src=url;
+    if(window.Hls && Hls.isSupported()){ 
+        hlsCore = new Hls({ autoStartLoad: false }); 
+        hlsCore.loadSource(url); 
+        hlsCore.attachMedia(activeAudioElement); 
+        hlsCore.startLoad();
+    }
+    else if(activeAudioElement.canPlayType('application/vnd.apple.mpegurl')) {
+        activeAudioElement.src=url;
+    }
+  } else {
+      activeAudioElement.src = url;
+  }
+  
+  const playPromise = activeAudioElement.play();
+  if (playPromise !== undefined) {
+      playPromise.then(() => {
+        updateRadioUi(true);
+      }).catch(e => {
+          console.error("Radio Start", e);
+          stopRadioPlayback(true);
+      });
+  }
 }
 
 function initSystemBargraph() {
@@ -379,8 +714,17 @@ function renderTasmotaSettings() {
   tasmotaDevices.forEach(d => {
     const div = document.createElement('div');
     div.className = 'tasmota-setting-item';
-    div.innerHTML = `<span><b>${d.name}</b> <small>(${d.ip})</small></span>
-                     <button onclick="window.removeTasmota('${d.ip}')" class="btn-del"><i class="fas fa-trash"></i></button>`;
+    const label = document.createElement('span');
+    const name = document.createElement('b');
+    name.textContent = d.name;
+    const ip = document.createElement('small');
+    ip.textContent = `(${d.ip})`;
+    const button = document.createElement('button');
+    button.className = 'btn-del';
+    button.innerHTML = '<i class="fas fa-trash"></i>';
+    button.addEventListener('click', () => window.removeTasmota(d.ip));
+    label.append(name, ' ', ip);
+    div.append(label, button);
     list.appendChild(div);
   });
 }
@@ -393,7 +737,11 @@ function renderTasmotaButtons() {
     const btn = document.createElement('button');
     btn.className = 'tasmota-btn';
     btn.id = 'tasmota-btn-' + d.ip.replace(/\./g, '-');
-    btn.innerHTML = `<i class="fas fa-power-off"></i> <span>${d.name}</span>`;
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-power-off';
+    const label = document.createElement('span');
+    label.textContent = d.name;
+    btn.append(icon, label);
     btn.onclick = () => window.toggleTasmota(d.ip);
     body.appendChild(btn);
   });

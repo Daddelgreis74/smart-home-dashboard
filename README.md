@@ -1,35 +1,102 @@
-# Smart Home Dashboard v2 🏠👻
+# Smart Home Dashboard v3 · Neo Deck 🏠👻
 
 ![Dashboard Vorschau](preview.png)
 
-Ein hochmodernes, responsives Smart Home Dashboard, speziell optimiert für die ständige Anzeige auf einem **Lenovo Tab M10 FHD Plus (10.3", 1920x1200)** im Querformat (Nutzung mit *Fully Kiosk Browser*).
+Ein modernes Smart-Home-Wandpanel für ein **Lenovo Tab M10 FHD Plus (10.3", 1920×1200, 16:10)** im Querformat. Optimiert für den dauerhaften Betrieb im **Fully Kiosk Browser**.
 
-## 🌟 Features
+## ✨ Highlights
 
-* **Wetter & Standort:** Lokale Wetterdaten über die Open-Meteo API (ohne API-Keys) inkl. Temperatur, Wind und Feuchtigkeit.
-* **Smart Home Steuerung (Tasmota):** Node.js fragt eigenständig das Heimnetzwerk (`192.168.178.x`) ab, schaltet Geräte und speichert den Status persistent ab.
-* **Abfallkalender:** Automatisches Auslesen von `.ics`-Dateien für die nächsten Abholungen inkl. farbig passender Mülltonnensymbole (Bio, Papier, etc.).
-* **Live Radio:** Integrierter HLS.js Player für Live-Radiostreams (`.m3u8`) inkl. Lautstärkeregler und optischem Equalizer.
-* **System Status:** Live-Bargraphen für den Server (CPU, RAM, Temperatur, Netzwerk) in LED-Optik, abgerufen über `systeminformation`.
-* **Touch & Drag & Drop:** Die Kacheln lassen sich frei anordnen. Voll Kiosk-Touch-kompatibel (via `Sortable.js`).
+- **Neo Aurora Command Deck:** dunkles, hochwertiges Wall-Panel-Design mit Aurora-Glow, Glas-/Metal-Karten und adaptivem 2-Reihen-Layout.
+- **Adaptive Widgets:** Layout passt sich besser an Seitenverhältnis und Fully-Kiosk-Viewport an, statt unten Inhalte abzuschneiden.
+- **Wetter Pro:** Open-Meteo Daten mit Temperatur, Gefühlter Temperatur, Min/Max, Luftfeuchte, Regenwahrscheinlichkeit, Wind, Luftdruck, Wolken und UV-Index.
+- **Smart Home / Tasmota:** lokale Geräteverwaltung, Scan im privaten Heimnetz, Toggle-Buttons mit Statusanzeige und Offline-Dimmung.
+- **Abfallkalender:** `.ics` Upload, kommende Leerungen und farbige Mülltonnen-Icons für Bio, Papier, Gelb/Plastik und Restmüll.
+- **Live Radio:** Preset-Tasten im Dashboard, Senderverwaltung in den Präferenzen, HLS/MP3/AAC-Unterstützung und Schutz gegen ungewollten Autostart beim Tablet-Wakeup.
+- **System Status:** Live CPU/RAM/Temperatur/Netzwerk per Socket.IO.
+- **Touch-ready:** Drag & Drop via Sortable.js mit Fully-Kiosk-kompatibler Verzögerung.
 
-## 🛠️ Architektur & Design
+## 🧭 Bedienung
 
-* **Stack:** Node.js, Express.js, Socket.IO
-* **Design:** Apple/Tesla-UI inspiriert, Glasmorphismus, fließende Hintergrund-Orbs im Dark-Mode und abgerundete Kanten.
-* **Typografie:** Google Font *Outfit* für klare und moderne Lesbarkeit aus der Ferne.
+### Präferenzen
+Über das Menü oben rechts lassen sich konfigurieren:
+
+- sichtbare Widgets
+- Tasmota-Geräte und Subnetz-Scan
+- Abfallkalender-Upload
+- Wetterstandort
+- Radio-Sender und Preset-Tasten
+
+### Radio-Autoplay-Schutz
+Das Radio startet **nur** noch durch expliziten Klick auf:
+
+- Play-Button
+- Preset-Taste
+
+Beim Schlafen/Aufwecken des Tablets wird ein aktiver Stream hart gestoppt und das Audio-Element entfernt, damit Fully Kiosk/Android keinen Stream selbstständig wiederbelebt.
+
+## 🛠️ Architektur
+
+- **Backend:** Node.js, Express.js
+- **Realtime:** Socket.IO
+- **Systemdaten:** `systeminformation`
+- **Uploads:** `multer`
+- **Frontend:** Vanilla JS, CSS Grid, Sortable.js, HLS.js
+- **Wetter:** Open-Meteo API, ohne API-Key
+- **Port:** `8443`
+- **HTTPS:** lokales Zertifikat unter `ssl/`
+
+## 🔐 Sicherheit & lokale Dateien
+
+Nicht committen:
+
+- `ssl/`
+- `radio.json`
+- `tasmota.json`
+- `uploads/`
+- `node_modules/`
+
+Die `.gitignore` ist entsprechend vorbereitet.
+
+Backend-Härtungen:
+
+- JSON Body-Limit
+- `.ics` Upload-Limit und Dateifilter
+- Tasmota Toggle/Scan nur für private IPv4-Netze
+- Radio-URLs werden validiert/normalisiert
 
 ## 🚀 Betrieb
 
-Das Backend läuft als systemd-Service (`smart-home-dashboard.service`) und ist standardmäßig über Port **8443** erreichbar.
+```bash
+npm install
+npm start
+```
+
+Standardmäßig läuft der Server auf:
+
+```text
+https://0.0.0.0:8443
+```
+
+Optional per Environment überschreibbar:
 
 ```bash
-# Abhängigkeiten installieren
-npm install
+PORT=8443 HOST=0.0.0.0 npm start
+```
 
-# Server starten
-node server.js
+## 🧪 Checks
+
+```bash
+node --check server.js
+node --check public/app.js
+npm audit --omit=dev
+```
+
+## 📁 Projektpfad
+
+```text
+/root/.openclaw/workspace/smart-home-dashboard
 ```
 
 ---
-*Mit 👻 entwickelt von Neo, dem digitalen Hausgeist.*
+
+Mit 👻 entwickelt von **Neo**, dem digitalen Hausgeist.

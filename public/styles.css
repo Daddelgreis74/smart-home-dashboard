@@ -150,6 +150,45 @@ body {
 /* Player */
 .player-layout { display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .audio-controls { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; }
+.radio-select {
+  width: 100%;
+  max-width: 260px;
+  background: rgba(0,0,0,0.35);
+  color: var(--text-main);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  padding: 9px 12px;
+  font-family: inherit;
+  font-size: 12px;
+  outline: none;
+}
+.radio-presets-widget {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  width: 100%;
+  margin: 6px 0 2px;
+}
+.radio-presets-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tasmota-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(0,0,0,0.3);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--panel-border);
+}
+.t-info { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.t-name { font-size: 13px; font-weight: 600; }
+.t-ip { font-size: 10px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 260px; }
+.t-btn.danger { background: rgba(239,68,68,0.15); color: #fca5a5; padding: 8px 10px; }
 .play-round-btn {
   width: 60px; height: 60px; border-radius: 50%;
   background: linear-gradient(135deg, var(--primary), #22c55e); 
@@ -223,6 +262,34 @@ body {
 .input-group input:focus, .setting-section input[type="text"]:focus { border-color: var(--text-muted); }
 .btn { background: var(--text-main); color: #000; border: none; padding: 12px 20px; border-radius: 100px; font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 0.2s, background 0.2s; }
 .btn:hover { transform: scale(1.05); background: var(--primary); }
+
+.preset-btn { 
+    border-radius: 8px !important; /* Viereckig mit leicht abgerundeten Ecken statt Pillen-Form */
+    background: rgba(255,255,255,0.1) !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    color: var(--text-main) !important;
+    padding: 4px !important;
+    width: 45px !important;
+    height: 45px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 0px !important;
+}
+
+.preset-btn strong { font-size: 16px; color: #fff; line-height: 1 !important; margin: 0; }
+.preset-btn span { color: rgba(255,255,255,0.8); line-height: 1 !important; margin: 0; }
+
+.preset-btn.assigned {
+  background: var(--primary) !important;
+  color: #000 !important;
+  border-width: 0 !important;
+  box-shadow: 0 0 10px rgba(0,255,136,0.3);
+}
+.preset-btn.assigned strong, .preset-btn.assigned span {
+    color: #000 !important;
+}
 .toggle-group { display: flex; flex-direction: column; gap: 15px; }
 .toggle-label { display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 300; cursor: pointer; }
 .toggle-label input { display: none; }
@@ -474,4 +541,1046 @@ body {
 .input-group input[type="text"]:focus {
     border-color: var(--primary-glow);
     background: rgba(255,255,255,0.08);
+}
+
+
+/* --- FULLY KIOSK TABLET FIT PATCH ---
+   Keep every widget inside the visible viewport. */
+html, body {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+body {
+  min-height: 100dvh;
+}
+
+.app-container {
+  height: 100dvh;
+  max-height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.header {
+  height: 58px;
+  min-height: 58px;
+  padding: 8px 18px 0;
+}
+
+.header-time {
+  font-size: clamp(32px, 3.4vw, 44px);
+}
+
+.header-right {
+  padding: 6px 14px;
+  gap: 14px;
+}
+
+.header-date {
+  font-size: clamp(12px, 1.2vw, 15px);
+}
+
+.dashboard {
+  min-height: 0;
+  height: calc(100dvh - 58px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 12px;
+  padding: 8px 18px 14px;
+  overflow: hidden;
+}
+
+.widget {
+  min-height: 0;
+  border-radius: 18px;
+}
+
+.widget-header {
+  min-height: 34px;
+  padding: 7px 12px 2px;
+}
+
+.widget-header h3 {
+  font-size: 11px;
+  letter-spacing: 0.7px;
+}
+
+.drag-handle {
+  padding: 6px 8px;
+  font-size: 16px;
+}
+
+.widget-body {
+  min-height: 0;
+  padding: 0 12px 10px;
+  overflow: hidden;
+}
+
+.weather-layout { justify-content: center; gap: 7px; }
+.weather-desc { font-size: 13px; }
+.weather-main { gap: 12px; margin: 0; }
+.weather-icon { font-size: clamp(30px, 3.6vw, 42px); }
+.weather-temp { font-size: clamp(36px, 4.4vw, 52px); }
+.weather-condition { font-size: 12px; margin-bottom: 0; }
+.weather-details { padding: 5px 10px; margin-bottom: 0; }
+
+.waste-list { justify-content: center; gap: 5px; }
+.waste-item { padding: 6px 9px; min-height: 0; }
+.waste-item span:first-child { font-size: 11px; }
+.waste-item span:last-child { font-size: 10px; }
+
+.system-layout { justify-content: center; gap: 7px; }
+.bar-row { margin-bottom: 0; }
+.segments { height: 7px; }
+
+.player-layout { justify-content: center; gap: 6px; }
+.radio-select { padding: 6px 10px; font-size: 11px; max-width: 240px; }
+.radio-presets-widget { gap: 5px; margin: 2px 0; }
+.preset-btn {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  font-size: 12px !important;
+}
+.preset-btn strong { font-size: 13px; }
+.preset-btn span { font-size: 8px !important; }
+.audio-controls { gap: 6px; }
+.play-round-btn { width: 38px; height: 38px; font-size: 14px; }
+.visualizer { height: 12px; }
+.visualizer .bar { width: 6px; }
+.volume-control { max-width: 220px; gap: 10px; font-size: 11px; }
+
+.tasmota-layout {
+  gap: 6px;
+  align-content: center;
+  overflow: hidden;
+}
+.tasmota-btn {
+  min-height: 36px;
+  padding: 6px 9px;
+  font-size: 11px;
+}
+
+@media (max-height: 760px) {
+  .header { height: 50px; min-height: 50px; padding-top: 6px; }
+  .dashboard { height: calc(100dvh - 50px); padding: 6px 14px 10px; gap: 10px; }
+  .widget-header { min-height: 28px; padding-top: 5px; }
+  .widget-body { padding-bottom: 7px; }
+  .weather-details { display: none; }
+  .visualizer { display: none; }
+  .radio-presets-widget { gap: 4px; }
+  .preset-btn { width: 32px !important; height: 32px !important; min-width: 32px !important; }
+}
+
+/* --- NEO AURORA COMMAND DECK v3 ---
+   Cinematic wall-panel redesign for Lenovo/Fully Kiosk. */
+:root {
+  --bg-color: #030711;
+  --panel-bg: rgba(9, 16, 31, 0.58);
+  --panel-border: rgba(170, 214, 255, 0.14);
+  --text-main: #f8fbff;
+  --text-muted: rgba(218, 232, 255, 0.58);
+  --primary: #55f5b1;
+  --primary-glow: rgba(85, 245, 177, 0.28);
+  --accent-blue: #66d9ff;
+  --accent-violet: #9f7aea;
+  --danger-soft: rgba(239, 68, 68, 0.18);
+  --radius-lg: 28px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+  --blur: blur(34px) saturate(145%);
+}
+
+html, body {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(85, 245, 177, 0.18), transparent 28%),
+    radial-gradient(circle at 82% 12%, rgba(102, 217, 255, 0.16), transparent 30%),
+    radial-gradient(circle at 55% 100%, rgba(159, 122, 234, 0.16), transparent 35%),
+    linear-gradient(145deg, #02040a 0%, #07111f 52%, #050816 100%);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.026) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(circle at center, black 0%, transparent 78%);
+}
+
+.bg-orbs { opacity: 0.72; mix-blend-mode: screen; }
+.orb { filter: blur(95px); opacity: 0.22; animation-duration: 28s; }
+.orb-1 { background: #00ffa3; width: 520px; height: 520px; top: -170px; left: 6%; }
+.orb-2 { background: #00b7ff; width: 560px; height: 560px; bottom: -190px; right: 9%; }
+.orb-3 { background: #7c3aed; width: 470px; height: 470px; top: 32%; left: 42%; }
+
+.app-container { position: relative; z-index: 2; padding: 0; }
+
+.header {
+  height: 64px;
+  min-height: 64px;
+  padding: 10px 22px 0;
+}
+
+.logo { gap: 18px; }
+.header-time {
+  font-size: clamp(38px, 4.3vw, 58px);
+  font-weight: 300;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, #ffffff 0%, #c8f7ff 42%, #55f5b1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 24px rgba(85,245,177,0.18));
+}
+.deck-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.05;
+  padding-left: 18px;
+  border-left: 1px solid rgba(255,255,255,0.12);
+}
+.deck-title span {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(248,251,255,0.92);
+}
+.deck-title small {
+  margin-top: 4px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+.header-right {
+  background: rgba(8, 16, 31, 0.58);
+  border: 1px solid rgba(170,214,255,0.13);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 12px 40px rgba(0,0,0,0.22);
+}
+.header-date { color: rgba(229, 241, 255, 0.7); }
+.settings-btn { color: rgba(248,251,255,0.88); }
+
+.dashboard {
+  height: calc(100dvh - 64px);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 14px;
+  padding: 10px 22px 18px;
+}
+
+.widget {
+  position: relative;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.075), rgba(255,255,255,0.028) 42%, rgba(4,10,22,0.45)),
+    var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.11),
+    inset 0 -1px 0 rgba(255,255,255,0.03),
+    0 22px 70px rgba(0,0,0,0.34);
+  overflow: hidden;
+}
+.widget::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(85,245,177,0.14), transparent 34%),
+    linear-gradient(135deg, rgba(255,255,255,0.07), transparent 38%);
+  opacity: 0.92;
+}
+.widget::after {
+  content: '';
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.42), transparent);
+  opacity: 0.75;
+}
+.widget > * { position: relative; z-index: 1; }
+
+.widget[data-type="weather"] { grid-column: span 2; grid-row: span 1; }
+.widget[data-type="waste"] { grid-column: span 2; grid-row: span 1; }
+.widget[data-type="system"] { grid-column: span 2; grid-row: span 1; }
+.widget[data-type="tasmota"] { grid-column: span 4; grid-row: span 1; }
+.widget[data-type="player"] { grid-column: span 2; grid-row: span 1; }
+
+.widget[data-type="tasmota"]::before {
+  background:
+    radial-gradient(circle at 8% 10%, rgba(85,245,177,0.2), transparent 30%),
+    radial-gradient(circle at 90% 80%, rgba(102,217,255,0.14), transparent 36%),
+    linear-gradient(135deg, rgba(255,255,255,0.08), transparent 42%);
+}
+.widget[data-type="player"]::before {
+  background:
+    radial-gradient(circle at 50% 10%, rgba(159,122,234,0.24), transparent 38%),
+    radial-gradient(circle at 10% 90%, rgba(85,245,177,0.12), transparent 36%);
+}
+
+.widget-header {
+  min-height: 38px;
+  padding: 10px 16px 2px;
+}
+.widget-header h3 {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: rgba(233,244,255,0.62);
+}
+.drag-handle { opacity: 0.42; }
+.widget-body { padding: 0 16px 14px; }
+
+/* Weather: premium hero card */
+.weather-layout { justify-content: center; gap: 8px; }
+.weather-desc {
+  font-size: 14px;
+  color: rgba(248,251,255,0.78);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.weather-main { gap: 16px; }
+.weather-icon { font-size: clamp(40px, 4.2vw, 62px); }
+.weather-temp {
+  font-size: clamp(52px, 6vw, 82px);
+  font-weight: 250;
+  letter-spacing: -4px;
+  text-shadow: 0 0 34px rgba(102,217,255,0.18);
+}
+.weather-condition { font-size: 14px; font-weight: 700; }
+.weather-details {
+  background: rgba(0,0,0,0.18);
+  border-color: rgba(255,255,255,0.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+/* Waste */
+.waste-list { gap: 7px; }
+.waste-item {
+  background: rgba(2,7,18,0.36);
+  border-color: rgba(255,255,255,0.075);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.045);
+}
+.waste-item span:first-child { font-size: 12px; }
+
+/* System */
+.system-layout { gap: 9px; }
+.bar-label { color: rgba(229,241,255,0.72); }
+.segments { height: 8px; gap: 4px; }
+.segment { background: rgba(255,255,255,0.09); border-radius: 999px; }
+.segment.c-green.active { background: linear-gradient(90deg, #37f39b, #a7ffd5); box-shadow: 0 0 13px rgba(85,245,177,0.68); }
+.segment.c-yellow.active { background: linear-gradient(90deg, #facc15, #fde68a); }
+.segment.c-red.active { background: linear-gradient(90deg, #ef4444, #fca5a5); }
+
+/* Smart Home: big tactile control bay */
+.tasmota-layout {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  align-content: center;
+}
+.tasmota-btn {
+  min-height: 58px;
+  justify-content: center;
+  flex-direction: column;
+  gap: 7px;
+  border-radius: 20px;
+  background: rgba(0,0,0,0.22);
+  border-color: rgba(255,255,255,0.08);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.tasmota-btn i { font-size: 22px; }
+.tasmota-btn.active {
+  background: linear-gradient(145deg, rgba(85,245,177,0.22), rgba(85,245,177,0.06));
+  border-color: rgba(85,245,177,0.58);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 0 28px rgba(85,245,177,0.16);
+}
+.tasmota-btn.active i { color: #75ffc1; }
+
+/* Radio: cockpit controls */
+.player-layout { gap: 8px; }
+.radio-select {
+  max-width: 100%;
+  background: rgba(0,0,0,0.26);
+  border-color: rgba(255,255,255,0.09);
+  color: rgba(248,251,255,0.92);
+}
+.radio-presets-widget { gap: 7px; }
+.preset-btn {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 12px !important;
+  background: rgba(255,255,255,0.07) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.preset-btn.assigned {
+  background: linear-gradient(145deg, #55f5b1, #66d9ff) !important;
+  box-shadow: 0 0 22px rgba(85,245,177,0.22);
+}
+.play-round-btn {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(145deg, #55f5b1 0%, #66d9ff 100%);
+  box-shadow: 0 0 34px rgba(85,245,177,0.24), inset 0 1px 0 rgba(255,255,255,0.38);
+}
+.visualizer .bar { border-radius: 999px; }
+.visualizer.active .bar { background: linear-gradient(180deg, #66d9ff, #55f5b1); }
+
+/* Settings panel matches the deck */
+.settings-overlay { background: rgba(0,0,0,0.54); }
+.settings-panel {
+  background: rgba(5, 10, 22, 0.88);
+  border-left-color: rgba(170,214,255,0.15);
+  box-shadow: -30px 0 90px rgba(0,0,0,0.42);
+}
+.accordion-header.active { color: #72ffc3; }
+
+@media (max-height: 760px) {
+  .header { height: 56px; min-height: 56px; }
+  .dashboard { height: calc(100dvh - 56px); gap: 10px; padding: 8px 16px 12px; }
+  .deck-title small { display: none; }
+  .weather-temp { font-size: clamp(42px, 5vw, 62px); }
+  .tasmota-btn { min-height: 44px; }
+}
+
+/* --- NEO DECK PREFERENCES CONSOLE --- */
+.settings-overlay {
+  background:
+    radial-gradient(circle at 72% 18%, rgba(85,245,177,0.13), transparent 26%),
+    radial-gradient(circle at 88% 82%, rgba(102,217,255,0.12), transparent 30%),
+    rgba(0,0,0,0.62);
+  backdrop-filter: blur(16px) saturate(120%);
+}
+
+.settings-panel {
+  width: min(520px, 92vw);
+  right: min(-520px, -92vw);
+  background:
+    linear-gradient(160deg, rgba(255,255,255,0.075), transparent 24%),
+    radial-gradient(circle at 18% 0%, rgba(85,245,177,0.13), transparent 34%),
+    rgba(3, 8, 20, 0.92);
+  border-left: 1px solid rgba(170,214,255,0.22);
+  box-shadow:
+    -44px 0 120px rgba(0,0,0,0.58),
+    inset 1px 0 0 rgba(255,255,255,0.08);
+  scrollbar-width: none;
+}
+
+.settings-panel::before {
+  content: '';
+  position: sticky;
+  top: 0;
+  display: block;
+  height: 2px;
+  z-index: 5;
+  background: linear-gradient(90deg, transparent, #55f5b1, #66d9ff, transparent);
+  box-shadow: 0 0 28px rgba(85,245,177,0.45);
+}
+
+.settings-header {
+  position: sticky;
+  top: 2px;
+  z-index: 4;
+  padding: 24px 26px 18px;
+  background: linear-gradient(180deg, rgba(3,8,20,0.96), rgba(3,8,20,0.78));
+  backdrop-filter: blur(28px) saturate(145%);
+  border-bottom: 1px solid rgba(255,255,255,0.075);
+}
+
+.settings-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #f8fbff;
+}
+.settings-header h2 i {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  color: #061012;
+  background: linear-gradient(145deg, #55f5b1, #66d9ff);
+  box-shadow: 0 0 30px rgba(85,245,177,0.23);
+}
+.settings-header p {
+  margin: 7px 0 0 50px;
+  font-size: 12px;
+  color: rgba(229,241,255,0.55);
+  letter-spacing: 0.04em;
+}
+.close-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(248,251,255,0.8);
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+.close-btn:hover {
+  transform: scale(1.04) rotate(3deg);
+  background: rgba(85,245,177,0.12);
+  color: #72ffc3;
+}
+
+.settings-content {
+  padding: 16px 22px 28px;
+}
+
+.setting-section {
+  position: relative;
+  margin-bottom: 12px !important;
+  border-radius: 22px;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.058), rgba(255,255,255,0.022)),
+    rgba(2, 8, 20, 0.42);
+  border: 1px solid rgba(170,214,255,0.11);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 14px 34px rgba(0,0,0,0.18);
+  overflow: hidden;
+}
+.setting-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 0% 0%, rgba(85,245,177,0.11), transparent 32%);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.setting-section:has(.accordion-header.active)::before { opacity: 1; }
+
+.accordion-header {
+  position: relative;
+  z-index: 1;
+  min-height: 58px;
+  padding: 14px 16px;
+  gap: 13px;
+  border-radius: 0;
+  color: rgba(239,247,255,0.84);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  background: transparent;
+}
+.accordion-header:hover { background: rgba(255,255,255,0.035); }
+.accordion-header i:first-child {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  color: #76ffd0;
+  background: rgba(85,245,177,0.09);
+  border: 1px solid rgba(85,245,177,0.16);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.accordion-header.active {
+  color: #ffffff;
+  text-shadow: 0 0 22px rgba(85,245,177,0.18);
+}
+.accordion-header.active i:first-child {
+  color: #061012;
+  background: linear-gradient(145deg, #55f5b1, #66d9ff);
+  box-shadow: 0 0 26px rgba(85,245,177,0.22);
+}
+.accordion-header .acc-icon {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.045);
+}
+
+.accordion-body {
+  position: relative;
+  z-index: 1;
+  padding: 0 16px;
+}
+.accordion-body.active-body {
+  padding: 0 16px 16px;
+  max-height: 920px;
+}
+.accordion-body p {
+  margin: 0 0 14px !important;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(102,217,255,0.055);
+  border: 1px solid rgba(102,217,255,0.09);
+  font-size: 12px !important;
+  line-height: 1.35;
+}
+.section-divider { display: none; }
+
+.toggle-group {
+  gap: 9px;
+}
+.toggle-label {
+  min-height: 48px;
+  padding: 10px 12px 10px 14px;
+  border-radius: 16px;
+  background: rgba(0,0,0,0.22);
+  border: 1px solid rgba(255,255,255,0.075);
+  color: rgba(248,251,255,0.82);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+.toggle-label:hover {
+  transform: translateX(-2px);
+  background: rgba(255,255,255,0.055);
+  border-color: rgba(85,245,177,0.16);
+}
+.toggle-switch {
+  width: 54px;
+  height: 30px;
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.1);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.38);
+}
+.toggle-switch::after {
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  background: rgba(229,241,255,0.52);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+}
+.toggle-label input:checked + .toggle-switch {
+  background: linear-gradient(90deg, #55f5b1, #66d9ff);
+  border-color: transparent;
+  box-shadow: 0 0 20px rgba(85,245,177,0.18);
+}
+.toggle-label input:checked + .toggle-switch::after {
+  background: #041014;
+  transform: translateX(24px);
+}
+
+.setting-section .input-group {
+  gap: 11px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.075);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.035);
+}
+.setting-sub-label {
+  margin: 0 0 2px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(114,255,195,0.78);
+}
+.input-group input,
+.setting-section input[type="text"],
+.input-group input[type="file"],
+.radio-presets-settings select {
+  min-height: 43px;
+  border-radius: 15px;
+  background: rgba(255,255,255,0.055);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #f8fbff;
+  padding: 11px 13px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+.input-group input:focus,
+.setting-section input[type="text"]:focus,
+.radio-presets-settings select:focus {
+  border-color: rgba(85,245,177,0.42);
+  background: rgba(85,245,177,0.065);
+  box-shadow: 0 0 0 3px rgba(85,245,177,0.08);
+}
+.input-group input[type="file"]::file-selector-button {
+  margin-right: 10px;
+  border: 0;
+  border-radius: 11px;
+  padding: 8px 11px;
+  color: #051013;
+  background: linear-gradient(145deg, #55f5b1, #66d9ff);
+  font-family: inherit;
+  font-weight: 800;
+}
+.btn {
+  min-height: 43px;
+  border-radius: 15px;
+  background: linear-gradient(145deg, #55f5b1, #66d9ff);
+  color: #031014;
+  box-shadow: 0 10px 26px rgba(85,245,177,0.16), inset 0 1px 0 rgba(255,255,255,0.35);
+}
+.btn:hover {
+  background: linear-gradient(145deg, #78ffd0, #8be4ff);
+  transform: translateY(-1px) scale(1.02);
+}
+
+.tasmota-list-settings,
+#radioList {
+  gap: 9px;
+  margin-top: 12px;
+}
+.tasmota-setting-item,
+.tasmota-row {
+  min-height: 50px;
+  border-radius: 17px;
+  background: rgba(255,255,255,0.045);
+  border: 1px solid rgba(255,255,255,0.09);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.tasmota-setting-item b,
+.t-name { color: rgba(248,251,255,0.94); }
+.tasmota-setting-item small,
+.t-ip { color: rgba(218,232,255,0.48); }
+.btn-del,
+.t-btn.danger {
+  width: 38px;
+  height: 38px;
+  border-radius: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(239,68,68,0.12);
+  border: 1px solid rgba(239,68,68,0.18);
+  color: #fca5a5;
+}
+
+.radio-presets-settings {
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(0,0,0,0.18);
+  border: 1px solid rgba(255,255,255,0.07);
+}
+.radio-presets-settings > div {
+  min-height: 44px;
+  padding: 6px 0;
+}
+.radio-presets-settings span {
+  color: rgba(248,251,255,0.78);
+  font-weight: 800;
+}
+
+@media (max-height: 760px) {
+  .settings-header { padding: 18px 22px 14px; }
+  .settings-header h2 { font-size: 21px; }
+  .settings-content { padding: 12px 16px 22px; }
+  .accordion-header { min-height: 50px; padding: 10px 14px; }
+  .accordion-header i:first-child { width: 32px; height: 32px; }
+  .toggle-label { min-height: 42px; }
+}
+
+/* --- WEATHER PRO DETAILS --- */
+.widget[data-type="weather"] {
+  grid-column: span 3;
+}
+
+.weather-layout {
+  gap: 6px;
+}
+
+.weather-details {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  padding: 7px;
+  background: rgba(0,0,0,0.16);
+}
+
+.w-detail {
+  min-width: 0;
+  gap: 2px;
+  padding: 6px 4px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.045);
+  border: 1px solid rgba(255,255,255,0.055);
+}
+
+.w-detail i {
+  font-size: 11px;
+  color: rgba(114,255,195,0.82);
+}
+
+.w-detail small {
+  display: block;
+  font-size: 8px;
+  line-height: 1;
+  color: rgba(218,232,255,0.46);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.w-detail span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  line-height: 1.05;
+  color: rgba(248,251,255,0.9);
+}
+
+@media (max-height: 760px) {
+  .weather-details {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    padding: 5px;
+  }
+  .w-detail {
+    padding: 4px 3px;
+  }
+  .w-detail small {
+    display: none;
+  }
+  .w-detail span {
+    font-size: 9px;
+  }
+}
+
+/* --- ADAPTIVE DASHBOARD GRID CLEANUP ---
+   The dashboard should feel arranged, not manually squeezed.
+   Keep exactly two visual rows on the Lenovo/Fully landscape viewport. */
+.dashboard {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  grid-auto-flow: row dense;
+  align-items: stretch;
+}
+
+/* Balanced 16:10 landscape composition:
+   Row 1: Weather | Waste | System
+   Row 2: Smart Home wide | Radio */
+.widget[data-type="weather"] { grid-column: span 2; grid-row: span 1; }
+.widget[data-type="waste"] { grid-column: span 2; grid-row: span 1; }
+.widget[data-type="system"] { grid-column: span 2; grid-row: span 1; }
+.widget[data-type="tasmota"] { grid-column: span 4; grid-row: span 1; }
+.widget[data-type="player"] { grid-column: span 2; grid-row: span 1; }
+
+/* Weather details stay rich, but no longer dominate the whole dashboard. */
+.weather-details {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  padding: 6px;
+}
+.w-detail {
+  padding: 5px 3px;
+}
+.w-detail i { font-size: 10px; }
+.w-detail small { font-size: 7px; }
+.w-detail span { font-size: 9px; }
+.weather-temp { font-size: clamp(42px, 4.7vw, 64px); }
+.weather-icon { font-size: clamp(34px, 3.8vw, 52px); }
+.weather-main { gap: 12px; }
+
+/* Very wide displays can give the weather more breathing room. */
+@media (min-aspect-ratio: 17/9) {
+  .dashboard { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  .widget[data-type="weather"] { grid-column: span 3; }
+  .widget[data-type="waste"] { grid-column: span 2; }
+  .widget[data-type="system"] { grid-column: span 3; }
+  .widget[data-type="tasmota"] { grid-column: span 5; }
+  .widget[data-type="player"] { grid-column: span 3; }
+}
+
+/* If Fully Kiosk reports a squatter viewport, compress contents but keep two rows. */
+@media (max-height: 760px) {
+  .dashboard {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
+  .widget[data-type="weather"],
+  .widget[data-type="waste"],
+  .widget[data-type="system"],
+  .widget[data-type="player"] { grid-column: span 2; }
+  .widget[data-type="tasmota"] { grid-column: span 4; }
+  .weather-details {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+  }
+  .w-detail i { display: none; }
+  .w-detail small { display: none; }
+}
+
+/* Portrait/fallback: let the dashboard scroll instead of cutting content. */
+@media (max-aspect-ratio: 4/3) {
+  body { overflow: hidden; }
+  .dashboard {
+    overflow-y: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: none;
+    grid-auto-rows: minmax(220px, auto);
+    padding-bottom: 18px;
+  }
+  .widget[data-type="weather"],
+  .widget[data-type="waste"],
+  .widget[data-type="system"],
+  .widget[data-type="tasmota"],
+  .widget[data-type="player"] {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+  .widget[data-type="tasmota"] { grid-column: span 2; }
+}
+
+/* --- WASTE WHEELIE BIN ICONS --- */
+.waste-title {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.bin-icon {
+  --bin-color: #94a3b8;
+  --bin-glow: rgba(148, 163, 184, 0.28);
+  position: relative;
+  width: 24px;
+  height: 28px;
+  flex: 0 0 24px;
+  display: inline-block;
+  filter: drop-shadow(0 0 8px var(--bin-glow));
+}
+
+.bin-lid {
+  position: absolute;
+  left: 3px;
+  top: 2px;
+  width: 18px;
+  height: 5px;
+  border-radius: 4px 4px 2px 2px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bin-color) 92%, white 8%), var(--bin-color));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.28);
+  transform: skewX(-8deg);
+}
+
+.bin-lid::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: -3px;
+  width: 7px;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: color-mix(in srgb, var(--bin-color) 82%, black 18%);
+}
+
+.bin-body {
+  position: absolute;
+  left: 4px;
+  top: 8px;
+  width: 16px;
+  height: 17px;
+  border-radius: 3px 3px 5px 5px;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--bin-color) 88%, white 12%), color-mix(in srgb, var(--bin-color) 78%, black 22%));
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: inset 2px 0 0 rgba(255,255,255,0.14), inset -2px 0 0 rgba(0,0,0,0.12);
+}
+
+.bin-body::before,
+.bin-body::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  width: 1px;
+  background: rgba(255,255,255,0.18);
+}
+.bin-body::before { left: 5px; }
+.bin-body::after { right: 5px; }
+
+.bin-wheel {
+  position: absolute;
+  bottom: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #05070c;
+  border: 1px solid rgba(255,255,255,0.24);
+}
+.bin-wheel.left { left: 5px; }
+.bin-wheel.right { right: 5px; }
+
+.bin-bio { --bin-color: #4ade80; --bin-glow: rgba(74, 222, 128, 0.35); }
+.bin-paper { --bin-color: #60a5fa; --bin-glow: rgba(96, 165, 250, 0.35); }
+.bin-plastic { --bin-color: #facc15; --bin-glow: rgba(250, 204, 21, 0.34); }
+.bin-residual { --bin-color: #94a3b8; --bin-glow: rgba(148, 163, 184, 0.28); }
+
+@media (max-height: 760px) {
+  .bin-icon {
+    width: 20px;
+    height: 23px;
+    flex-basis: 20px;
+  }
+  .bin-lid { left: 2px; width: 16px; height: 4px; }
+  .bin-body { left: 3px; top: 7px; width: 14px; height: 14px; }
+  .bin-wheel { width: 4px; height: 4px; }
+}
+
+/* --- RADIO WIDGET CLEANUP ---
+   Senderauswahl lebt nur noch in den Präferenzen; das Widget bleibt als Schnellbedienung. */
+.widget[data-type="player"] .player-layout {
+  justify-content: center;
+  gap: 12px;
+}
+
+.widget[data-type="player"] .radio-presets-widget {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  width: 100%;
+  max-width: 210px;
+  margin: 0 auto 2px;
+}
+
+.widget[data-type="player"] .preset-btn {
+  width: 100% !important;
+  height: 42px !important;
+  min-width: 0 !important;
+  border-radius: 14px !important;
+}
+
+.widget[data-type="player"] .audio-controls {
+  gap: 8px;
+}
+
+.widget[data-type="player"] .play-round-btn {
+  width: 48px;
+  height: 48px;
+}
+
+.widget[data-type="player"] .volume-control {
+  max-width: 230px;
+}
+
+@media (max-height: 760px) {
+  .widget[data-type="player"] .player-layout { gap: 8px; }
+  .widget[data-type="player"] .radio-presets-widget { gap: 6px; max-width: 190px; }
+  .widget[data-type="player"] .preset-btn { height: 34px !important; }
+  .widget[data-type="player"] .play-round-btn { width: 40px; height: 40px; }
 }

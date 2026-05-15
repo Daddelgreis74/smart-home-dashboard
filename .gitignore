@@ -1,5 +1,7 @@
 node_modules/
 uploads/
 tasmota.json
+radio.json
+ssl/
 .DS_Store
 *.log
