@@ -1737,8 +1737,26 @@ body::before {
   line-height: 1.25;
   white-space: pre-line;
 }
+.talk-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  width: min(100%, 230px);
+}
 .widget[data-type="talk"] .talk-btn {
-  width: min(100%, 150px);
+  flex: 1 1 0;
+  min-width: 0;
+  padding-inline: 10px;
+}
+.widget[data-type="talk"] .talk-btn.ghost {
+  background: rgba(255,255,255,0.07);
+  color: rgba(232,242,255,0.78);
+  border-color: rgba(255,255,255,0.12);
+  box-shadow: none;
+}
+.widget[data-type="talk"] .talk-btn.ghost:not(:disabled):hover {
+  background: rgba(102,217,255,0.13);
+  color: var(--text);
 }
 @media (max-height: 760px) {
   .talk-transcript {

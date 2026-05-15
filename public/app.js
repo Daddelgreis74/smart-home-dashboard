@@ -517,7 +517,9 @@ function initRadioWakeGuards() {
 
 let talkRecognition = null;
 let talkLastText = '';
+let talkLastReply = '';
 let talkEnabled = false;
+let talkTtsPrimed = false;
 
 function setTalkStatus(text, busy = false) {
   const status = document.getElementById('talkStatus');
@@ -531,15 +533,50 @@ function setTalkTranscript(text) {
   if(box) box.textContent = text || 'Bereit.';
 }
 
+function getTalkVoice() {
+  if(!('speechSynthesis' in window)) return null;
+  const voices = window.speechSynthesis.getVoices() || [];
+  return voices.find(v => /^de[-_]/i.test(v.lang || '')) || voices[0] || null;
+}
+
+function primeTalkTts() {
+  if(talkTtsPrimed || localStorage.getItem('talkSpeechEnabled') === 'false') return;
+  if(!('speechSynthesis' in window) || !window.SpeechSynthesisUtterance) return;
+  try {
+    const unlock = new SpeechSynthesisUtterance(' ');
+    unlock.lang = 'de-DE';
+    unlock.volume = 0.01;
+    unlock.rate = 1;
+    unlock.pitch = 1;
+    const voice = getTalkVoice();
+    if(voice) unlock.voice = voice;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(unlock);
+    talkTtsPrimed = true;
+  } catch(e) {}
+}
+
 function speakTalkReply(text) {
-  if(localStorage.getItem('talkSpeechEnabled') === 'false') return;
-  if(!('speechSynthesis' in window) || !text) return;
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'de-DE';
-  utterance.rate = 1;
-  utterance.pitch = 1;
-  window.speechSynthesis.speak(utterance);
+  if(localStorage.getItem('talkSpeechEnabled') === 'false') return false;
+  if(!('speechSynthesis' in window) || !window.SpeechSynthesisUtterance || !text) return false;
+  try {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'de-DE';
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    const voice = getTalkVoice();
+    if(voice) utterance.voice = voice;
+    utterance.onstart = () => setTalkStatus('Neo spricht ...');
+    utterance.onend = () => setTalkStatus('Drücken und sprechen');
+    utterance.onerror = () => setTalkStatus('TTS blockiert – Nochmal tippen');
+    window.speechSynthesis.speak(utterance);
+    return true;
+  } catch(e) {
+    setTalkStatus('TTS nicht verfügbar');
+    return false;
+  }
 }
 
 async function sendTalkText(text) {
@@ -558,9 +595,12 @@ async function sendTalkText(text) {
     const data = await res.json();
     if(!res.ok || !data.success) throw new Error(data.error || 'Neo Talk fehlgeschlagen');
     const reply = data.reply || 'Ich habe keine Antwort bekommen.';
+    talkLastReply = reply;
+    const replayBtn = document.getElementById('replayTalkBtn');
+    if(replayBtn) replayBtn.disabled = false;
     setTalkTranscript(`Du: ${data.text}\nNeo: ${reply}`);
     setTalkStatus('Antwort wird vorgelesen');
-    speakTalkReply(reply);
+    if(!speakTalkReply(reply)) setTalkStatus('Antwort da – Nochmal tippen');
   } catch(e) {
     setTalkStatus('Fehler');
     setTalkTranscript(e.message || 'Neo konnte gerade nicht antworten.');
@@ -613,6 +653,7 @@ function initSpeechRecognition() {
 async function initTalkWidget() {
   const micBtn = document.getElementById('talkMicBtn');
   const sendBtn = document.getElementById('sendTalkBtn');
+  const replayBtn = document.getElementById('replayTalkBtn');
   if(!micBtn) return;
   try {
     const res = await fetch('/api/talk-config');
@@ -624,6 +665,7 @@ async function initTalkWidget() {
   if(!talkEnabled) {
     micBtn.disabled = true;
     if(sendBtn) sendBtn.disabled = true;
+    if(replayBtn) replayBtn.disabled = true;
     setTalkStatus('Serverseitig deaktiviert');
     setTalkTranscript('Neo Talk muss lokal auf dem Dashboard-Server aktiviert werden.');
     return;
@@ -633,12 +675,26 @@ async function initTalkWidget() {
     micBtn.disabled = true;
     return;
   }
+  if('speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = () => getTalkVoice();
+  }
   micBtn.addEventListener('click', () => {
+    primeTalkTts();
     talkLastText = '';
     setTalkTranscript('Höre zu ...');
     try { talkRecognition.start(); } catch(e) {}
   });
-  if(sendBtn) sendBtn.addEventListener('click', () => sendTalkText(talkLastText));
+  if(sendBtn) sendBtn.addEventListener('click', () => {
+    primeTalkTts();
+    sendTalkText(talkLastText);
+  });
+  if(replayBtn) replayBtn.addEventListener('click', () => {
+    primeTalkTts();
+    if(talkLastReply) {
+      setTalkStatus('Antwort wird erneut vorgelesen');
+      speakTalkReply(talkLastReply);
+    }
+  });
 }
 
 function initAudioPlayer() {
