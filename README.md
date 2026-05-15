@@ -101,6 +101,13 @@ OPENCLAW_VOICE_TIMEOUT_MS=120000
 OPENCLAW_CLI=/root/.npm-global/bin/openclaw
 ```
 
+Für Tablets, bei denen Browser-`speechSynthesis` in Fully/WebView stumm bleibt, kann das Backend optional Fullys eigene Remote-Admin-TTS-API nutzen. Das Passwort bleibt lokal in der Server-Umgebung und gehört nicht ins Repo:
+
+```bash
+FULLY_TTS_URL=http://tablet-ip:2323
+FULLY_TTS_PASSWORD=your-local-fully-password
+```
+
 ## 🧪 Checks
 
 ```bash

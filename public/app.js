@@ -520,6 +520,7 @@ let talkLastText = '';
 let talkLastReply = '';
 let talkEnabled = false;
 let talkTtsPrimed = false;
+let talkTtsMode = 'browser';
 
 function setTalkStatus(text, busy = false) {
   const status = document.getElementById('talkStatus');
@@ -579,6 +580,30 @@ function speakTalkReply(text) {
   }
 }
 
+async function replayTalkReply() {
+  if(!talkLastReply) return;
+  if(talkTtsMode === 'fully') {
+    if(localStorage.getItem('talkSpeechEnabled') === 'false') return;
+    setTalkStatus('Antwort wird erneut vorgelesen');
+    try {
+      const res = await fetch('/api/neo-talk/speak', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: talkLastReply })
+      });
+      const data = await res.json();
+      if(!res.ok || !data.success) throw new Error(data.error || 'Fully TTS fehlgeschlagen');
+      setTalkStatus('Drücken und sprechen');
+    } catch(e) {
+      setTalkStatus('Fully TTS Fehler');
+    }
+    return;
+  }
+  primeTalkTts();
+  setTalkStatus('Antwort wird erneut vorgelesen');
+  speakTalkReply(talkLastReply);
+}
+
 async function sendTalkText(text) {
   const sendBtn = document.getElementById('sendTalkBtn');
   const micBtn = document.getElementById('talkMicBtn');
@@ -590,7 +615,10 @@ async function sendTalkText(text) {
     const res = await fetch('/api/neo-talk', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text })
+      body: JSON.stringify({
+        text,
+        speak: localStorage.getItem('talkSpeechEnabled') !== 'false'
+      })
     });
     const data = await res.json();
     if(!res.ok || !data.success) throw new Error(data.error || 'Neo Talk fehlgeschlagen');
@@ -599,8 +627,12 @@ async function sendTalkText(text) {
     const replayBtn = document.getElementById('replayTalkBtn');
     if(replayBtn) replayBtn.disabled = false;
     setTalkTranscript(`Du: ${data.text}\nNeo: ${reply}`);
-    setTalkStatus('Antwort wird vorgelesen');
-    if(!speakTalkReply(reply)) setTalkStatus('Antwort da – Nochmal tippen');
+    if(talkTtsMode === 'fully') {
+      setTalkStatus(data.tts?.ok ? 'Antwort wird vom Tablet vorgelesen' : 'Antwort da – Nochmal tippen');
+    } else {
+      setTalkStatus('Antwort wird vorgelesen');
+      if(!speakTalkReply(reply)) setTalkStatus('Antwort da – Nochmal tippen');
+    }
   } catch(e) {
     setTalkStatus('Fehler');
     setTalkTranscript(e.message || 'Neo konnte gerade nicht antworten.');
@@ -659,6 +691,7 @@ async function initTalkWidget() {
     const res = await fetch('/api/talk-config');
     const cfg = await res.json();
     talkEnabled = !!cfg.enabled;
+    talkTtsMode = cfg.ttsMode || 'browser';
   } catch(e) {
     talkEnabled = false;
   }
@@ -679,21 +712,17 @@ async function initTalkWidget() {
     window.speechSynthesis.onvoiceschanged = () => getTalkVoice();
   }
   micBtn.addEventListener('click', () => {
-    primeTalkTts();
+    if(talkTtsMode !== 'fully') primeTalkTts();
     talkLastText = '';
     setTalkTranscript('Höre zu ...');
     try { talkRecognition.start(); } catch(e) {}
   });
   if(sendBtn) sendBtn.addEventListener('click', () => {
-    primeTalkTts();
+    if(talkTtsMode !== 'fully') primeTalkTts();
     sendTalkText(talkLastText);
   });
   if(replayBtn) replayBtn.addEventListener('click', () => {
-    primeTalkTts();
-    if(talkLastReply) {
-      setTalkStatus('Antwort wird erneut vorgelesen');
-      speakTalkReply(talkLastReply);
-    }
+    replayTalkReply();
   });
 }
 

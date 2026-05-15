@@ -20,6 +20,9 @@ const VOICE_TALK_TIMEOUT_MS = Math.max(10_000, Number(process.env.OPENCLAW_VOICE
 const OPENCLAW_CLI = (process.env.OPENCLAW_CLI && process.env.OPENCLAW_CLI !== '1')
   ? process.env.OPENCLAW_CLI
   : '/root/.npm-global/bin/openclaw';
+const FULLY_TTS_URL = String(process.env.FULLY_TTS_URL || '').replace(/\/+$/, '');
+const FULLY_TTS_PASSWORD = process.env.FULLY_TTS_PASSWORD || '';
+const FULLY_TTS_ENABLED = /^https?:\/\//i.test(FULLY_TTS_URL) && FULLY_TTS_PASSWORD.length > 0;
 
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
@@ -146,6 +149,24 @@ function askOpenClaw(message) {
   });
 }
 
+async function speakWithFully(text) {
+  if (!FULLY_TTS_ENABLED || !text) return { mode: 'browser', ok: false, skipped: true };
+  const params = new URLSearchParams({
+    cmd: 'textToSpeech',
+    type: 'json',
+    password: FULLY_TTS_PASSWORD,
+    text: String(text).slice(0, 1200),
+    queue: '0'
+  });
+  const response = await fetch(`${FULLY_TTS_URL}/?${params.toString()}`, {
+    signal: AbortSignal.timeout(10_000)
+  });
+  if (!response.ok) throw new Error(`Fully TTS HTTP ${response.status}`);
+  const data = await response.json().catch(() => ({}));
+  if (data.status && data.status !== 'OK') throw new Error(data.statustext || 'Fully TTS fehlgeschlagen');
+  return { mode: 'fully', ok: true };
+}
+
 // Tasmota Backup Memory (RAM)
 let tasmotaRAM = [];
 
@@ -220,7 +241,27 @@ app.get('/api/ics-data', (req, res) => {
 
 // ==== NEO VOICE TALK ====
 app.get('/api/talk-config', (req, res) => {
-  res.json({ enabled: VOICE_TALK_ENABLED, session: VOICE_TALK_SESSION });
+  res.json({
+    enabled: VOICE_TALK_ENABLED,
+    session: VOICE_TALK_SESSION,
+    ttsMode: FULLY_TTS_ENABLED ? 'fully' : 'browser'
+  });
+});
+
+app.post('/api/neo-talk/speak', async (req, res) => {
+  if (!VOICE_TALK_ENABLED) {
+    return res.status(403).json({ success: false, error: 'Neo Talk ist serverseitig nicht aktiviert.' });
+  }
+  const text = String(req.body?.text || '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 1200);
+  if (!text) return res.status(400).json({ success: false, error: 'Kein Text zum Vorlesen.' });
+  try {
+    const tts = await speakWithFully(text);
+    if (tts.mode !== 'fully') return res.status(400).json({ success: false, error: 'Fully TTS ist nicht konfiguriert.' });
+    res.json({ success: true, tts });
+  } catch (e) {
+    console.error('Fully TTS Error:', e.message);
+    res.status(500).json({ success: false, error: 'Fully konnte den Text gerade nicht vorlesen.' });
+  }
 });
 
 app.post('/api/neo-talk', async (req, res) => {
@@ -231,7 +272,16 @@ app.post('/api/neo-talk', async (req, res) => {
   if (!text) return res.status(400).json({ success: false, error: 'Keine Spracheingabe erkannt.' });
   try {
     const reply = await askOpenClaw(text);
-    res.json({ success: true, text, reply });
+    let tts = { mode: FULLY_TTS_ENABLED ? 'fully' : 'browser', ok: false, skipped: true };
+    if (FULLY_TTS_ENABLED && req.body?.speak !== false) {
+      try {
+        tts = await speakWithFully(reply);
+      } catch (e) {
+        console.error('Fully TTS Error:', e.message);
+        tts = { mode: 'fully', ok: false, error: 'Fully konnte den Text gerade nicht vorlesen.' };
+      }
+    }
+    res.json({ success: true, text, reply, tts });
   } catch (e) {
     console.error('Neo Talk Error:', e.message);
     res.status(500).json({ success: false, error: 'Neo konnte gerade nicht antworten.' });
