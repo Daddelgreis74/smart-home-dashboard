@@ -917,8 +917,13 @@ window.toggleTasmota = async function(ip) {
     });
     const data = await res.json();
     if(data.success) {
-      if(data.state === 'ON') btn.classList.add('active');
-      else btn.classList.remove('active');
+      if(data.state === 'ON') {
+        btn.classList.add('active');
+        btn.classList.remove('off');
+      } else {
+        btn.classList.remove('active');
+        btn.classList.add('off');
+      }
     }
   } catch(e) {}
   
@@ -973,11 +978,16 @@ async function refreshTasmotaStatus() {
     statusArray.forEach(s => {
       const btn = document.getElementById('tasmota-btn-' + s.ip.replace(/\./g, '-'));
       if(btn) {
-        if(!s.online) { btn.classList.remove('active'); btn.style.opacity = '0.5'; }
+        if(!s.online) { btn.classList.remove('active', 'off'); btn.style.opacity = '0.5'; }
         else {
           btn.style.opacity = '1';
-          if(s.state === 'ON') btn.classList.add('active');
-          else btn.classList.remove('active');
+          if(s.state === 'ON') {
+            btn.classList.add('active');
+            btn.classList.remove('off');
+          } else {
+            btn.classList.remove('active');
+            btn.classList.add('off');
+          }
         }
       }
     });
