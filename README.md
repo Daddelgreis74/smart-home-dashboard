@@ -10,7 +10,8 @@ Ein modernes Smart-Home-Wandpanel für ein **Lenovo Tab M10 FHD Plus (10.3", 192
 - **Adaptive Widgets:** Layout passt sich besser an Seitenverhältnis und Fully-Kiosk-Viewport an, statt unten Inhalte abzuschneiden.
 - **Wetter Pro:** Open-Meteo Daten mit Temperatur, Gefühlter Temperatur, Min/Max, Luftfeuchte, Regenwahrscheinlichkeit, Wind, Luftdruck, Wolken und UV-Index.
 - **Smart Home / Tasmota:** lokale Geräteverwaltung, Scan im privaten Heimnetz, Toggle-Buttons mit Statusanzeige und Offline-Dimmung.
-- **Abfallkalender:** `.ics` Upload, kommende Leerungen und farbige Mülltonnen-Icons für Bio, Papier, Gelb/Plastik und Restmüll.
+- **AM2301 Klima-Sensor:** eigenes Tasmota-Sensor-Widget mit Temperatur-/Feuchte-Gauges, Taupunkt und konfigurierbarer lokaler IP.
+- **Abfallkalender:** `.ics` Upload, kommende Leerungen, farbige Mülltonnen-Icons und kalendertagsgenaue Heute/Morgen-Anzeige ohne Uhrzeit-Versatz.
 - **Live Radio:** Preset-Tasten im Dashboard, Senderverwaltung in den Präferenzen, HLS/MP3/AAC-Unterstützung und Schutz gegen ungewollten Autostart beim Tablet-Wakeup.
 - **Neo Talk:** Mikrofon-Widget für Speech-to-Text im Browser, Antwort über lokale OpenClaw-Anbindung und Text-to-Speech auf dem Tablet.
 - **System Status:** Live CPU/RAM/Temperatur/Netzwerk per Socket.IO.
@@ -23,6 +24,7 @@ Ein modernes Smart-Home-Wandpanel für ein **Lenovo Tab M10 FHD Plus (10.3", 192
 
 - sichtbare Widgets
 - Tasmota-Geräte und Subnetz-Scan
+- AM2301/Tasmota-Klima-Sensor-IP
 - Abfallkalender-Upload
 - Wetterstandort
 - Radio-Sender und Preset-Tasten
@@ -63,8 +65,22 @@ Backend-Härtungen:
 
 - JSON Body-Limit
 - `.ics` Upload-Limit und Dateifilter
-- Tasmota Toggle/Scan nur für private IPv4-Netze
+- Tasmota Toggle/Scan/Sensor-Abfrage nur für private IPv4-Netze
 - Radio-URLs werden validiert/normalisiert
+
+## 🗓️ Abfallkalender-Datumslogik
+
+Ganztägige `.ics` Termine werden als lokale Kalendertage verglichen. Dadurch wird z.B. eine morgige Leerung morgens nicht mehr fälschlich als „Heute“ angezeigt, nur weil die aktuelle Uhrzeit bereits nach `00:00` liegt.
+
+## 🌡️ AM2301/Tasmota Klima-Sensor
+
+Das Sensor-Widget fragt lokal einen Tasmota-Endpunkt ab:
+
+```text
+GET /api/tasmota/sensor?ip=192.168.178.40
+```
+
+Die IP ist im Präferenzen-Menü änderbar und wird im Browser per `localStorage` gespeichert. Das Backend akzeptiert bewusst nur private IPv4-Adressen.
 
 ## 🚀 Betrieb
 

@@ -1590,12 +1590,12 @@ body::before {
   grid-template-columns: repeat(12, minmax(0, 1fr));
   grid-template-rows: repeat(2, minmax(0, 1fr));
 }
-.widget[data-type="weather"] { order: 1; grid-column: span 4; grid-row: span 1; }
-.widget[data-type="waste"] { order: 2; grid-column: span 4; grid-row: span 1; }
-.widget[data-type="system"] { order: 3; grid-column: span 4; grid-row: span 1; }
-.widget[data-type="tasmota"] { order: 4; grid-column: span 6; grid-row: span 1; }
-.widget[data-type="player"] { order: 5; grid-column: span 3; grid-row: span 1; }
-.widget[data-type="talk"] { order: 6; grid-column: span 3; grid-row: span 1; }
+.widget[data-type="weather"] { grid-column: span 4; grid-row: span 1; }
+.widget[data-type="waste"] { grid-column: span 4; grid-row: span 1; }
+.widget[data-type="system"] { grid-column: span 4; grid-row: span 1; }
+.widget[data-type="tasmota"] { grid-column: span 6; grid-row: span 1; }
+.widget[data-type="player"] { grid-column: span 3; grid-row: span 1; }
+.widget[data-type="talk"] { grid-column: span 3; grid-row: span 1; }
 
 .widget[data-type="talk"]::before {
   background:
@@ -1777,4 +1777,135 @@ body::before {
 .tasmota-btn.off i {
   color: #ff8b8b;
   filter: drop-shadow(0 0 8px rgba(239,68,68,0.88));
+}
+
+/* --- AM2301 TASMOTA SENSOR GAUGES --- */
+.widget[data-type="weather"] { grid-column: span 3; grid-row: span 1; }
+.widget[data-type="waste"] { grid-column: span 3; grid-row: span 1; }
+.widget[data-type="system"] { grid-column: span 3; grid-row: span 1; }
+.widget[data-type="sensor"] { grid-column: span 3; grid-row: span 1; }
+.widget[data-type="tasmota"] { grid-column: span 6; grid-row: span 1; }
+.widget[data-type="player"] { grid-column: span 3; grid-row: span 1; }
+.widget[data-type="talk"] { grid-column: span 3; grid-row: span 1; }
+
+.widget[data-type="sensor"]::before {
+  background:
+    radial-gradient(circle at 50% 8%, rgba(102,217,255,0.22), transparent 36%),
+    radial-gradient(circle at 12% 92%, rgba(85,245,177,0.16), transparent 34%),
+    linear-gradient(135deg, rgba(255,255,255,0.08), transparent 42%);
+}
+
+.sensor-layout {
+  justify-content: center;
+  gap: 10px;
+}
+
+.sensor-gauges {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: center;
+}
+
+.sensor-gauge {
+  --value: 0;
+  --sweep: 0%;
+  --color: #55f5b1;
+  position: relative;
+  width: min(100%, 122px);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at center, rgba(3,8,20,0.96) 0 52%, transparent 53%),
+    conic-gradient(from 225deg, var(--color) 0 var(--sweep), rgba(255,255,255,0.09) 0 75%, transparent 75% 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    0 0 28px color-mix(in srgb, var(--color) 26%, transparent);
+}
+
+.sensor-gauge::before {
+  content: '';
+  position: absolute;
+  inset: 9px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: radial-gradient(circle at 50% 25%, rgba(255,255,255,0.08), rgba(255,255,255,0.02) 54%, rgba(0,0,0,0.18));
+}
+
+.gauge-core {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  text-align: center;
+}
+
+.gauge-core i {
+  color: var(--color);
+  font-size: 15px;
+  filter: drop-shadow(0 0 8px var(--color));
+}
+
+.gauge-core strong {
+  font-size: clamp(20px, 2.4vw, 32px);
+  line-height: 0.95;
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.gauge-core small {
+  font-size: 9px;
+  line-height: 1;
+  color: rgba(218,232,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.sensor-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.07);
+  color: rgba(218,232,255,0.62);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@media (max-height: 760px) {
+  .widget[data-type="weather"],
+  .widget[data-type="waste"],
+  .widget[data-type="system"],
+  .widget[data-type="sensor"],
+  .widget[data-type="player"],
+  .widget[data-type="talk"] { grid-column: span 3; }
+  .widget[data-type="tasmota"] { grid-column: span 6; }
+  .sensor-layout { gap: 6px; }
+  .sensor-gauges { gap: 8px; }
+  .sensor-gauge { width: min(100%, 92px); }
+  .sensor-gauge::before { inset: 7px; }
+  .gauge-core i { display: none; }
+  .gauge-core strong { font-size: 20px; }
+  .gauge-core small { font-size: 7px; }
+  .sensor-meta { padding: 5px 8px; font-size: 8px; }
+}
+
+@media (max-aspect-ratio: 4/3) {
+  .widget[data-type="weather"],
+  .widget[data-type="waste"],
+  .widget[data-type="system"],
+  .widget[data-type="sensor"],
+  .widget[data-type="player"],
+  .widget[data-type="talk"] { grid-column: span 1; }
+  .widget[data-type="tasmota"] { grid-column: span 2; }
 }

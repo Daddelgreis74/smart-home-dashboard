@@ -22,6 +22,7 @@ function init() {
   initAudioPlayer();
   initRadioWakeGuards();
   initTalkWidget();
+  initSensorWidget();
   initSystemBargraph();
   initTasmota();
 }
@@ -258,7 +259,11 @@ function loadSavedSettings() {
     });
   }
 
-  ['weather', 'waste', 'player', 'talk', 'system', 'tasmota'].forEach(type => {
+  const savedSensorIp = localStorage.getItem('sensorIp') || '192.168.178.40';
+  const sensorIpInput = document.getElementById('sensorIp');
+  if(sensorIpInput) sensorIpInput.value = savedSensorIp;
+
+  ['weather', 'waste', 'player', 'talk', 'sensor', 'system', 'tasmota'].forEach(type => {
     const isVisible = localStorage.getItem('show_' + type) !== 'false';
     const widget = document.querySelector(`.widget[data-type="${type}"]`);
     const toggle = document.getElementById('toggle-' + type);
@@ -356,7 +361,19 @@ function initSettings() {
     talkSpeechToggle.addEventListener('change', e => localStorage.setItem('talkSpeechEnabled', e.target.checked ? 'true' : 'false'));
   }
 
-  ['weather', 'waste', 'player', 'talk', 'system', 'tasmota'].forEach(type => {
+  const updateSensorIp = document.getElementById('updateSensorIp');
+  if(updateSensorIp) {
+    updateSensorIp.addEventListener('click', () => {
+      const input = document.getElementById('sensorIp');
+      const ip = input ? input.value.trim() : '';
+      if(ip) {
+        localStorage.setItem('sensorIp', ip);
+        refreshSensorWidget();
+      }
+    });
+  }
+
+  ['weather', 'waste', 'player', 'talk', 'sensor', 'system', 'tasmota'].forEach(type => {
     const toggle = document.getElementById('toggle-' + type);
     if(toggle) {
       toggle.addEventListener('change', (e) => {
@@ -440,7 +457,8 @@ async function loadICS() {
       const list = document.getElementById('wasteBody');
       if(!list) return;
       
-      const today = new Date();
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const todayStr = today.getFullYear() + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
       const upcoming = events.filter(e => e.date >= todayStr).slice(0, 4);
       
@@ -452,7 +470,9 @@ async function loadICS() {
         let type = 'residual'; const s = e.summary.toLowerCase();
         if(s.includes('bio')) type = 'bio'; else if(s.includes('papier')) type = 'paper'; else if(s.includes('gelb')||s.includes('plastik')) type = 'plastic';
         let dateStr = dt.toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' });
-        const diff = Math.floor((dt - today) / (1000 * 60 * 60 * 24));
+        // Compare calendar days, not the current clock time. Otherwise tomorrow
+        // before the current time-of-day was shown as "Heute".
+        const diff = Math.round((dt - today) / (1000 * 60 * 60 * 24));
         if(diff === 0) dateStr = 'Heute'; else if(diff === 1) dateStr = 'Morgen';
 
         html += `
@@ -798,6 +818,57 @@ function playAudioStream(url, autoPlay = false) {
           stopRadioPlayback(true);
       });
   }
+}
+
+function clampNumber(value, min, max) {
+  const n = Number(value);
+  if(!Number.isFinite(n)) return min;
+  return Math.max(min, Math.min(max, n));
+}
+
+function setGauge(id, value, min, max) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  const pct = ((clampNumber(value, min, max) - min) / (max - min)) * 100;
+  el.style.setProperty('--value', pct.toFixed(1));
+  el.style.setProperty('--sweep', `${(pct * 0.75).toFixed(1)}%`);
+}
+
+async function refreshSensorWidget() {
+  const status = document.getElementById('sensorStatus');
+  const tempEl = document.getElementById('sensorTemp');
+  const humidityEl = document.getElementById('sensorHumidity');
+  const dewEl = document.getElementById('sensorDew');
+  if(!tempEl || !humidityEl) return;
+
+  const ip = localStorage.getItem('sensorIp') || '192.168.178.40';
+  try {
+    const res = await fetch(`/api/tasmota/sensor?ip=${encodeURIComponent(ip)}`);
+    const data = await res.json();
+    if(!data.success) throw new Error(data.error || 'Sensor nicht erreichbar');
+
+    const temp = Number(data.temperature);
+    const humidity = Number(data.humidity);
+    const dew = Number(data.dewPoint);
+    tempEl.textContent = Number.isFinite(temp) ? `${temp.toFixed(1)}°` : '--°';
+    humidityEl.textContent = Number.isFinite(humidity) ? `${humidity.toFixed(0)}%` : '--%';
+    if(dewEl) dewEl.textContent = Number.isFinite(dew) ? `Taupunkt ${dew.toFixed(1)}°` : 'Taupunkt --°';
+    if(status) status.textContent = data.time ? data.time.slice(11, 16) : ip;
+    setGauge('tempGauge', temp, -10, 40);
+    setGauge('humidityGauge', humidity, 0, 100);
+  } catch(e) {
+    tempEl.textContent = '--°';
+    humidityEl.textContent = '--%';
+    if(dewEl) dewEl.textContent = 'Taupunkt --°';
+    if(status) status.textContent = 'offline';
+    setGauge('tempGauge', 0, -10, 40);
+    setGauge('humidityGauge', 0, 0, 100);
+  }
+}
+
+function initSensorWidget() {
+  refreshSensorWidget();
+  setInterval(refreshSensorWidget, 15000);
 }
 
 function initSystemBargraph() {

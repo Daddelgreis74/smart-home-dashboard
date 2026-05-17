@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=tasmota-off-red-20260515-1">
+  <link rel="stylesheet" href="styles.css?v=am2301-gauge-20260516-2">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
@@ -55,6 +55,7 @@
                 <label class="toggle-label"><span>Abfallkalender</span><input type="checkbox" id="toggle-waste" checked><div class="toggle-switch"></div></label>
                 <label class="toggle-label"><span>Live Radio</span><input type="checkbox" id="toggle-player" checked><div class="toggle-switch"></div></label>
                 <label class="toggle-label"><span>Neo Talk</span><input type="checkbox" id="toggle-talk" checked><div class="toggle-switch"></div></label>
+                <label class="toggle-label"><span>Tasmota Klima-Sensor</span><input type="checkbox" id="toggle-sensor" checked><div class="toggle-switch"></div></label>
                 <label class="toggle-label"><span>System Status</span><input type="checkbox" id="toggle-system" checked><div class="toggle-switch"></div></label>
                 <label class="toggle-label"><span>Tasmota Geräte</span><input type="checkbox" id="toggle-tasmota" checked><div class="toggle-switch"></div></label>
               </div>
@@ -86,7 +87,22 @@
             <div class="section-divider"></div>
           </div>
 
-          <!-- 3. ABFALLKALENDER -->
+          <!-- 3. TASMOTA AM2301 SENSOR -->
+          <div class="setting-section">
+            <h3 class="accordion-header"><i class="fas fa-gauge-high"></i> Tasmota Klima-Sensor <i class="fas fa-chevron-down acc-icon"></i></h3>
+            <div class="accordion-body">
+              <div class="input-group">
+                <label class="setting-sub-label">AM2301 HTTP-Adresse:</label>
+                <div style="display:flex; gap: 8px;">
+                  <input type="text" id="sensorIp" value="192.168.178.40" placeholder="192.168.178.40">
+                  <button class="btn" id="updateSensorIp">Speichern</button>
+                </div>
+              </div>
+            </div>
+            <div class="section-divider"></div>
+          </div>
+
+          <!-- 4. ABFALLKALENDER -->
           <div class="setting-section">
             <h3 class="accordion-header"><i class="fas fa-trash-can"></i> Abfallkalender Sync <i class="fas fa-chevron-down acc-icon"></i></h3>
             <div class="accordion-body">
@@ -101,7 +117,7 @@
             <div class="section-divider"></div>
           </div>
 
-          <!-- 4. LOKALES WETTER -->
+          <!-- 5. LOKALES WETTER -->
           <div class="setting-section">
             <h3 class="accordion-header"><i class="fas fa-cloud-sun"></i> Wetter & Standort <i class="fas fa-chevron-down acc-icon"></i></h3>
             <div class="accordion-body">
@@ -115,7 +131,7 @@
             <div class="section-divider"></div>
           </div>
 
-          <!-- 5. LIVE RADIO -->
+          <!-- 6. LIVE RADIO -->
           <div class="setting-section">
             <h3 class="accordion-header"><i class="fas fa-broadcast-tower"></i> Live Radio <i class="fas fa-chevron-down acc-icon"></i></h3>
             <div class="accordion-body">
@@ -134,7 +150,7 @@
             <div class="section-divider"></div>
           </div>
 
-          <!-- 6. NEO VOICE TALK -->
+          <!-- 7. NEO VOICE TALK -->
           <div class="setting-section">
             <h3 class="accordion-header"><i class="fas fa-ghost"></i> Neo Talk <i class="fas fa-chevron-down acc-icon"></i></h3>
             <div class="accordion-body">
@@ -250,6 +266,35 @@
         </div>
       </div>
 
+      <div class="widget" data-type="sensor">
+        <div class="widget-header">
+          <h3><i class="fas fa-temperature-half" style="color:var(--primary)"></i> AM2301 Klima</h3>
+          <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
+        </div>
+        <div class="widget-body sensor-layout" id="sensorBody">
+          <div class="sensor-gauges">
+            <div class="sensor-gauge temp" id="tempGauge" style="--value:0; --color:#66d9ff;">
+              <div class="gauge-core">
+                <i class="fas fa-temperature-half"></i>
+                <strong id="sensorTemp">--°</strong>
+                <small>Temperatur</small>
+              </div>
+            </div>
+            <div class="sensor-gauge humidity" id="humidityGauge" style="--value:0; --color:#55f5b1;">
+              <div class="gauge-core">
+                <i class="fas fa-droplet"></i>
+                <strong id="sensorHumidity">--%</strong>
+                <small>Feuchte</small>
+              </div>
+            </div>
+          </div>
+          <div class="sensor-meta">
+            <span id="sensorDew">Taupunkt --°</span>
+            <span id="sensorStatus">lädt ...</span>
+          </div>
+        </div>
+      </div>
+
       <div class="widget" data-type="tasmota">
         <div class="widget-header">
           <h3><i class="fas fa-plug" style="color:var(--primary)"></i> Smart Home Geräte</h3>
@@ -264,6 +309,6 @@
   </div>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script src="app.js?v=tasmota-off-red-20260515-1"></script>
+  <script src="app.js?v=am2301-gauge-20260516-1"></script>
 </body>
 </html>

@@ -316,6 +316,38 @@ app.get('/api/tasmota/status', async (req, res) => {
   res.json(results);
 });
 
+app.get('/api/tasmota/sensor', async (req, res) => {
+  const ip = String(req.query?.ip || '192.168.178.40').trim();
+  if (!isPrivateIPv4(ip)) return res.status(400).json({success: false, error: 'Ungültige lokale IPv4-Adresse'});
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 2500);
+    const r = await fetch(`http://${ip}/cm?cmnd=Status%2010`, { signal: controller.signal });
+    clearTimeout(timeout);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+    const sensors = data?.StatusSNS || {};
+    const sensorName = Object.keys(sensors).find(key => sensors[key] && typeof sensors[key] === 'object' && 'Temperature' in sensors[key] && 'Humidity' in sensors[key]);
+    const sensor = sensorName ? sensors[sensorName] : null;
+    if (!sensor) return res.status(404).json({success: false, online: true, error: 'Kein Temperatur-/Feuchte-Sensor gefunden'});
+
+    res.json({
+      success: true,
+      online: true,
+      ip,
+      name: sensorName,
+      time: sensors.Time || null,
+      temperature: Number(sensor.Temperature),
+      humidity: Number(sensor.Humidity),
+      dewPoint: Number(sensor.DewPoint),
+      tempUnit: sensors.TempUnit || 'C'
+    });
+  } catch (e) {
+    res.json({success: false, online: false, ip, error: e.message});
+  }
+});
+
 app.post('/api/tasmota/toggle', async (req, res) => {
   const ip = String(req.body?.ip || '').trim();
   if (!isPrivateIPv4(ip)) return res.status(400).json({success: false, error: 'Ungültige lokale IPv4-Adresse'});
