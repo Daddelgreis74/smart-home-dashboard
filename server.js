@@ -244,7 +244,8 @@ app.get('/api/talk-config', (req, res) => {
   res.json({
     enabled: VOICE_TALK_ENABLED,
     session: VOICE_TALK_SESSION,
-    ttsMode: FULLY_TTS_ENABLED ? 'fully' : 'browser'
+    ttsMode: 'browser',
+    fullyTtsAvailable: FULLY_TTS_ENABLED
   });
 });
 
@@ -272,15 +273,7 @@ app.post('/api/neo-talk', async (req, res) => {
   if (!text) return res.status(400).json({ success: false, error: 'Keine Spracheingabe erkannt.' });
   try {
     const reply = await askOpenClaw(text);
-    let tts = { mode: FULLY_TTS_ENABLED ? 'fully' : 'browser', ok: false, skipped: true };
-    if (FULLY_TTS_ENABLED && req.body?.speak !== false) {
-      try {
-        tts = await speakWithFully(reply);
-      } catch (e) {
-        console.error('Fully TTS Error:', e.message);
-        tts = { mode: 'fully', ok: false, error: 'Fully konnte den Text gerade nicht vorlesen.' };
-      }
-    }
+    const tts = { mode: 'client', ok: false, skipped: true };
     res.json({ success: true, text, reply, tts });
   } catch (e) {
     console.error('Neo Talk Error:', e.message);
