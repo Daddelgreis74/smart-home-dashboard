@@ -6,3 +6,4 @@ ssl/
 .DS_Store
 *.log
 www/
+deploy.bat
