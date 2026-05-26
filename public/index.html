@@ -75,6 +75,7 @@
                 <label class="toggle-label"><span>Temperatur und Feuchte</span><input type="checkbox" id="toggle-sensor" checked><div class="toggle-switch"></div></label>
                 <label class="toggle-label"><span>System Status</span><input type="checkbox" id="toggle-system" checked><div class="toggle-switch"></div></label>
                 <label class="toggle-label"><span>Tasmota Geräte</span><input type="checkbox" id="toggle-tasmota" checked><div class="toggle-switch"></div></label>
+                <label class="toggle-label"><span>Fritz!Box Monitor</span><input type="checkbox" id="toggle-fritzbox" checked><div class="toggle-switch"></div></label>
               </div>
             </div>
             <div class="section-divider"></div>
@@ -174,6 +175,32 @@
               <div class="input-group">
                 <label class="setting-sub-label">Spracheingabe läuft lokal im Browser. Neo antwortet über OpenClaw und wird vom Tablet vorgelesen.</label>
                 <label class="toggle-label"><span>Antwort vorlesen</span><input type="checkbox" id="toggleTalkSpeech" checked><div class="toggle-switch"></div></label>
+              </div>
+            </div>
+            <div class="section-divider"></div>
+          </div>
+
+          <!-- 8. FRITZ!BOX MONITOR -->
+          <div class="setting-section">
+            <h3 class="accordion-header"><i class="fas fa-ethernet"></i> Fritz!Box Monitor <i class="fas fa-chevron-down acc-icon"></i></h3>
+            <div class="accordion-body">
+              <div class="input-group">
+                <label class="setting-sub-label">Fritz!Box IP-Adresse / Hostname:</label>
+                <input type="text" id="fritzIp" value="192.168.178.1" placeholder="z.B. 192.168.178.1">
+                
+                <label class="setting-sub-label" style="margin-top: 10px;">Benutzername (optional):</label>
+                <input type="text" id="fritzUser" placeholder="z.B. admin">
+                
+                <label class="setting-sub-label" style="margin-top: 10px;">Passwort:</label>
+                <input type="password" id="fritzPassword" placeholder="Fritz!Box Passwort">
+                
+                <label class="toggle-label" style="margin-top: 15px;">
+                  <span>Anruf-Monitor (Port 1012)</span>
+                  <input type="checkbox" id="toggleFritzCallMonitor" checked>
+                  <div class="toggle-switch"></div>
+                </label>
+                
+                <button class="btn" id="saveFritzConfig" style="margin-top: 15px; width: 100%;"><i class="fas fa-save"></i> Fritz!Box Verbinden</button>
               </div>
             </div>
             <div class="section-divider"></div>
@@ -322,8 +349,45 @@
         </div>
       </div>
 
+      <div class="widget" data-type="fritzbox">
+        <div class="widget-header">
+          <h3><i class="fas fa-ethernet" style="color:var(--primary)"></i> Fritz!Box Monitor</h3>
+          <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
+        </div>
+        <div class="widget-body fritzbox-layout">
+          <!-- Live Network Status LEDs -->
+          <div class="fritz-network-status">
+            <div class="net-indicator">
+              <span class="led-dot red" id="ledFritz"></span>
+              <span>Fritz!Box: <strong id="valFritzStatus">Offline</strong></span>
+            </div>
+            <div class="net-indicator">
+              <span class="led-dot red" id="ledInternet"></span>
+              <span>Internet: <strong id="valInternetStatus">Offline</strong></span>
+            </div>
+          </div>
+          <!-- Recent Call List -->
+          <div class="fritz-call-title"><i class="fas fa-phone-volume"></i> Letzte Anrufe</div>
+          <div class="fritz-call-list" id="fritzCallList">
+            <div class="no-calls">Keine Anrufe protokolliert.</div>
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
+  <!-- Live Fritz!Box Call Toast Overlay -->
+  <div class="fritz-toast-overlay" id="fritzToastOverlay" hidden>
+    <div class="fritz-toast-card">
+      <div class="fritz-toast-pulse"><i class="fas fa-phone-volume"></i></div>
+      <div class="fritz-toast-info">
+        <span class="fritz-toast-status">EINGEHENDER ANRUF...</span>
+        <h2 class="fritz-toast-number" id="fritzToastNumber">--</h2>
+        <span class="fritz-toast-caller" id="fritzToastCaller">Unbekannter Anrufer</span>
+      </div>
+    </div>
+  </div>
+
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script src="app.js?v=am2301-gauge-20260516-1"></script>

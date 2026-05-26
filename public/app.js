@@ -33,6 +33,7 @@ function init() {
   initSensorWidget();
   initSystemBargraph();
   initTasmota();
+  initFritzbox();
 }
 
 let globalStations = [];
@@ -277,7 +278,7 @@ function loadSavedSettings() {
   const sensorIpInput = document.getElementById('sensorIp');
   if(sensorIpInput) sensorIpInput.value = savedSensorIp;
 
-  ['weather', 'waste', 'player', 'talk', 'sensor', 'system', 'tasmota'].forEach(type => {
+  ['weather', 'waste', 'player', 'talk', 'sensor', 'system', 'tasmota', 'fritzbox'].forEach(type => {
     const isVisible = localStorage.getItem('show_' + type) !== 'false';
     const widget = document.querySelector(`.widget[data-type="${type}"]`);
     const toggle = document.getElementById('toggle-' + type);
@@ -396,7 +397,7 @@ function initSettings() {
     });
   }
 
-  ['weather', 'waste', 'player', 'talk', 'sensor', 'system', 'tasmota'].forEach(type => {
+  ['weather', 'waste', 'player', 'talk', 'sensor', 'system', 'tasmota', 'fritzbox'].forEach(type => {
     const toggle = document.getElementById('toggle-' + type);
     if(toggle) {
       toggle.addEventListener('change', (e) => {
@@ -1122,5 +1123,170 @@ function initAccordion() {
         header.nextElementSibling.classList.add('active-body');
       }
     });
+  });
+}
+
+async function initFritzbox() {
+  // Load saved Fritz!Box configuration (excluding password for security)
+  try {
+    const res = await fetch('/api/fritzbox/config');
+    const cfg = await res.json();
+    if(cfg && cfg.success) {
+      if(document.getElementById('fritzIp')) document.getElementById('fritzIp').value = cfg.ip || '192.168.178.1';
+      if(document.getElementById('fritzUser')) document.getElementById('fritzUser').value = cfg.user || '';
+      if(document.getElementById('toggleFritzCallMonitor')) document.getElementById('toggleFritzCallMonitor').checked = cfg.callMonitorEnabled !== false;
+    }
+  } catch(e) {}
+
+  // Save configuration event listener
+  const saveBtn = document.getElementById('saveFritzConfig');
+  if(saveBtn) {
+    saveBtn.addEventListener('click', async () => {
+      const ip = document.getElementById('fritzIp').value.trim();
+      const user = document.getElementById('fritzUser').value.trim();
+      const pass = document.getElementById('fritzPassword').value;
+      const callMonitorEnabled = document.getElementById('toggleFritzCallMonitor').checked;
+      
+      if(!ip) {
+        alert('Bitte gib die IP-Adresse deiner Fritz!Box ein.');
+        return;
+      }
+
+      saveBtn.disabled = true;
+      const oldText = saveBtn.innerHTML;
+      saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verbinde...';
+
+      try {
+        const response = await fetch('/api/fritzbox/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ip, user, pass, callMonitorEnabled })
+        });
+        const data = await response.json();
+        if(data && data.success) {
+          alert('Fritz!Box Konfiguration erfolgreich gespeichert und verbunden!');
+          if(document.getElementById('fritzPassword')) document.getElementById('fritzPassword').value = ''; // clear password field
+        } else {
+          alert('Fehler beim Speichern der Konfiguration: ' + (data.error || 'Unbekannter Fehler'));
+        }
+      } catch(err) {
+        alert('Verbindungsfehler: ' + err.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = oldText;
+      }
+    });
+  }
+
+  // Socket.IO real-time handlers
+  
+  // 1. Network & Router Status updates
+  socket.on('fritz-status', (status) => {
+    const ledFritz = document.getElementById('ledFritz');
+    const valFritzStatus = document.getElementById('valFritzStatus');
+    const ledInternet = document.getElementById('ledInternet');
+    const valInternetStatus = document.getElementById('valInternetStatus');
+
+    if(ledFritz && valFritzStatus) {
+      if(status.fritzOnline) {
+        ledFritz.className = 'led-dot green';
+        valFritzStatus.textContent = `Online (${status.fritzLatency}ms)`;
+      } else {
+        ledFritz.className = 'led-dot red';
+        valFritzStatus.textContent = 'Offline';
+      }
+    }
+
+    if(ledInternet && valInternetStatus) {
+      if(status.internetOnline) {
+        ledInternet.className = 'led-dot green';
+        valInternetStatus.textContent = `Online (${status.internetLatency}ms)`;
+      } else {
+        ledInternet.className = 'led-dot red';
+        valInternetStatus.textContent = 'Offline';
+      }
+    }
+  });
+
+  // 2. Call log updates
+  socket.on('fritz-calls', (calls) => {
+    const list = document.getElementById('fritzCallList');
+    if(!list) return;
+
+    if(!calls || calls.length === 0) {
+      list.innerHTML = '<div class="no-calls">Keine Anrufe protokolliert.</div>';
+      return;
+    }
+
+    list.innerHTML = '';
+    calls.forEach(call => {
+      const item = document.createElement('div');
+      item.className = 'fritz-call-item';
+      
+      let iconClass = 'fa-phone';
+      let iconStyleClass = 'inbound';
+      let typeLabel = 'Eingehend';
+
+      if(call.type === 'RING') {
+        iconClass = 'fa-phone-volume';
+        iconStyleClass = 'inbound';
+        typeLabel = 'Eingehend';
+      } else if(call.type === 'CALL') {
+        iconClass = 'fa-phone-flip';
+        iconStyleClass = 'outbound';
+        typeLabel = 'Ausgehend';
+      } else if(call.type === 'MISSED') {
+        iconClass = 'fa-phone-slash';
+        iconStyleClass = 'missed';
+        typeLabel = 'Verpasst';
+      } else if(call.type === 'CONNECTED') {
+        iconClass = 'fa-phone-square';
+        iconStyleClass = 'connected';
+        typeLabel = 'Verbunden';
+      }
+
+      // Format Duration
+      let durText = '';
+      if(call.duration > 0) {
+        const m = Math.floor(call.duration / 60);
+        const s = call.duration % 60;
+        durText = m > 0 ? `${m}m ${s}s` : `${s}s`;
+      } else if(call.type === 'MISSED') {
+        durText = 'Verpasst';
+      } else if(call.type === 'RING') {
+        durText = 'Klingelt...';
+      } else {
+        durText = 'Keine Verb.';
+      }
+
+      item.innerHTML = `
+        <div class="call-info-left">
+          <div class="call-icon ${iconStyleClass}"><i class="fas ${iconClass}"></i></div>
+          <div class="call-details">
+            <span class="call-name">${call.callerName || call.number}</span>
+            <span class="call-time">${call.time} Uhr · ${typeLabel}</span>
+          </div>
+        </div>
+        <span class="call-duration">${durText}</span>
+      `;
+      list.appendChild(item);
+    });
+  });
+
+  // 3. Live call ring overlay
+  socket.on('fritz-ringing', (event) => {
+    const overlay = document.getElementById('fritzToastOverlay');
+    const toastNumber = document.getElementById('fritzToastNumber');
+    const toastCaller = document.getElementById('fritzToastCaller');
+
+    if(!overlay) return;
+
+    if(event.active) {
+      if(toastNumber) toastNumber.textContent = event.number;
+      if(toastCaller) toastCaller.textContent = event.callerName || 'Unbekannter Anrufer';
+      overlay.removeAttribute('hidden');
+    } else {
+      overlay.setAttribute('hidden', '');
+    }
   });
 }

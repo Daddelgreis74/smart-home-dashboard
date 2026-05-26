@@ -1,4 +1,5 @@
 const express = require('express');
+const net = require('net');
 const https = require('https');
 const { Server } = require('socket.io');
 const multer = require('multer');
@@ -411,9 +412,269 @@ app.post('/api/tasmota/scan', async (req, res) => {
   res.json({success: true, found});
 });
 
+// ==== FRITZ!BOX MONITOR LOGIC ====
+const FRITZ_FILE = path.join(__dirname, 'fritzbox.json');
+const CALLS_LOG_FILE = path.join(__dirname, 'fritzbox_calls.json');
+
+let fritzConfig = { ip: '192.168.178.1', user: '', pass: '', callMonitorEnabled: true };
+let fritzCalls = [];
+let activeCalls = {};
+let callMonitorSocket = null;
+let reconnectTimeout = null;
+
+function loadFritzConfig() {
+  if (fs.existsSync(FRITZ_FILE)) {
+    try {
+      const parsed = JSON.parse(fs.readFileSync(FRITZ_FILE, 'utf8'));
+      fritzConfig = {
+        ip: String(parsed.ip || '192.168.178.1').trim(),
+        user: String(parsed.user || '').trim(),
+        pass: String(parsed.pass || ''),
+        callMonitorEnabled: parsed.callMonitorEnabled !== false
+      };
+    } catch (e) { console.error("Parse Error fritzbox.json", e); }
+  }
+  return fritzConfig;
+}
+
+function saveFritzConfig(cfg) {
+  fritzConfig = {
+    ip: String(cfg.ip || '192.168.178.1').trim(),
+    user: String(cfg.user || '').trim(),
+    pass: String(cfg.pass || ''),
+    callMonitorEnabled: cfg.callMonitorEnabled !== false
+  };
+  try {
+    fs.writeFileSync(FRITZ_FILE, JSON.stringify(fritzConfig, null, 2));
+  } catch (e) { console.error("Schreibfehler fritzbox.json", e); }
+}
+
+function loadCallLog() {
+  if (fs.existsSync(CALLS_LOG_FILE)) {
+    try {
+      fritzCalls = JSON.parse(fs.readFileSync(CALLS_LOG_FILE, 'utf8'));
+    } catch (e) { console.error("Parse Error fritzbox_calls.json", e); }
+  }
+}
+
+function saveCallLog() {
+  try {
+    fs.writeFileSync(CALLS_LOG_FILE, JSON.stringify(fritzCalls, null, 2));
+  } catch (e) { console.error("Schreibfehler fritzbox_calls.json", e); }
+}
+
+function addOrUpdateCall(id, data) {
+  activeCalls[id] = data;
+  io.emit('fritz-calls', getMergedCalls());
+}
+
+function addCallToLog(call) {
+  fritzCalls.unshift({
+    type: call.type === 'CONNECTED' ? 'RING' : call.type,
+    number: call.number,
+    time: call.time,
+    duration: call.duration,
+    callerName: call.callerName || 'Unbekannter Anrufer'
+  });
+  fritzCalls = fritzCalls.slice(0, 10);
+  saveCallLog();
+  io.emit('fritz-calls', fritzCalls);
+}
+
+function getMergedCalls() {
+  const current = Object.values(activeCalls).map(c => ({
+    type: c.type,
+    number: c.number,
+    time: c.time,
+    duration: 0,
+    callerName: c.type === 'RING' ? 'Klingelt...' : 'Verbunden'
+  }));
+  return [...current, ...fritzCalls].slice(0, 10);
+}
+
+function pingTcp(host, port, timeout = 1200) {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const socket = new net.Socket();
+    socket.setTimeout(timeout);
+    
+    let resolved = false;
+    const done = (status) => {
+      if (resolved) return;
+      resolved = true;
+      socket.destroy();
+      const latency = Date.now() - start;
+      resolve({ online: status, latency });
+    };
+
+    socket.connect(port, host, () => done(true));
+    socket.on('error', () => done(true));
+    socket.on('timeout', () => done(false));
+  });
+}
+
+function connectFritzCallMonitor() {
+  if (reconnectTimeout) {
+    clearTimeout(reconnectTimeout);
+    reconnectTimeout = null;
+  }
+
+  if (callMonitorSocket) {
+    try { callMonitorSocket.destroy(); } catch(e) {}
+    callMonitorSocket = null;
+  }
+
+  if (!fritzConfig.callMonitorEnabled || !fritzConfig.ip) {
+    console.log('[Fritz!Box] CallMonitor ist deaktiviert.');
+    return;
+  }
+
+  console.log(`[Fritz!Box] Verbinde mit CallMonitor auf ${fritzConfig.ip}:1012...`);
+  callMonitorSocket = net.createConnection({ host: fritzConfig.ip, port: 1012 });
+
+  callMonitorSocket.on('connect', () => {
+    console.log('[Fritz!Box] Live-CallMonitor erfolgreich verbunden!');
+    io.emit('fritz-calls', getMergedCalls());
+  });
+
+  callMonitorSocket.on('data', (data) => {
+    const lines = data.toString('utf8').split('\n');
+    lines.forEach(line => {
+      const parts = line.trim().split(';');
+      if (parts.length < 2) return;
+      
+      const type = parts[1];
+      const connectionId = parts[2];
+      const nowTime = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+      if (type === 'RING') {
+        const callerNumber = parts[3];
+        const dialedNumber = parts[4];
+        console.log(`[Fritz!Box] RING - Anruf von ${callerNumber}`);
+        
+        io.emit('fritz-ringing', {
+          active: true,
+          number: callerNumber,
+          callerName: 'Eingehender Anruf'
+        });
+
+        addOrUpdateCall(connectionId, {
+          type: 'RING',
+          number: callerNumber,
+          dialed: dialedNumber,
+          time: nowTime,
+          duration: 0,
+          active: true
+        });
+      } 
+      else if (type === 'CALL') {
+        const dialedNumber = parts[4];
+        const internalLine = parts[3];
+        console.log(`[Fritz!Box] CALL - Ausgehend zu ${dialedNumber}`);
+
+        addOrUpdateCall(connectionId, {
+          type: 'CALL',
+          number: dialedNumber,
+          dialed: internalLine,
+          time: nowTime,
+          duration: 0,
+          active: true
+        });
+      }
+      else if (type === 'CONNECT') {
+        console.log(`[Fritz!Box] CONNECT - Verbindung hergestellt bei ID ${connectionId}`);
+        io.emit('fritz-ringing', { active: false });
+
+        const call = activeCalls[connectionId];
+        if (call) {
+          call.type = 'CONNECTED';
+          call.connectTime = Date.now();
+          io.emit('fritz-calls', getMergedCalls());
+        }
+      }
+      else if (type === 'DISCONNECT') {
+        const duration = Number(parts[3] || 0);
+        console.log(`[Fritz!Box] DISCONNECT - Gespräch beendet bei ID ${connectionId}, Dauer ${duration}s`);
+        io.emit('fritz-ringing', { active: false });
+
+        const call = activeCalls[connectionId];
+        if (call) {
+          call.active = false;
+          call.duration = duration;
+          
+          if (duration === 0 && call.type === 'RING') {
+            call.type = 'MISSED';
+          }
+          
+          addCallToLog(call);
+          delete activeCalls[connectionId];
+        }
+      }
+    });
+  });
+
+  callMonitorSocket.on('error', (err) => {
+    console.log(`[Fritz!Box] CallMonitor Socketfehler: ${err.message}`);
+  });
+
+  callMonitorSocket.on('close', () => {
+    console.log('[Fritz!Box] CallMonitor Verbindung geschlossen. Reconnect in 15s...');
+    if (!reconnectTimeout) {
+      reconnectTimeout = setTimeout(() => {
+        connectFritzCallMonitor();
+      }, 15000);
+    }
+  });
+}
+
+function initFritzboxConnections() {
+  loadFritzConfig();
+  connectFritzCallMonitor();
+}
+
+// Initialisiere die Fritz!Box-Dienste beim Server-Start
+loadCallLog();
+initFritzboxConnections();
+
+// API Endpunkte für Fritz!Box
+app.get('/api/fritzbox/config', (req, res) => {
+  res.json({
+    success: true,
+    ip: fritzConfig.ip,
+    user: fritzConfig.user,
+    callMonitorEnabled: fritzConfig.callMonitorEnabled
+  });
+});
+
+app.post('/api/fritzbox/config', (req, res) => {
+  try {
+    saveFritzConfig(req.body);
+    initFritzboxConnections();
+    res.json({ success: true });
+  } catch(e) {
+    res.json({ success: false, error: e.message });
+  }
+});
+
+// Netzwerk Status-Schleife (alle 10s)
+setInterval(async () => {
+  if (!fritzConfig.ip) return;
+  try {
+    const fritzPing = await pingTcp(fritzConfig.ip, 80, 1000);
+    const internetPing = await pingTcp('1.1.1.1', 53, 1000);
+    io.emit('fritz-status', {
+      fritzOnline: fritzPing.online,
+      fritzLatency: fritzPing.latency,
+      internetOnline: internetPing.online,
+      internetLatency: internetPing.latency
+    });
+  } catch(e) {}
+}, 10000);
+
 // ==== SOCKETS & SYSTEM ====
 io.on('connection', (socket) => {
   socket.on('update-layout', (layout) => socket.broadcast.emit('layout-updated', layout));
+  socket.emit('fritz-calls', getMergedCalls());
 });
 
 setInterval(async () => {
