@@ -28,6 +28,7 @@ Das Dashboard unterstützt vier komplett unterschiedliche, umschaltbare Design-S
 - **Live Radio:** Preset-Tasten im Dashboard, Senderverwaltung in den Präferenzen, HLS/MP3/AAC-Unterstützung und Schutz gegen ungewollten Autostart beim Tablet-Wakeup.
 - **Neo Talk:** Mikrofon-Widget für Speech-to-Text im Browser, Antwort über lokale OpenClaw-Anbindung und Text-to-Speech auf dem Tablet.
 - **System Status:** Live CPU/RAM/Temperatur/Netzwerk per Socket.IO.
+- **Fritz!Box Monitor:** Live Netzwerk- & Internet-Status (LEDs/Latenz in ms) sowie ein Echtzeit-Anruf-Monitor (Port 1012) mit bildschirmfüllendem Live-Anrufer-Overlay (Toast) und historischer Anrufliste.
 - **Touch-ready:** Drag & Drop via Sortable.js mit Fully-Kiosk-kompatibler Verzögerung.
 
 ## 🧭 Bedienung
@@ -43,6 +44,7 @@ Das Dashboard unterstützt vier komplett unterschiedliche, umschaltbare Design-S
 - Wetterstandort
 - Radio-Sender und Preset-Tasten
 - Neo-Talk-Sprachausgabe
+- Fritz!Box-Verbindungsdaten und Call-Monitor
 
 ### Radio-Autoplay-Schutz
 Das Radio startet **nur** noch durch expliziten Klick auf:
@@ -72,6 +74,8 @@ Nicht committen:
 - `tasmota.json`
 - `uploads/`
 - `node_modules/`
+- `fritzbox.json`
+- `fritzbox_calls.json`
 
 Die `.gitignore` ist entsprechend vorbereitet.
 
@@ -95,6 +99,22 @@ GET /api/tasmota/sensor?ip=192.168.178.40
 ```
 
 Die IP ist im Präferenzen-Menü änderbar und wird im Browser per `localStorage` gespeichert. Das Backend akzeptiert bewusst nur private IPv4-Adressen.
+
+## 📞 Fritz!Box Monitor & Call-Monitor
+
+Das Dashboard enthält ein integriertes, hochmodernes Fritz!Box-Widget zur Echtzeitüberwachung deines Heimnetzwerks und der Telefonie:
+
+- **Live Netzwerk- & Internet-Status (LEDs):** Das System misst alle 10 Sekunden asynchron und extrem ressourcenschonend die Latenz zu deinem lokalen Gateway (Fritz!Box) und einem öffentlichen DNS (`1.1.1.1`), um die Latenzen in Millisekunden und den Online-Zustand per leuchtender LED (Grün/Rot) darzustellen.
+- **Echtzeit-Anruf-Monitor:** Verbindet sich backendseitig über einen robusten, selbstheilenden TCP-Client direkt mit Port `1012` deiner Fritz!Box. Bei einem eingehenden Anruf wird sofort ein bildschirmfüllendes, pulsierendes Pop-up auf allen Tablets eingeblendet. Nach Gesprächsende wird der Anruf mit Gesprächsdauer in die Anrufliste übernommen.
+- **Anrufliste:** Zeigt die letzten 10 Anrufe mit Typ-Symbolen (Eingehend, Ausgehend, Verpasst, Verbunden) und Dauer in Echtzeit an.
+
+### 🔐 Wichtig für deine Privatsphäre (Datensicherheit)
+Die Zugangsdaten deiner Fritz!Box und dein Anrufprotokoll werden **ausschließlich lokal** in den Dateien `fritzbox.json` und `fritzbox_calls.json` gespeichert. Beide Dateien sind permanent über `.gitignore` blockiert und werden **niemals auf GitHub hochgeladen**!
+
+### ⚙️ Einrichtung des Call-Monitors
+Damit die Live-Anrufe auf Port 1012 an das Dashboard gesendet werden, muss der Call-Monitor deiner Fritz!Box einmalig freigeschaltet werden. Wähle dazu einfach an einem an der Fritz!Box angeschlossenen Telefon die Tastenkombination:
+- **Aktivieren:** `#96*5*` (und abheben / wählen)
+- **Deaktivieren (optional):** `#96*6*`
 
 ## 🚀 Betrieb
 
