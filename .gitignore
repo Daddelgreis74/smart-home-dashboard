@@ -9,3 +9,5 @@ www/
 deploy.bat
 fritzbox.json
 fritzbox_calls.json
+presence.json
+

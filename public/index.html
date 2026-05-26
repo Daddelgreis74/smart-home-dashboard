@@ -76,6 +76,7 @@
                 <label class="toggle-label"><span>System Status</span><input type="checkbox" id="toggle-system" checked><div class="toggle-switch"></div></label>
                 <label class="toggle-label"><span>Tasmota Geräte</span><input type="checkbox" id="toggle-tasmota" checked><div class="toggle-switch"></div></label>
                 <label class="toggle-label"><span>Fritz!Box Monitor</span><input type="checkbox" id="toggle-fritzbox" checked><div class="toggle-switch"></div></label>
+                <label class="toggle-label"><span>Anwesenheitserkennung</span><input type="checkbox" id="toggle-presence" checked><div class="toggle-switch"></div></label>
               </div>
             </div>
             <div class="section-divider"></div>
@@ -201,6 +202,36 @@
                 </label>
                 
                 <button class="btn" id="saveFritzConfig" style="margin-top: 15px; width: 100%;"><i class="fas fa-save"></i> Fritz!Box Verbinden</button>
+              </div>
+            </div>
+            <div class="section-divider"></div>
+          </div>
+
+          <!-- 9. ANWESENHEITSERKENNUNG -->
+          <div class="setting-section">
+            <h3 class="accordion-header"><i class="fas fa-users"></i> Anwesenheitserkennung <i class="fas fa-chevron-down acc-icon"></i></h3>
+            <div class="accordion-body">
+              <div class="input-group">
+                <label class="setting-sub-label">Person hinzufügen:</label>
+                <div style="display:flex; flex-direction: column; gap: 8px;">
+                  <input type="text" id="presenceManName" placeholder="Name">
+                  <input type="text" id="presenceManMac" placeholder="MAC-Adresse (z.B. AA:BB:CC:DD:EE:FF)">
+                  
+                  <div style="display: flex; align-items: center; gap: 8px; margin-top: 5px;">
+                    <label class="btn" style="flex: 1; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; font-size: 13px;">
+                      <i class="fas fa-image"></i> Profilbild wählen
+                      <input type="file" id="presenceManAvatar" accept="image/*" style="display: none;">
+                    </label>
+                    <span id="presenceManAvatarName" style="font-size: 11px; color: var(--text-muted); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Kein Bild gewählt</span>
+                  </div>
+                  
+                  <button class="btn" id="addPresenceBtn" style="margin-top: 5px;"><i class="fas fa-plus"></i> Person hinzufügen</button>
+                </div>
+              </div>
+              
+              <label class="setting-sub-label" style="margin-top: 15px; display: block;">Aktive Personen:</label>
+              <div id="presenceList" class="tasmota-list-settings" style="margin-top: 5px; display: flex; flex-direction: column; gap: 8px;">
+                <!-- Dynamische Personen-Liste -->
               </div>
             </div>
             <div class="section-divider"></div>
@@ -370,6 +401,18 @@
           <div class="fritz-call-title"><i class="fas fa-phone-volume"></i> Letzte Anrufe</div>
           <div class="fritz-call-list" id="fritzCallList">
             <div class="no-calls">Keine Anrufe protokolliert.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="widget" data-type="presence">
+        <div class="widget-header">
+          <h3><i class="fas fa-users" style="color:var(--primary)"></i> Anwesenheit</h3>
+          <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
+        </div>
+        <div class="widget-body presence-layout">
+          <div class="presence-avatars-grid" id="presenceAvatarsGrid">
+            <div class="no-presence-devices">Keine Personen registriert.</div>
           </div>
         </div>
       </div>

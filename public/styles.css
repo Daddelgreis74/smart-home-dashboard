@@ -2390,4 +2390,77 @@ body.theme-retrowave .tasmota-btn.active i { color: #ff3399; }
   color: var(--text-muted);
 }
 
+/* ==========================================================================
+   ANWESENHEITSERKENNUNG WIDGET & AVATARS STYLING
+   ========================================================================== */
+.presence-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+}
+
+.presence-avatars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 16px;
+  width: 100%;
+  justify-items: center;
+  align-items: center;
+}
+
+.no-presence-devices {
+  color: var(--text-muted);
+  font-size: 11px;
+  opacity: 0.7;
+  grid-column: 1 / -1;
+  text-align: center;
+}
+
+.presence-avatar-ring {
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.presence-avatar-ring.active {
+  background: rgba(85, 245, 177, 0.05);
+  border: 2.5px solid var(--green, #55f5b1);
+  animation: presenceGreenPulse 2s infinite;
+}
+
+.presence-avatar-img {
+  transition: all 0.5s ease;
+  filter: grayscale(100%);
+  opacity: 0.35;
+}
+
+.presence-avatar-card.active .presence-avatar-img {
+  filter: grayscale(0%);
+  opacity: 1;
+}
+
+.presence-avatar-card.inactive .presence-avatar-img {
+  filter: grayscale(100%);
+  opacity: 0.35;
+}
+
+.presence-status-badge {
+  transition: all 0.5s ease;
+}
+
+@keyframes presenceGreenPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(85, 245, 177, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(85, 245, 177, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(85, 245, 177, 0);
+  }
+}
+
+
 

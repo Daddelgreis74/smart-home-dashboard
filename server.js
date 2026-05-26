@@ -7,6 +7,7 @@ const path = require('path');
 const fs = require('fs');
 const si = require('systeminformation');
 const { execFile } = require('child_process');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = Number(process.env.PORT || 8443);
@@ -48,6 +49,7 @@ if (useSSL) {
 const io = new Server(server);
 
 app.use(express.static('public'));
+app.use('/uploads', express.static(UPLOAD_DIR));
 app.use(express.json({ limit: '256kb' }));
 
 function isIPv4(value) {
@@ -656,7 +658,272 @@ app.post('/api/fritzbox/config', (req, res) => {
   }
 });
 
+// ==== FRITZ!BOX TR-064 SOAP CLIENT & PRESENCE DETECTION ====
+const PRESENCE_FILE = path.join(__dirname, 'presence.json');
+let presenceRAM = [];
+let isPresencePolling = false;
+
+function loadPresence() {
+  if (fs.existsSync(PRESENCE_FILE)) {
+    try {
+      presenceRAM = JSON.parse(fs.readFileSync(PRESENCE_FILE, 'utf8'));
+    } catch (e) {
+      console.error("[Presence] Parse Error presence.json", e);
+      presenceRAM = [];
+    }
+  } else {
+    presenceRAM = [];
+  }
+  return presenceRAM;
+}
+
+function savePresence() {
+  try {
+    fs.writeFileSync(PRESENCE_FILE, JSON.stringify(presenceRAM, null, 2));
+  } catch (e) {
+    console.error("[Presence] Schreibfehler presence.json", e);
+  }
+}
+
+function md5(str) {
+  return crypto.createHash('md5').update(str).digest('hex');
+}
+
+function parseDigestHeader(header) {
+  const params = {};
+  const regex = /(\w+)="?([^",]+)"?/g;
+  let match;
+  while ((match = regex.exec(header)) !== null) {
+    params[match[1]] = match[2];
+  }
+  return params;
+}
+
+function calculateDigest(username, password, realm, nonce, method, uri) {
+  const ha1 = md5(`${username}:${realm}:${password}`);
+  const ha2 = md5(`${method}:${uri}`);
+  const response = md5(`${ha1}:${nonce}:${ha2}`);
+  return `Digest username="${username}", realm="${realm}", nonce="${nonce}", uri="${uri}", response="${response}"`;
+}
+
+function soapCall(ip, path, service, action, args, auth = null) {
+  return new Promise((resolve, reject) => {
+    let argXml = '';
+    for (const [key, val] of Object.entries(args)) {
+      argXml += `<${key}>${val}</${key}>`;
+    }
+
+    const xml = `<?xml version="1.0" encoding="utf-8"?>
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+  <s:Body>
+    <u:${action} xmlns:u="${service}">
+      ${argXml}
+    </u:${action}>
+  </s:Body>
+</s:Envelope>`;
+
+    const headers = {
+      'Content-Type': 'text/xml; charset="utf-8"',
+      'SOAPACTION': `"${service}#${action}"`,
+      'Content-Length': Buffer.byteLength(xml)
+    };
+
+    if (auth) {
+      headers['Authorization'] = auth;
+    }
+
+    const httpReq = require('http'); // core module
+    const req = httpReq.request({
+      host: ip,
+      port: 49000,
+      path: path,
+      method: 'POST',
+      headers: headers,
+      timeout: 3000
+    }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        if (res.statusCode === 401) {
+          const authHeader = res.headers['www-authenticate'];
+          resolve({ status: 401, header: authHeader });
+        } else if (res.statusCode >= 200 && res.statusCode < 300) {
+          resolve({ status: res.statusCode, body: data });
+        } else {
+          resolve({ status: res.statusCode, error: data });
+        }
+      });
+    });
+
+    req.on('error', (err) => reject(err));
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error('SOAP request timeout'));
+    });
+
+    req.write(xml);
+    req.end();
+  });
+}
+
+async function queryFritzPresence(mac) {
+  if (!fritzConfig.ip) return false;
+  const username = fritzConfig.user || 'admin';
+  const password = fritzConfig.pass || '';
+  const path = '/upnp/control/hosts';
+  const service = 'urn:dslforum-org:service:Hosts:1';
+  const action = 'GetSpecificHostEntry';
+  const args = { NewMACAddress: mac.trim().toUpperCase() };
+
+  try {
+    let res = await soapCall(fritzConfig.ip, path, service, action, args);
+    
+    if (res.status === 401 && res.header) {
+      const params = parseDigestHeader(res.header);
+      const auth = calculateDigest(username, password, params.realm, params.nonce, 'POST', path);
+      res = await soapCall(fritzConfig.ip, path, service, action, args, auth);
+    }
+
+    if (res.status === 200 && res.body) {
+      const activeMatch = res.body.match(/<NewActive>(\d)<\/NewActive>/i);
+      if (activeMatch && activeMatch[1] === '1') {
+        return true;
+      }
+    }
+    return false;
+  } catch (err) {
+    return false;
+  }
+}
+
+async function pollPresence() {
+  if (isPresencePolling) return;
+  isPresencePolling = true;
+
+  try {
+    let changed = false;
+    for (let i = 0; i < presenceRAM.length; i++) {
+      const person = presenceRAM[i];
+      const isOnline = await queryFritzPresence(person.mac);
+      
+      if (isOnline !== person.active) {
+        person.active = isOnline;
+        if (isOnline) {
+          const now = new Date();
+          person.lastSeen = now.toLocaleDateString('de-DE') + ' ' + now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+        }
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      savePresence();
+      io.emit('presence-updated', presenceRAM);
+    }
+  } catch (e) {
+    console.error('[Presence] Polling Fehler:', e.message);
+  } finally {
+    isPresencePolling = false;
+  }
+}
+
+// REST Endpunkte für Anwesenheitserkennung
+app.get('/api/presence', (req, res) => {
+  res.json(presenceRAM);
+});
+
+const avatarStorage = multer.diskStorage({
+  destination: UPLOAD_DIR,
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || '.jpg';
+    cb(null, `avatar_${Date.now()}${ext}`);
+  }
+});
+const avatarUpload = multer({
+  storage: avatarStorage,
+  limits: { fileSize: 3 * 1024 * 1024, files: 1 },
+  fileFilter: (req, file, cb) => {
+    const ok = /\.(jpg|jpeg|png|webp)$/i.test(file.originalname);
+    cb(ok ? null : new Error('Nur Bilddateien (JPG, PNG, WEBP) sind erlaubt.'), ok);
+  }
+});
+
+app.post('/api/presence/upload', avatarUpload.single('avatarFile'), (req, res) => {
+  if (!req.file) return res.status(400).json({ success: false, error: 'Keine Datei hochgeladen.' });
+  res.json({ success: true, url: `/uploads/${req.file.filename}` });
+});
+
+app.post('/api/presence', (req, res) => {
+  try {
+    const { id, name, mac, image } = req.body;
+    const cleanId = String(id || Date.now());
+    const cleanN = cleanName(name, 'Person');
+    const cleanM = String(mac || '').trim().toUpperCase();
+
+    if (!/^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$/i.test(cleanM)) {
+      return res.status(400).json({ success: false, error: 'Ungültiges MAC-Adressen-Format.' });
+    }
+
+    const index = presenceRAM.findIndex(p => p.id === cleanId);
+    const existing = index >= 0 ? presenceRAM[index] : null;
+
+    const person = {
+      id: cleanId,
+      name: cleanN,
+      mac: cleanM,
+      image: image || (existing ? existing.image : ''),
+      active: existing ? existing.active : false,
+      lastSeen: existing ? existing.lastSeen : '---'
+    };
+
+    if (index >= 0) {
+      presenceRAM[index] = person;
+    } else {
+      presenceRAM.push(person);
+    }
+
+    savePresence();
+    res.json({ success: true, person });
+    io.emit('presence-list-updated', presenceRAM);
+    
+    // Trigger dynamic state update immediately
+    pollPresence();
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+app.delete('/api/presence/:id', (req, res) => {
+  try {
+    const id = String(req.params.id);
+    const index = presenceRAM.findIndex(p => p.id === id);
+    if (index >= 0) {
+      const person = presenceRAM[index];
+      if (person.image && person.image.startsWith('/uploads/avatar_')) {
+        const filePath = path.join(__dirname, person.image);
+        if (fs.existsSync(filePath)) {
+          try { fs.unlinkSync(filePath); } catch (err) {}
+        }
+      }
+      presenceRAM.splice(index, 1);
+      savePresence();
+      res.json({ success: true });
+      io.emit('presence-list-updated', presenceRAM);
+    } else {
+      res.status(404).json({ success: false, error: 'Person nicht gefunden.' });
+    }
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// Initialisiere Presence
+loadPresence();
+setInterval(pollPresence, 30000);
+setTimeout(pollPresence, 5000);
+
 // Netzwerk Status-Schleife (alle 10s)
+
 setInterval(async () => {
   if (!fritzConfig.ip) return;
   try {
@@ -675,6 +942,7 @@ setInterval(async () => {
 io.on('connection', (socket) => {
   socket.on('update-layout', (layout) => socket.broadcast.emit('layout-updated', layout));
   socket.emit('fritz-calls', getMergedCalls());
+  socket.emit('presence-list-updated', presenceRAM);
 });
 
 setInterval(async () => {
