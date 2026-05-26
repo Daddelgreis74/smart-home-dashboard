@@ -35,6 +35,7 @@ Das Dashboard unterstützt vier komplett unterschiedliche, umschaltbare Design-S
 ### Präferenzen
 Über das Menü oben rechts lassen sich konfigurieren:
 
+- Multi-Theme
 - sichtbare Widgets
 - Tasmota-Geräte und Subnetz-Scan
 - AM2301/Tasmota-Klima-Sensor-IP
