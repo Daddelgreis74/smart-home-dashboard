@@ -4,6 +4,18 @@
 
 Ein modernes Smart-Home-Wandpanel für ein **Lenovo Tab M10 FHD Plus (10.3", 1920×1200, 16:10)** im Querformat. Optimiert für den dauerhaften Betrieb im **Fully Kiosk Browser**.
 
+### 🎨 Dashboard Themes (Vorschau)
+Das Dashboard unterstützt vier komplett unterschiedliche, umschaltbare Design-Stile:
+
+*   **Neo-Aurora (Standard):** Transparente Frosted-Glass-Karten mit weichen Auras und leuchtenden Widgets.
+    ![Neo-Aurora](public/themes/neo_aurora.png)
+*   **Cyberpunk HUD:** Taktischer High-Tech-Look in Orange/Amber mit scharfen Ecken und Gitternetz-Hintergrund.
+    ![Cyberpunk HUD](public/themes/cyberpunk_hud.png)
+*   **Cozy Nordic Dark:** Beruhigende, organische Ästhetik mit salbeigrünen Akzenten und weichen Schatten.
+    ![Cozy Nordic Dark](public/themes/nordic_dark.png)
+*   **Retrowave Laser Synth:** Nostalgischer 80er-Retro-Look in Pink/Cyan mit perspektivischer Laser-Bodenlinie.
+    ![Retrowave Laser Synth](public/themes/retrowave_synth.png)
+
 ## ✨ Highlights
 
 - **Multi-Theme-System:** 4 edle, frei umschaltbare Premium-Designs (Neo-Aurora Glassmorphism, Cyberpunk Tactical HUD, Cozy Nordic Dark, Retrowave Laser Synth) mit persistentem Speicher im Browser.
