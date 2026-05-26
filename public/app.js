@@ -251,6 +251,20 @@ function loadSavedSettings() {
 
   const savedLoc = localStorage.getItem('weatherLoc');
   if (savedLoc) document.getElementById('weatherLoc').value = savedLoc;
+
+  const savedProvider = localStorage.getItem('weather_provider') || 'openmeteo';
+  const providerSelector = document.getElementById('weatherProvider');
+  if (providerSelector) {
+    providerSelector.value = savedProvider;
+    const apiKeyGroup = document.getElementById('weatherApiKeyGroup');
+    if (apiKeyGroup) {
+      apiKeyGroup.style.display = (savedProvider === 'weatherapi') ? 'block' : 'none';
+    }
+  }
+
+  const savedKey = localStorage.getItem('weather_api_key') || '';
+  const apiKeyInput = document.getElementById('weatherApiKey');
+  if (apiKeyInput) apiKeyInput.value = savedKey;
   
   const savedStream = localStorage.getItem('streamUrl');
   if (savedStream) {
@@ -342,9 +356,28 @@ function initSettings() {
     }
   });
 
+  const weatherProviderSelector = document.getElementById('weatherProvider');
+  if (weatherProviderSelector) {
+    weatherProviderSelector.addEventListener('change', (e) => {
+      const apiKeyGroup = document.getElementById('weatherApiKeyGroup');
+      if (apiKeyGroup) {
+        apiKeyGroup.style.display = (e.target.value === 'weatherapi') ? 'block' : 'none';
+      }
+    });
+  }
+
   document.getElementById('updateWeather').addEventListener('click', () => {
     const loc = document.getElementById('weatherLoc').value;
-    if (loc) { localStorage.setItem('weatherLoc', loc); loadWeather(); }
+    const provider = document.getElementById('weatherProvider')?.value || 'openmeteo';
+    const apiKey = document.getElementById('weatherApiKey')?.value || '';
+    
+    localStorage.setItem('weather_provider', provider);
+    localStorage.setItem('weather_api_key', apiKey);
+    
+    if (loc) {
+      localStorage.setItem('weatherLoc', loc);
+    }
+    loadWeather();
   });
 
   const addStreamBtn = document.getElementById('addStreamBtn');
@@ -416,12 +449,15 @@ function initSettings() {
 
 async function loadWeather() {
   let locName = localStorage.getItem('weatherLoc') || 'Berlin';
+  const provider = localStorage.getItem('weather_provider') || 'openmeteo';
+  const apiKey = localStorage.getItem('weather_api_key') || '';
+
   let lat = parseFloat(localStorage.getItem('weather_lat'));
   let lon = parseFloat(localStorage.getItem('weather_lon'));
   let cachedLoc = localStorage.getItem('weather_loc_resolved');
 
-  // 1. Geocoding nur machen, wenn die Stadt geaendert wurde oder noch keine Koordinaten da sind
-  if (!lat || !lon || cachedLoc !== locName) {
+  // 1. Geocoding nur machen, wenn die Stadt geaendert wurde oder noch keine Koordinaten da sind (fuer Open-Meteo)
+  if (provider === 'openmeteo' && (!lat || !lon || cachedLoc !== locName)) {
     try {
       const geoRes = await (await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(locName)}&count=1&language=de&format=json`)).json();
       if (geoRes.results && geoRes.results.length > 0) {
@@ -438,32 +474,78 @@ async function loadWeather() {
       console.warn("Geocoding fehlgeschlagen, nutze Fallback", e);
       if (!lat) { lat = 52.52; lon = 13.41; } // Fallback Berlin
     }
-  } else {
-    locName = cachedLoc;
+  } else if (provider === 'openmeteo') {
+    locName = cachedLoc || locName;
   }
 
   let d = null;
   let success = false;
 
   // 2. Wetterdaten laden
-  try {
-    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
-      `&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_gusts_10m,precipitation,rain,pressure_msl,cloud_cover` +
-      `&daily=temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_probability_max,sunrise,sunset` +
-      `&timezone=auto`;
-    const response = await fetch(weatherUrl);
-    if (response.ok) {
-      d = await response.json();
-      if (d && d.current) {
-        success = true;
-        // Speichere erfolgreiche Daten im Cache
-        localStorage.setItem('cached_weather_data', JSON.stringify(d));
-        localStorage.setItem('cached_weather_loc', locName);
-        localStorage.setItem('cached_weather_time', new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }));
+  if (provider === 'weatherapi' && apiKey) {
+    try {
+      const query = (lat && lon) ? `${lat},${lon}` : locName;
+      const weatherUrl = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${encodeURIComponent(query)}&days=1&aqi=no&alerts=no&lang=de`;
+      const response = await fetch(weatherUrl);
+      if (response.ok) {
+        const rawData = await response.json();
+        if (rawData && rawData.current) {
+          const forecastday = rawData.forecast?.forecastday?.[0];
+          const precipProb = forecastday?.day?.daily_chance_of_rain ?? 0;
+          
+          d = {
+            current: {
+              temperature_2m: rawData.current.temp_c,
+              relative_humidity_2m: rawData.current.humidity,
+              apparent_temperature: rawData.current.feelslike_c,
+              weather_code: rawData.current.condition.code,
+              wind_speed_10m: rawData.current.wind_kph,
+              precipitation: rawData.current.precip_mm,
+              pressure_msl: rawData.current.pressure_mb,
+              cloud_cover: rawData.current.cloud,
+              is_weather_api: true,
+              condition_text: rawData.current.condition.text
+            },
+            daily: {
+              temperature_2m_max: [forecastday?.day?.maxtemp_c ?? rawData.current.temp_c],
+              temperature_2m_min: [forecastday?.day?.mintemp_c ?? rawData.current.temp_c],
+              uv_index_max: [forecastday?.day?.uv ?? rawData.current.uv],
+              precipitation_probability_max: [precipProb]
+            }
+          };
+          locName = rawData.location.name;
+          success = true;
+          localStorage.setItem('cached_weather_data', JSON.stringify(d));
+          localStorage.setItem('cached_weather_loc', locName);
+          localStorage.setItem('cached_weather_time', new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }));
+        }
       }
+    } catch(e) {
+      console.error("Fehler beim Laden von WeatherAPI:", e);
     }
-  } catch(e) {
-    console.error("Fehler beim Laden des Wetters:", e);
+  }
+
+  // Fallback auf Open-Meteo, falls WeatherAPI fehlgeschlagen ist
+  if (!success) {
+    try {
+      if (!lat) { lat = 52.52; lon = 13.41; }
+      const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+        `&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_gusts_10m,precipitation,rain,pressure_msl,cloud_cover` +
+        `&daily=temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_probability_max,sunrise,sunset` +
+        `&timezone=auto`;
+      const response = await fetch(weatherUrl);
+      if (response.ok) {
+        d = await response.json();
+        if (d && d.current) {
+          success = true;
+          localStorage.setItem('cached_weather_data', JSON.stringify(d));
+          localStorage.setItem('cached_weather_loc', locName);
+          localStorage.setItem('cached_weather_time', new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }));
+        }
+      }
+    } catch(e) {
+      console.error("Fehler beim Laden von Open-Meteo:", e);
+    }
   }
 
   // 3. Wenn Laden nicht erfolgreich (z. B. Rate Limit), versuche Cache zu laden!
@@ -477,7 +559,6 @@ async function loadWeather() {
       locName = cachedLocName || locName;
       console.log(`Nutze gecachte Wetterdaten von ${cachedTime} Uhr.`);
     } else {
-      // Absoluter Fallback, wenn gar nichts da ist
       document.getElementById('weatherCity').textContent = locName;
       document.getElementById('weatherCondition').textContent = 'Limit erreicht';
       return;
@@ -495,30 +576,57 @@ async function loadWeather() {
     document.getElementById('w-wind').textContent = Math.round(d.current.wind_speed_10m) + ' km/h';
     document.getElementById('w-minmax').textContent = Math.round(d.daily.temperature_2m_max[0]) + '° / ' + Math.round(d.daily.temperature_2m_min[0]) + '°';
     document.getElementById('w-feels').textContent = Math.round(d.current.apparent_temperature) + '°';
-    document.getElementById('w-rain').textContent = (d.daily.precipitation_probability_max?.[0] ?? Math.round((d.current.rain || d.current.precipitation || 0) * 10)) + ' %';
-    document.getElementById('w-pressure').textContent = Math.round(d.current.pressure_msl) + ' hPa';
+    document.getElementById('w-rain').textContent = (d.daily.precipitation_probability_max?.[0] ?? 0) + ' %';
+    document.getElementById('w-pressure').textContent = Math.round(d.current.pressure_msl || d.current.pressure_mb || 1013) + ' hPa';
     document.getElementById('w-clouds').textContent = Math.round(d.current.cloud_cover) + ' %';
     document.getElementById('w-uv').textContent = (d.daily.uv_index_max?.[0] ?? 0).toFixed(1);
     
-    const conditions = {
-      0:{text:'Klar',icon:'fa-sun',style:'sunny'},
-      1:{text:'Überwiegend klar',icon:'fa-sun',style:'sunny'},
-      2:{text:'Leicht bewölkt',icon:'fa-cloud-sun',style:'cloudy'},
-      3:{text:'Bewölkt',icon:'fa-cloud',style:'cloudy'},
-      45:{text:'Nebel',icon:'fa-smog',style:'cloudy'},
-      48:{text:'Reifnebel',icon:'fa-smog',style:'cloudy'},
-      51:{text:'Nieselregen',icon:'fa-cloud-rain',style:'rainy'},
-      53:{text:'Nieselregen',icon:'fa-cloud-rain',style:'rainy'},
-      55:{text:'Starker Nieselregen',icon:'fa-cloud-rain',style:'rainy'},
-      61:{text:'Regen',icon:'fa-cloud-rain',style:'rainy'},
-      63:{text:'Regen',icon:'fa-cloud-showers-heavy',style:'rainy'},
-      65:{text:'Starker Regen',icon:'fa-cloud-showers-heavy',style:'rainy'},
-      71:{text:'Schnee',icon:'fa-snowflake',style:'cloudy'},
-      80:{text:'Regenschauer',icon:'fa-cloud-sun-rain',style:'rainy'},
-      95:{text:'Gewitter',icon:'fa-cloud-bolt',style:'rainy'}
-    };
+    let cond = { text: 'Bedeckt', icon: 'fa-cloud', style: 'cloudy' };
     
-    const cond = conditions[d.current.weather_code] || { text: 'Bedeckt', icon: 'fa-cloud', style: 'cloudy' };
+    if (d.current.is_weather_api) {
+      const code = d.current.weather_code;
+      const text = d.current.condition_text || '';
+      
+      if (code === 1000) {
+        cond = { text: 'Sonnig', icon: 'fa-sun', style: 'sunny' };
+      } else if (code === 1003) {
+        cond = { text: 'Leicht bewölkt', icon: 'fa-cloud-sun', style: 'cloudy' };
+      } else if (code === 1006 || code === 1009) {
+        cond = { text: text || 'Bewölkt', icon: 'fa-cloud', style: 'cloudy' };
+      } else if (code === 1030 || code === 1135 || code === 1147) {
+        cond = { text: text || 'Nebel', icon: 'fa-smog', style: 'cloudy' };
+      } else if (code === 1063 || code === 1150 || code === 1153 || code === 1180 || code === 1183 || code === 1186 || code === 1189) {
+        cond = { text: text || 'Leichter Regen', icon: 'fa-cloud-rain', style: 'rainy' };
+      } else if (code === 1087 || code === 1273 || code === 1276 || code === 1279 || code === 1282) {
+        cond = { text: text || 'Gewitter', icon: 'fa-cloud-bolt', style: 'rainy' };
+      } else if (code === 1066 || code === 1069 || code === 1072 || (code >= 1210 && code <= 1225) || (code >= 1249 && code <= 1264)) {
+        cond = { text: text || 'Schnee', icon: 'fa-snowflake', style: 'cloudy' };
+      } else if (code >= 1192 && code <= 1201 || code === 1240 || code === 1243 || code === 1246) {
+        cond = { text: text || 'Starker Regen', icon: 'fa-cloud-showers-heavy', style: 'rainy' };
+      } else {
+        cond = { text: text || 'Bedeckt', icon: 'fa-cloud', style: 'cloudy' };
+      }
+    } else {
+      const conditions = {
+        0:{text:'Klar',icon:'fa-sun',style:'sunny'},
+        1:{text:'Überwiegend klar',icon:'fa-sun',style:'sunny'},
+        2:{text:'Leicht bewölkt',icon:'fa-cloud-sun',style:'cloudy'},
+        3:{text:'Bewölkt',icon:'fa-cloud',style:'cloudy'},
+        45:{text:'Nebel',icon:'fa-smog',style:'cloudy'},
+        48:{text:'Reifnebel',icon:'fa-smog',style:'cloudy'},
+        51:{text:'Nieselregen',icon:'fa-cloud-rain',style:'rainy'},
+        53:{text:'Nieselregen',icon:'fa-cloud-rain',style:'rainy'},
+        55:{text:'Starker Nieselregen',icon:'fa-cloud-rain',style:'rainy'},
+        61:{text:'Regen',icon:'fa-cloud-rain',style:'rainy'},
+        63:{text:'Regen',icon:'fa-cloud-showers-heavy',style:'rainy'},
+        65:{text:'Starker Regen',icon:'fa-cloud-showers-heavy',style:'rainy'},
+        71:{text:'Schnee',icon:'fa-snowflake',style:'cloudy'},
+        80:{text:'Regenschauer',icon:'fa-cloud-sun-rain',style:'rainy'},
+        95:{text:'Gewitter',icon:'fa-cloud-bolt',style:'rainy'}
+      };
+      cond = conditions[d.current.weather_code] || { text: 'Bedeckt', icon: 'fa-cloud', style: 'cloudy' };
+    }
+    
     document.getElementById('weatherCondition').textContent = cond.text;
     document.querySelector('.weather-icon').innerHTML = `<i class="fas ${cond.icon}"></i>`;
     document.querySelector('.weather-icon').className = `weather-icon ${cond.style}`;

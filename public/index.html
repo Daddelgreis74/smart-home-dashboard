@@ -140,11 +140,23 @@
           <div class="setting-section">
             <h3 class="accordion-header"><i class="fas fa-cloud-sun"></i> Wetter & Standort <i class="fas fa-chevron-down acc-icon"></i></h3>
             <div class="accordion-body">
-              <div class="input-group">
+              <div class="input-group" style="margin-bottom: 12px;">
+                <label class="setting-sub-label">Standort:</label>
                 <div style="display:flex; gap: 8px;">
                   <input type="text" id="weatherLoc" placeholder="z.B. Berlin, Deutschland">
                   <button class="btn" id="updateWeather">Suchen</button>
                 </div>
+              </div>
+              <div class="input-group" style="margin-bottom: 12px;">
+                <label class="setting-sub-label">Wetter-Provider:</label>
+                <select id="weatherProvider" class="radio-select" style="max-width: 100%; width: 100%;">
+                  <option value="openmeteo">🌤️ Open-Meteo (Schlüssellos / Global)</option>
+                  <option value="weatherapi">🌐 WeatherAPI.com (Genau / API-Key benötigt)</option>
+                </select>
+              </div>
+              <div class="input-group" id="weatherApiKeyGroup" style="display: none; margin-bottom: 12px;">
+                <label class="setting-sub-label">WeatherAPI API-Key:</label>
+                <input type="password" id="weatherApiKey" placeholder="API-Key von weatherapi.com" style="width: 100%;">
               </div>
             </div>
             <div class="section-divider"></div>
