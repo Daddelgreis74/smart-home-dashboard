@@ -723,7 +723,7 @@ body::before {
 .orb-2 { background: #00b7ff; width: 560px; height: 560px; bottom: -190px; right: 9%; }
 .orb-3 { background: #7c3aed; width: 470px; height: 470px; top: 32%; left: 42%; }
 
-.app-container { position: relative; z-index: 2; padding: 0; }
+.app-container { position: relative; z-index: 2; padding: 0; height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
 
 .header {
   height: 64px;
@@ -1785,9 +1785,9 @@ body::before {
 .widget[data-type="system"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="fritzbox"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="tasmota"] { grid-column: span 6; grid-row: span 1; }
-.widget[data-type="player"] { grid-column: span 2; grid-row: span 1; }
+.widget[data-type="player"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="talk"] { grid-column: span 2; grid-row: span 1; }
-.widget[data-type="sensor"] { grid-column: span 2; grid-row: span 1; }
+.widget[data-type="sensor"] { grid-column: span 3; grid-row: span 1; }
 
 .widget[data-type="sensor"]::before {
   background:
@@ -1889,9 +1889,9 @@ body::before {
   .widget[data-type="system"],
   .widget[data-type="fritzbox"] { grid-column: span 3; }
   .widget[data-type="tasmota"] { grid-column: span 6; }
+  .widget[data-type="talk"] { grid-column: span 2; }
   .widget[data-type="player"],
-  .widget[data-type="talk"],
-  .widget[data-type="sensor"] { grid-column: span 2; }
+  .widget[data-type="sensor"] { grid-column: span 3; }
   .sensor-layout { gap: 6px; }
   .sensor-gauges { gap: 8px; }
   .sensor-gauge { width: min(100%, 92px); }
