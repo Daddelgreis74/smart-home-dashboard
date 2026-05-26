@@ -820,6 +820,7 @@ body::before {
 .widget[data-type="system"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="tasmota"] { grid-column: span 4; grid-row: span 1; }
 .widget[data-type="player"] { grid-column: span 2; grid-row: span 1; }
+.widget[data-type="presence"] { grid-column: span 2; grid-row: span 1; }
 
 .widget[data-type="tasmota"]::before {
   background:
@@ -1382,6 +1383,7 @@ body::before {
 .widget[data-type="system"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="tasmota"] { grid-column: span 4; grid-row: span 1; }
 .widget[data-type="player"] { grid-column: span 2; grid-row: span 1; }
+.widget[data-type="presence"] { grid-column: span 2; grid-row: span 1; }
 
 /* Weather details stay rich, but no longer dominate the whole dashboard. */
 .weather-details {
@@ -1407,6 +1409,7 @@ body::before {
   .widget[data-type="system"] { grid-column: span 3; }
   .widget[data-type="tasmota"] { grid-column: span 5; }
   .widget[data-type="player"] { grid-column: span 3; }
+  .widget[data-type="presence"] { grid-column: span 3; }
 }
 
 /* If Fully Kiosk reports a squatter viewport, compress contents but keep two rows. */
@@ -1418,7 +1421,8 @@ body::before {
   .widget[data-type="weather"],
   .widget[data-type="waste"],
   .widget[data-type="system"],
-  .widget[data-type="player"] { grid-column: span 2; }
+  .widget[data-type="player"],
+  .widget[data-type="presence"] { grid-column: span 2; }
   .widget[data-type="tasmota"] { grid-column: span 4; }
   .weather-details {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1599,6 +1603,7 @@ body::before {
 .widget[data-type="tasmota"] { grid-column: span 6; grid-row: span 1; }
 .widget[data-type="player"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="talk"] { grid-column: span 3; grid-row: span 1; }
+.widget[data-type="presence"] { grid-column: span 3; grid-row: span 1; }
 
 .widget[data-type="talk"]::before {
   background:
@@ -1672,6 +1677,7 @@ body::before {
   .widget[data-type="tasmota"] { grid-column: span 6; }
   .widget[data-type="player"] { grid-column: span 3; }
   .widget[data-type="talk"] { grid-column: span 3; }
+  .widget[data-type="presence"] { grid-column: span 3; }
 }
 
 @media (max-height: 760px) {
@@ -1686,7 +1692,8 @@ body::before {
   .widget[data-type="system"] { grid-column: span 4; }
   .widget[data-type="tasmota"] { grid-column: span 6; }
   .widget[data-type="player"],
-  .widget[data-type="talk"] { grid-column: span 3; }
+  .widget[data-type="talk"],
+  .widget[data-type="presence"] { grid-column: span 3; }
   .talk-orb { width: 44px; height: 44px; border-radius: 17px; font-size: 19px; }
   .talk-copy strong { font-size: 13px; }
   .talk-copy span { display: none; }
@@ -1702,7 +1709,8 @@ body::before {
   .widget[data-type="waste"],
   .widget[data-type="system"],
   .widget[data-type="player"],
-  .widget[data-type="talk"] { grid-column: span 1; }
+  .widget[data-type="talk"],
+  .widget[data-type="presence"] { grid-column: span 1; }
   .widget[data-type="tasmota"] { grid-column: span 2; }
 }
 
@@ -1793,6 +1801,7 @@ body::before {
 .widget[data-type="player"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="talk"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="sensor"] { grid-column: span 3; grid-row: span 1; }
+.widget[data-type="presence"] { grid-column: span 3; grid-row: span 1; }
 
 .widget[data-type="sensor"]::before {
   background:
@@ -1896,7 +1905,8 @@ body::before {
   .widget[data-type="tasmota"] { grid-column: span 6; }
   .widget[data-type="talk"],
   .widget[data-type="player"],
-  .widget[data-type="sensor"] { grid-column: span 3; }
+  .widget[data-type="sensor"],
+  .widget[data-type="presence"] { grid-column: span 3; }
   .sensor-layout { gap: 6px; }
   .sensor-gauges { gap: 8px; }
   .sensor-gauge { width: min(100%, 92px); }
@@ -1914,7 +1924,8 @@ body::before {
   .widget[data-type="sensor"],
   .widget[data-type="player"],
   .widget[data-type="talk"],
-  .widget[data-type="fritzbox"] { grid-column: span 1; }
+  .widget[data-type="fritzbox"],
+  .widget[data-type="presence"] { grid-column: span 1; }
   .widget[data-type="tasmota"] { grid-column: span 2; }
 }
 
