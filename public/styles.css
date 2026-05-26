@@ -818,7 +818,7 @@ body::before {
 .widget[data-type="weather"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="waste"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="system"] { grid-column: span 2; grid-row: span 1; }
-.widget[data-type="tasmota"] { grid-column: span 4; grid-row: span 1; }
+.widget[data-type="tasmota"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="player"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="presence"] { grid-column: span 2; grid-row: span 1; }
 
@@ -890,7 +890,7 @@ body::before {
 
 /* Smart Home: big tactile control bay */
 .tasmota-layout {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   align-content: center;
 }
@@ -1381,7 +1381,7 @@ body::before {
 .widget[data-type="weather"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="waste"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="system"] { grid-column: span 2; grid-row: span 1; }
-.widget[data-type="tasmota"] { grid-column: span 4; grid-row: span 1; }
+.widget[data-type="tasmota"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="player"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="presence"] { grid-column: span 2; grid-row: span 1; }
 
@@ -1407,7 +1407,7 @@ body::before {
   .widget[data-type="weather"] { grid-column: span 3; }
   .widget[data-type="waste"] { grid-column: span 2; }
   .widget[data-type="system"] { grid-column: span 3; }
-  .widget[data-type="tasmota"] { grid-column: span 5; }
+  .widget[data-type="tasmota"] { grid-column: span 3; }
   .widget[data-type="player"] { grid-column: span 3; }
   .widget[data-type="presence"] { grid-column: span 3; }
 }
@@ -1422,8 +1422,8 @@ body::before {
   .widget[data-type="waste"],
   .widget[data-type="system"],
   .widget[data-type="player"],
-  .widget[data-type="presence"] { grid-column: span 2; }
-  .widget[data-type="tasmota"] { grid-column: span 4; }
+  .widget[data-type="presence"],
+  .widget[data-type="tasmota"] { grid-column: span 2; }
   .weather-details {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 4px;
@@ -1600,7 +1600,7 @@ body::before {
 .widget[data-type="weather"] { grid-column: span 4; grid-row: span 1; }
 .widget[data-type="waste"] { grid-column: span 4; grid-row: span 1; }
 .widget[data-type="system"] { grid-column: span 4; grid-row: span 1; }
-.widget[data-type="tasmota"] { grid-column: span 6; grid-row: span 1; }
+.widget[data-type="tasmota"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="player"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="talk"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="presence"] { grid-column: span 3; grid-row: span 1; }
@@ -1674,10 +1674,10 @@ body::before {
   .widget[data-type="weather"] { grid-column: span 4; }
   .widget[data-type="waste"] { grid-column: span 3; }
   .widget[data-type="system"] { grid-column: span 5; }
-  .widget[data-type="tasmota"] { grid-column: span 6; }
-  .widget[data-type="player"] { grid-column: span 3; }
-  .widget[data-type="talk"] { grid-column: span 3; }
-  .widget[data-type="presence"] { grid-column: span 3; }
+  .widget[data-type="player"],
+  .widget[data-type="talk"],
+  .widget[data-type="presence"],
+  .widget[data-type="tasmota"] { grid-column: span 3; }
 }
 
 @media (max-height: 760px) {
@@ -1690,10 +1690,10 @@ body::before {
   .widget[data-type="weather"],
   .widget[data-type="waste"],
   .widget[data-type="system"] { grid-column: span 4; }
-  .widget[data-type="tasmota"] { grid-column: span 6; }
   .widget[data-type="player"],
   .widget[data-type="talk"],
-  .widget[data-type="presence"] { grid-column: span 3; }
+  .widget[data-type="presence"],
+  .widget[data-type="tasmota"] { grid-column: span 3; }
   .talk-orb { width: 44px; height: 44px; border-radius: 17px; font-size: 19px; }
   .talk-copy strong { font-size: 13px; }
   .talk-copy span { display: none; }
@@ -1793,15 +1793,15 @@ body::before {
 }
 
 /* --- AM2301 TASMOTA SENSOR GAUGES --- */
-.widget[data-type="weather"] { grid-column: span 3; grid-row: span 1; }
-.widget[data-type="waste"] { grid-column: span 3; grid-row: span 1; }
-.widget[data-type="system"] { grid-column: span 3; grid-row: span 1; }
-.widget[data-type="fritzbox"] { grid-column: span 3; grid-row: span 1; }
-.widget[data-type="tasmota"] { grid-column: span 6; grid-row: span 1; }
-.widget[data-type="player"] { grid-column: span 3; grid-row: span 1; }
-.widget[data-type="talk"] { grid-column: span 3; grid-row: span 1; }
-.widget[data-type="sensor"] { grid-column: span 3; grid-row: span 1; }
-.widget[data-type="presence"] { grid-column: span 3; grid-row: span 1; }
+.widget[data-type="weather"],
+.widget[data-type="waste"],
+.widget[data-type="system"],
+.widget[data-type="fritzbox"],
+.widget[data-type="player"],
+.widget[data-type="talk"],
+.widget[data-type="sensor"],
+.widget[data-type="presence"],
+.widget[data-type="tasmota"] { grid-column: span 3; grid-row: span 1; }
 
 .widget[data-type="sensor"]::before {
   background:
@@ -1898,15 +1898,11 @@ body::before {
 }
 
 @media (max-height: 760px) {
-  .widget[data-type="weather"],
-  .widget[data-type="waste"],
-  .widget[data-type="system"],
-  .widget[data-type="fritzbox"] { grid-column: span 3; }
-  .widget[data-type="tasmota"] { grid-column: span 6; }
   .widget[data-type="talk"],
   .widget[data-type="player"],
   .widget[data-type="sensor"],
-  .widget[data-type="presence"] { grid-column: span 3; }
+  .widget[data-type="presence"],
+  .widget[data-type="tasmota"] { grid-column: span 3; }
   .sensor-layout { gap: 6px; }
   .sensor-gauges { gap: 8px; }
   .sensor-gauge { width: min(100%, 92px); }
