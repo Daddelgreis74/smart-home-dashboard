@@ -1,6 +1,6 @@
 {
   "name": "smart-home-dashboard",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "Modern Smart Home Dashboard",
   "main": "server.js",
   "scripts": {
