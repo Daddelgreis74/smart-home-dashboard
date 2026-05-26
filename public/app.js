@@ -413,21 +413,82 @@ function initSettings() {
   });
 }
 
-// ==== WEATHER & ISC & PLAYER ====
 async function loadWeather() {
   let locName = localStorage.getItem('weatherLoc') || 'Berlin';
-  let lat = 52.52; let lon = 13.41;
-  try {
-    const geoRes = await (await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(locName)}&count=1&language=de&format=json`)).json();
-    if(geoRes.results && geoRes.results.length > 0) { lat = geoRes.results[0].latitude; lon = geoRes.results[0].longitude; locName = geoRes.results[0].name; }
-  } catch(e) {}
+  let lat = parseFloat(localStorage.getItem('weather_lat'));
+  let lon = parseFloat(localStorage.getItem('weather_lon'));
+  let cachedLoc = localStorage.getItem('weather_loc_resolved');
+
+  // 1. Geocoding nur machen, wenn die Stadt geaendert wurde oder noch keine Koordinaten da sind
+  if (!lat || !lon || cachedLoc !== locName) {
+    try {
+      const geoRes = await (await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(locName)}&count=1&language=de&format=json`)).json();
+      if (geoRes.results && geoRes.results.length > 0) {
+        lat = geoRes.results[0].latitude;
+        lon = geoRes.results[0].longitude;
+        locName = geoRes.results[0].name;
+        
+        // In LocalStorage cachen
+        localStorage.setItem('weather_lat', lat);
+        localStorage.setItem('weather_lon', lon);
+        localStorage.setItem('weather_loc_resolved', locName);
+      }
+    } catch(e) {
+      console.warn("Geocoding fehlgeschlagen, nutze Fallback", e);
+      if (!lat) { lat = 52.52; lon = 13.41; } // Fallback Berlin
+    }
+  } else {
+    locName = cachedLoc;
+  }
+
+  let d = null;
+  let success = false;
+
+  // 2. Wetterdaten laden
   try {
     const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_gusts_10m,precipitation,rain,pressure_msl,cloud_cover` +
       `&daily=temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_probability_max,sunrise,sunset` +
       `&timezone=auto`;
-    const d = await (await fetch(weatherUrl)).json();
-    document.getElementById('weatherCity').textContent = locName;
+    const response = await fetch(weatherUrl);
+    if (response.ok) {
+      d = await response.json();
+      if (d && d.current) {
+        success = true;
+        // Speichere erfolgreiche Daten im Cache
+        localStorage.setItem('cached_weather_data', JSON.stringify(d));
+        localStorage.setItem('cached_weather_loc', locName);
+        localStorage.setItem('cached_weather_time', new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }));
+      }
+    }
+  } catch(e) {
+    console.error("Fehler beim Laden des Wetters:", e);
+  }
+
+  // 3. Wenn Laden nicht erfolgreich (z. B. Rate Limit), versuche Cache zu laden!
+  if (!success) {
+    const cachedData = localStorage.getItem('cached_weather_data');
+    const cachedLocName = localStorage.getItem('cached_weather_loc');
+    const cachedTime = localStorage.getItem('cached_weather_time');
+    
+    if (cachedData) {
+      d = JSON.parse(cachedData);
+      locName = cachedLocName || locName;
+      console.log(`Nutze gecachte Wetterdaten von ${cachedTime} Uhr.`);
+    } else {
+      // Absoluter Fallback, wenn gar nichts da ist
+      document.getElementById('weatherCity').textContent = locName;
+      document.getElementById('weatherCondition').textContent = 'Limit erreicht';
+      return;
+    }
+  }
+
+  // 4. Wetter-UI rendern
+  try {
+    const cachedTime = localStorage.getItem('cached_weather_time') || '';
+    const isCachedText = !success ? ` (Stand: ${cachedTime})` : '';
+    
+    document.getElementById('weatherCity').textContent = locName + isCachedText;
     document.querySelector('.weather-temp').innerHTML = Math.round(d.current.temperature_2m) + '&deg;';
     document.getElementById('w-humidity').textContent = d.current.relative_humidity_2m + ' %';
     document.getElementById('w-wind').textContent = Math.round(d.current.wind_speed_10m) + ' km/h';
@@ -437,6 +498,7 @@ async function loadWeather() {
     document.getElementById('w-pressure').textContent = Math.round(d.current.pressure_msl) + ' hPa';
     document.getElementById('w-clouds').textContent = Math.round(d.current.cloud_cover) + ' %';
     document.getElementById('w-uv').textContent = (d.daily.uv_index_max?.[0] ?? 0).toFixed(1);
+    
     const conditions = {
       0:{text:'Klar',icon:'fa-sun',style:'sunny'},
       1:{text:'Überwiegend klar',icon:'fa-sun',style:'sunny'},
@@ -454,11 +516,14 @@ async function loadWeather() {
       80:{text:'Regenschauer',icon:'fa-cloud-sun-rain',style:'rainy'},
       95:{text:'Gewitter',icon:'fa-cloud-bolt',style:'rainy'}
     };
+    
     const cond = conditions[d.current.weather_code] || { text: 'Bedeckt', icon: 'fa-cloud', style: 'cloudy' };
     document.getElementById('weatherCondition').textContent = cond.text;
     document.querySelector('.weather-icon').innerHTML = `<i class="fas ${cond.icon}"></i>`;
     document.querySelector('.weather-icon').className = `weather-icon ${cond.style}`;
-  } catch(e) {}
+  } catch(e) {
+    console.error("Renderfehler beim Wetter:", e);
+  }
 }
 
 async function loadICS() {
