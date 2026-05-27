@@ -2469,5 +2469,163 @@ body.theme-retrowave .tasmota-btn.active i { color: #ff3399; }
   }
 }
 
+/* ==========================================================================
+   HEADER WASTE REMINDER SYSTEM STYLING
+   ========================================================================== */
+.header-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-height: 48px;
+}
+
+.waste-alert-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+  animation: wasteAlertPulse 2s infinite ease-in-out;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Bin categories colors */
+.waste-alert-residual {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+.waste-alert-bio {
+  background: rgba(85, 245, 177, 0.1);
+  border-color: rgba(85, 245, 177, 0.3);
+  color: #55f5b1;
+  text-shadow: 0 0 8px rgba(85, 245, 177, 0.3);
+}
+.waste-alert-paper {
+  background: rgba(102, 217, 255, 0.1);
+  border-color: rgba(102, 217, 255, 0.3);
+  color: #66d9ff;
+  text-shadow: 0 0 8px rgba(102, 217, 255, 0.3);
+}
+.waste-alert-plastic {
+  background: rgba(255, 214, 102, 0.1);
+  border-color: rgba(255, 214, 102, 0.3);
+  color: #ffd666;
+  text-shadow: 0 0 8px rgba(255, 214, 102, 0.3);
+}
+
+/* Animations */
+@keyframes wasteAlertPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.05);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.alert-icon-pulse {
+  animation: alertIconShake 1.5s infinite ease-in-out;
+}
+
+@keyframes alertIconShake {
+  0%, 100% { transform: rotate(0deg); }
+  20%, 60% { transform: rotate(-8deg); }
+  40%, 80% { transform: rotate(8deg); }
+}
+
+/* Cyberpunk specific styling override */
+body.theme-cyberpunk .waste-alert-pill {
+  border-radius: 2px;
+  font-family: monospace;
+  text-transform: uppercase;
+  animation: cyberpunkAlertPulse 1.5s infinite steps(2);
+  clip-path: polygon(0 0, 95% 0, 100% 30%, 100% 100%, 8% 100%, 0 70%);
+}
+body.theme-cyberpunk .waste-alert-residual {
+  background: rgba(255, 110, 0, 0.08);
+  border-color: #ff6e00;
+  color: #ff6e00;
+  text-shadow: 0 0 5px rgba(255, 110, 0, 0.5);
+}
+body.theme-cyberpunk .waste-alert-bio {
+  background: rgba(0, 255, 163, 0.08);
+  border-color: #00ffa3;
+  color: #00ffa3;
+  text-shadow: 0 0 5px rgba(0, 255, 163, 0.5);
+}
+body.theme-cyberpunk .waste-alert-paper {
+  background: rgba(0, 183, 255, 0.08);
+  border-color: #00b7ff;
+  color: #00b7ff;
+  text-shadow: 0 0 5px rgba(0, 183, 255, 0.5);
+}
+body.theme-cyberpunk .waste-alert-plastic {
+  background: rgba(255, 234, 0, 0.08);
+  border-color: #ffea00;
+  color: #ffea00;
+  text-shadow: 0 0 5px rgba(255, 234, 0, 0.5);
+}
+
+@keyframes cyberpunkAlertPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; border-style: dashed; }
+}
+
+/* Retrowave specific styling override */
+body.theme-retrowave .waste-alert-pill {
+  border-radius: 8px;
+  font-family: 'Outfit', sans-serif;
+  border-color: #ff007f;
+  text-shadow: 0 0 10px rgba(255, 0, 127, 0.5), 0 0 20px rgba(255, 0, 127, 0.3);
+  box-shadow: 0 0 15px rgba(255, 0, 127, 0.3);
+}
+
+/* Cozy Nordic Dark specific styling override */
+body.theme-nordic .waste-alert-pill {
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  animation: nordicAlertPulse 3s infinite ease-in-out;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+body.theme-nordic .waste-alert-residual {
+  background: rgba(60, 68, 77, 0.4);
+  color: #e5f1ff;
+  border-color: rgba(229, 241, 255, 0.15);
+}
+body.theme-nordic .waste-alert-bio {
+  background: rgba(143, 169, 143, 0.25);
+  color: #a3c4a3;
+  border-color: rgba(143, 169, 143, 0.35);
+}
+body.theme-nordic .waste-alert-paper {
+  background: rgba(122, 147, 165, 0.25);
+  color: #92b0c4;
+  border-color: rgba(122, 147, 165, 0.35);
+}
+body.theme-nordic .waste-alert-plastic {
+  background: rgba(197, 172, 129, 0.25);
+  color: #dbcaac;
+  border-color: rgba(197, 172, 129, 0.35);
+}
+
+@keyframes nordicAlertPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.01); }
+}
+
 
 

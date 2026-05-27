@@ -660,9 +660,16 @@ async function loadICS() {
       const todayStr = today.getFullYear() + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
       const upcoming = events.filter(e => e.date >= todayStr).slice(0, 4);
       
-      if(upcoming.length === 0) { list.innerHTML = '<p style="color:rgba(255,255,255,0.5);">Keine Termine.</p>'; return; }
+      if(upcoming.length === 0) { 
+        list.innerHTML = '<p style="color:rgba(255,255,255,0.5);">Keine Termine.</p>'; 
+        const alertContainer = document.getElementById('headerWasteAlert');
+        if (alertContainer) { alertContainer.style.display = 'none'; alertContainer.innerHTML = ''; }
+        return; 
+      }
       
       let html = '<div class="waste-list">';
+      const alerts = [];
+      
       upcoming.forEach(e => {
         const dt = new Date(e.date.substring(0,4), e.date.substring(4,6)-1, e.date.substring(6,8));
         let type = 'residual'; const s = e.summary.toLowerCase();
@@ -681,11 +688,53 @@ async function loadICS() {
             </div>
             <span>${dateStr}</span>
           </div>`;
+          
+        if (diff === 0 || diff === 1) {
+          alerts.push({
+            summary: e.summary.replace(' in Altenburg', ''),
+            type,
+            diff,
+            dateStr: diff === 0 ? 'Heute' : 'Morgen'
+          });
+        }
       });
       html += '</div>';
       list.innerHTML = html;
+      
+      // Update Header-Alert
+      const alertContainer = document.getElementById('headerWasteAlert');
+      if (alertContainer) {
+        if (alerts.length > 0) {
+          alertContainer.innerHTML = '';
+          alertContainer.style.display = 'flex';
+          alerts.forEach(alert => {
+            const pill = document.createElement('div');
+            pill.className = `waste-alert-pill waste-alert-${alert.type}`;
+            
+            let icon = 'fa-trash-can';
+            if (alert.type === 'bio') icon = 'fa-leaf';
+            else if (alert.type === 'paper') icon = 'fa-box-open';
+            else if (alert.type === 'plastic') icon = 'fa-recycle';
+            
+            pill.innerHTML = `
+              <i class="fas ${icon} alert-icon-pulse"></i>
+              <span><strong>${alert.dateStr}:</strong> ${alert.summary}</span>
+            `;
+            alertContainer.appendChild(pill);
+          });
+        } else {
+          alertContainer.style.display = 'none';
+          alertContainer.innerHTML = '';
+        }
+      }
+    } else {
+      const alertContainer = document.getElementById('headerWasteAlert');
+      if (alertContainer) { alertContainer.style.display = 'none'; alertContainer.innerHTML = ''; }
     }
-  } catch(e) {}
+  } catch(e) {
+    const alertContainer = document.getElementById('headerWasteAlert');
+    if (alertContainer) { alertContainer.style.display = 'none'; alertContainer.innerHTML = ''; }
+  }
 }
 
 let activeAudioElement = null;
