@@ -78,6 +78,7 @@
                 <label class="toggle-label"><span>Tasmota Geräte</span><input type="checkbox" id="toggle-tasmota" checked><div class="toggle-switch"></div></label>
                 <label class="toggle-label"><span>Fritz!Box Monitor</span><input type="checkbox" id="toggle-fritzbox" checked><div class="toggle-switch"></div></label>
                 <label class="toggle-label"><span>Anwesenheitserkennung</span><input type="checkbox" id="toggle-presence" checked><div class="toggle-switch"></div></label>
+                <label class="toggle-label"><span>Kamera-Monitor</span><input type="checkbox" id="toggle-camera" checked><div class="toggle-switch"></div></label>
               </div>
             </div>
             <div class="section-divider"></div>
@@ -246,11 +247,37 @@
               <div id="presenceList" class="tasmota-list-settings" style="margin-top: 5px; display: flex; flex-direction: column; gap: 8px;">
                 <!-- Dynamische Personen-Liste -->
               </div>
+              <div class="section-divider"></div>
             </div>
-            <div class="section-divider"></div>
-          </div>
 
-        </div>
+            <!-- 10. KAMERA-MONITOR -->
+            <div class="setting-section">
+              <h3 class="accordion-header"><i class="fas fa-video"></i> Kamera-Monitor <i class="fas fa-chevron-down acc-icon"></i></h3>
+              <div class="accordion-body">
+                <div class="input-group">
+                  <label class="setting-sub-label">Kamera hinzufügen (Max. 4):</label>
+                  <div style="display:flex; flex-direction: column; gap: 8px;">
+                    <input type="text" id="cameraManName" placeholder="Kameraname (z.B. Haustür)">
+                    <input type="text" id="cameraManUrl" placeholder="HTTP-Bild- oder Stream-URL (JPEG/MJPEG)">
+                    <select id="cameraManInterval" class="radio-select" style="max-width: 100%; width: 100%;">
+                      <option value="0">🎥 Live-Video / MJPEG-Stream</option>
+                      <option value="1">⏱️ Aktualisierung jede Sekunde</option>
+                      <option value="2">⏱️ Aktualisierung alle 2 Sekunden</option>
+                      <option value="5">⏱️ Aktualisierung alle 5 Sekunden</option>
+                    </select>
+                    <button class="btn" id="addCameraBtn" style="margin-top: 5px;"><i class="fas fa-plus"></i> Kamera hinzufügen</button>
+                  </div>
+                </div>
+                
+                <label class="setting-sub-label" style="margin-top: 15px; display: block;">Aktive Kameras:</label>
+                <div id="cameraSettingsList" class="tasmota-list-settings" style="margin-top: 5px; display: flex; flex-direction: column; gap: 8px;">
+                  <!-- Dynamische Kameras-Liste -->
+                </div>
+              </div>
+              <div class="section-divider"></div>
+            </div>
+
+          </div>
       </div>
     </div>
 
@@ -419,6 +446,18 @@
         </div>
       </div>
 
+      <div class="widget" data-type="camera">
+        <div class="widget-header">
+          <h3><i class="fas fa-video" style="color:var(--primary)"></i> Kamera-Monitor</h3>
+          <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
+        </div>
+        <div class="widget-body camera-layout">
+          <div class="camera-grid" id="cameraGrid">
+            <div class="no-cameras">Keine Kameras eingerichtet.</div>
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
   <!-- Live Fritz!Box Call Toast Overlay -->
@@ -430,6 +469,15 @@
         <h2 class="fritz-toast-number" id="fritzToastNumber">--</h2>
         <span class="fritz-toast-caller" id="fritzToastCaller">Unbekannter Anrufer</span>
       </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Camera Overlay -->
+  <div class="camera-fullscreen-overlay" id="cameraFullscreenOverlay" hidden>
+    <button class="close-fullscreen-btn" id="closeCameraFullscreen" aria-label="Vollbild schließen"><i class="fas fa-times"></i></button>
+    <div class="fullscreen-content">
+      <img id="fullscreenCameraImg" src="" alt="Live-Stream">
+      <div class="fullscreen-title" id="fullscreenCameraTitle">Kamera</div>
     </div>
   </div>
 

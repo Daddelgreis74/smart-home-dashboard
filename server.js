@@ -14,6 +14,7 @@ const PORT = Number(process.env.PORT || 8443);
 const HOST = process.env.HOST || '0.0.0.0';
 const TASMOTA_FILE = path.join(__dirname, 'tasmota.json');
 const RADIO_FILE = path.join(__dirname, 'radio.json');
+const CAMERAS_FILE = path.join(__dirname, 'cameras.json');
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
 const SSL_DIR = path.join(__dirname, 'ssl');
 const VOICE_TALK_ENABLED = process.env.OPENCLAW_VOICE_TALK === '1';
@@ -922,6 +923,97 @@ loadPresence();
 setInterval(pollPresence, 30000);
 setTimeout(pollPresence, 5000);
 
+// ==== KAMERA MONITOR LOGIC & API ====
+let camerasRAM = [];
+
+function sanitizeCameras(value) {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 10).reduce((acc, cam) => {
+    const id = String(cam?.id || Date.now() + Math.random().toString(36).substring(2, 7));
+    const name = cleanName(cam?.name, 'Kamera');
+    const url = String(cam?.url || '').trim().slice(0, 800);
+    if (!/^https?:\/\//i.test(url)) return acc;
+    const interval = Math.max(0, Number(cam?.interval || 0));
+    acc.push({ id, name, url, interval });
+    return acc;
+  }, []);
+}
+
+function loadCameras() {
+  if (fs.existsSync(CAMERAS_FILE)) {
+    try {
+      camerasRAM = sanitizeCameras(JSON.parse(fs.readFileSync(CAMERAS_FILE, 'utf8')));
+    } catch(e) { console.error("[Cameras] Parse Error", e); }
+  }
+  return camerasRAM;
+}
+
+function saveCameras(data) {
+  camerasRAM = sanitizeCameras(data);
+  try {
+    fs.writeFileSync(CAMERAS_FILE, JSON.stringify(camerasRAM, null, 2));
+  } catch(e) { console.error("[Cameras] Schreibfehler", e); }
+}
+
+// Initialisiere Kameras
+loadCameras();
+
+app.get('/api/cameras', (req, res) => {
+  res.json(camerasRAM);
+});
+
+app.post('/api/cameras', (req, res) => {
+  try {
+    const { id, name, url, interval } = req.body;
+    const cleanId = String(id || Date.now());
+    const cleanN = cleanName(name, 'Kamera');
+    const cleanU = String(url || '').trim().slice(0, 800);
+    if (!/^https?:\/\//i.test(cleanU)) {
+      return res.status(400).json({ success: false, error: 'Ungültige Kamera-URL. Muss mit http:// oder https:// beginnen.' });
+    }
+    const cleanI = Math.max(0, Number(interval || 0));
+
+    const index = camerasRAM.findIndex(c => c.id === cleanId);
+    const existing = index >= 0 ? camerasRAM[index] : null;
+
+    const camera = {
+      id: cleanId,
+      name: cleanN,
+      url: cleanU,
+      interval: cleanI
+    };
+
+    if (index >= 0) {
+      camerasRAM[index] = camera;
+    } else {
+      camerasRAM.push(camera);
+    }
+
+    saveCameras(camerasRAM);
+    res.json({ success: true, camera });
+    io.emit('cameras-updated', camerasRAM);
+  } catch(e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+app.delete('/api/cameras/:id', (req, res) => {
+  try {
+    const id = String(req.params.id);
+    const index = camerasRAM.findIndex(c => c.id === id);
+    if (index >= 0) {
+      camerasRAM.splice(index, 1);
+      saveCameras(camerasRAM);
+      res.json({ success: true });
+      io.emit('cameras-updated', camerasRAM);
+    } else {
+      res.status(404).json({ success: false, error: 'Kamera nicht gefunden.' });
+    }
+  } catch(e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 // Netzwerk Status-Schleife (alle 10s)
 
 setInterval(async () => {
@@ -943,6 +1035,7 @@ io.on('connection', (socket) => {
   socket.on('update-layout', (layout) => socket.broadcast.emit('layout-updated', layout));
   socket.emit('fritz-calls', getMergedCalls());
   socket.emit('presence-list-updated', presenceRAM);
+  socket.emit('cameras-updated', camerasRAM);
 });
 
 setInterval(async () => {

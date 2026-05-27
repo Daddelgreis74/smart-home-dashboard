@@ -35,6 +35,7 @@ function init() {
   initTasmota();
   initFritzbox();
   initPresence();
+  initCameraWidget();
 }
 
 let globalStations = [];
@@ -293,7 +294,7 @@ function loadSavedSettings() {
   const sensorIpInput = document.getElementById('sensorIp');
   if(sensorIpInput) sensorIpInput.value = savedSensorIp;
 
-  ['weather', 'waste', 'player', 'talk', 'sensor', 'system', 'tasmota', 'fritzbox', 'presence'].forEach(type => {
+  ['weather', 'waste', 'player', 'talk', 'sensor', 'system', 'tasmota', 'fritzbox', 'presence', 'camera'].forEach(type => {
     const isVisible = localStorage.getItem('show_' + type) !== 'false';
     const widget = document.querySelector(`.widget[data-type="${type}"]`);
     const toggle = document.getElementById('toggle-' + type);
@@ -431,7 +432,7 @@ function initSettings() {
     });
   }
 
-  ['weather', 'waste', 'player', 'talk', 'sensor', 'system', 'tasmota', 'fritzbox', 'presence'].forEach(type => {
+  ['weather', 'waste', 'player', 'talk', 'sensor', 'system', 'tasmota', 'fritzbox', 'presence', 'camera'].forEach(type => {
     const toggle = document.getElementById('toggle-' + type);
     if(toggle) {
       toggle.addEventListener('change', (e) => {
@@ -1767,4 +1768,195 @@ async function initPresence() {
   } catch(err) {
     console.error('Initial load of presence failed:', err);
   }
+}
+
+// ==== KAMERA MONITOR WIDGET & SETTINGS ====
+let activeCameraIntervals = {};
+
+async function initCameraWidget() {
+  const addBtn = document.getElementById('addCameraBtn');
+  if(!addBtn) return;
+
+  // 1. Kamera hinzufügen Handler
+  addBtn.addEventListener('click', async () => {
+    const nameInput = document.getElementById('cameraManName');
+    const urlInput = document.getElementById('cameraManUrl');
+    const intervalSelect = document.getElementById('cameraManInterval');
+    if(!nameInput || !urlInput) return;
+
+    const name = nameInput.value.trim();
+    const url = urlInput.value.trim();
+    const interval = Number(intervalSelect.value);
+
+    if(!name || !url) {
+      alert('Bitte gib Name und URL für die Kamera ein.');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/cameras', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, url, interval })
+      });
+      const data = await res.json();
+      if(data && data.success) {
+        nameInput.value = '';
+        urlInput.value = '';
+        intervalSelect.value = '0';
+      } else {
+        alert('Fehler beim Hinzufügen: ' + (data.error || 'Unbekannter Fehler'));
+      }
+    } catch(err) {
+      alert('Fehler beim Hinzufügen der Kamera.');
+    }
+  });
+
+  // 2. Vollbild Schließen Handler
+  const closeOverlayBtn = document.getElementById('closeCameraFullscreen');
+  const overlay = document.getElementById('cameraFullscreenOverlay');
+  if(closeOverlayBtn && overlay) {
+    const closeOverlay = () => {
+      overlay.setAttribute('hidden', '');
+      const fsImg = document.getElementById('fullscreenCameraImg');
+      if(fsImg) fsImg.src = ''; // Download stoppen
+    };
+    closeOverlayBtn.addEventListener('click', closeOverlay);
+    overlay.addEventListener('click', (e) => {
+      if(e.target === overlay || e.target.classList.contains('fullscreen-content')) {
+        closeOverlay();
+      }
+    });
+  }
+
+  // 3. Socket-Event Registrierung
+  socket.on('cameras-updated', (cameras) => {
+    renderCameraSettings(cameras);
+    renderCameraWidget(cameras);
+  });
+
+  // 4. Initialer Abruf
+  try {
+    const res = await fetch('/api/cameras');
+    const cameras = await res.json();
+    if(Array.isArray(cameras)) {
+      renderCameraSettings(cameras);
+      renderCameraWidget(cameras);
+    }
+  } catch(err) {
+    console.error('Initialer Kamera-Abruf fehlgeschlagen:', err);
+  }
+}
+
+function renderCameraSettings(cameras) {
+  const list = document.getElementById('cameraSettingsList');
+  if(!list) return;
+  list.innerHTML = '';
+
+  if(cameras.length === 0) {
+    list.innerHTML = '<div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 10px;">Keine Kameras registriert.</div>';
+    return;
+  }
+
+  cameras.forEach(c => {
+    const row = document.createElement('div');
+    row.className = 'tasmota-row';
+    row.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);';
+    
+    let modeText = 'Live-Video (MJPEG)';
+    if(c.interval === 1) modeText = 'Aktualisierung: 1s';
+    else if(c.interval > 1) modeText = `Aktualisierung: ${c.interval}s`;
+
+    row.innerHTML = `
+      <div style="display: flex; flex-direction: column; text-align: left; gap: 2px;">
+        <span class="t-name" style="font-weight: 700;">${c.name}</span>
+        <span class="t-ip" style="font-size: 9px; color: var(--text-muted); word-break: break-all; max-width: 250px;">${c.url.substring(0, 50)}${c.url.length > 50 ? '...' : ''}</span>
+        <span style="font-size: 9px; color: var(--primary); font-weight: 600;">${modeText}</span>
+      </div>
+      <button class="t-btn danger" style="padding: 6px 10px;" onclick="removeCamera('${c.id}')"><i class="fas fa-trash"></i></button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+window.removeCamera = async function(id) {
+  if(!confirm('Möchtest du diese Kamera wirklich löschen?')) return;
+  try {
+    const res = await fetch('/api/cameras/' + id, { method: 'DELETE' });
+    const data = await res.json();
+    if(!data.success) {
+      alert('Fehler beim Löschen: ' + (data.error || 'Unbekannter Fehler'));
+    }
+  } catch(err) {
+    console.error('Löschen der Kamera fehlgeschlagen:', err);
+  }
+};
+
+function renderCameraWidget(cameras) {
+  const grid = document.getElementById('cameraGrid');
+  if(!grid) return;
+
+  // Alte Intervalle bereinigen um Speicherlecks zu verhindern
+  Object.values(activeCameraIntervals).forEach(clearInterval);
+  activeCameraIntervals = {};
+
+  grid.className = 'camera-grid';
+  grid.innerHTML = '';
+
+  if(cameras.length === 0) {
+    grid.innerHTML = '<div class="no-cameras">Keine Kameras eingerichtet.</div>';
+    return;
+  }
+
+  // Zuweisen des Spaltenlayouts
+  if(cameras.length === 1) grid.classList.add('cols-1');
+  else if(cameras.length === 2) grid.classList.add('cols-2');
+  else grid.classList.add('cols-4'); // 3 oder 4 Kameras
+
+  cameras.forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'camera-card';
+    card.style.cssText = 'position: relative; border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.4); aspect-ratio: 16/9; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all var(--transition); border: 1px solid rgba(255,255,255,0.06);';
+    
+    const img = document.createElement('img');
+    img.className = 'camera-feed-img';
+    img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; transition: filter var(--transition);';
+    img.alt = c.name;
+    img.src = c.url;
+
+    const liveDot = document.createElement('div');
+    liveDot.className = 'camera-live-dot';
+    liveDot.style.cssText = 'position: absolute; top: 10px; right: 10px; display: flex; align-items: center; gap: 6px; padding: 4px 8px; background: rgba(0,0,0,0.6); border-radius: 20px; font-size: 8px; font-weight: 700; color: #fff; text-transform: uppercase; z-index: 2; border: 1px solid rgba(255,255,255,0.08);';
+    liveDot.innerHTML = '<span class="led-dot red blinking"></span><span>Live</span>';
+
+    const nameBadge = document.createElement('div');
+    nameBadge.className = 'camera-name-badge';
+    nameBadge.style.cssText = 'position: absolute; bottom: 8px; left: 8px; padding: 4px 8px; background: rgba(15, 18, 37, 0.75); backdrop-filter: blur(8px); border-radius: 6px; font-size: 10px; font-weight: 600; color: #fff; z-index: 2; border: 1px solid rgba(255,255,255,0.08);';
+    nameBadge.textContent = c.name;
+
+    card.append(img, liveDot, nameBadge);
+
+    // Klick-Vollbild Handler
+    card.addEventListener('click', () => {
+      const overlay = document.getElementById('cameraFullscreenOverlay');
+      const fsImg = document.getElementById('fullscreenCameraImg');
+      const fsTitle = document.getElementById('fullscreenCameraTitle');
+      if(overlay && fsImg) {
+        fsImg.src = c.url;
+        if(fsTitle) fsTitle.textContent = c.name;
+        overlay.removeAttribute('hidden');
+      }
+    });
+
+    // Intervall einrichten bei Schnappschuss-Modus
+    if(c.interval > 0) {
+      const intervalMs = c.interval * 1000;
+      activeCameraIntervals[c.id] = setInterval(() => {
+        const cleanUrl = c.url.includes('?') ? c.url.split('?')[0] : c.url;
+        img.src = cleanUrl + '?t=' + Date.now();
+      }, intervalMs);
+    }
+
+    grid.appendChild(card);
+  });
 }

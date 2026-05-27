@@ -2622,9 +2622,260 @@ body.theme-nordic .waste-alert-plastic {
   border-color: rgba(197, 172, 129, 0.35);
 }
 
-@keyframes nordicAlertPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.01); }
+
+
+/* =================================================== */
+/* === AM2301 & PREMIUM CAMERA MONITOR WIDGET ===      */
+/* =================================================== */
+
+.widget[data-type="camera"] {
+  grid-column: span 6; /* Nimmt die halbe Breite im 12er-Raster ein */
+  grid-row: span 2;    /* Etwas höher für optimalen 16:9-Ausschnitt */
+}
+
+/* Kiosk Tablet Landscape Optimierung (Höhe begrenzen bei span 2) */
+@media (max-height: 760px) {
+  .widget[data-type="camera"] {
+    grid-column: span 6;
+    grid-row: span 1;
+  }
+}
+
+.camera-layout {
+  padding: 8px !important;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.camera-grid {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+}
+
+.camera-grid.cols-1 { grid-template-columns: 1fr; }
+.camera-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.camera-grid.cols-4 { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); }
+
+.no-cameras {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: rgba(218, 232, 255, 0.4);
+  font-size: 13px;
+  padding: 20px;
+  font-style: italic;
+}
+
+.camera-card:hover .camera-feed-img {
+  filter: brightness(1.15) contrast(1.05);
+}
+
+/* Blinking LIVE dot animation */
+@keyframes ledBlink {
+  0%, 100% { opacity: 0.3; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.1); box-shadow: 0 0 10px #ff3b30; }
+}
+
+.led-dot.blinking {
+  animation: ledBlink 1.6s infinite ease-in-out;
+  background-color: #ff3b30;
+}
+
+/* =================================================== */
+/* === FULLSCREEN CAMERA OVERLAY ===                   */
+/* =================================================== */
+
+.camera-fullscreen-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(3, 8, 20, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeInFullscreen 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInFullscreen {
+  from { opacity: 0; backdrop-filter: blur(0px); }
+  to { opacity: 1; backdrop-filter: blur(20px); }
+}
+
+.fullscreen-content {
+  position: relative;
+  width: min(90vw, 1100px);
+  aspect-ratio: 16/9;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.8);
+  border: 1px solid rgba(255,255,255,0.08);
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: scaleInFullscreen 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes scaleInFullscreen {
+  from { transform: scale(0.9) translateY(20px); }
+  to { transform: scale(1) translateY(0); }
+}
+
+.fullscreen-content img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.fullscreen-title {
+  position: absolute;
+  bottom: 15px;
+  left: 20px;
+  padding: 8px 16px;
+  background: rgba(15, 18, 37, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+.close-fullscreen-btn {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+  z-index: 10000;
+}
+
+.close-fullscreen-btn:hover {
+  background: rgba(255,255,255,0.18);
+  transform: scale(1.08) rotate(90deg);
+  box-shadow: 0 0 15px rgba(255,255,255,0.25);
+}
+
+/* =================================================== */
+/* === THEME OVERRIDES FOR CAMERA MONITORS ===         */
+/* =================================================== */
+
+/* 1. CYBERPUNK HUD THEME OVERRIDES */
+body.theme-cyberpunk .camera-card {
+  border-radius: 0px !important;
+  border: 1px solid var(--primary) !important;
+}
+body.theme-cyberpunk .camera-live-dot {
+  border-radius: 0px !important;
+  border: 1px solid var(--primary) !important;
+  font-family: monospace;
+}
+body.theme-cyberpunk .camera-live-dot .blinking {
+  background-color: var(--primary) !important;
+  animation: ledBlink 1s step-end infinite !important; /* Cyberpunk eckiger Step-Blink */
+}
+body.theme-cyberpunk .camera-name-badge {
+  border-radius: 0px !important;
+  border: 1px solid var(--primary) !important;
+  background: rgba(3,8,20,0.92) !important;
+  font-family: monospace;
+  text-transform: uppercase;
+}
+body.theme-cyberpunk .close-fullscreen-btn {
+  border-radius: 0px !important;
+  border: 1px solid var(--primary) !important;
+  background: rgba(3,8,20,0.9) !important;
+  color: var(--primary) !important;
+}
+body.theme-cyberpunk .fullscreen-content {
+  border-radius: 0px !important;
+  border: 2px solid var(--primary) !important;
+}
+body.theme-cyberpunk .fullscreen-title {
+  border-radius: 0px !important;
+  border: 1px solid var(--primary) !important;
+  background: rgba(3,8,20,0.95) !important;
+  font-family: monospace;
+  color: var(--primary) !important;
+}
+
+/* 2. COZY NORDIC DARK THEME OVERRIDES */
+body.theme-nordic .camera-card {
+  border-radius: 14px !important;
+  border: 1px solid rgba(229, 241, 255, 0.08) !important;
+}
+body.theme-nordic .camera-name-badge {
+  border-radius: 8px !important;
+  background: rgba(43, 51, 62, 0.85) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+body.theme-nordic .close-fullscreen-btn {
+  border-radius: 12px !important;
+  background: rgba(43, 51, 62, 0.8) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+body.theme-nordic .fullscreen-content {
+  border-radius: 20px !important;
+  border-color: rgba(229, 241, 255, 0.1) !important;
+}
+
+/* 3. RETROWAVE SYNTH THEME OVERRIDES */
+body.theme-retrowave .camera-card {
+  border: 1px solid #ff007f !important;
+  box-shadow: 0 0 10px rgba(255, 0, 127, 0.3) !important;
+}
+body.theme-retrowave .camera-card:hover {
+  box-shadow: 0 0 18px rgba(255, 0, 127, 0.6) !important;
+  transform: translateY(-2px);
+}
+body.theme-retrowave .camera-live-dot {
+  border: 1px solid #00f0ff !important;
+  color: #00f0ff !important;
+}
+body.theme-retrowave .camera-live-dot .blinking {
+  background-color: #00f0ff !important;
+  box-shadow: 0 0 10px #00f0ff !important;
+}
+body.theme-retrowave .camera-name-badge {
+  border: 1px solid #ff007f !important;
+  background: rgba(26,0,32,0.85) !important;
+  color: #00f0ff !important;
+  text-shadow: 0 0 5px #00f0ff;
+}
+body.theme-retrowave .fullscreen-content {
+  border: 2px solid #ff007f !important;
+  box-shadow: 0 0 35px rgba(255, 0, 127, 0.6) !important;
+}
+body.theme-retrowave .close-fullscreen-btn {
+  border: 1px solid #00f0ff !important;
+  background: rgba(26,0,32,0.85) !important;
+  color: #ff007f !important;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.4) !important;
+}
+body.theme-retrowave .close-fullscreen-btn:hover {
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.8) !important;
+}
+body.theme-retrowave .fullscreen-title {
+  border: 1px solid #ff007f !important;
+  background: rgba(26,0,32,0.9) !important;
+  color: #00f0ff !important;
+  text-shadow: 0 0 6px #00f0ff;
 }
 
 
