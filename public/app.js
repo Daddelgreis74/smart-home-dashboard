@@ -1599,6 +1599,40 @@ async function initPresence() {
     });
   }
 
+  // Web Audio API Synthesizer für einen edlen, warmen Chime-Sound (Offline-fähig, ohne externe Audio-Assets)
+  function playPresencePing() {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      
+      const playNote = (frequency, startTime, duration, volume = 0.2) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(frequency, startTime);
+        
+        gain.gain.setValueAtTime(0.001, startTime);
+        gain.gain.linearRampToValueAtTime(volume, startTime + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+      };
+
+      const now = ctx.currentTime;
+      // Edles zweistufiges "Chime"-Signal (C5 -> E5)
+      playNote(523.25, now, 0.4, 0.15); 
+      playNote(659.25, now + 0.1, 0.5, 0.2);
+    } catch (e) {
+      console.warn("AudioContext blockiert oder nicht unterstützt:", e);
+    }
+  }
+
   // Render Functions
   function renderPresenceSettings(persons) {
     const list = document.getElementById('presenceList');
@@ -1688,6 +1722,8 @@ async function initPresence() {
         const badge = card.querySelector('.presence-status-badge');
         const status = card.querySelector('.presence-avatar-status');
         
+        const wasInactive = card.classList.contains('inactive');
+        
         if(p.active) {
           card.classList.remove('inactive');
           card.classList.add('active');
@@ -1696,6 +1732,10 @@ async function initPresence() {
           badge.style.backgroundColor = 'var(--green)';
           status.textContent = 'Zu Hause';
           status.style.color = 'var(--green)';
+          
+          if(wasInactive) {
+            playPresencePing();
+          }
         } else {
           card.classList.remove('active');
           card.classList.add('inactive');
