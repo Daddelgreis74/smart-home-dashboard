@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initNeoTalkVoiceDemo();
   initFritzboxDemo();
   initPresenceDemo();
+  initCameraDemo();
   initClipboardHelpers();
   initSetupTabs();
 });
@@ -653,6 +654,105 @@ function initPresenceDemo() {
 
   // Trigger initial count calculation
   const activeCount = [simSteffen.checked, simSabine.checked, simLuca.checked].filter(Boolean).length;
-  countText.textContent = activeCount === 1 ? '1 Person' : `\${activeCount} Personen`;
+  countText.textContent = activeCount === 1 ? '1 Person' : `${activeCount} Personen`;
+}
+
+/* --- 12. Premium Camera Monitor Demo --- */
+function initCameraDemo() {
+  const grid = document.getElementById('demoCameraGrid');
+  if (!grid) return;
+
+  const camData = [
+    { name: '01 | Einfahrt', url: 'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=400&q=80' },
+    { name: '02 | Garten', url: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=400&q=80' },
+    { name: '03 | Wohnzimmer', url: 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=400&q=80' },
+    { name: '04 | Garage', url: 'https://images.unsplash.com/photo-1616422285623-13ff0162193c?auto=format&fit=crop&w=400&q=80' }
+  ];
+
+  function renderDemoCameras(count) {
+    grid.className = 'camera-demo-grid';
+    grid.innerHTML = '';
+
+    if (count === 1) {
+      grid.classList.add('cols-1');
+    } else if (count === 2) {
+      grid.classList.add('cols-2');
+    } else {
+      grid.classList.add('cols-4');
+    }
+
+    const items = camData.slice(0, count);
+    items.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'camera-card';
+      card.style.cssText = 'position: relative; border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.4); aspect-ratio: 16/9; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; border: 1px solid rgba(255,255,255,0.06);';
+      
+      card.addEventListener('mouseenter', () => { card.style.borderColor = 'var(--primary)'; card.style.transform = 'scale(1.02)'; });
+      card.addEventListener('mouseleave', () => { card.style.borderColor = 'rgba(255,255,255,0.06)'; card.style.transform = 'scale(1)'; });
+
+      const img = document.createElement('img');
+      img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+      img.alt = c.name;
+      img.src = c.url;
+
+      const liveDot = document.createElement('div');
+      liveDot.style.cssText = 'position: absolute; top: 8px; right: 8px; display: flex; align-items: center; gap: 4px; padding: 3px 6px; background: rgba(0,0,0,0.6); border-radius: 10px; font-size: 7px; font-weight: 700; color: #fff; text-transform: uppercase; z-index: 2; border: 1px solid rgba(255,255,255,0.08);';
+      liveDot.innerHTML = '<span style="width: 5px; height: 5px; border-radius: 50%; background: var(--red); display: inline-block; box-shadow: 0 0 4px var(--red); animation: ringPulse 1s infinite;"></span><span>Live</span>';
+
+      const nameBadge = document.createElement('div');
+      nameBadge.style.cssText = 'position: absolute; bottom: 6px; left: 6px; padding: 3px 6px; background: rgba(15, 18, 37, 0.75); backdrop-filter: blur(4px); border-radius: 4px; font-size: 8px; font-weight: 600; color: #fff; z-index: 2; border: 1px solid rgba(255,255,255,0.08);';
+      nameBadge.textContent = c.name;
+
+      card.append(img, liveDot, nameBadge);
+
+      card.addEventListener('click', () => {
+        const fsOverlay = document.getElementById('demoCameraFullscreen');
+        const fsImg = document.getElementById('demoFullscreenCameraImg');
+        const fsTitle = document.getElementById('demoFullscreenCameraTitle');
+        if (fsOverlay && fsImg && fsTitle) {
+          fsImg.src = c.url;
+          fsTitle.textContent = c.name.split('|')[1].trim();
+          fsOverlay.style.display = 'flex';
+          setTimeout(() => {
+            fsOverlay.style.opacity = '1';
+            fsOverlay.style.pointerEvents = 'all';
+          }, 10);
+        }
+      });
+
+      grid.appendChild(card);
+    });
+  }
+
+  // Bind Buttons
+  const buttons = document.querySelectorAll('.btn-cam-count');
+  buttons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const count = parseInt(btn.dataset.count);
+      renderDemoCameras(count);
+    });
+  });
+
+  // Bind Close Overlay
+  const fsOverlay = document.getElementById('demoCameraFullscreen');
+  const closeBtn = document.getElementById('closeDemoCameraFullscreen');
+  if (fsOverlay && closeBtn) {
+    const closeFs = () => {
+      fsOverlay.style.opacity = '0';
+      fsOverlay.style.pointerEvents = 'none';
+      setTimeout(() => {
+        fsOverlay.style.display = 'none';
+      }, 300);
+    };
+    closeBtn.addEventListener('click', closeFs);
+    fsOverlay.addEventListener('click', (e) => {
+      if (e.target === fsOverlay || e.target.classList.contains('fa-times') || e.target.id === 'closeDemoCameraFullscreen') closeFs();
+    });
+  }
+
+  // Render initial
+  renderDemoCameras(1);
 }
 

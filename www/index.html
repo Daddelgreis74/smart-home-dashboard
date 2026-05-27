@@ -249,6 +249,7 @@
           <button class="int-tab" data-tab="talk"><i class="fas fa-ghost"></i> Neo Talk AI</button>
           <button class="int-tab" data-tab="fritzbox"><i class="fas fa-network-wired"></i> Fritz!Box Live</button>
           <button class="int-tab" data-tab="presence"><i class="fas fa-users"></i> Anwesenheit</button>
+          <button class="int-tab" data-tab="camera"><i class="fas fa-video"></i> Kamera-Monitor</button>
         </div>
         
         <div class="interactive-display">
@@ -588,6 +589,55 @@
                     <span><i class="fas fa-wifi" style="color: var(--green);"></i> WLAN-Signal aktiv</span>
                     <span><i class="fas fa-clock"></i> Intervall: 30s</span>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 7: CAMERA MONITOR -->
+          <div class="tab-pane" id="pane-camera">
+            <div class="demo-grid-2col">
+              <div class="demo-controls">
+                <h3>Kamera-Monitor Simulator</h3>
+                <p class="demo-desc-text">Simuliere das Hinzufügen von Kameras und teste das dynamische Grid-Layout sowie den Premium-Vollbildmodus des Kamera-Widgets.</p>
+                
+                <div class="control-row" style="margin-top: 15px;">
+                  <label><i class="fas fa-video"></i> Anzahl simulierter Kameras:</label>
+                  <div style="display: flex; gap: 8px; margin-top: 5px;">
+                    <button class="btn btn-outline btn-cam-count active" data-count="1" style="padding: 10px 15px; font-size: 13px;">1 Kamera</button>
+                    <button class="btn btn-outline btn-cam-count" data-count="2" style="padding: 10px 15px; font-size: 13px;">2 Kameras</button>
+                    <button class="btn btn-outline btn-cam-count" data-count="4" style="padding: 10px 15px; font-size: 13px;">4 Kameras</button>
+                  </div>
+                </div>
+
+                <div class="control-row" style="margin-top: 20px;">
+                  <p class="demo-desc-text" style="font-style: italic; border-left: 2px solid var(--primary); padding-left: 8px; margin: 0;">
+                    <strong>Interaktiver Tipp:</strong> Klicke auf ein Kamerabild im rechten Widget-Frame, um das glasmorphische Vollbild-Overlay (Tap-to-Fullscreen) live im Mockup zu testen!
+                  </p>
+                </div>
+              </div>
+              <div class="demo-visual">
+                <!-- Kamera-Monitor Widget Frame -->
+                <div class="camera-demo-panel glass-panel" style="padding: 20px; width: 100%; min-height: 260px; display: flex; flex-direction: column; justify-content: space-between; border-radius: 16px; background: rgba(22, 25, 43, 0.45); border: 1px solid var(--border); overflow: hidden; position: relative;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 12px; margin-bottom: 12px;">
+                    <span style="font-size: 14px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;"><i class="fas fa-video" style="color: var(--primary);"></i> Kamera-Monitor</span>
+                    <span style="font-size: 8px; background: rgba(138, 63, 252, 0.15); border: 1px solid rgba(138, 63, 252, 0.3); padding: 2px 8px; border-radius: 20px; color: var(--primary); font-weight: 700; text-transform: uppercase;">Aktiv</span>
+                  </div>
+                  
+                  <!-- Camera Grid inside widget -->
+                  <div class="camera-demo-grid cols-1" id="demoCameraGrid" style="display: grid; gap: 8px; width: 100%; flex: 1; align-items: center;">
+                    <!-- Dynamische Kameras -->
+                  </div>
+
+                  <!-- Mini Fullscreen Camera Overlay inside Widget Frame (absolute positioned) -->
+                  <div class="demo-camera-fullscreen" id="demoCameraFullscreen" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 8, 20, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: none; align-items: center; justify-content: center; padding: 15px; z-index: 20; opacity: 0; transition: opacity 0.3s ease;">
+                    <button id="closeDemoCameraFullscreen" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); width: 30px; height: 30px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none;"><i class="fas fa-times"></i></button>
+                    <div style="position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                      <img id="demoFullscreenCameraImg" src="" alt="Fullscreen Feed" style="width: 100%; height: 100%; object-fit: cover;">
+                      <div id="demoFullscreenCameraTitle" style="position: absolute; bottom: 8px; left: 8px; padding: 4px 8px; background: rgba(0,0,0,0.6); border-radius: 4px; font-size: 10px; color: #fff; font-weight: 600;">Kamera</div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>
