@@ -274,6 +274,24 @@
               <div id="cameraSettingsList" class="tasmota-list-settings" style="margin-top: 5px; display: flex; flex-direction: column; gap: 8px;">
                 <!-- Dynamische Kameras-Liste -->
               </div>
+
+              <!-- Kamera-Hilfe & Anleitung -->
+              <div class="camera-help-box" style="margin-top: 15px; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px;">
+                <span style="font-size: 11px; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none;" onclick="document.getElementById('cameraHelpText').toggleAttribute('hidden')">
+                  <i class="fas fa-question-circle"></i> Anleitung: Kamera einbinden <i class="fas fa-chevron-down" style="font-size: 9px; margin-left: auto;"></i>
+                </span>
+                <div id="cameraHelpText" style="margin-top: 8px; font-size: 10px; color: var(--text-muted); line-height: 1.4; display: flex; flex-direction: column; gap: 6px;" hidden>
+                  <p><strong>Unterstützte Formate:</strong> Dieser Monitor benötigt eine Web-Adresse (beginnend mit <code>http://</code> oder <code>https://</code>), die einen <strong>MJPEG-Videostream</strong> oder <strong>JPEG-Schnappschüsse</strong> liefert.</p>
+                  <p><strong>So findest du die richtige URL:</strong></p>
+                  <ul style="padding-left: 12px; margin: 0; display: flex; flex-direction: column; gap: 4px; list-style-type: disc;">
+                    <li><strong>IP-Überwachungskameras:</strong> Binde die Kamera über die Hersteller-App in dein Heim-WLAN (Fritz!Box) ein. Viele Kameras bieten einen direkten MJPEG/JPEG-Pfad (z.B. <code>http://192.168.178.50/snapshot.jpg</code>).</li>
+                    <li><strong>Smartphone als Testkamera:</strong> Lade eine kostenlose App wie <i>IP Webcam</i> (Android) oder <i>Live-Reporter</i> (iOS) herunter. Starte den Server in der App. Du erhältst sofort eine funktionierende MJPEG-URL (z.B. <code>http://192.168.178.60:8080/video</code>) zum direkten Testen!</li>
+                    <li><strong>ESP32-Cam:</strong> Perfekt für Bastler. Nutze die Standard-Webstream-URL (z.B. <code>http://192.168.178.70/stream</code>).</li>
+                    <li><strong>Action-Kameras (wie GoPros / Jadfezy):</strong> Diese senden meistens nur ihr eigenes WLAN-Signal (AP-Modus). Verbinde sie per USB-Kabel mit dem Server und wähle <b>„PC-Kamera / Webcam“</b>. Streame das Bild dann über eine Software wie <i>mjpg-streamer</i> ins Heimnetz.</li>
+                  </ul>
+                  <p style="margin-top: 4px; font-style: italic; border-left: 2px solid var(--accent-blue); padding-left: 6px; margin-bottom: 0;"><b>Hinweis zu RTSP:</b> Reine Sicherheitskameras streamen oft nur in RTSP. Da Webbrowser RTSP nicht nativ anzeigen können, muss dieser Stream auf deinem Server zuvor per Software (z.B. <i>go2rtc</i> oder <i>ffmpeg</i>) in einen MJPEG-Stream umgewandelt werden.</p>
+                </div>
+              </div>
             </div>
             <div class="section-divider"></div>
           </div>
