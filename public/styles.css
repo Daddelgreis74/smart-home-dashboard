@@ -249,12 +249,12 @@ body {
 /* Settings Overlay */
 .settings-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); z-index: 200; opacity: 0; visibility: hidden; transition: all 0.4s; }
 .settings-overlay.open { opacity: 1; visibility: visible; }
-.settings-panel { position: fixed; right: -400px; top: 0; bottom: 0; width: 400px; background: rgba(15,15,15,0.9); backdrop-filter: blur(40px); border-left: 1px solid var(--panel-border); transition: right 0.5s cubic-bezier(0.19, 1, 0.22, 1); overflow-y:auto; }
+.settings-panel { position: fixed; right: -860px; top: 0; bottom: 0; width: 860px; background: rgba(15,15,15,0.9); backdrop-filter: blur(40px); border-left: 1px solid var(--panel-border); transition: right 0.5s cubic-bezier(0.19, 1, 0.22, 1); overflow-y:auto; }
 .settings-overlay.open .settings-panel { right: 0; }
 .settings-header { display: flex; justify-content: space-between; align-items: center; padding: 30px; }
 .settings-header h2 { font-weight: 400; font-size: 24px; }
 .close-btn { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; }
-.settings-content { padding: 0 30px 30px; }
+.settings-content { padding: 0 30px 30px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; align-items: start; }
 .setting-section { margin-bottom: 30px; }
 .setting-section h3 { font-size: 14px; color: var(--text-muted); font-weight: 500; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
 .input-group { display: flex; flex-direction: column; gap: 10px; }
@@ -972,8 +972,8 @@ body::before {
 }
 
 .settings-panel {
-  width: min(520px, 92vw);
-  right: min(-520px, -92vw);
+  width: min(860px, 95vw);
+  right: min(-860px, -95vw);
   background:
     linear-gradient(160deg, rgba(255,255,255,0.075), transparent 24%),
     radial-gradient(circle at 18% 0%, rgba(85,245,177,0.13), transparent 34%),
@@ -2880,6 +2880,18 @@ body.theme-retrowave .fullscreen-title {
   background: rgba(26,0,32,0.9) !important;
   color: #00f0ff !important;
   text-shadow: 0 0 6px #00f0ff;
+}
+
+/* Collapse settings panel to 1 column on smaller mobile viewports */
+@media (max-width: 768px) {
+  .settings-panel {
+    width: 95vw !important;
+    right: -95vw !important;
+  }
+  .settings-content {
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
+  }
 }
 
 

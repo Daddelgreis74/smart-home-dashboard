@@ -342,6 +342,12 @@ function initSettings() {
   }
 
   document.getElementById('settingsBtn').addEventListener('click', () => {
+    // Alle Akkordeons beim Öffnen schließen
+    const headers = document.querySelectorAll('.accordion-header');
+    headers.forEach(h => {
+      h.classList.remove('active');
+      if (h.nextElementSibling) h.nextElementSibling.classList.remove('active-body');
+    });
     document.getElementById('settingsOverlay').classList.add('open');
   });
   document.getElementById('closeSettings').addEventListener('click', () => {
