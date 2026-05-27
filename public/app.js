@@ -1100,7 +1100,7 @@ async function refreshSensorWidget() {
   const tempEl = document.getElementById('sensorTemp');
   const humidityEl = document.getElementById('sensorHumidity');
   const dewEl = document.getElementById('sensorDew');
-  if(!tempEl || !humidityEl) return;
+  if(!tempEl) return;
 
   const ip = localStorage.getItem('sensorIp') || '192.168.178.40';
   try {
@@ -1109,21 +1109,28 @@ async function refreshSensorWidget() {
     if(!data.success) throw new Error(data.error || 'Sensor nicht erreichbar');
 
     const temp = Number(data.temperature);
-    const humidity = Number(data.humidity);
-    const dew = Number(data.dewPoint);
     tempEl.textContent = Number.isFinite(temp) ? `${temp.toFixed(1)}°` : '--°';
-    humidityEl.textContent = Number.isFinite(humidity) ? `${humidity.toFixed(0)}%` : '--%';
-    if(dewEl) dewEl.textContent = Number.isFinite(dew) ? `Taupunkt ${dew.toFixed(1)}°` : 'Taupunkt --°';
-    if(status) status.textContent = data.time ? data.time.slice(11, 16) : ip;
     setGauge('tempGauge', temp, -10, 40);
-    setGauge('humidityGauge', humidity, 0, 100);
+
+    if(humidityEl) {
+      const humidity = Number(data.humidity);
+      humidityEl.textContent = Number.isFinite(humidity) ? `${humidity.toFixed(0)}%` : '--%';
+      setGauge('humidityGauge', humidity, 0, 100);
+    }
+    if(dewEl) {
+      const dew = Number(data.dewPoint);
+      dewEl.textContent = Number.isFinite(dew) ? `Taupunkt ${dew.toFixed(1)}°` : 'Taupunkt --°';
+    }
+    if(status) status.textContent = data.time ? data.time.slice(11, 16) : ip;
   } catch(e) {
     tempEl.textContent = '--°';
-    humidityEl.textContent = '--%';
+    setGauge('tempGauge', 0, -10, 40);
+    if(humidityEl) {
+      humidityEl.textContent = '--%';
+      setGauge('humidityGauge', 0, 0, 100);
+    }
     if(dewEl) dewEl.textContent = 'Taupunkt --°';
     if(status) status.textContent = 'offline';
-    setGauge('tempGauge', 0, -10, 40);
-    setGauge('humidityGauge', 0, 0, 100);
   }
 }
 

@@ -1816,10 +1816,10 @@ body::before {
 }
 
 .sensor-gauges {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  display: flex;
+  justify-content: center;
   align-items: center;
+  gap: 12px;
 }
 
 .sensor-gauge {
@@ -1884,7 +1884,7 @@ body::before {
 
 .sensor-meta {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   gap: 8px;
   padding: 7px 10px;
   border-radius: 14px;
