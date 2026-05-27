@@ -247,37 +247,38 @@
               <div id="presenceList" class="tasmota-list-settings" style="margin-top: 5px; display: flex; flex-direction: column; gap: 8px;">
                 <!-- Dynamische Personen-Liste -->
               </div>
-              <div class="section-divider"></div>
             </div>
+            <div class="section-divider"></div>
+          </div>
 
-            <!-- 10. KAMERA-MONITOR -->
-            <div class="setting-section">
-              <h3 class="accordion-header"><i class="fas fa-video"></i> Kamera-Monitor <i class="fas fa-chevron-down acc-icon"></i></h3>
-              <div class="accordion-body">
-                <div class="input-group">
-                  <label class="setting-sub-label">Kamera hinzufügen (Max. 4):</label>
-                  <div style="display:flex; flex-direction: column; gap: 8px;">
-                    <input type="text" id="cameraManName" placeholder="Kameraname (z.B. Haustür)">
-                    <input type="text" id="cameraManUrl" placeholder="HTTP-Bild- oder Stream-URL (JPEG/MJPEG)">
-                    <select id="cameraManInterval" class="radio-select" style="max-width: 100%; width: 100%;">
-                      <option value="0">🎥 Live-Video / MJPEG-Stream</option>
-                      <option value="1">⏱️ Aktualisierung jede Sekunde</option>
-                      <option value="2">⏱️ Aktualisierung alle 2 Sekunden</option>
-                      <option value="5">⏱️ Aktualisierung alle 5 Sekunden</option>
-                    </select>
-                    <button class="btn" id="addCameraBtn" style="margin-top: 5px;"><i class="fas fa-plus"></i> Kamera hinzufügen</button>
-                  </div>
-                </div>
-                
-                <label class="setting-sub-label" style="margin-top: 15px; display: block;">Aktive Kameras:</label>
-                <div id="cameraSettingsList" class="tasmota-list-settings" style="margin-top: 5px; display: flex; flex-direction: column; gap: 8px;">
-                  <!-- Dynamische Kameras-Liste -->
+          <!-- 10. KAMERA-MONITOR -->
+          <div class="setting-section">
+            <h3 class="accordion-header"><i class="fas fa-video"></i> Kamera-Monitor <i class="fas fa-chevron-down acc-icon"></i></h3>
+            <div class="accordion-body">
+              <div class="input-group">
+                <label class="setting-sub-label">Kamera hinzufügen (Max. 4):</label>
+                <div style="display:flex; flex-direction: column; gap: 8px;">
+                  <input type="text" id="cameraManName" placeholder="Kameraname (z.B. Haustür)">
+                  <input type="text" id="cameraManUrl" placeholder="HTTP-Bild- oder Stream-URL (JPEG/MJPEG)">
+                  <select id="cameraManInterval" class="radio-select" style="max-width: 100%; width: 100%;">
+                    <option value="0">🎥 Live-Video / MJPEG-Stream</option>
+                    <option value="1">⏱️ Aktualisierung jede Sekunde</option>
+                    <option value="2">⏱️ Aktualisierung alle 2 Sekunden</option>
+                    <option value="5">⏱️ Aktualisierung alle 5 Sekunden</option>
+                  </select>
+                  <button class="btn" id="addCameraBtn" style="margin-top: 5px;"><i class="fas fa-plus"></i> Kamera hinzufügen</button>
                 </div>
               </div>
-              <div class="section-divider"></div>
+              
+              <label class="setting-sub-label" style="margin-top: 15px; display: block;">Aktive Kameras:</label>
+              <div id="cameraSettingsList" class="tasmota-list-settings" style="margin-top: 5px; display: flex; flex-direction: column; gap: 8px;">
+                <!-- Dynamische Kameras-Liste -->
+              </div>
             </div>
-
+            <div class="section-divider"></div>
           </div>
+
+        </div>
       </div>
     </div>
 
