@@ -2688,6 +2688,10 @@ body.theme-nordic .waste-alert-plastic {
 /* === FULLSCREEN CAMERA OVERLAY ===                   */
 /* =================================================== */
 
+.camera-fullscreen-overlay[hidden] {
+  display: none !important;
+}
+
 .camera-fullscreen-overlay {
   position: fixed;
   inset: 0;
