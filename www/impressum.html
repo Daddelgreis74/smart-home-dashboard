@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impressum · Neo Deck Smart Home</title>
+  <meta name="description" content="Impressum und Anbieterkennzeichnung gemäß §5 TMG für die Neo Deck Smart Home Dashboard Präsentation.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Impressum-specific overrides */
+    .impressum-section {
+      padding: 140px 0 80px;
+      min-height: 100vh;
+    }
+
+    .impressum-card {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 48px 52px;
+    }
+
+    .impressum-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--cyan);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .impressum-title {
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+    }
+
+    .impressum-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .imp-block {
+      margin-bottom: 36px;
+    }
+
+    .imp-block:last-of-type {
+      margin-bottom: 0;
+    }
+
+    .imp-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--cyan);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .imp-section-title i {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    .imp-info-grid {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 10px 24px;
+      font-size: 15px;
+    }
+
+    .imp-label {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .imp-value {
+      color: var(--text-main);
+      font-weight: 400;
+    }
+
+    .imp-value a {
+      color: var(--cyan);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .imp-value a:hover {
+      color: #fff;
+      text-shadow: 0 0 8px var(--cyan);
+    }
+
+    .imp-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 32px 0;
+    }
+
+    .imp-text-block {
+      font-size: 14.5px;
+      color: var(--text-muted);
+      line-height: 1.75;
+    }
+
+    .imp-text-block p {
+      margin-bottom: 12px;
+    }
+
+    .imp-text-block p:last-child {
+      margin-bottom: 0;
+    }
+
+    .imp-text-block strong {
+      color: var(--text-main);
+    }
+
+    .imp-notice-box {
+      background: rgba(0, 240, 255, 0.05);
+      border: 1px solid rgba(0, 240, 255, 0.15);
+      border-radius: 10px;
+      padding: 18px 22px;
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.65;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .imp-notice-box i {
+      color: var(--cyan);
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 20px;
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      background: rgba(255,255,255,0.03);
+      transition: var(--transition);
+      margin-bottom: 36px;
+    }
+
+    .back-btn:hover {
+      color: #fff;
+      border-color: var(--cyan);
+      background: rgba(0, 240, 255, 0.06);
+      transform: translateX(-3px);
+    }
+
+    @media (max-width: 640px) {
+      .impressum-card {
+        padding: 28px 20px;
+      }
+
+      .impressum-title {
+        font-size: 26px;
+      }
+
+      .imp-info-grid {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+
+      .imp-label {
+        font-size: 12px;
+        color: var(--cyan);
+        margin-top: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Aurora Background Orbs -->
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Navigation Header -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand">
+        <i class="fas fa-ghost logo-ghost"></i>
+        <div class="brand-text">
+          <span class="brand-name">Neo Deck</span>
+          <span class="brand-sub">Smart Home Command Center</span>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="index.html">Start</a>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#interactive-showcase">Demos</a>
+        <a href="index.html#setup">Setup</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="https://github.com/Daddelgreis74/smart-home-dashboard" target="_blank" class="cta-btn primary-glow">
+          <i class="fab fa-github"></i> Download
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Impressum Main Section -->
+  <main class="impressum-section">
+    <div class="section-container">
+
+      <a href="index.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Zurück zur Startseite
+      </a>
+
+      <div class="impressum-card glass-panel">
+
+        <span class="impressum-badge"><i class="fas fa-scale-balanced"></i> Rechtliche Angaben</span>
+        <h1 class="impressum-title">Impressum</h1>
+        <p class="impressum-subtitle">
+          Anbieterkennzeichnung gemäß § 5 Telemediengesetz (TMG) und § 55 Medienstaatsvertrag (MStV)
+        </p>
+
+        <!-- 1. Angaben gemäß § 5 TMG -->
+        <div class="imp-block">
+          <div class="imp-section-title">
+            <i class="fas fa-user"></i>
+            Angaben gemäß § 5 TMG
+          </div>
+          <div class="imp-info-grid">
+            <span class="imp-label">Name</span>
+            <span class="imp-value">Steffen Nagel</span>
+
+            <span class="imp-label">Adresse</span>
+            <span class="imp-value">Meißnerstr. 9</span>
+
+            <span class="imp-label"></span>
+            <span class="imp-value">04600 Altenburg</span>
+
+            <span class="imp-label"></span>
+            <span class="imp-value">Deutschland</span>
+          </div>
+        </div>
+
+        <div class="imp-divider"></div>
+
+        <!-- 2. Kontakt -->
+        <div class="imp-block">
+          <div class="imp-section-title">
+            <i class="fas fa-envelope"></i>
+            Kontakt
+          </div>
+          <div class="imp-info-grid">
+            <span class="imp-label">E-Mail</span>
+            <span class="imp-value">
+              <a href="mailto:webmaster@abg-home.de">webmaster@abg-home.de</a>
+            </span>
+          </div>
+        </div>
+
+        <div class="imp-divider"></div>
+
+        <!-- 3. Verantwortlich für den Inhalt -->
+        <div class="imp-block">
+          <div class="imp-section-title">
+            <i class="fas fa-pen-nib"></i>
+            Verantwortlich für den Inhalt (§ 55 Abs. 2 MStV)
+          </div>
+          <div class="imp-info-grid">
+            <span class="imp-label">Name</span>
+            <span class="imp-value">Steffen Nagel</span>
+
+            <span class="imp-label">Adresse</span>
+            <span class="imp-value">Meißnerstr. 9, 04600 Altenburg</span>
+          </div>
+        </div>
+
+        <div class="imp-divider"></div>
+
+        <!-- 4. Haftung für Inhalte -->
+        <div class="imp-block">
+          <div class="imp-section-title">
+            <i class="fas fa-shield-halved"></i>
+            Haftung für Inhalte
+          </div>
+          <div class="imp-text-block">
+            <p>
+              Als Diensteanbieter bin ich gemäß § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG bin ich als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.
+            </p>
+            <p>
+              Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werde ich diese Inhalte umgehend entfernen.
+            </p>
+          </div>
+        </div>
+
+        <div class="imp-divider"></div>
+
+        <!-- 5. Haftung für Links -->
+        <div class="imp-block">
+          <div class="imp-section-title">
+            <i class="fas fa-link"></i>
+            Haftung für Links
+          </div>
+          <div class="imp-text-block">
+            <p>
+              Mein Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte ich keinen Einfluss habe. Deshalb kann ich für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.
+            </p>
+            <p>
+              Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar. Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werde ich derartige Links umgehend entfernen.
+            </p>
+          </div>
+        </div>
+
+        <div class="imp-divider"></div>
+
+        <!-- 6. Urheberrecht -->
+        <div class="imp-block">
+          <div class="imp-section-title">
+            <i class="fas fa-copyright"></i>
+            Urheberrecht
+          </div>
+          <div class="imp-text-block">
+            <p>
+              Die durch den Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.
+            </p>
+            <p>
+              Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet. Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitte ich um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werde ich derartige Inhalte umgehend entfernen.
+            </p>
+          </div>
+        </div>
+
+        <div class="imp-divider"></div>
+
+        <!-- 7. Datenschutz -->
+        <div class="imp-block">
+          <div class="imp-section-title">
+            <i class="fas fa-lock"></i>
+            Datenschutzhinweis
+          </div>
+          <div class="imp-notice-box">
+            <i class="fas fa-circle-info"></i>
+            <span>
+              Diese Präsentations-Webseite läuft vollständig lokal im Browser und überträgt keinerlei personenbezogene Daten an externe Server. Es werden keine Cookies gesetzt, keine Tracking-Skripte eingebunden und keine Nutzungsdaten gespeichert oder weitergegeben. Externe Ressourcen (Google Fonts, Font Awesome CDN) können beim Laden der Seite kontaktiert werden, sofern eine Internetverbindung besteht.
+            </span>
+          </div>
+        </div>
+
+        <div class="imp-divider"></div>
+
+        <!-- 8. Streitschlichtung -->
+        <div class="imp-block">
+          <div class="imp-section-title">
+            <i class="fas fa-handshake"></i>
+            Streitschlichtung (§ 36 VSBG)
+          </div>
+          <div class="imp-text-block">
+            <p>
+              Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:<br>
+              <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" style="color: var(--cyan);">https://ec.europa.eu/consumers/odr/</a>
+            </p>
+            <p>
+              <strong>Ich bin nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</strong>
+            </p>
+          </div>
+        </div>
+
+        <div class="imp-divider" style="margin-bottom: 20px;"></div>
+
+        <p style="font-size: 12px; color: var(--text-dim); text-align: center;">
+          <i class="fas fa-calendar-check" style="color: var(--cyan);"></i>
+          Letzte Aktualisierung: Mai 2026 &nbsp;·&nbsp;
+          <i class="fas fa-gavel" style="color: var(--cyan);"></i>
+          Angaben gemäß § 5 TMG &amp; § 55 MStV
+        </p>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <i class="fas fa-ghost logo-ghost"></i>
+        <span>Neo Deck</span>
+      </div>
+      <p class="footer-copyright">
+        &copy; 2026 Neo Deck Smart Home Dashboard. Mit <i class="fas fa-heart text-primary"></i> &amp; 👻 entwickelt von Neo, dem digitalen Hausgeist.
+      </p>
+      <nav style="display: flex; gap: 20px; font-size: 13px;">
+        <a href="index.html" style="color: var(--text-muted);">Startseite</a>
+        <a href="impressum.html" style="color: var(--cyan);">Impressum</a>
+      </nav>
+    </div>
+  </footer>
+
+</body>
+</html>

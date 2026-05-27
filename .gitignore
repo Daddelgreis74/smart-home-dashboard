@@ -5,7 +5,6 @@ radio.json
 ssl/
 .DS_Store
 *.log
-www/
 deploy.bat
 fritzbox.json
 fritzbox_calls.json
