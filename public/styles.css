@@ -2629,14 +2629,14 @@ body.theme-nordic .waste-alert-plastic {
 /* =================================================== */
 
 .widget[data-type="camera"] {
-  grid-column: span 6; /* Nimmt die halbe Breite im 12er-Raster ein */
-  grid-row: span 2;    /* Etwas höher für optimalen 16:9-Ausschnitt */
+  grid-column: span 3; /* Gleiche Größe wie die anderen Widgets */
+  grid-row: span 1;
 }
 
-/* Kiosk Tablet Landscape Optimierung (Höhe begrenzen bei span 2) */
+/* Kiosk Tablet Landscape Optimierung */
 @media (max-height: 760px) {
   .widget[data-type="camera"] {
-    grid-column: span 6;
+    grid-column: span 3;
     grid-row: span 1;
   }
 }
