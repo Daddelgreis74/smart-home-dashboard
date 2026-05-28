@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   smart-home-dashboard:
     container_name: smart-home-dashboard

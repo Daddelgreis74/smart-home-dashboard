@@ -12,11 +12,11 @@ ENV SSL_DIR=/app/data/ssl
 # Arbeitsverzeichnis im Container festlegen
 WORKDIR /app
 
-# Kopiere package.json und package-lock.json für effizientes Caching
-COPY package*.json ./
+# Kopiere package.json für effizientes Caching
+COPY package.json ./
 
 # Installiere ausschließlich Produktions-Abhängigkeiten
-RUN npm ci --only=production
+RUN npm install --omit=dev
 
 # Kopiere die Anwendungsdateien (Frontend und Backend)
 COPY public/ ./public/
