@@ -166,7 +166,7 @@ app.post('/api/upload-ics', upload.single('icsFile'), (req, res) => {
   res.json({ success: true });
 });
 app.get('/api/ics-data', (req, res) => {
-  const icsPath = path.join(__dirname, 'uploads', 'calendar.ics');
+  const icsPath = path.join(UPLOAD_DIR, 'calendar.ics');
   if (fs.existsSync(icsPath)) {
     res.json({ success: true, data: fs.readFileSync(icsPath, 'utf-8') });
   } else {
