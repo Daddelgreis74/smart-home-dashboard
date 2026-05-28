@@ -24,7 +24,7 @@ Wenn du SSH-Zugriff auf dein TrueNAS hast oder ein Tool wie **Portainer / Dockge
 
 1. **Repository klonen** (falls nicht bereits geschehen):
    ```bash
-   git clone https://github.com/DEIN-GITHUB-BENUTZERNAME/smart-home-dashboard.git
+   git clone https://github.com/daddelgreis74/smart-home-dashboard.git
    cd smart-home-dashboard
    ```
 
