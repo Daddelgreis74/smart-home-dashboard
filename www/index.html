@@ -171,14 +171,7 @@
           <h3>Integriertes Live-Radio</h3>
           <p>Unterstützt MP3, AAC und HLS-Audiostreams (.m3u8). Preset-Tasten direkt auf dem Deck sorgen für schnelles Umschalten inklusive Fully Kiosk Wakeup-Schutz.</p>
         </div>
-        <!-- Feature 5: Neo Talk AI Voice -->
-        <div class="feature-card glass-panel">
-          <div class="feature-icon-wrapper red-glow">
-            <i class="fas fa-ghost"></i>
-          </div>
-          <h3>Neo Talk Sprachassistent</h3>
-          <p>Sprich direkt mit deinem Hausgeist Neo! Lokale Spracherkennung im Browser wird per OpenClaw-KI verarbeitet und über das Tablet via TTS vorgelesen.</p>
-        </div>
+
         <!-- Feature 6: Abfallkalender Sync -->
         <div class="feature-card glass-panel">
           <div class="feature-icon-wrapper teal-glow">
@@ -246,7 +239,6 @@
           <button class="int-tab active" data-tab="sensor"><i class="fas fa-temperature-half"></i> AM2301 Klima</button>
           <button class="int-tab" data-tab="scan"><i class="fas fa-radar"></i> Tasmota Scan</button>
           <button class="int-tab" data-tab="radio"><i class="fas fa-radio"></i> Live Radio</button>
-          <button class="int-tab" data-tab="talk"><i class="fas fa-ghost"></i> Neo Talk AI</button>
           <button class="int-tab" data-tab="fritzbox"><i class="fas fa-network-wired"></i> Fritz!Box Live</button>
           <button class="int-tab" data-tab="presence"><i class="fas fa-users"></i> Anwesenheit</button>
           <button class="int-tab" data-tab="camera"><i class="fas fa-video"></i> Kamera-Monitor</button>
@@ -392,39 +384,7 @@
               </div>
             </div>
           </div>
-          
-          <!-- TAB 4: NEO TALK -->
-          <div class="tab-pane" id="pane-talk">
-            <div class="demo-grid-2col">
-              <div class="demo-controls">
-                <h3>Neo Talk Voice Assistant</h3>
-                <p class="demo-desc-text">Klicke auf das Mikrofon, um eine simulierte Spracheingabe zu tätigen und zu sehen, wie der Hausgeist Neo mit dir spricht.</p>
-                <div class="micro-buttons-row">
-                  <button class="big-mic-orb" id="btnTalkMic"><i class="fas fa-microphone-lines"></i></button>
-                  <div class="talk-status-box">
-                    <strong id="talkStatusTitle">Neo Talk</strong>
-                    <span id="talkStatusSub">Klicke zum Sprechen</span>
-                  </div>
-                </div>
-                <div class="voice-wave-container" id="voiceWave">
-                  <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
-                </div>
-              </div>
-              <div class="demo-visual">
-                <div class="terminal-chat-box">
-                  <div class="terminal-chat-header">
-                    <i class="fas fa-terminal"></i> Neo Gesprächsprotokoll
-                  </div>
-                  <div class="terminal-chat-body" id="talkChatLog">
-                    <div class="chat-message neo">
-                      <span class="sender"><i class="fas fa-ghost"></i> Neo:</span>
-                      <p class="message-content">Hallo! Ich bin Neo, dein digitaler Hausgeist. Klicke auf das Mikrofon und sprich mit mir!</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+
 
           <!-- TAB 5: FRITZBOX CALL & NET MONITOR -->
           <div class="tab-pane" id="pane-fritzbox">

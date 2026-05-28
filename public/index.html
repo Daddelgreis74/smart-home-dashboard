@@ -72,7 +72,6 @@
                 <label class="toggle-label"><span>Wetter & Klima</span><input type="checkbox" id="toggle-weather" checked><div class="toggle-switch"></div></label>
                 <label class="toggle-label"><span>Abfallkalender</span><input type="checkbox" id="toggle-waste" checked><div class="toggle-switch"></div></label>
                 <label class="toggle-label"><span>Live Radio</span><input type="checkbox" id="toggle-player" checked><div class="toggle-switch"></div></label>
-                <label class="toggle-label"><span>Neo Talk</span><input type="checkbox" id="toggle-talk" checked><div class="toggle-switch"></div></label>
                 <label class="toggle-label"><span>Temperatur</span><input type="checkbox" id="toggle-sensor" checked><div class="toggle-switch"></div></label>
                 <label class="toggle-label"><span>System Status</span><input type="checkbox" id="toggle-system" checked><div class="toggle-switch"></div></label>
                 <label class="toggle-label"><span>Tasmota Geräte</span><input type="checkbox" id="toggle-tasmota" checked><div class="toggle-switch"></div></label>
@@ -183,17 +182,6 @@
             <div class="section-divider"></div>
           </div>
 
-          <!-- 7. NEO VOICE TALK -->
-          <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-ghost"></i> Neo Talk <i class="fas fa-chevron-down acc-icon"></i></h3>
-            <div class="accordion-body">
-              <div class="input-group">
-                <label class="setting-sub-label">Spracheingabe läuft lokal im Browser. Neo antwortet über OpenClaw und wird vom Tablet vorgelesen.</label>
-                <label class="toggle-label"><span>Antwort vorlesen</span><input type="checkbox" id="toggleTalkSpeech" checked><div class="toggle-switch"></div></label>
-              </div>
-            </div>
-            <div class="section-divider"></div>
-          </div>
 
           <!-- 8. FRITZ!BOX MONITOR -->
           <div class="setting-section">
@@ -356,24 +344,6 @@
         </div>
       </div>
 
-      <div class="widget" data-type="talk">
-        <div class="widget-header">
-          <h3><i class="fas fa-ghost" style="color:var(--primary)"></i> Neo Talk</h3>
-          <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
-        </div>
-        <div class="widget-body talk-layout">
-          <button id="talkMicBtn" class="talk-orb" aria-label="Mit Neo sprechen"><i class="fas fa-microphone-lines"></i></button>
-          <div class="talk-copy">
-            <strong>Mit Neo sprechen</strong>
-            <span id="talkStatus">Drücken und sprechen</span>
-          </div>
-          <div class="talk-transcript" id="talkTranscript">Bereit.</div>
-          <div class="talk-actions">
-            <button id="sendTalkBtn" class="talk-btn" disabled><i class="fas fa-paper-plane"></i> Senden</button>
-            <button id="replayTalkBtn" class="talk-btn ghost" disabled><i class="fas fa-volume-high"></i> Nochmal</button>
-          </div>
-        </div>
-      </div>
       
       <div class="widget" data-type="system">
         <div class="widget-header">

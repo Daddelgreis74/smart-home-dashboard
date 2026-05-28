@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initClimateSensorDemo();
   initSubnetScannerDemo();
   initRadioPlayerDemo();
-  initNeoTalkVoiceDemo();
   initFritzboxDemo();
   initPresenceDemo();
   initCameraDemo();
@@ -300,87 +299,7 @@ function initRadioPlayerDemo() {
   });
 }
 
-/* --- 7. Neo Talk Voice Assistant Mockup --- */
-function initNeoTalkVoiceDemo() {
-  const btnTalkMic = document.getElementById('btnTalkMic');
-  const voiceWave = document.getElementById('voiceWave');
-  const talkStatusSub = document.getElementById('talkStatusSub');
-  const talkChatLog = document.getElementById('talkChatLog');
 
-  let activeSim = false;
-
-  const conversationSteps = [
-    {
-      userText: "Schalte die Lampen im Wohnzimmer an!",
-      neoText: "Alles klar! Ich schalte die Wohnzimmerlampen ein. Das grüne Licht am Steckdosen-Relais leuchtet jetzt."
-    },
-    {
-      userText: "Wie wird das Wetter morgen?",
-      neoText: "Morgen in Altenburg erwartet dich überwiegend klares Wetter mit bis zu 23 Grad. Perfekt für einen Ausflug!"
-    },
-    {
-      userText: "Wer bist du eigentlich?",
-      neoText: "Ich bin Neo, dein digitaler Hausgeist! Ich spuk-steuere deine Geräte und sorge dafür, dass dein Command Deck reibungslos läuft. 👻"
-    }
-  ];
-
-  let stepIndex = 0;
-
-  btnTalkMic.addEventListener('click', () => {
-    if (activeSim) return;
-    
-    activeSim = true;
-    btnTalkMic.classList.add('listening');
-    voiceWave.classList.add('listening');
-    talkStatusSub.textContent = "Ich höre zu...";
-    
-    // Choose which command to run
-    const currentDialogue = conversationSteps[stepIndex % conversationSteps.length];
-    stepIndex++;
-
-    // Step 1: User speaks (Typing out user bubble)
-    setTimeout(() => {
-      // User Message bubble
-      appendMessage("Steffen", currentDialogue.userText, "user");
-      btnTalkMic.classList.remove('listening');
-      voiceWave.classList.remove('listening');
-      talkStatusSub.textContent = "Neo denkt nach...";
-    }, 2000);
-
-    // Step 2: Neo responds
-    setTimeout(() => {
-      appendMessage("<i class='fas fa-ghost'></i> Neo", currentDialogue.neoText, "neo");
-      talkStatusSub.textContent = "Klicke zum Sprechen";
-      activeSim = false;
-
-      // Special interaction: If user wanted to toggle living room lights,
-      // trigger simulated light switches on the tablet screen inside the hero mockup!
-      if (currentDialogue.userText.includes("Wohnzimmer")) {
-        const plugInTablet = document.querySelector('.sim-plug');
-        if (plugInTablet) {
-          plugInTablet.classList.add('active');
-          // Automatically hide after some time or toggle
-          setTimeout(() => {
-            plugInTablet.classList.toggle('active');
-          }, 3500);
-        }
-      }
-    }, 3800);
-  });
-
-  function appendMessage(sender, text, type) {
-    const msg = document.createElement('div');
-    msg.className = `chat-message ${type}`;
-    msg.innerHTML = `
-      <span class="sender">${sender}:</span>
-      <p class="message-content">${text}</p>
-    `;
-    talkChatLog.appendChild(msg);
-    
-    // Scroll terminal chat log to bottom
-    talkChatLog.scrollTop = talkChatLog.scrollHeight;
-  }
-}
 
 /* --- 8. Clipboard Command Copy Helpers --- */
 function initClipboardHelpers() {

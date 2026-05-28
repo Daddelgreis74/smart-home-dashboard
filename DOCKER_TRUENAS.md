@@ -78,11 +78,7 @@ Um sicherzustellen, dass deine Einstellungen bei einem App-Update nicht gelösch
 
 *(Hinweis: TrueNAS erstellt diesen Ordner automatisch. Alle JSON-Konfigurationen und Kalenderdateien werden dort dauerhaft und sicher auf deinen ZFS-Festplatten gesichert).*
 
-#### 5. Environment Variables (Optionale Umgebungsvariablen)
-Falls gewünscht, kannst du Umgebungsvariablen hinzufügen:
-* **Name:** `OPENCLAW_VOICE_TALK` | **Value:** `1` (Aktiviert Neo Sprachsteuerung)
-* **Name:** `FULLY_TTS_URL` | **Value:** `http://<DEINE-TABLET-IP>:2323` (Sprachausgabe an Fully Kiosk)
-* **Name:** `FULLY_TTS_PASSWORD` | **Value:** `dein_passwort`
+
 
 ### Schritt 3: Speichern & Starten
 Klicke auf **Save**. TrueNAS lädt die App und startet sie. Sobald der Status auf `Active` steht, kannst du das Dashboard über die IP deines TrueNAS-Servers auf Port `8443` aufrufen!

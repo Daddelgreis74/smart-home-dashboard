@@ -29,7 +29,6 @@ function init() {
   loadRadioSync();
   initAudioPlayer();
   initRadioWakeGuards();
-  initTalkWidget();
   initSensorWidget();
   initSystemBargraph();
   initTasmota();
@@ -294,7 +293,7 @@ function loadSavedSettings() {
   const sensorIpInput = document.getElementById('sensorIp');
   if(sensorIpInput) sensorIpInput.value = savedSensorIp;
 
-  ['weather', 'waste', 'player', 'talk', 'sensor', 'system', 'tasmota', 'fritzbox', 'presence', 'camera'].forEach(type => {
+  ['weather', 'waste', 'player', 'sensor', 'system', 'tasmota', 'fritzbox', 'presence', 'camera'].forEach(type => {
     const isVisible = localStorage.getItem('show_' + type) !== 'false';
     const widget = document.querySelector(`.widget[data-type="${type}"]`);
     const toggle = document.getElementById('toggle-' + type);
@@ -420,12 +419,6 @@ function initSettings() {
     });
   }
 
-  const talkSpeechToggle = document.getElementById('toggleTalkSpeech');
-  if(talkSpeechToggle) {
-    talkSpeechToggle.checked = localStorage.getItem('talkSpeechEnabled') !== 'false';
-    talkSpeechToggle.addEventListener('change', e => localStorage.setItem('talkSpeechEnabled', e.target.checked ? 'true' : 'false'));
-  }
-
   const updateSensorIp = document.getElementById('updateSensorIp');
   if(updateSensorIp) {
     updateSensorIp.addEventListener('click', () => {
@@ -438,7 +431,7 @@ function initSettings() {
     });
   }
 
-  ['weather', 'waste', 'player', 'talk', 'sensor', 'system', 'tasmota', 'fritzbox', 'presence', 'camera'].forEach(type => {
+  ['weather', 'waste', 'player', 'sensor', 'system', 'tasmota', 'fritzbox', 'presence', 'camera'].forEach(type => {
     const toggle = document.getElementById('toggle-' + type);
     if(toggle) {
       toggle.addEventListener('change', (e) => {
@@ -789,230 +782,7 @@ function initRadioWakeGuards() {
   document.addEventListener('freeze', hardStop);
 }
 
-let talkRecognition = null;
-let talkLastText = '';
-let talkLastReply = '';
-let talkEnabled = false;
-let talkTtsPrimed = false;
-let talkTtsMode = 'browser';
-let talkFullyTtsAvailable = false;
 
-function setTalkStatus(text, busy = false) {
-  const status = document.getElementById('talkStatus');
-  const orb = document.getElementById('talkMicBtn');
-  if(status) status.textContent = text;
-  if(orb) orb.classList.toggle('listening', busy);
-}
-
-function setTalkTranscript(text) {
-  const box = document.getElementById('talkTranscript');
-  if(box) box.textContent = text || 'Bereit.';
-}
-
-function getTalkVoice() {
-  if(!('speechSynthesis' in window)) return null;
-  const voices = window.speechSynthesis.getVoices() || [];
-  return voices.find(v => /^de[-_]/i.test(v.lang || '')) || voices[0] || null;
-}
-
-function primeTalkTts() {
-  if(talkTtsPrimed || localStorage.getItem('talkSpeechEnabled') === 'false') return;
-  if(!('speechSynthesis' in window) || !window.SpeechSynthesisUtterance) return;
-  try {
-    const unlock = new SpeechSynthesisUtterance(' ');
-    unlock.lang = 'de-DE';
-    unlock.volume = 0.01;
-    unlock.rate = 1;
-    unlock.pitch = 1;
-    const voice = getTalkVoice();
-    if(voice) unlock.voice = voice;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(unlock);
-    talkTtsPrimed = true;
-  } catch(e) {}
-}
-
-function speakTalkReply(text) {
-  if(localStorage.getItem('talkSpeechEnabled') === 'false') return false;
-  if(!('speechSynthesis' in window) || !window.SpeechSynthesisUtterance || !text) return false;
-  try {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'de-DE';
-    utterance.rate = 1;
-    utterance.pitch = 1;
-    utterance.volume = 1;
-    const voice = getTalkVoice();
-    if(voice) utterance.voice = voice;
-    utterance.onstart = () => setTalkStatus('Neo spricht ...');
-    utterance.onend = () => setTalkStatus('Drücken und sprechen');
-    utterance.onerror = () => setTalkStatus('TTS blockiert – Nochmal tippen');
-    window.speechSynthesis.speak(utterance);
-    return true;
-  } catch(e) {
-    setTalkStatus('TTS nicht verfügbar');
-    return false;
-  }
-}
-
-function isFullyKioskClient() {
-  const ua = navigator.userAgent || '';
-  return typeof window.fully !== 'undefined' || /Fully/i.test(ua);
-}
-
-async function speakTalkReplyWithFully(text) {
-  if(localStorage.getItem('talkSpeechEnabled') === 'false' || !text) return false;
-  if(!talkFullyTtsAvailable) return false;
-  try {
-    const res = await fetch('/api/neo-talk/speak', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text })
-    });
-    const data = await res.json();
-    if(!res.ok || !data.success) throw new Error(data.error || 'Fully TTS fehlgeschlagen');
-    return true;
-  } catch(e) {
-    setTalkStatus('Fully TTS Fehler');
-    return false;
-  }
-}
-
-async function replayTalkReply() {
-  if(!talkLastReply) return;
-  if(talkTtsMode === 'fully') {
-    setTalkStatus('Antwort wird erneut vorgelesen');
-    if(await speakTalkReplyWithFully(talkLastReply)) setTalkStatus('Drücken und sprechen');
-    return;
-  }
-  primeTalkTts();
-  setTalkStatus('Antwort wird erneut vorgelesen');
-  speakTalkReply(talkLastReply);
-}
-
-async function sendTalkText(text) {
-  const sendBtn = document.getElementById('sendTalkBtn');
-  const micBtn = document.getElementById('talkMicBtn');
-  if(!text || !talkEnabled) return;
-  if(sendBtn) sendBtn.disabled = true;
-  if(micBtn) micBtn.disabled = true;
-  setTalkStatus('Neo denkt nach ...', true);
-  try {
-    const res = await fetch('/api/neo-talk', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        text,
-        speak: false
-      })
-    });
-    const data = await res.json();
-    if(!res.ok || !data.success) throw new Error(data.error || 'Neo Talk fehlgeschlagen');
-    const reply = data.reply || 'Ich habe keine Antwort bekommen.';
-    talkLastReply = reply;
-    const replayBtn = document.getElementById('replayTalkBtn');
-    if(replayBtn) replayBtn.disabled = false;
-    setTalkTranscript(`Du: ${data.text}\nNeo: ${reply}`);
-    if(talkTtsMode === 'fully') {
-      setTalkStatus('Antwort wird vom Tablet vorgelesen');
-      if(!await speakTalkReplyWithFully(reply)) setTalkStatus('Antwort da – Nochmal tippen');
-    } else {
-      setTalkStatus('Antwort wird vorgelesen');
-      if(!speakTalkReply(reply)) setTalkStatus('Antwort da – Nochmal tippen');
-    }
-  } catch(e) {
-    setTalkStatus('Fehler');
-    setTalkTranscript(e.message || 'Neo konnte gerade nicht antworten.');
-  } finally {
-    if(micBtn) micBtn.disabled = false;
-    if(sendBtn) sendBtn.disabled = !talkLastText;
-  }
-}
-
-function initSpeechRecognition() {
-  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!Recognition) {
-    setTalkStatus('Spracheingabe nicht unterstützt');
-    setTalkTranscript('Dieser Browser unterstützt die Web Speech API nicht.');
-    return null;
-  }
-  const recognition = new Recognition();
-  recognition.lang = 'de-DE';
-  recognition.interimResults = true;
-  recognition.continuous = false;
-  recognition.maxAlternatives = 1;
-  recognition.onstart = () => setTalkStatus('Ich höre zu ...', true);
-  recognition.onerror = event => {
-    setTalkStatus('Nicht verstanden');
-    setTalkTranscript(event.error === 'not-allowed' ? 'Mikrofon-Berechtigung fehlt.' : 'Spracheingabe abgebrochen.');
-  };
-  recognition.onend = () => {
-    setTalkStatus(talkLastText ? 'Erkannt – sende an Neo' : 'Drücken und sprechen');
-    if(talkLastText) sendTalkText(talkLastText);
-  };
-  recognition.onresult = event => {
-    let finalText = '';
-    let interimText = '';
-    for(let i = event.resultIndex; i < event.results.length; i++) {
-      const part = event.results[i][0].transcript.trim();
-      if(event.results[i].isFinal) finalText += `${part} `;
-      else interimText += `${part} `;
-    }
-    const current = (finalText || interimText).trim();
-    if(current) {
-      talkLastText = current;
-      setTalkTranscript(`Du: ${current}`);
-      const sendBtn = document.getElementById('sendTalkBtn');
-      if(sendBtn) sendBtn.disabled = false;
-    }
-  };
-  return recognition;
-}
-
-async function initTalkWidget() {
-  const micBtn = document.getElementById('talkMicBtn');
-  const sendBtn = document.getElementById('sendTalkBtn');
-  const replayBtn = document.getElementById('replayTalkBtn');
-  if(!micBtn) return;
-  try {
-    const res = await fetch('/api/talk-config');
-    const cfg = await res.json();
-    talkEnabled = !!cfg.enabled;
-    talkFullyTtsAvailable = !!cfg.fullyTtsAvailable;
-    talkTtsMode = talkFullyTtsAvailable && isFullyKioskClient() ? 'fully' : (cfg.ttsMode || 'browser');
-  } catch(e) {
-    talkEnabled = false;
-  }
-  if(!talkEnabled) {
-    micBtn.disabled = true;
-    if(sendBtn) sendBtn.disabled = true;
-    if(replayBtn) replayBtn.disabled = true;
-    setTalkStatus('Serverseitig deaktiviert');
-    setTalkTranscript('Neo Talk muss lokal auf dem Dashboard-Server aktiviert werden.');
-    return;
-  }
-  talkRecognition = initSpeechRecognition();
-  if(!talkRecognition) {
-    micBtn.disabled = true;
-    return;
-  }
-  if('speechSynthesis' in window) {
-    window.speechSynthesis.onvoiceschanged = () => getTalkVoice();
-  }
-  micBtn.addEventListener('click', () => {
-    if(talkTtsMode !== 'fully') primeTalkTts();
-    talkLastText = '';
-    setTalkTranscript('Höre zu ...');
-    try { talkRecognition.start(); } catch(e) {}
-  });
-  if(sendBtn) sendBtn.addEventListener('click', () => {
-    if(talkTtsMode !== 'fully') primeTalkTts();
-    sendTalkText(talkLastText);
-  });
-  if(replayBtn) replayBtn.addEventListener('click', () => {
-    replayTalkReply();
-  });
-}
 
 function initAudioPlayer() {
   const playBtn = document.getElementById('togglePlayBtn');
