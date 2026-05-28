@@ -93,3 +93,56 @@ Klicke auf **Save**. TrueNAS lädt die App und startet sie. Sobald der Status au
 
 * **Kalender:** Lade deine `.ics`-Datei einfach wie gewohnt direkt über die Dashboard-Oberfläche in den Einstellungen hoch. Sie wird automatisch in deinem persistenten Host-Pfad unter `/data/uploads/calendar.ics` abgelegt und bleibt dauerhaft gespeichert.
 * **HTTPS / SSL:** Wenn du eine sichere Verbindung wünschst, erstelle einfach in deinem gemounteten `data`-Ordner ein Unterverzeichnis `ssl` und lege dort `key.pem` und `cert.pem` ab. Der Server erkennt diese beim nächsten Start automatisch und schaltet auf HTTPS um.
+
+---
+
+## 🧭 Bedienung & Steuerung im Alltag (Für Einsteiger)
+
+Da wir den Container mit dem Parameter `-d` (detached) im Hintergrund gestartet haben, läuft das Dashboard vollautomatisch und lautlos im Hintergrund. Du musst die Konsole im normalen Betrieb nicht geöffnet lassen.
+
+Solltest du das Dashboard doch einmal steuern oder aktualisieren wollen, navigiere in der Konsole auf deinem TrueNAS in den Ordner `smart-home-dashboard` und verwende diese einfachen Befehle:
+
+### 🟢 1. Dashboard aufrufen
+Öffne einen beliebigen Webbrowser auf deinem PC, Tablet oder Smartphone und gib Folgendes ein:
+```text
+http://<DEINE-TRUENAS-IP>:8443
+```
+
+### 🔴 2. Dashboard stoppen (Ausschalten)
+Wenn du den Server warten oder das Dashboard vorübergehend abschalten willst:
+```bash
+docker compose down
+```
+
+### 🟢 3. Dashboard starten (Einschalten)
+Um das Dashboard wieder einzuschalten:
+```bash
+docker compose up -d
+```
+
+### 🔍 4. Status prüfen
+Um zu sehen, ob das Dashboard aktiv ist und fehlerfrei läuft:
+```bash
+docker compose ps
+```
+
+---
+
+## 🔄 Updates einspielen
+
+Wenn eine neue Version des Dashboards auf GitHub veröffentlicht wird, kannst du dein TrueNAS ganz einfach und ohne Datenverlust updaten:
+
+1. Navigiere in deinen Ordner auf dem TrueNAS:
+   ```bash
+   cd /mnt/Datensicherung/daddelgreis74/smart-home-dashboard
+   ```
+2. Lade den neuesten Code von GitHub herunter:
+   ```bash
+   git pull
+   ```
+3. Baue und starte den Container neu:
+   ```bash
+   docker compose up -d --build
+   ```
+
+*Hinweis: Deine Einstellungen (Kameras, Fritz!Box-Passwörter etc.) im Ordner `data/` bleiben bei diesem Vorgang komplett unangetastet und sicher auf deinen ZFS-Platten liegen!*

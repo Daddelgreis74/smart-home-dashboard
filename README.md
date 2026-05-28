@@ -143,6 +143,12 @@ Optional per Environment überschreibbar:
 PORT=8443 HOST=0.0.0.0 npm start
 ```
 
+### Docker & TrueNAS (Sehr einfach & Robust)
+Das Dashboard wurde vollständig containerisiert. Dies ist die einfachste und ausfallsicherste Methode, um das Dashboard im Dauerbetrieb laufen zu lassen – perfekt für dein **TrueNAS SCALE** oder einen Docker-Host im Heimnetzwerk.
+
+Alle Details, Volumes zur permanenten Datensicherung und Schritt-für-Schritt-Anleitungen findest du in der dedizierten Anleitung:
+👉 **[Docker & TrueNAS Setup Guide (DOCKER_TRUENAS.md)](DOCKER_TRUENAS.md)**
+
 ### Neo Talk aktivieren
 
 Das Voice-Widget ist im Code generisch und enthält keine privaten URLs, Tunnel oder Tokens. Die lokale OpenClaw-Anbindung wird bewusst nur per Environment aktiviert:
