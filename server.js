@@ -12,11 +12,13 @@ const crypto = require('crypto');
 const app = express();
 const PORT = Number(process.env.PORT || 8443);
 const HOST = process.env.HOST || '0.0.0.0';
-const TASMOTA_FILE = path.join(__dirname, 'tasmota.json');
-const RADIO_FILE = path.join(__dirname, 'radio.json');
-const CAMERAS_FILE = path.join(__dirname, 'cameras.json');
-const UPLOAD_DIR = path.join(__dirname, 'uploads');
-const SSL_DIR = path.join(__dirname, 'ssl');
+
+const DATA_DIR = process.env.DATA_DIR || __dirname;
+const TASMOTA_FILE = path.join(DATA_DIR, 'tasmota.json');
+const RADIO_FILE = path.join(DATA_DIR, 'radio.json');
+const CAMERAS_FILE = path.join(DATA_DIR, 'cameras.json');
+const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
+const SSL_DIR = process.env.SSL_DIR || path.join(__dirname, 'ssl');
 const VOICE_TALK_ENABLED = process.env.OPENCLAW_VOICE_TALK === '1';
 const VOICE_TALK_SESSION = process.env.OPENCLAW_VOICE_SESSION || 'smart-home-dashboard-voice';
 const VOICE_TALK_TIMEOUT_MS = Math.max(10_000, Number(process.env.OPENCLAW_VOICE_TIMEOUT_MS || 120_000));
@@ -416,8 +418,8 @@ app.post('/api/tasmota/scan', async (req, res) => {
 });
 
 // ==== FRITZ!BOX MONITOR LOGIC ====
-const FRITZ_FILE = path.join(__dirname, 'fritzbox.json');
-const CALLS_LOG_FILE = path.join(__dirname, 'fritzbox_calls.json');
+const FRITZ_FILE = path.join(DATA_DIR, 'fritzbox.json');
+const CALLS_LOG_FILE = path.join(DATA_DIR, 'fritzbox_calls.json');
 
 let fritzConfig = { ip: '192.168.178.1', user: '', pass: '', callMonitorEnabled: true };
 let fritzCalls = [];
@@ -660,7 +662,7 @@ app.post('/api/fritzbox/config', (req, res) => {
 });
 
 // ==== FRITZ!BOX TR-064 SOAP CLIENT & PRESENCE DETECTION ====
-const PRESENCE_FILE = path.join(__dirname, 'presence.json');
+const PRESENCE_FILE = path.join(DATA_DIR, 'presence.json');
 let presenceRAM = [];
 let isPresencePolling = false;
 

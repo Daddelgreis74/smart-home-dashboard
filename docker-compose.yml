@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  smart-home-dashboard:
+    container_name: smart-home-dashboard
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8443:8443"
+    volumes:
+      # Mountet alle Konfigurationen, Kalender-Uploads (calendar.ics) und SSL-Zertifikate in einen lokalen Ordner
+      - ./data:/app/data
+    environment:
+      - PORT=8443
+      - HOST=0.0.0.0
+      
+      # OPTIONALE EINSTELLUNGEN (Bei Bedarf einkommentieren und anpassen):
+      # - OPENCLAW_VOICE_TALK=1                      # Aktiviert Neo Talk (Sprachsteuerung)
+      # - OPENCLAW_VOICE_SESSION=smart-home-dashboard-voice
+      # - OPENCLAW_VOICE_TIMEOUT_MS=120000
+      # - FULLY_TTS_URL=http://192.168.178.50:2323   # IP deines Fully-Kiosk-Tablets für Sprachausgabe
+      # - FULLY_TTS_PASSWORD=dein_fully_passwort

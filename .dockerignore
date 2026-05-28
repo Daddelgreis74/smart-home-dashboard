@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log
+uploads/*
+ssl/*
+.git
+.gitignore
+*.bat
+*.md
+www
+# Ignore local config files so we don't bake credentials into the Docker image
+tasmota.json
+radio.json
+cameras.json
+fritzbox.json
+fritzbox_calls.json
+presence.json
