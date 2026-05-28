@@ -3,6 +3,7 @@ services:
     container_name: smart-home-dashboard
     build: .
     restart: unless-stopped
+    network_mode: "host"
     ports:
       - "8443:8443"
     volumes:
