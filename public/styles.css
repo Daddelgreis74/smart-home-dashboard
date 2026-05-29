@@ -2752,5 +2752,283 @@ body.theme-retrowave .fullscreen-title {
   }
 }
 
+/* --- FRITZ!BOX RADIO POPUP SYSTEM (v3.8.0) --- */
+.fritz-round-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-main);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.fritz-round-btn:hover {
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.fritz-round-btn:active {
+  transform: scale(0.95);
+}
+
+/* responsive size override for round buttons */
+.play-round-btn, .fritz-round-btn {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  font-size: 16px !important;
+}
+
+/* Glassmorphism Popup Overlay */
+.radio-fullscreen-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 8, 16, 0.65);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.radio-fullscreen-overlay[hidden] {
+  display: none !important;
+}
+
+.radio-fullscreen-overlay .fullscreen-content {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: scaleUp 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+  position: relative;
+}
+
+@keyframes scaleUp {
+  0% { transform: scale(0.9) translateY(20px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* Station Buttons Grid */
+.overlay-stations-grid {
+  width: 100%;
+}
+
+.station-btn {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  transition: all 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+  position: relative;
+  overflow: hidden;
+  font-family: inherit;
+}
+
+.station-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--text-main);
+  transform: translateY(-2px);
+}
+
+.station-btn.active {
+  background: rgba(85, 245, 177, 0.08);
+  border-color: var(--primary);
+  color: var(--text-main);
+  box-shadow: 0 0 20px rgba(85, 245, 177, 0.15);
+}
+
+.station-btn i {
+  font-size: 1.4rem;
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+
+.station-btn.active i {
+  color: var(--accent-blue);
+  filter: drop-shadow(0 0 5px var(--accent-blue));
+}
+
+.station-name {
+  font-weight: 500;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.station-status-indicator {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.station-btn.active .station-status-indicator {
+  background: var(--accent-blue);
+  box-shadow: 0 0 8px var(--accent-blue);
+  animation: pulsePulse 1.2s infinite alternate ease-in-out;
+}
+
+@keyframes pulsePulse {
+  0% { opacity: 0.3; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1.2); }
+}
+
+/* --- THEME-SPECIFIC OVERRIDES FOR FRITZ!BOX RADIO --- */
+
+/* 1. Theme Cyberpunk HUD Overrides */
+body.theme-cyberpunk .fritz-round-btn {
+  border-radius: 0 !important;
+  background: rgba(255, 85, 0, 0.05) !important;
+  border: 1px solid #ff5500 !important;
+  color: #ff5500 !important;
+  box-shadow: none !important;
+  font-family: 'Courier New', monospace;
+}
+body.theme-cyberpunk .fritz-round-btn:hover {
+  background: rgba(255, 85, 0, 0.15) !important;
+  box-shadow: 0 0 10px rgba(255, 85, 0, 0.3) !important;
+}
+body.theme-cyberpunk .radio-fullscreen-overlay .fullscreen-content {
+  border-radius: 0 !important;
+  background: rgba(10, 5, 0, 0.95) !important;
+  border: 2px solid #ff5500 !important;
+}
+body.theme-cyberpunk .station-btn {
+  border-radius: 0 !important;
+  border-color: rgba(255, 85, 0, 0.3) !important;
+  color: rgba(255, 85, 0, 0.6) !important;
+  font-family: 'Courier New', monospace;
+}
+body.theme-cyberpunk .station-btn:hover {
+  background: rgba(255, 85, 0, 0.08) !important;
+  border-color: #ff5500 !important;
+  color: #ff5500 !important;
+}
+body.theme-cyberpunk .station-btn.active {
+  background: rgba(255, 85, 0, 0.12) !important;
+  border-color: #ff5500 !important;
+  color: #ff5500 !important;
+  box-shadow: 0 0 15px rgba(255, 85, 0, 0.25) !important;
+}
+body.theme-cyberpunk .station-btn.active i {
+  color: #ff5500 !important;
+}
+body.theme-cyberpunk .station-btn.active .station-status-indicator {
+  background: #ff5500 !important;
+  box-shadow: 0 0 8px #ff5500 !important;
+}
+
+/* 2. Theme Cozy Nordic Dark Overrides */
+body.theme-nordic .fritz-round-btn {
+  background: #2e3440 !important;
+  border-color: #3b4252 !important;
+  color: #d8dee9 !important;
+  border-radius: 14px !important;
+}
+body.theme-nordic .fritz-round-btn:hover {
+  background: #3b4252 !important;
+  border-color: #4c566a !important;
+  color: #eceff4 !important;
+}
+body.theme-nordic .radio-fullscreen-overlay .fullscreen-content {
+  border-radius: var(--radius-md) !important;
+  background: #2e3440 !important;
+  border-color: #3b4252 !important;
+}
+body.theme-nordic .station-btn {
+  border-radius: 12px !important;
+  border-color: #3b4252 !important;
+  background: #242933 !important;
+  color: #d8dee9 !important;
+}
+body.theme-nordic .station-btn:hover {
+  background: #2e3440 !important;
+  border-color: #4c566a !important;
+}
+body.theme-nordic .station-btn.active {
+  background: #3b4252 !important;
+  border-color: #88c0d0 !important;
+  color: #eceff4 !important;
+  box-shadow: none !important;
+}
+body.theme-nordic .station-btn.active i {
+  color: #88c0d0 !important;
+}
+body.theme-nordic .station-btn.active .station-status-indicator {
+  background: #88c0d0 !important;
+}
+
+/* 3. Theme Retrowave Synth Overrides */
+body.theme-retrowave .fritz-round-btn {
+  background: rgba(255, 0, 127, 0.05) !important;
+  border: 1px solid #ff007f !important;
+  color: #ff007f !important;
+  box-shadow: 0 0 10px rgba(255, 0, 127, 0.2) !important;
+}
+body.theme-retrowave .fritz-round-btn:hover {
+  background: rgba(255, 0, 127, 0.15) !important;
+  box-shadow: 0 0 20px rgba(255, 0, 127, 0.4) !important;
+}
+body.theme-retrowave .radio-fullscreen-overlay .fullscreen-content {
+  background: rgba(15, 0, 30, 0.95) !important;
+  border: 2px solid #ff007f !important;
+  box-shadow: 0 0 35px rgba(255, 0, 127, 0.3) !important;
+}
+body.theme-retrowave .station-btn {
+  border-color: rgba(255, 0, 127, 0.2) !important;
+  color: #ff007f !important;
+  background: rgba(255, 0, 127, 0.02) !important;
+}
+body.theme-retrowave .station-btn:hover {
+  background: rgba(255, 0, 127, 0.08) !important;
+  border-color: #ff007f !important;
+  color: #ff007f !important;
+}
+body.theme-retrowave .station-btn.active {
+  background: rgba(0, 240, 255, 0.08) !important;
+  border-color: #00f0ff !important;
+  color: #00f0ff !important;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.2) !important;
+}
+body.theme-retrowave .station-btn.active i {
+  color: #00f0ff !important;
+}
+body.theme-retrowave .station-btn.active .station-status-indicator {
+  background: #00f0ff !important;
+  box-shadow: 0 0 8px #00f0ff !important;
+}
+
 
 

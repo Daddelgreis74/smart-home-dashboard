@@ -26,7 +26,8 @@ function init() {
   setInterval(loadWeather, 15 * 60 * 1000); // Automatisches Hintergrund-Wetter-Update alle 15 Minuten
   loadICS();
   setInterval(loadICS, 60 * 60 * 1000); // Automatisches Hintergrund-Abfallkalender-Update jede Stunde
-  loadRadioSync();
+  initRadioWidget();
+  initFritzRadioPopup();
   initAudioPlayer();
   initRadioWakeGuards();
   initSensorWidget();
@@ -37,192 +38,7 @@ function init() {
   initCameraWidget();
 }
 
-let globalStations = [];
-
-function optionElement(value, label) {
-  const option = document.createElement('option');
-  option.value = value;
-  option.textContent = label;
-  return option;
-}
-
-async function loadRadioSync() {
-  try {
-    const res = await fetch('/api/radio');
-    const data = await res.json();
-    if(data && data.stations) {
-      globalStations = data.stations;
-      renderRadioUI();
-    }
-  } catch(e) {}
-}
-
-socket.on('radio-updated', (data) => {
-  if (data && data.stations) {
-    globalStations = data.stations;
-    renderRadioUI();
-  }
-});
-
-function assignPreset(slotIndex, url) {
-  const presets = JSON.parse(localStorage.getItem('radioPresets') || '{}');
-  if(!url) {
-      delete presets[slotIndex];
-  } else {
-      presets[slotIndex] = url;
-  }
-  localStorage.setItem('radioPresets', JSON.stringify(presets));
-  renderRadioUI();
-}
-
-function renderRadioUI() {
-  // Update Select for compatibility
-  const select = document.getElementById('radioStationSelect');
-  if(select) {
-    // Verhindere unabsichtliche 'Change' Events beim bloßen Aufbau des Dropdowns
-    const oldOnchange = select.onchange;
-    select.onchange = null;
-    
-    // Hole den gemerkten Sender anstelle des gerade aktiven, da das Select frisch gerendert wird
-    const savedStreamUrl = localStorage.getItem('streamUrl');
-    select.replaceChildren(optionElement('', 'Kein Sender gewählt'));
-    globalStations.forEach(st => select.appendChild(optionElement(st.url, st.name)));
-    
-    if(savedStreamUrl && globalStations.find(s => s.url === savedStreamUrl)) {
-      select.value = savedStreamUrl;
-    } else if (globalStations.length > 0) {
-      select.value = ''; // NULLE das initiale Setzen, um Caching/Autoplay-Bugs vom Kiosk zu vermeiden
-    }
-    
-    // Setze das Event, EGAL ob der Sender gefunden wurde oder nicht, erst danach wieder auf aktiv
-    setTimeout(() => { select.onchange = oldOnchange; }, 50);
-  }
-
-  // Preset Buttons Rendering im Widget
-  const presetsContainer = document.getElementById('radioPresetsWidget');
-  if(presetsContainer) {
-    presetsContainer.innerHTML = '';
-    // Hole Preset Mapping aus LocalStorage, z.B. {1: "url", 2: "url"}
-    const presets = JSON.parse(localStorage.getItem('radioPresets') || '{}');
-    
-    for(let i=1; i<=6; i++) {
-        const btn = document.createElement('button');
-        btn.className = 'btn preset-btn';
-        
-        let assignedStation = null;
-        if(presets[i]) {
-            assignedStation = globalStations.find(s => s.url === presets[i]);
-        }
-        
-        if (assignedStation) {
-            const number = document.createElement('strong');
-            number.textContent = i;
-            const label = document.createElement('span');
-            label.textContent = assignedStation.name.substring(0, 8);
-            btn.replaceChildren(number, label);
-            btn.classList.add('assigned');
-        } else {
-            const number = document.createElement('strong');
-            number.textContent = i;
-            btn.replaceChildren(number);
-            btn.classList.remove('assigned');
-        }
-
-        btn.style.width = '45px';
-        btn.style.height = '45px';
-        btn.style.padding = '0';
-        btn.style.display = 'flex';
-        btn.style.flexDirection = 'column';
-        btn.style.justifyContent = 'center';
-        btn.style.alignItems = 'center';
-
-        // Klick auf Preset = Sender abspielen
-        btn.addEventListener('click', () => {
-            if(presets[i]) {
-                localStorage.setItem('streamUrl', presets[i]); // Merken
-                // Direkt den Stream starten
-                playAudioStream(presets[i], true);
-            } else {
-                alert(`Speicherplatz ${i} ist leer. Bitte weise in den Dashboard-Einstellungen Sender zu.`);
-            }
-        });
-
-        presetsContainer.appendChild(btn);
-    }
-  }
-
-  // Preset Settings Rendering in den Einstellungen
-  const presetsSettings = document.getElementById('radioPresetsSettings');
-  if(presetsSettings) {
-    presetsSettings.innerHTML = '';
-    const presets = JSON.parse(localStorage.getItem('radioPresets') || '{}');
-    
-    for(let i=1; i<=6; i++) {
-      const row = document.createElement('div');
-      row.style.display = 'flex';
-      row.style.alignItems = 'center';
-      row.style.gap = '10px';
-      
-      const label = document.createElement('span');
-      label.textContent = `Taste ${i}:`;
-      label.style.width = '60px';
-      label.style.fontSize = '14px';
-      
-      const sel = document.createElement('select');
-      sel.className = 'radio-select';
-      sel.style.flex = '1';
-      sel.replaceChildren(optionElement('', '- Leer -'));
-      globalStations.forEach(st => sel.appendChild(optionElement(st.url, st.name)));
-      
-      if(presets[i] && globalStations.find(s => s.url === presets[i])) {
-        sel.value = presets[i];
-      }
-      
-      sel.addEventListener('change', (e) => {
-        assignPreset(i, e.target.value);
-      });
-      
-      row.appendChild(label);
-      row.appendChild(sel);
-      presetsSettings.appendChild(row);
-    }
-  }
-
-  // Update Settings List
-  const list = document.getElementById('radioList');
-  if(list) {
-    list.innerHTML = '';
-    globalStations.forEach((st, idx) => {
-      const row = document.createElement('div');
-      row.className = 'tasmota-row';
-      const info = document.createElement('div');
-      info.className = 't-info';
-      const name = document.createElement('span');
-      name.className = 't-name';
-      name.textContent = st.name;
-      const url = document.createElement('span');
-      url.className = 't-ip';
-      url.textContent = ` ${st.url.substring(0, 35)}${st.url.length > 35 ? '...' : ''}`;
-      const button = document.createElement('button');
-      button.className = 't-btn danger';
-      button.innerHTML = '<i class="fas fa-trash"></i>';
-      button.addEventListener('click', () => removeGlobalStation(idx));
-      info.append(name, url);
-      row.append(info, button);
-      list.appendChild(row);
-    });
-  }
-}
-
-async function removeGlobalStation(idx) {
-  globalStations.splice(idx, 1);
-  try {
-    await fetch('/api/radio', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ stations: globalStations })
-    });
-  } catch(e) {}
+// FRITZ!Box Radio State and UI handlers will be defined below
 }
 
 function initSortable() {
@@ -386,38 +202,7 @@ function initSettings() {
     loadWeather();
   });
 
-  const addStreamBtn = document.getElementById('addStreamBtn');
-  if(addStreamBtn) {
-    addStreamBtn.addEventListener('click', async () => {
-      const name = document.getElementById('streamName').value;
-      const url = document.getElementById('streamUrl').value;
-      if(name && url) { 
-        globalStations.push({ name, url });
-        document.getElementById('streamName').value = '';
-        document.getElementById('streamUrl').value = '';
-        try {
-          await fetch('/api/radio', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ stations: globalStations })
-          });
-        } catch(e) {}
-      }
-    });
-  }
-
-  const stationSelect = document.getElementById('radioStationSelect');
-  if(stationSelect) {
-    stationSelect.addEventListener('change', (e) => {
-      const url = e.target.value;
-      if(!url) return;
-      localStorage.setItem('streamUrl', url);
-      // Wichtig für Fully Kiosk/Android: Senderauswahl darf nur speichern,
-      // aber noch KEIN Audio-Element mit Stream-Quelle erzeugen.
-      // Einige WebViews starten vorhandene Media-Elemente beim Display-Wakeup sonst eigenständig.
-      stopRadioPlayback(true);
-    });
-  }
+  // Radio settings listeners were removed since presets are discarded
 
   const updateSensorIp = document.getElementById('updateSensorIp');
   if(updateSensorIp) {
@@ -743,8 +528,15 @@ function updateRadioUi(playing) {
   isPlaying = playing;
   const playBtn = document.getElementById('togglePlayBtn');
   const vis = document.querySelector('.visualizer');
+  const statusLabel = document.getElementById('widgetRadioStatus');
+  
   if(playBtn) playBtn.innerHTML = playing ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
   if(vis) vis.classList.toggle('active', playing);
+  
+  if(statusLabel) {
+    statusLabel.textContent = playing ? 'LIVE' : 'Bereit';
+    statusLabel.style.color = playing ? 'var(--primary)' : 'var(--accent-blue)';
+  }
 }
 
 function stopRadioPlayback(removeSource = true) {
@@ -812,13 +604,21 @@ function initAudioPlayer() {
   });
 }
 
-function playAudioStream(url, autoPlay = false) {
+function playAudioStream(url, name = '', autoPlay = false) {
   const container = document.getElementById('audioPlayerContainer');
   if(!container) return;
   if(!autoPlay) return;
   
   // ALLES ABREISSEN
   stopRadioPlayback(true);
+
+  // Name abspeichern und UI anpassen
+  if (name) {
+    localStorage.setItem('streamUrl', url);
+    localStorage.setItem('streamName', name);
+    const stationLabel = document.getElementById('widgetRadioStation');
+    if (stationLabel) stationLabel.textContent = name;
+  }
 
   // NEU BAUEN — nur nach explizitem Klick/Touch.
   activeAudioElement = document.createElement('audio');
@@ -833,7 +633,7 @@ function playAudioStream(url, autoPlay = false) {
   
   container.replaceChildren(activeAudioElement);
 
-  if(url.includes('.m3u8')) {
+  if(url.includes('.m3u8') || url.includes('.m3u')) {
     if(window.Hls && Hls.isSupported()){ 
         hlsCore = new Hls({ autoStartLoad: false }); 
         hlsCore.loadSource(url); 
@@ -856,6 +656,98 @@ function playAudioStream(url, autoPlay = false) {
           stopRadioPlayback(true);
       });
   }
+}
+
+function initRadioWidget() {
+  const savedName = localStorage.getItem('streamName');
+  const stationLabel = document.getElementById('widgetRadioStation');
+  
+  if (savedName && stationLabel) {
+    stationLabel.textContent = savedName;
+  }
+}
+
+function initFritzRadioPopup() {
+  const chooseBtn = document.getElementById('chooseStationBtn');
+  const overlay = document.getElementById('fritzRadioOverlay');
+  const closeBtn = document.getElementById('closeFritzRadio');
+  const grid = document.getElementById('overlayStationsGrid');
+  const countBadge = document.getElementById('overlayStationsCount');
+  const infoCard = document.getElementById('overlayInfoCard');
+
+  if (!chooseBtn || !overlay) return;
+
+  const demoStations = [
+    { name: "MDR JUMP (Live)", url: "http://mdr-284320-0.cast.mdr.de/mdr/284320/0/mp3/high/stream.mp3" },
+    { name: "Antenne Thüringen", url: "https://top.antennethueringen.de/live/mp3-192/" },
+    { name: "80s80s Radio", url: "http://stream.80s80s.de/80s80s/mp3-192/" },
+    { name: "WDR 2 (Köln)", url: "http://wdr-wdr2-koeln.cast.addradio.de/wdr/wdr2/koeln/mp3/128/stream.mp3" }
+  ];
+
+  chooseBtn.addEventListener('click', async () => {
+    overlay.removeAttribute('hidden');
+    countBadge.textContent = 'Laden...';
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Senderliste wird geladen...</div>';
+    infoCard.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/fritzbox/radio');
+      const data = await res.json();
+      grid.innerHTML = '';
+
+      let stations = data.stations || [];
+      if (stations.length === 0) {
+        // Fallback: Demo-Sender und Info-Hinweis
+        infoCard.style.display = 'flex';
+        countBadge.textContent = '0 Sender in FRITZ!Box (Demo geladen)';
+        renderStations(demoStations, true);
+      } else {
+        infoCard.style.display = 'none';
+        countBadge.textContent = stations.length + ' Sender gefunden';
+        renderStations(stations, false);
+      }
+    } catch (e) {
+      console.error('[Radio Overlay] Ladefehler:', e);
+      grid.innerHTML = '';
+      infoCard.style.display = 'flex';
+      countBadge.textContent = 'Ladefehler (Demo geladen)';
+      renderStations(demoStations, true);
+    }
+  });
+
+  function renderStations(list, isDemo) {
+    const currentUrl = localStorage.getItem('streamUrl');
+    list.forEach(st => {
+      const card = document.createElement('button');
+      card.className = 'station-btn';
+      if (currentUrl === st.url) {
+        card.classList.add('active');
+      }
+
+      let innerHTML = '<i class="fas fa-radio"></i>' +
+        '<span class="station-name">' + st.name + '</span>';
+      
+      if (isDemo) {
+        innerHTML += '<small style="font-size: 9px; color: var(--accent-blue); font-weight:600; margin-top:2px;">DEMO</small>';
+      }
+      
+      innerHTML += '<div class="station-status-indicator"></div>';
+      card.innerHTML = innerHTML;
+
+      card.addEventListener('click', () => {
+        overlay.setAttribute('hidden', '');
+        playAudioStream(st.url, st.name, true);
+      });
+
+      grid.appendChild(card);
+    });
+  }
+
+  const closeOverlay = () => overlay.setAttribute('hidden', '');
+  if (closeBtn) closeBtn.addEventListener('click', closeOverlay);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeOverlay();
+  });
 }
 
 function clampNumber(value, min, max) {

@@ -163,24 +163,7 @@
             <div class="section-divider"></div>
           </div>
 
-          <!-- 6. LIVE RADIO -->
-          <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-broadcast-tower"></i> Live Radio <i class="fas fa-chevron-down acc-icon"></i></h3>
-            <div class="accordion-body">
-              <div class="input-group">
-                <label class="setting-sub-label">Sender hinzufügen:</label>
-                <div style="display:flex; gap: 8px;">
-                  <input type="text" id="streamName" placeholder="Sendername">
-                  <input type="text" id="streamUrl" placeholder="https://... mp3/aac/m3u8">
-                  <button class="btn" id="addStreamBtn" title="Sender hinzufügen"><i class="fas fa-plus"></i></button>
-                </div>
-              </div>
-              <div id="radioList" class="tasmota-list-settings"></div>
-              <label class="setting-sub-label" style="margin-top: 15px;">Preset-Tasten:</label>
-              <div id="radioPresetsSettings" class="radio-presets-settings"></div>
-            </div>
-            <div class="section-divider"></div>
-          </div>
+
 
 
           <!-- 8. FRITZ!BOX MONITOR -->
@@ -327,14 +310,20 @@
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body player-layout">
-          <div id="radioPresetsWidget" class="radio-presets-widget"></div>
+          <div class="now-playing" style="text-align: center; margin-bottom: 5px; width: 100%;">
+            <small id="widgetRadioStatus" style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-blue); display: block; margin-bottom: 2px;">Bereit</small>
+            <h4 id="widgetRadioStation" style="font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; margin: 0; padding: 0 5px;">Kein Sender ausgewählt</h4>
+          </div>
           <div id="audioPlayerContainer" hidden></div>
           <div class="audio-controls">
             <div class="visualizer">
               <div class="bar"></div><div class="bar"></div><div class="bar"></div>
               <div class="bar"></div><div class="bar"></div><div class="bar"></div>
             </div>
-            <button id="togglePlayBtn" class="play-round-btn" aria-label="Radio starten oder pausieren"><i class="fas fa-play"></i></button>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%; margin: 2px 0;">
+              <button id="togglePlayBtn" class="play-round-btn" aria-label="Radio starten oder pausieren"><i class="fas fa-play"></i></button>
+              <button id="chooseStationBtn" class="fritz-round-btn" aria-label="FRITZ!Box Sender wählen" title="FRITZ!Box Sender wählen"><i class="fas fa-broadcast-tower"></i></button>
+            </div>
             <div class="volume-control">
               <i class="fas fa-volume-down"></i>
               <input type="range" id="volumeSlider" min="0" max="100" value="50" aria-label="Lautstärke">
@@ -467,6 +456,30 @@
     <div class="fullscreen-content">
       <img id="fullscreenCameraImg" src="" alt="Live-Stream">
       <div class="fullscreen-title" id="fullscreenCameraTitle">Kamera</div>
+    </div>
+  </div>
+
+  <!-- FRITZ!Box Radio Selection Overlay -->
+  <div class="radio-fullscreen-overlay" id="fritzRadioOverlay" hidden>
+    <button class="close-fullscreen-btn" id="closeFritzRadio" aria-label="Auswahl schließen"><i class="fas fa-times"></i></button>
+    <div class="fullscreen-content" style="max-width: 700px; width: 90%;">
+      <div class="overlay-header" style="text-align: center; margin-bottom: 25px;">
+        <h2 style="font-size: 1.8rem; font-weight: 600; margin-bottom: 5px;"><i class="fas fa-broadcast-tower" style="color:var(--primary)"></i> FRITZ!Box Mediaserver</h2>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">Wähle einen deiner in der FRITZ!Box eingerichteten Radiosender aus.</p>
+      </div>
+      <div id="overlayStationsCount" class="badge" style="display: block; margin: 0 auto 20px; width: fit-content; font-size: 11px; padding: 4px 10px; border-radius: 12px; background: rgba(74,222,128,0.15); color: var(--primary); border: 1px solid rgba(74,222,128,0.3); font-weight: 600;">Laden...</div>
+      <div class="overlay-stations-grid" id="overlayStationsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; width: 100%; max-height: 50vh; overflow-y: auto; padding: 5px;">
+        <!-- Dynamische Kacheln -->
+      </div>
+      <!-- Fallback / Warning Info Card -->
+      <div class="info-card" id="overlayInfoCard" style="display: none; background: rgba(239,68,68,0.06); border: 1px dashed rgba(239,68,68,0.25); border-radius: 12px; padding: 15px; margin-top: 20px; gap: 12px; align-items: flex-start;">
+        <i class="fas fa-info-circle" style="font-size: 1.2rem; color: #ef4444; margin-top: 2px;"></i>
+        <div class="info-text" style="font-size: 0.8rem; line-height: 1.4; color: var(--text-muted);">
+          <strong style="color: var(--text-main);">Keine Sender im Mediaserver gefunden!</strong><br>
+          Bitte stelle sicher, dass unter <code>http://fritz.box</code> (Heimnetz ➡️ Mediaserver ➡️ Internetradio) deine Sender eingerichtet sind.<br>
+          <em>(Es wurden temporär Demo-Sender geladen, damit du das Radio testen kannst!)</em>
+        </div>
+      </div>
     </div>
   </div>
 
