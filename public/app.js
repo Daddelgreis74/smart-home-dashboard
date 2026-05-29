@@ -39,7 +39,6 @@ function init() {
 }
 
 // FRITZ!Box Radio State and UI handlers will be defined below
-}
 
 function initSortable() {
   const dashboard = document.getElementById('dashboard');
