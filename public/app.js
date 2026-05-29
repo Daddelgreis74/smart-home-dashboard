@@ -26,10 +26,6 @@ function init() {
   setInterval(loadWeather, 15 * 60 * 1000); // Automatisches Hintergrund-Wetter-Update alle 15 Minuten
   loadICS();
   setInterval(loadICS, 60 * 60 * 1000); // Automatisches Hintergrund-Abfallkalender-Update jede Stunde
-  initRadioWidget();
-  initFritzRadioPopup();
-  initAudioPlayer();
-  initRadioWakeGuards();
   initSensorWidget();
   initSystemBargraph();
   initTasmota();
