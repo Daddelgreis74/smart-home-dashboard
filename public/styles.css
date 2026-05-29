@@ -2847,9 +2847,10 @@ body.theme-retrowave .fullscreen-title {
   text-align: left;
   transition: all 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
   position: relative;
-  overflow: hidden;
   min-width: 0;
+  min-height: 70px;
   font-family: inherit;
+  font-size: 0.95rem;
 }
 
 .station-btn:hover {
@@ -2878,13 +2879,18 @@ body.theme-retrowave .fullscreen-title {
 }
 
 .station-name {
-  display: block;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
   font-weight: 500;
-  font-size: 0.95rem;
+  font-size: 0.95rem !important;
+  line-height: 1.3 !important;
+  min-height: 1.2em !important;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
+  max-width: 100%;
   color: var(--text-main) !important;
 }
 

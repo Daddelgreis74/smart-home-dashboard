@@ -823,8 +823,8 @@ function initFritzRadioPopup() {
         card.classList.add('active');
       }
 
-      let innerHTML = '<i class="fas fa-radio"></i>' +
-        '<span class="station-name">' + st.name + '</span>';
+      let innerHTML = '<i class="fas fa-radio" style="font-size:1.3rem;"></i>' +
+        '<span class="station-name" style="display:block; font-size:0.95rem; font-weight:500; color:inherit; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; min-height:1.2em; line-height:1.3;">' + st.name + '</span>';
       
       if (isDemo) {
         innerHTML += '<small style="font-size: 9px; color: var(--accent-blue); font-weight:600; margin-top:2px;">DEMO</small>';
