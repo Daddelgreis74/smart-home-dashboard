@@ -635,13 +635,15 @@ function playAudioStream(url, name = '', autoPlay = false) {
 }
 
 function initRadioWidget() {
-  const savedName = localStorage.getItem('streamName');
+  let savedName = localStorage.getItem('streamName');
   const stationLabel = document.getElementById('widgetRadioStation');
   
-  if (savedName && stationLabel) {
+  if (savedName === 'null' || savedName === 'undefined' || !savedName || savedName.trim() === '') {
+    savedName = 'FRITZ!Box Radio';
+  }
+  
+  if (stationLabel) {
     stationLabel.textContent = savedName;
-  } else if (stationLabel) {
-    stationLabel.textContent = 'FRITZ!Box Radio';
   }
 }
 

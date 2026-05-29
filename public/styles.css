@@ -2838,7 +2838,7 @@ body.theme-retrowave .fullscreen-title {
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: var(--radius-md);
   padding: 16px 20px;
-  color: var(--text-muted);
+  color: var(--text-main) !important;
   cursor: pointer;
   display: flex;
   flex-direction: column;
