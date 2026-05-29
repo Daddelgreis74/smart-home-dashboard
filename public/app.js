@@ -26,6 +26,10 @@ function init() {
   setInterval(loadWeather, 15 * 60 * 1000); // Automatisches Hintergrund-Wetter-Update alle 15 Minuten
   loadICS();
   setInterval(loadICS, 60 * 60 * 1000); // Automatisches Hintergrund-Abfallkalender-Update jede Stunde
+  initRadioWidget();
+  initFritzRadioPopup();
+  initAudioPlayer();
+  initRadioWakeGuards();
   initSensorWidget();
   initSystemBargraph();
   initTasmota();
@@ -522,13 +526,51 @@ let activeAudioElement = null;
 function updateRadioUi(playing) {
   isPlaying = playing;
   const statusLabel = document.getElementById('widgetRadioStatus');
-  const mainBtn = document.getElementById('chooseStationBtn');
+  const playBtnIcon = document.querySelector('#widgetPlayPauseBtn i');
+  const playBtn = document.getElementById('widgetPlayPauseBtn');
+  const visualizer = document.getElementById('radioVisualizer');
+  const towerIcon = document.getElementById('widgetRadioTowerIcon');
+  const towerWrapper = document.querySelector('.radio-ring-wrapper');
   
-  if (mainBtn) {
-    mainBtn.classList.toggle('playing', playing);
+  if (playBtnIcon) {
+    playBtnIcon.className = playing ? 'fas fa-stop' : 'fas fa-play';
+  }
+  if (playBtn) {
+    if (playing) {
+      playBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+      playBtn.style.boxShadow = '0 4px 10px rgba(239, 68, 68, 0.25)';
+    } else {
+      playBtn.style.background = 'linear-gradient(135deg, var(--primary), #22c55e)';
+      playBtn.style.boxShadow = '0 4px 10px rgba(74, 222, 128, 0.25)';
+    }
   }
   
-  if(statusLabel) {
+  if (visualizer) {
+    visualizer.style.opacity = playing ? '0.45' : '0.15';
+    if (playing) {
+      visualizer.classList.add('active');
+    } else {
+      visualizer.classList.remove('active');
+    }
+  }
+
+  if (towerIcon) {
+    towerIcon.style.color = playing ? 'var(--primary)' : 'var(--text-muted)';
+  }
+
+  if (towerWrapper) {
+    if (playing) {
+      towerWrapper.style.borderColor = 'var(--primary)';
+      towerWrapper.style.boxShadow = '0 0 15px var(--primary-glow)';
+      towerWrapper.style.background = 'rgba(74, 222, 128, 0.05)';
+    } else {
+      towerWrapper.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+      towerWrapper.style.boxShadow = '0 0 0 rgba(74, 222, 128, 0)';
+      towerWrapper.style.background = 'rgba(255, 255, 255, 0.03)';
+    }
+  }
+  
+  if (statusLabel) {
     statusLabel.textContent = playing ? 'LIVE' : 'Sender wählen';
     statusLabel.style.color = playing ? 'var(--primary)' : 'var(--accent-blue)';
   }
@@ -569,10 +611,8 @@ function initRadioWakeGuards() {
   document.addEventListener('freeze', hardStop);
 }
 
-
-
 function initAudioPlayer() {
-  // Volume und Steuerung sind jetzt direkt im FRITZ!Box-Vollbild-Popup integriert.
+  // Integrierte Steuerung über Widget und Popup
 }
 
 function playAudioStream(url, name = '', autoPlay = false) {
@@ -641,6 +681,44 @@ function initRadioWidget() {
   if (stationLabel) {
     stationLabel.textContent = savedName;
   }
+
+  // Widget Lautstärke-Slider initialisieren
+  const widgetVolume = document.getElementById('widgetVolumeSlider');
+  if (widgetVolume) {
+    const savedVol = localStorage.getItem('radioVolume') || '50';
+    widgetVolume.value = savedVol;
+    
+    widgetVolume.addEventListener('input', (e) => {
+      const vol = e.target.value;
+      localStorage.setItem('radioVolume', vol);
+      if (activeAudioElement) {
+        activeAudioElement.volume = vol / 100;
+      }
+      // Mit Popup-Lautstärke synchronisieren falls offen
+      const popupVolume = document.getElementById('popupVolumeSlider');
+      if (popupVolume) popupVolume.value = vol;
+    });
+  }
+
+  // Widget Play/Pause-Button initialisieren
+  const widgetPlayBtn = document.getElementById('widgetPlayPauseBtn');
+  if (widgetPlayBtn) {
+    widgetPlayBtn.addEventListener('click', () => {
+      if (isPlaying) {
+        stopRadioPlayback(true);
+      } else {
+        const url = localStorage.getItem('streamUrl');
+        const name = localStorage.getItem('streamName') || 'FRITZ!Box Radio';
+        if (url) {
+          playAudioStream(url, name, true);
+        } else {
+          // Wenn kein Sender hinterlegt ist -> Popup öffnen
+          const chooseBtn = document.getElementById('chooseStationBtn');
+          if (chooseBtn) chooseBtn.click();
+        }
+      }
+    });
+  }
 }
 
 function initFritzRadioPopup() {
@@ -672,6 +750,9 @@ function initFritzRadioPopup() {
       if (activeAudioElement) {
         activeAudioElement.volume = vol / 100;
       }
+      // Mit Widget-Lautstärke synchronisieren
+      const widgetVolume = document.getElementById('widgetVolumeSlider');
+      if (widgetVolume) widgetVolume.value = vol;
     });
   }
 
@@ -681,7 +762,7 @@ function initFritzRadioPopup() {
     grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Senderliste wird geladen...</div>';
     infoCard.style.display = 'none';
 
-    // Lautstärkeregler-Wert aktualisieren beim Öffnen des Popups
+    // Lautstärkeregler-Wert beim Öffnen aktualisieren
     if (popupVolume) {
       popupVolume.value = localStorage.getItem('radioVolume') || '50';
     }
@@ -693,7 +774,6 @@ function initFritzRadioPopup() {
 
       let stations = data.stations || [];
       if (stations.length === 0) {
-        // Fallback: Demo-Sender und Info-Hinweis
         infoCard.style.display = 'flex';
         countBadge.textContent = '0 Sender in FRITZ!Box (Demo geladen)';
         renderStations(demoStations, true);
@@ -715,7 +795,7 @@ function initFritzRadioPopup() {
     const currentUrl = localStorage.getItem('streamUrl');
     grid.innerHTML = '';
 
-    // 1. Spezieller "Ausschalten"-Button als erste Kachel, wenn das Radio aktuell läuft!
+    // 1. Spezieller "Ausschalten"-Button
     if (isPlaying) {
       const stopCard = document.createElement('button');
       stopCard.className = 'station-btn stop-btn';
@@ -1459,6 +1539,21 @@ async function initPresence() {
 
 // ==== KAMERA MONITOR WIDGET & SETTINGS ====
 let activeCameraIntervals = {};
+let currentCameras = [];
+let fullscreenInterval = null;
+
+// Hilfsfunktion zum sauberen Hinzufügen eines Timestamps zur URL ohne andere Parameter zu löschen
+function getTimestampedUrl(url) {
+  try {
+    const urlObj = new URL(url);
+    urlObj.searchParams.set('t', Date.now().toString());
+    return urlObj.toString();
+  } catch (e) {
+    const cleanUrl = url.replace(/[?&]t=\d+/, '');
+    const separator = cleanUrl.includes('?') ? '&' : '?';
+    return cleanUrl + separator + 't=' + Date.now();
+  }
+}
 
 async function initCameraWidget() {
   const addBtn = document.getElementById('addCameraBtn');
@@ -1506,7 +1601,14 @@ async function initCameraWidget() {
     const closeOverlay = () => {
       overlay.setAttribute('hidden', '');
       const fsImg = document.getElementById('fullscreenCameraImg');
-      if(fsImg) fsImg.src = ''; // Download stoppen
+      if(fsImg) {
+        fsImg.src = ''; // Download stoppen
+        delete fsImg.dataset.cameraId;
+      }
+      if(fullscreenInterval) {
+        clearInterval(fullscreenInterval);
+        fullscreenInterval = null;
+      }
     };
     closeOverlayBtn.addEventListener('click', closeOverlay);
     overlay.addEventListener('click', (e) => {
@@ -1518,6 +1620,7 @@ async function initCameraWidget() {
 
   // 3. Socket-Event Registrierung
   socket.on('cameras-updated', (cameras) => {
+    currentCameras = cameras;
     renderCameraSettings(cameras);
     renderCameraWidget(cameras);
   });
@@ -1527,12 +1630,39 @@ async function initCameraWidget() {
     const res = await fetch('/api/cameras');
     const cameras = await res.json();
     if(Array.isArray(cameras)) {
+      currentCameras = cameras;
       renderCameraSettings(cameras);
       renderCameraWidget(cameras);
     }
   } catch(err) {
     console.error('Initialer Kamera-Abruf fehlgeschlagen:', err);
   }
+
+  // 5. Watchdogs für Tab-Aktivierung & Online-Status
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && currentCameras.length > 0) {
+      console.log('[Camera Watchdog] Tab aktiv - aktualisiere Feeds...');
+      renderCameraWidget(currentCameras);
+      
+      // Falls das Vollbild-Overlay offen ist, auch dieses aktualisieren
+      const overlay = document.getElementById('cameraFullscreenOverlay');
+      const fsImg = document.getElementById('fullscreenCameraImg');
+      if (overlay && !overlay.hasAttribute('hidden') && fsImg) {
+        const activeFullscreenCameraId = fsImg.dataset.cameraId;
+        const activeCam = currentCameras.find(c => c.id === activeFullscreenCameraId);
+        if (activeCam) {
+          fsImg.src = getTimestampedUrl(activeCam.url);
+        }
+      }
+    }
+  });
+
+  window.addEventListener('online', () => {
+    if (currentCameras.length > 0) {
+      console.log('[Camera Watchdog] Netzwerk wieder online - aktualisiere Feeds...');
+      renderCameraWidget(currentCameras);
+    }
+  });
 }
 
 function renderCameraSettings(cameras) {
@@ -1629,19 +1759,55 @@ function renderCameraWidget(cameras) {
       const fsImg = document.getElementById('fullscreenCameraImg');
       const fsTitle = document.getElementById('fullscreenCameraTitle');
       if(overlay && fsImg) {
-        fsImg.src = c.url;
+        if(fullscreenInterval) {
+          clearInterval(fullscreenInterval);
+          fullscreenInterval = null;
+        }
+
+        fsImg.dataset.cameraId = c.id;
+        fsImg.src = getTimestampedUrl(c.url);
         if(fsTitle) fsTitle.textContent = c.name;
         overlay.removeAttribute('hidden');
+
+        // Für Vollbild auch einen Refresh-Timer einrichten (im Snapshot-Modus passend, sonst als 4-Minuten-Watchdog)
+        const refreshMs = c.interval > 0 ? (c.interval * 1000) : (240 * 1000);
+        fullscreenInterval = setInterval(() => {
+          fsImg.src = getTimestampedUrl(c.url);
+        }, refreshMs);
+
+        fsImg.onerror = () => {
+          console.warn(`[Camera Fullscreen Error] Fehler beim Laden des Vollbilds für '${c.name}'.`);
+          setTimeout(() => {
+            if (!overlay.hasAttribute('hidden')) {
+              fsImg.src = getTimestampedUrl(c.url);
+            }
+          }, 3000);
+        };
       }
     });
 
-    // Intervall einrichten bei Schnappschuss-Modus
+    // Fehler-Recovery für das Widget-Bild
+    img.onerror = () => {
+      console.warn(`[Camera Error] Fehler beim Laden des Feeds für '${c.name}'. Versuche Reconnect...`);
+      setTimeout(() => {
+        if (img.isConnected) {
+          img.src = getTimestampedUrl(c.url);
+        }
+      }, 3000);
+    };
+
+    // Intervall einrichten bei Schnappschuss-Modus & Live-Watchdog für MJPEG
     if(c.interval > 0) {
       const intervalMs = c.interval * 1000;
       activeCameraIntervals[c.id] = setInterval(() => {
-        const cleanUrl = c.url.includes('?') ? c.url.split('?')[0] : c.url;
-        img.src = cleanUrl + '?t=' + Date.now();
+        img.src = getTimestampedUrl(c.url);
       }, intervalMs);
+    } else {
+      // Live-Stream Watchdog: alle 4.5 Minuten den Feed refreshen um Hänger / Timeouts im Browser zu beheben
+      activeCameraIntervals[c.id] = setInterval(() => {
+        console.log(`[Camera Watchdog] Periodischer Auto-Refresh für Live-Kamera '${c.name}'`);
+        img.src = getTimestampedUrl(c.url);
+      }, 270000);
     }
 
     grid.appendChild(card);

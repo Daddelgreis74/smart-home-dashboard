@@ -304,6 +304,64 @@
         <div class="widget-body" id="wasteBody"></div>
       </div>
 
+      <div class="widget" data-type="player">
+        <div class="widget-header">
+          <h3><i class="fas fa-radio" style="color:var(--primary)"></i> Live Radio</h3>
+          <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
+        </div>
+        <div class="widget-body player-layout" style="padding: 12px; display: flex; flex-direction: column; align-items: stretch; justify-content: space-between; height: calc(100% - 35px);">
+          
+          <!-- Hauptbedienbereich (Glasmorphismus-Panel) -->
+          <div class="radio-main-panel" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.05); border-radius: var(--radius-md); padding: 15px; overflow: hidden; transition: all 0.3s ease;">
+            
+            <!-- Animated Sound Wave Visualizer Background -->
+            <div id="radioVisualizer" class="visualizer" style="position: absolute; bottom: 0; left: 0; right: 0; height: 100%; display: flex; align-items: flex-end; justify-content: space-around; padding: 0 10px; opacity: 0.15; pointer-events: none; transition: opacity 0.5s;">
+              <div class="bar" style="width: 8%; height: 10%; background: var(--primary); border-radius: 4px 4px 0 0;"></div>
+              <div class="bar" style="width: 8%; height: 15%; background: var(--primary); border-radius: 4px 4px 0 0;"></div>
+              <div class="bar" style="width: 8%; height: 8%; background: var(--primary); border-radius: 4px 4px 0 0;"></div>
+              <div class="bar" style="width: 8%; height: 20%; background: var(--primary); border-radius: 4px 4px 0 0;"></div>
+              <div class="bar" style="width: 8%; height: 12%; background: var(--primary); border-radius: 4px 4px 0 0;"></div>
+              <div class="bar" style="width: 8%; height: 25%; background: var(--primary); border-radius: 4px 4px 0 0;"></div>
+              <div class="bar" style="width: 8%; height: 14%; background: var(--primary); border-radius: 4px 4px 0 0;"></div>
+              <div class="bar" style="width: 8%; height: 6%; background: var(--primary); border-radius: 4px 4px 0 0;"></div>
+            </div>
+
+            <!-- Tower and Wave Icons inside Glow ring -->
+            <div class="radio-ring-wrapper" style="position: relative; display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); transition: all 0.3s ease; box-shadow: 0 0 0 rgba(74, 222, 128, 0);">
+              <i id="widgetRadioTowerIcon" class="fas fa-broadcast-tower" style="font-size: 22px; color: var(--text-muted); transition: all 0.3s ease;"></i>
+            </div>
+            
+            <!-- Metadata & Station name -->
+            <div style="text-align: center; width: 100%; margin-top: 12px; z-index: 2;">
+              <h4 id="widgetRadioStation" style="font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; margin: 0; padding: 0 5px; color: var(--text-main); letter-spacing: 0.5px;">FRITZ!Box Radio</h4>
+              <small id="widgetRadioStatus" style="font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-blue); display: block; margin-top: 4px; font-weight: 700;">Sender wählen</small>
+            </div>
+          </div>
+
+          <!-- Bottom Control Bar (Compact Audio Controls) -->
+          <div class="radio-controls-bar" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; padding: 0 4px; height: 42px;">
+            <!-- Stationsauswahl-Button -->
+            <button id="chooseStationBtn" class="btn" aria-label="FRITZ!Box Radio öffnen" style="padding: 10px 14px; border-radius: var(--radius-sm); font-size: 11px; display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--text-main); font-weight: 500; height: 38px; cursor: pointer; transition: all 0.2s;">
+              <i class="fas fa-list-ul" style="font-size: 11px; color: var(--accent-blue);"></i>
+              <span>Sender</span>
+            </button>
+
+            <!-- Play/Pause Toggle -->
+            <button id="widgetPlayPauseBtn" class="play-round-btn" aria-label="Wiedergabe umschalten" style="width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #22c55e); border: none; color: #000; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(74, 222, 128, 0.25); transition: all 0.2s;">
+              <i class="fas fa-play"></i>
+            </button>
+
+            <!-- Compact Direct Volume Slider -->
+            <div class="widget-volume-control" style="display: flex; align-items: center; gap: 8px; flex: 1; max-width: 110px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 6px 10px; border-radius: var(--radius-sm); height: 38px;">
+              <i class="fas fa-volume-down" style="color: var(--text-muted); font-size: 10px;"></i>
+              <input type="range" id="widgetVolumeSlider" min="0" max="100" value="50" style="flex: 1; accent-color: var(--primary); height: 3px; border-radius: 2px; cursor: pointer; background: rgba(255,255,255,0.1); border: none;" aria-label="Lautstärke">
+            </div>
+          </div>
+
+          <div id="audioPlayerContainer" hidden></div>
+        </div>
+      </div>
+
 
 
       
@@ -432,7 +490,36 @@
     </div>
   </div>
 
+  <!-- FRITZ!Box Radio Selection Overlay -->
+  <div class="radio-fullscreen-overlay" id="fritzRadioOverlay" hidden>
+    <button class="close-fullscreen-btn" id="closeFritzRadio" aria-label="Auswahl schließen"><i class="fas fa-times"></i></button>
+    <div class="fullscreen-content" style="max-width: 700px; width: 90%;">
+      <div class="overlay-header" style="text-align: center; margin-bottom: 25px;">
+        <h2 style="font-size: 1.8rem; font-weight: 600; margin-bottom: 5px;"><i class="fas fa-broadcast-tower" style="color:var(--primary)"></i> FRITZ!Box Mediaserver</h2>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">Wähle einen deiner in der FRITZ!Box eingerichteten Radiosender aus.</p>
+      </div>
+      <div id="overlayStationsCount" class="badge" style="display: block; margin: 0 auto 20px; width: fit-content; font-size: 11px; padding: 4px 10px; border-radius: 12px; background: rgba(74,222,128,0.15); color: var(--primary); border: 1px solid rgba(74,222,128,0.3); font-weight: 600;">Laden...</div>
+      <div class="overlay-stations-grid" id="overlayStationsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; width: 100%; max-height: 50vh; overflow-y: auto; padding: 5px;">
+        <!-- Dynamische Kacheln -->
+      </div>
+      <!-- Fallback / Warning Info Card -->
+      <div class="info-card" id="overlayInfoCard" style="display: none; background: rgba(239,68,68,0.06); border: 1px dashed rgba(239,68,68,0.25); border-radius: 12px; padding: 15px; margin-top: 20px; gap: 12px; align-items: flex-start;">
+        <i class="fas fa-info-circle" style="font-size: 1.2rem; color: #ef4444; margin-top: 2px;"></i>
+        <div class="info-text" style="font-size: 0.8rem; line-height: 1.4; color: var(--text-muted);">
+          <strong style="color: var(--text-main);">Keine Sender im Mediaserver gefunden!</strong><br>
+          Bitte stelle sicher, dass unter <code>http://fritz.box</code> (Heimnetz ➡️ Mediaserver ➡️ Internetradio) deine Sender eingerichtet sind.<br>
+          <em>(Es wurden temporär Demo-Sender geladen, damit du das Radio testen kannst!)</em>
+        </div>
+      </div>
 
+      <!-- Volume Control in Popup -->
+      <div class="popup-volume-control" style="display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%; max-width: 320px; margin-top: 25px; padding: 12px 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+        <i class="fas fa-volume-down" style="color: var(--text-muted); font-size: 14px;"></i>
+        <input type="range" id="popupVolumeSlider" min="0" max="100" value="50" style="flex: 1; accent-color: var(--primary); height: 4px; border-radius: 2px; cursor: pointer;" aria-label="Lautstärke">
+        <i class="fas fa-volume-up" style="color: var(--text-muted); font-size: 14px;"></i>
+      </div>
+    </div>
+  </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
