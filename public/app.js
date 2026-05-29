@@ -631,6 +631,13 @@ function playAudioStream(url, name = '', autoPlay = false) {
     if (stationLabel) stationLabel.textContent = name;
   }
 
+  // Intercept HTTP stream URL when running on secure HTTPS page
+  let playUrl = url;
+  if (window.location.protocol === 'https:' && url.startsWith('http://')) {
+    playUrl = '/api/proxy-stream?url=' + encodeURIComponent(url);
+    console.log('[Radio] Secured HTTP audio stream via proxy:', playUrl);
+  }
+
   // NEU BAUEN — nur nach explizitem Klick/Touch.
   activeAudioElement = document.createElement('audio');
   activeAudioElement.id = 'audioPlayer';
@@ -648,15 +655,15 @@ function playAudioStream(url, name = '', autoPlay = false) {
   if(url.includes('.m3u8') || url.includes('.m3u')) {
     if(window.Hls && Hls.isSupported()){ 
         hlsCore = new Hls({ autoStartLoad: false }); 
-        hlsCore.loadSource(url); 
+        hlsCore.loadSource(playUrl); 
         hlsCore.attachMedia(activeAudioElement); 
         hlsCore.startLoad();
     }
     else if(activeAudioElement.canPlayType('application/vnd.apple.mpegurl')) {
-        activeAudioElement.src=url;
+        activeAudioElement.src=playUrl;
     }
   } else {
-      activeAudioElement.src = url;
+      activeAudioElement.src = playUrl;
   }
   
   const playPromise = activeAudioElement.play();

@@ -162,6 +162,50 @@ app.post('/api/radio', (req, res) => {
   }
 });
 
+// ==== SECURE STREAM PROXY ENDPOINT ====
+app.get('/api/proxy-stream', (req, res) => {
+  const streamUrl = req.query.url;
+  if (!streamUrl) {
+    return res.status(400).send('Missing url parameter');
+  }
+
+  if (!/^https?:\/\//i.test(streamUrl)) {
+    return res.status(400).send('Invalid url protocol');
+  }
+
+  console.log(`[Proxy] Routing HTTP stream through secure HTTPS proxy: ${streamUrl}`);
+
+  const clientModule = streamUrl.startsWith('https') ? require('https') : require('http');
+
+  const proxyReq = clientModule.get(streamUrl, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    }
+  }, (proxyRes) => {
+    res.writeHead(proxyRes.statusCode, {
+      'Content-Type': proxyRes.headers['content-type'] || 'audio/mpeg',
+      'Transfer-Encoding': 'chunked',
+      'Connection': 'keep-alive',
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+
+    proxyRes.pipe(res);
+  });
+
+  proxyReq.on('error', (err) => {
+    console.error(`[Proxy Error] Failed to stream audio from ${streamUrl}:`, err.message);
+    if (!res.headersSent) {
+      res.status(500).send('Failed to stream audio');
+    }
+  });
+
+  req.on('close', () => {
+    proxyReq.destroy();
+  });
+});
+
 app.post('/api/upload-ics', upload.single('icsFile'), (req, res) => {
   res.json({ success: true });
 });
