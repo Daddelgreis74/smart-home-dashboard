@@ -3030,5 +3030,132 @@ body.theme-retrowave .station-btn.active .station-status-indicator {
   box-shadow: 0 0 8px #00f0ff !important;
 }
 
+/* --- FRITZ!BOX RADIO MAIN SINGLE BUTTON SYSTEM (v3.8.0) --- */
+.fritz-radio-main-btn {
+  transition: all 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.fritz-radio-main-btn:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+}
+
+.fritz-radio-main-btn:hover .radio-tower-icon-wrapper {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 15px rgba(85, 245, 177, 0.25);
+}
+
+.fritz-radio-main-btn:active {
+  transform: translateY(1px);
+}
+
+/* Pulsing / active state when playing */
+.fritz-radio-main-btn.playing .radio-tower-icon-wrapper {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 20px rgba(85, 245, 177, 0.4);
+  animation: towerPulse 2s infinite ease-in-out;
+}
+
+.fritz-radio-main-btn.playing #widgetRadioTowerIcon {
+  animation: towerRotate 4s infinite linear;
+}
+
+@keyframes towerPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes towerRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Stop button visual overrides in grid */
+.station-btn.stop-btn:hover {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-color: #ef4444 !important;
+  transform: translateY(-2px);
+}
+
+/* Theme-specific Overrides for Main Button */
+body.theme-cyberpunk .fritz-radio-main-btn {
+  border-radius: 0 !important;
+  background: rgba(255, 85, 0, 0.02) !important;
+  border: 1px solid rgba(255, 85, 0, 0.2) !important;
+  font-family: 'Courier New', monospace;
+}
+body.theme-cyberpunk .fritz-radio-main-btn:hover {
+  background: rgba(255, 85, 0, 0.06) !important;
+  border-color: #ff5500 !important;
+  box-shadow: 0 0 10px rgba(255, 85, 0, 0.2) !important;
+}
+body.theme-cyberpunk .fritz-radio-main-btn .radio-tower-icon-wrapper {
+  border-radius: 0 !important;
+  background: transparent !important;
+  border: 1px solid rgba(255, 85, 0, 0.3) !important;
+}
+body.theme-cyberpunk .fritz-radio-main-btn:hover .radio-tower-icon-wrapper {
+  border-color: #ff5500 !important;
+  box-shadow: 0 0 10px rgba(255, 85, 0, 0.3) !important;
+}
+body.theme-cyberpunk .fritz-radio-main-btn.playing .radio-tower-icon-wrapper {
+  border-color: #ff5500 !important;
+  box-shadow: 0 0 15px rgba(255, 85, 0, 0.4) !important;
+  animation: towerPulseCyber 1.5s infinite steps(4);
+}
+@keyframes towerPulseCyber {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+
+body.theme-nordic .fritz-radio-main-btn {
+  border-radius: var(--radius-md) !important;
+  background: #242933 !important;
+  border: 1px solid #3b4252 !important;
+}
+body.theme-nordic .fritz-radio-main-btn:hover {
+  background: #2e3440 !important;
+  border-color: #4c566a !important;
+  box-shadow: none !important;
+}
+body.theme-nordic .fritz-radio-main-btn .radio-tower-icon-wrapper {
+  background: #2e3440 !important;
+  border-color: #3b4252 !important;
+}
+body.theme-nordic .fritz-radio-main-btn:hover .radio-tower-icon-wrapper {
+  border-color: #88c0d0 !important;
+}
+body.theme-nordic .fritz-radio-main-btn.playing .radio-tower-icon-wrapper {
+  border-color: #88c0d0 !important;
+}
+
+body.theme-retrowave .fritz-radio-main-btn {
+  background: rgba(255, 0, 127, 0.02) !important;
+  border: 1px solid rgba(255, 0, 127, 0.2) !important;
+  box-shadow: 0 0 10px rgba(255, 0, 127, 0.1) !important;
+}
+body.theme-retrowave .fritz-radio-main-btn:hover {
+  background: rgba(255, 0, 127, 0.06) !important;
+  border-color: #ff007f !important;
+  box-shadow: 0 0 20px rgba(255, 0, 127, 0.3) !important;
+}
+body.theme-retrowave .fritz-radio-main-btn .radio-tower-icon-wrapper {
+  background: rgba(255, 0, 127, 0.05) !important;
+  border: 1px solid rgba(255, 0, 127, 0.3) !important;
+}
+body.theme-retrowave .fritz-radio-main-btn:hover .radio-tower-icon-wrapper {
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+}
+body.theme-retrowave .fritz-radio-main-btn.playing .radio-tower-icon-wrapper {
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+}
+
 
 

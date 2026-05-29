@@ -309,27 +309,17 @@
           <h3><i class="fas fa-radio" style="color:var(--primary)"></i> Live Radio</h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
-        <div class="widget-body player-layout">
-          <div class="now-playing" style="text-align: center; margin-bottom: 5px; width: 100%;">
-            <small id="widgetRadioStatus" style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-blue); display: block; margin-bottom: 2px;">Bereit</small>
-            <h4 id="widgetRadioStation" style="font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; margin: 0; padding: 0 5px;">Kein Sender ausgewählt</h4>
-          </div>
+        <div class="widget-body player-layout" style="padding: 10px; display: flex; align-items: center; justify-content: center; height: calc(100% - 15px);">
+          <button id="chooseStationBtn" class="fritz-radio-main-btn" aria-label="FRITZ!Box Radio öffnen" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius-md); color: var(--text-main); cursor: pointer; transition: all 0.2s cubic-bezier(0.165, 0.84, 0.44, 1); padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <div class="radio-tower-icon-wrapper" style="position: relative; display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); transition: all 0.3s ease;">
+              <i id="widgetRadioTowerIcon" class="fas fa-broadcast-tower" style="font-size: 22px; color: var(--primary); transition: all 0.3s ease;"></i>
+            </div>
+            <div style="text-align: center; width: 100%;">
+              <h4 id="widgetRadioStation" style="font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; margin: 0; padding: 0 5px; color: var(--text-main);">FRITZ!Box Radio</h4>
+              <small id="widgetRadioStatus" style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-blue); display: block; margin-top: 3px; font-weight: 600;">Sender wählen</small>
+            </div>
+          </button>
           <div id="audioPlayerContainer" hidden></div>
-          <div class="audio-controls">
-            <div class="visualizer">
-              <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-              <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-            </div>
-            <div style="display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%; margin: 2px 0;">
-              <button id="togglePlayBtn" class="play-round-btn" aria-label="Radio starten oder pausieren"><i class="fas fa-play"></i></button>
-              <button id="chooseStationBtn" class="fritz-round-btn" aria-label="FRITZ!Box Sender wählen" title="FRITZ!Box Sender wählen"><i class="fas fa-broadcast-tower"></i></button>
-            </div>
-            <div class="volume-control">
-              <i class="fas fa-volume-down"></i>
-              <input type="range" id="volumeSlider" min="0" max="100" value="50" aria-label="Lautstärke">
-              <i class="fas fa-volume-up"></i>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -479,6 +469,13 @@
           Bitte stelle sicher, dass unter <code>http://fritz.box</code> (Heimnetz ➡️ Mediaserver ➡️ Internetradio) deine Sender eingerichtet sind.<br>
           <em>(Es wurden temporär Demo-Sender geladen, damit du das Radio testen kannst!)</em>
         </div>
+      </div>
+
+      <!-- Volume Control in Popup -->
+      <div class="popup-volume-control" style="display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%; max-width: 320px; margin-top: 25px; padding: 12px 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+        <i class="fas fa-volume-down" style="color: var(--text-muted); font-size: 14px;"></i>
+        <input type="range" id="popupVolumeSlider" min="0" max="100" value="50" style="flex: 1; accent-color: var(--primary); height: 4px; border-radius: 2px; cursor: pointer;" aria-label="Lautstärke">
+        <i class="fas fa-volume-up" style="color: var(--text-muted); font-size: 14px;"></i>
       </div>
     </div>
   </div>

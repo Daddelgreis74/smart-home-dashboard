@@ -525,15 +525,15 @@ let activeAudioElement = null;
 
 function updateRadioUi(playing) {
   isPlaying = playing;
-  const playBtn = document.getElementById('togglePlayBtn');
-  const vis = document.querySelector('.visualizer');
   const statusLabel = document.getElementById('widgetRadioStatus');
+  const mainBtn = document.getElementById('chooseStationBtn');
   
-  if(playBtn) playBtn.innerHTML = playing ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
-  if(vis) vis.classList.toggle('active', playing);
+  if (mainBtn) {
+    mainBtn.classList.toggle('playing', playing);
+  }
   
   if(statusLabel) {
-    statusLabel.textContent = playing ? 'LIVE' : 'Bereit';
+    statusLabel.textContent = playing ? 'LIVE' : 'Sender wählen';
     statusLabel.style.color = playing ? 'var(--primary)' : 'var(--accent-blue)';
   }
 }
@@ -576,31 +576,7 @@ function initRadioWakeGuards() {
 
 
 function initAudioPlayer() {
-  const playBtn = document.getElementById('togglePlayBtn');
-  const vol = document.getElementById('volumeSlider');
-  const vis = document.querySelector('.visualizer');
-  if(!playBtn) return;
-  
-  if(vol) {
-      vol.addEventListener('input', e => {
-          if(activeAudioElement) activeAudioElement.volume = e.target.value / 100;
-      });
-  }
-
-  playBtn.addEventListener('click', () => {
-    if(isPlaying && activeAudioElement) { 
-        stopRadioPlayback(true);
-    }
-    else {
-      // Wenn nichts spielt, schnappe den zuletzt aktiven Stream aus unserem State oder LocalStorage
-      const u = localStorage.getItem('streamUrl');
-      if(u) { 
-          playAudioStream(u, true);
-      } else {
-          alert("Kein Sender ausgewählt.");
-      }
-    }
-  });
+  // Volume und Steuerung sind jetzt direkt im FRITZ!Box-Vollbild-Popup integriert.
 }
 
 function playAudioStream(url, name = '', autoPlay = false) {
@@ -627,8 +603,9 @@ function playAudioStream(url, name = '', autoPlay = false) {
   activeAudioElement.controls = false;
   activeAudioElement.setAttribute('playsinline', '');
   
-  const vol = document.getElementById('volumeSlider');
-  if(vol) activeAudioElement.volume = vol.value / 100;
+  // Lautstärke aus dem Speicher wiederherstellen
+  const savedVol = localStorage.getItem('radioVolume') || '50';
+  activeAudioElement.volume = savedVol / 100;
   
   container.replaceChildren(activeAudioElement);
 
@@ -663,6 +640,8 @@ function initRadioWidget() {
   
   if (savedName && stationLabel) {
     stationLabel.textContent = savedName;
+  } else if (stationLabel) {
+    stationLabel.textContent = 'FRITZ!Box Radio';
   }
 }
 
@@ -673,6 +652,7 @@ function initFritzRadioPopup() {
   const grid = document.getElementById('overlayStationsGrid');
   const countBadge = document.getElementById('overlayStationsCount');
   const infoCard = document.getElementById('overlayInfoCard');
+  const popupVolume = document.getElementById('popupVolumeSlider');
 
   if (!chooseBtn || !overlay) return;
 
@@ -683,11 +663,30 @@ function initFritzRadioPopup() {
     { name: "WDR 2 (Köln)", url: "http://wdr-wdr2-koeln.cast.addradio.de/wdr/wdr2/koeln/mp3/128/stream.mp3" }
   ];
 
+  // Lautstärkeregler im Popup initialisieren
+  if (popupVolume) {
+    const savedVol = localStorage.getItem('radioVolume') || '50';
+    popupVolume.value = savedVol;
+    
+    popupVolume.addEventListener('input', (e) => {
+      const vol = e.target.value;
+      localStorage.setItem('radioVolume', vol);
+      if (activeAudioElement) {
+        activeAudioElement.volume = vol / 100;
+      }
+    });
+  }
+
   chooseBtn.addEventListener('click', async () => {
     overlay.removeAttribute('hidden');
     countBadge.textContent = 'Laden...';
     grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Senderliste wird geladen...</div>';
     infoCard.style.display = 'none';
+
+    // Lautstärkeregler-Wert aktualisieren beim Öffnen des Popups
+    if (popupVolume) {
+      popupVolume.value = localStorage.getItem('radioVolume') || '50';
+    }
 
     try {
       const res = await fetch('/api/fritzbox/radio');
@@ -716,10 +715,33 @@ function initFritzRadioPopup() {
 
   function renderStations(list, isDemo) {
     const currentUrl = localStorage.getItem('streamUrl');
+    grid.innerHTML = '';
+
+    // 1. Spezieller "Ausschalten"-Button als erste Kachel, wenn das Radio aktuell läuft!
+    if (isPlaying) {
+      const stopCard = document.createElement('button');
+      stopCard.className = 'station-btn stop-btn';
+      stopCard.style.cssText = 'border-color: rgba(239, 68, 68, 0.3) !important; background: rgba(239, 68, 68, 0.05) !important; color: #ef4444 !important; font-weight: 600;';
+      stopCard.innerHTML = '<i class="fas fa-power-off" style="color: #ef4444;"></i>' +
+        '<span class="station-name" style="color: #ef4444; font-weight: 600;">Radio ausschalten</span>' +
+        '<div class="station-status-indicator" style="background: #ef4444; box-shadow: 0 0 8px #ef4444;"></div>';
+      
+      stopCard.addEventListener('click', () => {
+        overlay.setAttribute('hidden', '');
+        stopRadioPlayback(true);
+        localStorage.removeItem('streamUrl');
+        localStorage.removeItem('streamName');
+        const stationLabel = document.getElementById('widgetRadioStation');
+        if (stationLabel) stationLabel.textContent = 'FRITZ!Box Radio';
+        updateRadioUi(false);
+      });
+      grid.appendChild(stopCard);
+    }
+
     list.forEach(st => {
       const card = document.createElement('button');
       card.className = 'station-btn';
-      if (currentUrl === st.url) {
+      if (isPlaying && currentUrl === st.url) {
         card.classList.add('active');
       }
 
