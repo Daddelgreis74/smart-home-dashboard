@@ -2842,11 +2842,13 @@ body.theme-retrowave .fullscreen-title {
   cursor: pointer;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 8px;
   text-align: left;
   transition: all 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
   position: relative;
   overflow: hidden;
+  min-width: 0;
   font-family: inherit;
 }
 
