@@ -2876,6 +2876,7 @@ body.theme-retrowave .fullscreen-title {
 }
 
 .station-name {
+  display: block;
   font-weight: 500;
   font-size: 0.95rem;
   white-space: nowrap;
