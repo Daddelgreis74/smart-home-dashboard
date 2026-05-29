@@ -2882,6 +2882,7 @@ body.theme-retrowave .fullscreen-title {
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
+  color: var(--text-main) !important;
 }
 
 .station-status-indicator {
