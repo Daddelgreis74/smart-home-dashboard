@@ -968,15 +968,27 @@ async function initTasmota() {
         });
         const data = await res.json();
         if(data.found && data.found.length > 0) {
+          let newCount = 0;
           data.found.forEach(f => {
-            if(!tasmotaDevices.find(d => d.ip === f.ip)) tasmotaDevices.push(f);
+            if(!tasmotaDevices.find(d => d.ip === f.ip)) {
+              tasmotaDevices.push(f);
+              newCount++;
+            }
           });
           await saveTasmotaList();
-          alert(data.found.length + " Geräte gefunden!");
+          
+          if (newCount > 0) {
+            alert(`${newCount} neue(s) Tasmota-Gerät(e) gefunden und hinzugefügt!`);
+          } else {
+            alert(`Es wurden ${data.found.length} Gerät(e) im Netzwerk gefunden, aber alle sind bereits in deiner Liste registriert.`);
+          }
         } else {
-          alert("Keine weiteren Geräte gefunden.");
+          alert("Keine Tasmota-Geräte im Netzwerk gefunden. Bitte stelle sicher, dass sie eingeschaltet und im selben WLAN sind.");
         }
-      } catch(e) {}
+      } catch(e) {
+        console.error("Tasmota Scan Error", e);
+        alert("Fehler beim Scannen des Netzwerks.");
+      }
       scanBtn.innerHTML = '<i class="fas fa-search"></i>';
     });
   }
