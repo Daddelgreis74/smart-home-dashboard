@@ -224,6 +224,33 @@ Klicke auf **Save**. TrueNAS lädt die App und startet sie. Sobald der Status au
 
 ---
 
+### 🧹 Docker-System bereinigen (Alte Images löschen)
+
+Beim wiederholten Bauen von Docker-Containern können alte, namenlose Images (sogenannte *Dangling Images* `<none>`) auf dem Server zurückbleiben und Speicherplatz belegen. Mit folgenden Befehlen kannst du das System komfortabel aufräumen:
+
+#### 1. Der Standard-Aufräumer (Sicher & Empfohlen)
+Löscht alle ungenutzten Images, gestoppten Container und Netzwerke, die aktuell von keinem Container verwendet werden:
+```bash
+docker system prune
+```
+*(Die Sicherheitsabfrage mit `y` bestätigen. Um die Abfrage zu überspringen, füge `-f` an, z. B. `docker system prune -f`).*
+
+#### 2. Spezifisch nur alte/ungenutzte Images löschen
+* **Nur verwaiste (namenlose `<none>`) Images löschen:**
+  ```bash
+  docker image prune
+  ```
+* **Alle ungenutzten Images löschen (auch solche mit Namen, die von keinem laufenden Container verwendet werden):**
+  ```bash
+  docker image prune -a
+  ```
+
+#### 3. Der Rundum-Sorglos-Großputz (Gibt maximalen Speicherplatz frei)
+Löscht alle gestoppten Container, ungenutzten Netzwerke, ungenutzten Images und den gesamten Build-Cache:
+```bash
+docker system prune -a
+```
+
 ### 🔒 Kalender & SSL einbinden
 
 * **Kalender:** Lade deine `.ics`-Datei einfach wie gewohnt direkt über die Dashboard-Oberfläche in den Einstellungen hoch. Sie wird automatisch in deinem persistenten Host-Pfad unter `/data/uploads/calendar.ics` abgelegt und bleibt dauerhaft gespeichert.
