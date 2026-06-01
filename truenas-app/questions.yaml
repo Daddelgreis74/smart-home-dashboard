@@ -1,0 +1,36 @@
+groups:
+  - name: image
+    description: "Docker Image Einstellungen"
+  - name: network
+    description: "Netzwerk und Ports"
+  - name: storage
+    description: "Persistenter ZFS-Speicherpfad"
+
+questions:
+  - variable: IMAGE_TAG
+    label: "Docker Image Tag"
+    group: "image"
+    type: string
+    default: "latest"
+    required: true
+
+  - variable: RESTART_POLICY
+    label: "Restart Policy"
+    group: "image"
+    type: string
+    default: "unless-stopped"
+    required: true
+
+  - variable: PORT
+    label: "Web Portal Host Port"
+    group: "network"
+    type: int
+    default: 8443
+    required: true
+
+  - variable: DATA_VOLUME
+    label: "ZFS Host Datenpfad"
+    group: "storage"
+    type: hostpath
+    required: true
+    description: "Der Host-Pfad auf deinen ZFS-Platten zur permanenten Sicherung der Einstellungen (z. B. /mnt/tank/apps/smart-home-dashboard/data)"
