@@ -1590,6 +1590,158 @@ body::before {
   .widget[data-type="player"] .play-round-btn { width: 40px; height: 40px; }
 }
 
+/* --- COMPACT LIVE RADIO WIDGET CONTROLS (v3.9.0) --- */
+.radio-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 0 4px;
+  height: 42px;
+  width: 100%;
+}
+
+.radio-controls-bar #chooseStationBtn {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+  font-weight: 500;
+  height: 38px;
+  min-height: unset; /* override general .btn min-height */
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.radio-controls-bar #chooseStationBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.radio-controls-bar #chooseStationBtn:active {
+  transform: translateY(0);
+}
+
+.radio-controls-bar #widgetPlayPauseBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), #22c55e);
+  border: none;
+  color: #000;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(74, 222, 128, 0.25);
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.radio-controls-bar #widgetPlayPauseBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 14px rgba(74, 222, 128, 0.4);
+}
+
+.radio-controls-bar #widgetPlayPauseBtn:active {
+  transform: scale(0.95);
+}
+
+/* Volume Control Container */
+.widget-volume-control {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  max-width: 90px;
+  min-width: 0; /* Let it shrink fully */
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  height: 38px;
+}
+
+/* Custom premium slider */
+.widget-volume-control input[type="range"] {
+  flex: 1;
+  width: 100%;
+  min-width: 20px;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  border-radius: 2px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  outline: none;
+  transition: background 0.2s;
+}
+
+.widget-volume-control input[type="range"]:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Webkit browser thumb */
+.widget-volume-control input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--primary, #55f5b1);
+  cursor: pointer;
+  box-shadow: 0 0 6px var(--primary-glow, rgba(85, 245, 177, 0.4));
+  transition: transform 0.1s, background-color 0.2s;
+}
+
+.widget-volume-control input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: #fff;
+}
+
+/* Firefox thumb */
+.widget-volume-control input[type="range"]::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border: none;
+  border-radius: 50%;
+  background: var(--primary, #55f5b1);
+  cursor: pointer;
+  box-shadow: 0 0 6px var(--primary-glow, rgba(85, 245, 177, 0.4));
+  transition: transform 0.1s, background-color 0.2s;
+}
+
+.widget-volume-control input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  background: #fff;
+}
+
+/* Responsive adjustments for Radio widget inside narrow viewports / cards */
+@media (max-width: 1024px), (max-aspect-ratio: 4/3) {
+  .radio-controls-bar #chooseStationBtn span {
+    display: none;
+  }
+  .radio-controls-bar #chooseStationBtn {
+    padding: 0;
+    width: 38px;
+    justify-content: center;
+    gap: 0;
+    flex-shrink: 0;
+  }
+  .widget-volume-control {
+    max-width: 80px;
+  }
+}
+
 /* --- NEO TALK WIDGET --- */
 .dashboard {
   overflow-y: auto;
