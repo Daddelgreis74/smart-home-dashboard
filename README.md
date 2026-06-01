@@ -204,7 +204,7 @@ docker build -t local/smart-home-dashboard:latest .
 | | Protocol | `TCP` |
 | **Speicher (Storage)**| Type | `Host Path` |
 | | Container Path | `/app/data` |
-| | Host Path | Ordner-Picker ➡️ Dein ZFS-Datenpfad (z.B. `/mnt/Datensicherung/daddelgreis74/smart-home-dashboard/data`) |
+| | Host Path | Ordner-Picker ➡️ Dein ZFS-Datenpfad (z.B. `/mnt/Datenpfad/username/smart-home-dashboard/data`) |
 | **Web Portal** | Portal Name | `web` |
 | | Port | `8443` |
 
@@ -244,7 +244,7 @@ Wenn eine neue Dashboard-Version auf GitHub erscheint, aktualisierst du sie ganz
 
 1. **In das Projektverzeichnis wechseln:**
    ```bash
-   cd /mnt/Datensicherung/daddelgreis74/smart-home-dashboard
+   cd /mnt/Datenpfad/username/smart-home-dashboard
    ```
 2. **Neuesten Code von GitHub ziehen:**
    ```bash
