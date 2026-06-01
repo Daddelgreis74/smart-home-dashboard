@@ -135,180 +135,157 @@ Standardmäßig läuft der Server (auf Linux/macOS mit SSL) auf:
 https://0.0.0.0:8443
 ```
 
-Optional per Environment überschreibbar:
-
-```bash
-PORT=8443 HOST=0.0.0.0 npm start
-```
-
 ## 🐋 Docker & TrueNAS Setup Guide
 
-Dieses Projekt wurde vollständig containerisiert. Alle Konfigurationen, hochgeladenen Kalenderdateien (`calendar.ics`), Anruflisten und Einstellungen werden über ein einziges persistentes Volume gesichert. Das macht die Installation auf einem **TrueNAS SCALE** Server oder jedem anderen Docker-Host im Heimnetzwerk extrem einfach und sicher.
+Dieses Projekt ist vollständig containerisiert. Alle Einstellungen, hochgeladene Kalenderdateien (`calendar.ics`), Webradio-Sender, Fritz!Box-Verbindungsdaten, Kameras und Anruflisten werden über ein einziges persistentes Volume gesichert. Das macht den Betrieb auf einem **TrueNAS SCALE**-Heimserver (Electric Eel & neuer) oder jedem anderen Docker-Host im Netzwerk extrem einfach und absolut sicher.
 
 ### 📂 Struktur der persistenten Daten
 
-Alle Daten werden im Container unter `/app/data` gespeichert. Wenn du dieses Verzeichnis auf einen Host-Pfad mountest, entstehen dort automatisch folgende Dateien und Ordner:
-* `tasmota.json` (Deine Tasmota-Geräte)
-* `radio.json` (Deine Webradio-Sender)
-* `cameras.json` (Deine Kamera-Konfigurationen)
-* `fritzbox.json` (Deine Fritz!Box Login-Konfiguration)
-* `fritzbox_calls.json` (Deine Fritz!Box Anrufliste)
-* `presence.json` (Deine Anwesenheits-Demos/Konfigurationen)
-* `uploads/` (Enthält deine hochgeladene `calendar.ics`)
-* `ssl/` (Optional für HTTPS: `key.pem` und `cert.pem`)
+Alle Daten werden im Container unter `/app/data` verwaltet. Wenn du dieses Verzeichnis auf einen Host-Pfad mountest, entstehen dort automatisch folgende Dateien und Ordner:
+
+| Datei / Ordner | Beschreibung |
+| :--- | :--- |
+| `tasmota.json` | Konfiguration deiner lokalen Tasmota-Geräte |
+| `radio.json` | Deine gespeicherten Webradio-Sender |
+| `cameras.json` | Deine Kamera-Streams |
+| `fritzbox.json` | Verbindungs- und Zugangsdaten deiner Fritz!Box |
+| `fritzbox_calls.json` | Die lokale Anrufliste des Call-Monitors |
+| `presence.json` | Einstellungen zur Anwesenheitserkennung |
+| `uploads/` | Enthält deine hochgeladene Abfallkalender-Datei (`calendar.ics`) |
+| `ssl/` | (Optional) Für HTTPS: Lege hier `key.pem` und `cert.pem` ab |
 
 ---
 
-### 🛠️ Methode 1: Docker Compose (Empfohlen)
+### 🛠️ Methode 1: Docker Compose (Schnellstart & SSH)
 
-Wenn du SSH-Zugriff auf dein TrueNAS hast oder ein Tool wie **Portainer / Dockge** auf TrueNAS nutzt, ist dies der schnellste Weg:
+Nutzt du SSH-Zugriff auf deine Maschine oder ein Tool wie **Portainer / Dockge**, ist Docker Compose der einfachste und schnellste Weg:
 
-1. **Repository klonen** (falls nicht bereits geschehen):
+1. **Repository klonen:**
    ```bash
    git clone https://github.com/Daddelgreis74/smart-home-dashboard.git
    cd smart-home-dashboard
    ```
 
-2. **Ordner für Daten erstellen:**
-   ```bash
-   mkdir data
-   ```
-
-3. **Container bauen und starten:**
+2. **Container im Hintergrund starten:**
    ```bash
    docker compose up -d --build
    ```
 
-Das Dashboard ist nun unter `http://<DEINE-TRUENAS-IP>:8443` erreichbar!
+Das Dashboard ist sofort unter `http://<DEINE-SERVER-IP>:8443` erreichbar!
 
 ---
 
 ### 🎛️ Methode 2: TrueNAS SCALE Web-Oberfläche (Custom App)
 
-TrueNAS SCALE ermöglicht es, beliebige Docker-Images direkt über die Benutzeroberfläche als App zu starten.
+> [!NOTE]
+> Optimiert für TrueNAS SCALE **24.10+ (Electric Eel)** und neuere, rein Docker-basierte Versionen (wie **v26.0+**), da K3s/Kubernetes vollständig entfernt wurden.
 
-#### Schritt 1: Docker-Image vorbereiten
-Da das Image auf deinem Server gebaut werden muss, kannst du es entweder lokal auf TrueNAS bauen und in die lokale Registry legen, oder du baust es auf deinem PC und schiebst es hoch.
-Alternativ kannst du es direkt über SSH auf TrueNAS bauen:
+Da das Dashboard lokal gebaut wird, verbinden wir den CLI-Build direkt mit dem Web-Interface von TrueNAS SCALE:
+
+#### Schritt 1: Docker-Image in TrueNAS bauen (SSH)
+Logge dich per SSH auf deinem TrueNAS ein, navigiere in dein Dashboard-Verzeichnis und baue das Image mit dem exakten lokalen Namen, den TrueNAS erwartet:
 ```bash
+cd /mnt/Datensicherung/daddelgreis74/smart-home-dashboard
 docker build -t local/smart-home-dashboard:latest .
 ```
 
-#### Schritt 2: App in TrueNAS SCALE erstellen
-1. Navigiere im TrueNAS-Webinterface zu **Apps** und klicke auf **Discover Apps** (oben rechts).
-2. Klicke auf **Custom App** (oder **Launch Docker Image**).
-3. Konfiguriere die App wie folgt:
+#### Schritt 2: Custom App im TrueNAS-Webinterface anlegen
+1. Navigiere zu **Apps** ➡️ **Discover Apps** ➡️ **Custom App** (oben rechts).
+2. Konfiguriere das Formular mit folgenden Parametern:
 
-##### 1. Application Name
-* **Application Name:** `smart-home-dashboard`
+| Bereich | Einstellung | Wert |
+| :--- | :--- | :--- |
+| **Identifikation** | Application Name | `smart-home-dashboard` |
+| **Container-Image** | Image Repository | `local/smart-home-dashboard` |
+| | Image Tag | `latest` |
+| | Restart Policy | `Unless Stopped` *(Wichtig für Auto-Start nach Server-Reboot)* |
+| **Netzwerk / Ports** | Container Port | `8443` |
+| | Host Port | `8443` *(oder freier Wunschport)* |
+| | Protocol | `TCP` |
+| **Speicher (Storage)**| Type | `Host Path` |
+| | Container Path | `/app/data` |
+| | Host Path | Ordner-Picker ➡️ Dein ZFS-Datenpfad (z.B. `/mnt/Datensicherung/daddelgreis74/smart-home-dashboard/data`) |
+| **Web Portal** | Portal Name | `web` |
+| | Port | `8443` |
 
-##### 2. Container Image Details
-* **Image Repository:** `local/smart-home-dashboard` (oder der Name deines gebauten Images)
-* **Image Tag:** `latest`
+3. Klicke ganz unten auf **Save**. 
 
-##### 3. Port Forwarding (Netzwerk)
-Füge eine neue Port-Weiterleitung hinzu:
-* **Container Port:** `8443`
-* **Host Port:** `8443` (oder ein freier Wunschport deiner Wahl)
-* **Protocol:** `TCP`
-
-##### 4. Storage (Persistente Daten sichern)
-Um sicherzustellen, dass deine Einstellungen bei einem App-Update nicht gelöscht werden, erstelle einen **Host Path Volume Mount**:
-* **Mount Path (im Container):** `/app/data`
-* **Host Path (auf TrueNAS ZFS Pool):** Wähle einen Ordner auf deinem ZFS-Pool (z. B. `/mnt/tank/apps/smart-home-dashboard/data`).
-
-*(Hinweis: TrueNAS erstellt diesen Ordner automatisch. Alle JSON-Konfigurationen und Kalenderdateien werden dort dauerhaft und sicher auf deinen ZFS-Festplatten gesichert).*
-
-#### Schritt 3: Speichern & Starten
-Klicke auf **Save**. TrueNAS lädt die App und startet sie. Sobald der Status auf `Active` steht, kannst du das Dashboard über die IP deines TrueNAS-Servers auf Port `8443` aufrufen!
+> [!TIP]
+> Die App ist nach wenigen Sekunden **Active (Running)**. Du kannst sie jetzt ganz bequem direkt über den klickbaren **"Web Portal"**-Button in der TrueNAS-Oberfläche öffnen!
 
 ---
 
-### 🧹 Docker-System bereinigen (Alte Images löschen)
+### 🎮 Steuerung & Befehle im Alltag
 
-Beim wiederholten Bauen von Docker-Containern können alte, namenlose Images (sogenannte *Dangling Images* `<none>`) auf dem Server zurückbleiben und Speicherplatz belegen. Mit folgenden Befehlen kannst du das System komfortabel aufräumen:
+Da der Container im Hintergrund läuft (Detached Mode), kannst du ihn über einfache Befehle in deinem Projektverzeichnis verwalten:
 
-#### 1. Der Standard-Aufräumer (Sicher & Empfohlen)
-Löscht alle ungenutzten Images, gestoppten Container und Netzwerke, die aktuell von keinem Container verwendet werden:
-```bash
-docker system prune
-```
-*(Die Sicherheitsabfrage mit `y` bestätigen. Um die Abfrage zu überspringen, füge `-f` an, z. B. `docker system prune -f`).*
-
-#### 2. Spezifisch nur alte/ungenutzte Images löschen
-* **Nur verwaiste (namenlose `<none>`) Images löschen:**
+* **Dashboard stoppen (Ausschalten):**
   ```bash
-  docker image prune
+  docker compose down
   ```
-* **Alle ungenutzten Images löschen (auch solche mit Namen, die von keinem laufenden Container verwendet werden):**
+* **Dashboard starten (Einschalten):**
   ```bash
-  docker image prune -a
+  docker compose up -d
+  ```
+* **Status & Port-Bindungen anzeigen:**
+  ```bash
+  docker compose ps
+  ```
+* **Live-Logs einsehen (zur Fehlersuche):**
+  ```bash
+  docker compose logs -f
   ```
 
-#### 3. Der Rundum-Sorglos-Großputz (Gibt maximalen Speicherplatz frei)
-Löscht alle gestoppten Container, ungenutzten Netzwerke, ungenutzten Images und den gesamten Build-Cache:
-```bash
-docker system prune -a
-```
-
-### 🔒 Kalender & SSL einbinden
-
-* **Kalender:** Lade deine `.ics`-Datei einfach wie gewohnt direkt über die Dashboard-Oberfläche in den Einstellungen hoch. Sie wird automatisch in deinem persistenten Host-Pfad unter `/data/uploads/calendar.ics` abgelegt und bleibt dauerhaft gespeichert.
-* **HTTPS / SSL:** Wenn du eine sichere Verbindung wünschst, erstelle einfach in deinem gemounteten `data`-Ordner ein Unterverzeichnis `ssl` und lege dort `key.pem` und `cert.pem` ab. Der Server erkennt diese beim nächsten Start automatisch und schaltet auf HTTPS um.
-
 ---
 
-### 🧭 Bedienung & Steuerung im Alltag (Für Einsteiger)
+### 🔄 Updates ohne Datenverlust einspielen
 
-Da wir den Container mit dem Parameter `-d` (detached) im Hintergrund gestartet haben, läuft das Dashboard vollautomatisch und lautlos im Hintergrund. Du musst die Konsole im normalen Betrieb nicht geöffnet lassen.
+Wenn eine neue Dashboard-Version auf GitHub erscheint, aktualisierst du sie ganz einfach auf deinem Server:
 
-Solltest du das Dashboard doch einmal steuern oder aktualisieren wollen, navigiere in der Konsole auf deinem TrueNAS in den Ordner `smart-home-dashboard` und verwende diese einfachen Befehle:
-
-#### 🟢 1. Dashboard aufrufen
-Öffne einen beliebigen Webbrowser auf deinem PC, Tablet oder Smartphone und gib Folgendes ein:
-```text
-http://<DEINE-TRUENAS-IP>:8443
-```
-
-#### 🔴 2. Dashboard stoppen (Ausschalten)
-Wenn du den Server warten oder das Dashboard vorübergehend abschalten willst:
-```bash
-docker compose down
-```
-
-#### 🟢 3. Dashboard starten (Einschalten)
-Um das Dashboard wieder einzuschalten:
-```bash
-docker compose up -d
-```
-
-#### 🔍 4. Status prüfen
-Um zu sehen, ob das Dashboard aktiv ist und fehlerfrei läuft:
-```bash
-docker compose ps
-```
-
----
-
-### 🔄 Updates einspielen
-
-Wenn eine neue Version des Dashboards auf GitHub veröffentlicht wird, kannst du dein TrueNAS ganz einfach und ohne Datenverlust updaten:
-
-1. Navigiere in deinen Ordner auf dem TrueNAS:
+1. **In das Projektverzeichnis wechseln:**
    ```bash
-   cd /dein-pfad-zu/smart-home-dashboard
+   cd /mnt/Datensicherung/daddelgreis74/smart-home-dashboard
    ```
-2. Lade den neuesten Code von GitHub herunter:
+2. **Neuesten Code von GitHub ziehen:**
    ```bash
    git pull
    ```
-3. Baue und starte den Container neu:
-   ```bash
-   docker compose up -d --build
-   ```
+3. **Container neu bauen und starten:**
+   * **Für Docker Compose:**
+     ```bash
+     docker compose up -d --build
+     ```
+   * **Für TrueNAS App:**
+     ```bash
+     docker build -t local/smart-home-dashboard:latest .
+     # In der TrueNAS-Oberfläche danach auf der App einfach "Restart" klicken
+     ```
 
-*Hinweis: Deine Einstellungen (Kameras, Fritz!Box-Passwörter etc.) im Ordner `data/` bleiben bei diesem Vorgang komplett unangetastet und sicher auf deinen ZFS-Platten liegen!*
+> [!IMPORTANT]
+> Deine Einstellungen, Kameras, Fritz!Box-Passwörter und hochgeladenen Kalender im gemounteten Host-Pfad (`data/`) bleiben bei jedem Update absolut sicher und unangetastet!
 
+---
+
+### 🧹 Docker-System aufräumen & Speicher freigeben
+
+Beim wiederholten Bauen von Docker-Images entstehen oft ungenutzte Zwischenschritte (sogenannte *Dangling Images* `<none>`). So hältst du dein TrueNAS sauber:
+
+* **Sicheres & empfohlenes Aufräumen:**
+  Löscht alle ungenutzten Images, gestoppten Container und Netzwerke:
+  ```bash
+  docker system prune -f
+  ```
+* **Nur verwaiste (namenlose `<none>`) Images löschen:**
+  ```bash
+  docker image prune -f
+  ```
+* **Der Rundum-Sorglos-Großputz (Gibt maximalen Speicherplatz frei):**
+  Löscht alle gestoppten Container, ungenutzten Netzwerke, alle ungenutzten Images und den gesamten Docker-Build-Cache:
+  ```bash
+  docker system prune -a -f
+  ```
+
+---
 
 ## 🧪 Checks
 
