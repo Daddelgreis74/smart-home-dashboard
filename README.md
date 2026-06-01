@@ -185,7 +185,7 @@ Da das Dashboard lokal gebaut wird, verbinden wir den CLI-Build direkt mit dem W
 #### Schritt 1: Docker-Image in TrueNAS bauen (SSH)
 Logge dich per SSH auf deinem TrueNAS ein, navigiere in dein Dashboard-Verzeichnis und baue das Image mit dem exakten lokalen Namen, den TrueNAS erwartet:
 ```bash
-cd /mnt/Datensicherung/daddelgreis74/smart-home-dashboard
+cd /mnt/Datenpfad/username/smart-home-dashboard
 docker build -t local/smart-home-dashboard:latest .
 ```
 
