@@ -1,71 +1,71 @@
 # Smart Home Dashboard v3 · Neo Deck 🏠👻
 
-![Dashboard Vorschau](preview.png)
+![Dashboard Preview](preview.png)
 
-Ein modernes Smart-Home-Wandpanel für ein **Lenovo Tab M10 FHD Plus (10.3", 1920×1200, 16:10)** im Querformat. Optimiert für den dauerhaften Betrieb im **Fully Kiosk Browser**.
+A modern smart home wall panel for a **Lenovo Tab M10 FHD Plus (10.3", 1920×1200, 16:10)** in landscape mode. Optimized for 24/7 operation in the **Fully Kiosk Browser**.
 
-### 🎨 Dashboard Themes (Vorschau)
-Das Dashboard unterstützt vier komplett unterschiedliche, umschaltbare Design-Stile:
+### 🎨 Dashboard Themes (Preview)
+The dashboard supports four completely different, switchable design styles:
 
-*   **Neo-Aurora (Standard):** Transparente Frosted-Glass-Karten mit weichen Auras und leuchtenden Widgets.
-    ![Neo-Aurora](public/themes/neo_aurora.png)
-*   **Cyberpunk HUD:** Taktischer High-Tech-Look in Orange/Amber mit scharfen Ecken und Gitternetz-Hintergrund.
-    ![Cyberpunk HUD](public/themes/cyberpunk_hud.png)
-*   **Cozy Nordic Dark:** Beruhigende, organische Ästhetik mit salbeigrünen Akzenten und weichen Schatten.
-    ![Cozy Nordic Dark](public/themes/nordic_dark.png)
-*   **Retrowave Laser Synth:** Nostalgischer 80er-Retro-Look in Pink/Cyan mit perspektivischer Laser-Bodenlinie.
-    ![Retrowave Laser Synth](public/themes/retrowave_synth.png)
+* **Neo-Aurora (Default):** Transparent frosted-glass cards with soft auras and glowing widgets.
+  ![Neo-Aurora](public/themes/neo_aurora.png)
+* **Cyberpunk HUD:** Tactical high-tech look in orange/amber with sharp corners and grid background.
+  ![Cyberpunk HUD](public/themes/cyberpunk_hud.png)
+* **Cozy Nordic Dark:** Calming, organic aesthetic with sage green accents and soft shadows.
+  ![Cozy Nordic Dark](public/themes/nordic_dark.png)
+* **Retrowave Laser Synth:** Nostalgic 80s retro look in pink/cyan with perspective laser grid line.
+  ![Retrowave Laser Synth](public/themes/retrowave_synth.png)
 
 ## ✨ Highlights
 
-- **Multi-Theme-System:** 4 edle, frei umschaltbare Premium-Designs (Neo-Aurora Glassmorphism, Cyberpunk Tactical HUD, Cozy Nordic Dark, Retrowave Laser Synth) mit persistentem Speicher im Browser.
-- **Neo Aurora Command Deck:** dunkles, hochwertiges Wall-Panel-Design mit Aurora-Glow, Glas-/Metal-Karten und adaptivem 2-Reihen-Layout.
-- **Adaptive Widgets:** Layout passt sich besser an Seitenverhältnis und Fully-Kiosk-Viewport an, statt unten Inhalte abzuschneiden.
-- **Wetter Pro:** Open-Meteo Daten mit Temperatur, Gefühlter Temperatur, Min/Max, Luftfeuchte, Regenwahrscheinlichkeit, Wind, Luftdruck, Wolken und UV-Index.
-- **Smart Home / Tasmota:** lokale Geräteverwaltung, Scan im privaten Heimnetz, Toggle-Buttons mit Statusanzeige und Offline-Dimmung.
-- **AM2301 Klima-Sensor:** eigenes Tasmota-Sensor-Widget mit Temperatur-/Feuchte-Gauges, Taupunkt und konfigurierbarer lokaler IP.
-- **Abfallkalender:** `.ics` Upload, kommende Leerungen, farbige Mülltonnen-Icons und kalendertagsgenaue Heute/Morgen-Anzeige ohne Uhrzeit-Versatz.
-- **Live Radio:** Preset-Tasten im Dashboard, Senderverwaltung in den Präferenzen, HLS/MP3/AAC-Unterstützung und Schutz gegen ungewollten Autostart beim Tablet-Wakeup.
-- **System Status:** Live CPU/RAM/Temperatur/Netzwerk per Socket.IO.
-- **Fritz!Box Monitor:** Live Netzwerk- & Internet-Status (LEDs/Latenz in ms) sowie ein Echtzeit-Anruf-Monitor (Port 1012) mit bildschirmfüllendem Live-Anrufer-Overlay (Toast) und historischer Anrufliste.
-- **Touch-ready:** Drag & Drop via Sortable.js mit Fully-Kiosk-kompatibler Verzögerung.
+- **Multi-Theme System:** 4 premium, freely switchable designs (Neo-Aurora Glassmorphism, Cyberpunk Tactical HUD, Cozy Nordic Dark, Retrowave Laser Synth) with persistent browser storage.
+- **Neo Aurora Command Deck:** Dark, high-quality wall panel design with aurora glow, glass/metal cards, and an adaptive 2-row layout.
+- **Adaptive Widgets:** Layout adapts to the aspect ratio and Fully Kiosk viewport instead of cutting off content.
+- **Weather Pro:** Open-Meteo data containing temperature, feels-like temperature, min/max, humidity, rain probability, wind speed, air pressure, cloud cover, and UV index.
+- **Smart Home / Tasmota:** Local device management, private network subnet scan, toggle buttons with status indicators, and offline dimming.
+- **AM2301 Climate Sensor:** Custom Tasmota sensor widget with temperature/humidity gauges, dew point, and configurable local IP.
+- **Waste Calendar:** `.ics` upload, upcoming pick-ups, colored trash bin icons, and calendar-day precise "Today/Tomorrow" display without timezone or time shifts.
+- **Live Radio:** Preset buttons in the dashboard, station management in preferences, HLS/MP3/AAC support, and protection against accidental autostart on tablet wakeup.
+- **System Status:** Live CPU, RAM, temperature, and network stats via Socket.IO.
+- **Fritz!Box Monitor:** Live network & internet status (LEDs/latency in ms) and a real-time call monitor (port 1012) with full-screen live caller overlay (Toast) and call history.
+- **Touch-ready:** Drag & drop sorting via Sortable.js with Fully Kiosk compatible delay.
 
-## 🧭 Bedienung
+## 🧭 Operation
 
-### Präferenzen
-Über das Menü oben rechts lassen sich konfigurieren:
+### Preferences
+Through the menu in the upper right, you can configure:
 
-- Multi-Theme
-- sichtbare Widgets
-- Tasmota-Geräte und Subnetz-Scan
-- AM2301/Tasmota-Klima-Sensor-IP
-- Abfallkalender-Upload
-- Wetterstandort
-- Radio-Sender und Preset-Tasten
-- Fritz!Box-Verbindungsdaten und Call-Monitor
+- Active Theme
+- Visible Widgets
+- Tasmota Devices and Subnet Scan
+- AM2301/Tasmota Climate Sensor IP
+- Waste Calendar Upload (`.ics` files)
+- Weather Location
+- Radio Stations and Preset Buttons
+- Fritz!Box Connection Details and Call Monitor
 
-### Radio-Autoplay-Schutz
-Das Radio startet **nur** noch durch expliziten Klick auf:
+### Radio Autoplay Protection
+The radio only starts on an explicit click of:
 
-- Play-Button
-- Preset-Taste
+- Play button
+- Preset button
 
-Beim Schlafen/Aufwecken des Tablets wird ein aktiver Stream hart gestoppt und das Audio-Element entfernt, damit Fully Kiosk/Android keinen Stream selbstständig wiederbelebt.
+When the tablet sleeps or wakes up, the active stream is stopped and the audio element is destroyed to prevent Fully Kiosk or Android from resuming the stream unexpectedly.
 
-## 🛠️ Architektur
+## 🛠️ Architecture
 
 - **Backend:** Node.js, Express.js
 - **Realtime:** Socket.IO
-- **Systemdaten:** `systeminformation`
+- **System Info:** `systeminformation`
 - **Uploads:** `multer`
 - **Frontend:** Vanilla JS, CSS Grid, Sortable.js, HLS.js
-- **Wetter:** Open-Meteo API, ohne API-Key
+- **Weather:** Open-Meteo API (no API key required)
 - **Port:** `8443`
-- **HTTPS & HTTP-Fallback:** Läuft standardmäßig auf HTTPS mit Zertifikat unter `ssl/`. Bietet einen automatischen, sicheren Fallback auf Standard-HTTP, falls keine SSL-Zertifikate vorhanden sind (ideal für lokale Windows-Testserver).
+- **HTTPS & HTTP Fallback:** Runs on HTTPS by default using certificates in `ssl/`. Provides an automatic, secure fallback to HTTP if no SSL certificates are present (ideal for local Windows testing).
 
-## 🔐 Sicherheit & lokale Dateien
+## 🔐 Security & Local Files
 
-Nicht committen:
+Do not commit:
 
 - `ssl/`
 - `radio.json`
@@ -75,61 +75,61 @@ Nicht committen:
 - `fritzbox.json`
 - `fritzbox_calls.json`
 
-Die `.gitignore` ist entsprechend vorbereitet.
+The `.gitignore` file is configured accordingly.
 
-Backend-Härtungen:
+Backend hardening:
 
-- JSON Body-Limit
-- `.ics` Upload-Limit und Dateifilter
-- Tasmota Toggle/Scan/Sensor-Abfrage nur für private IPv4-Netze
-- Radio-URLs werden validiert/normalisiert
+- JSON body limits
+- `.ics` upload file size limit and file-type filter
+- Tasmota toggle/scan/sensor requests restricted to private IPv4 ranges
+- Radio URLs are validated and normalized
 
-## 🗓️ Abfallkalender-Datumslogik
+## 🗓️ Waste Calendar Date Logic
 
-Ganztägige `.ics` Termine werden als lokale Kalendertage verglichen. Dadurch wird z.B. eine morgige Leerung morgens nicht mehr fälschlich als „Heute“ angezeigt, nur weil die aktuelle Uhrzeit bereits nach `00:00` liegt.
+All-day `.ics` events are compared using local calendar days. This ensures that tomorrow's pick-up is not incorrectly displayed as "Today" just because the current time is past `00:00`.
 
-## 🌡️ AM2301/Tasmota Klima-Sensor
+## 🌡️ AM2301/Tasmota Climate Sensor
 
-Das Sensor-Widget fragt lokal einen Tasmota-Endpunkt ab:
+The sensor widget queries a local Tasmota endpoint:
 
 ```text
 GET /api/tasmota/sensor?ip=192.168.178.40
 ```
 
-Die IP ist im Präferenzen-Menü änderbar und wird im Browser per `localStorage` gespeichert. Das Backend akzeptiert bewusst nur private IPv4-Adressen.
+The IP can be configured in the Preferences menu and is stored in the browser's `localStorage`. The backend only accepts private IPv4 addresses.
 
-## 📞 Fritz!Box Monitor & Call-Monitor
+## 📞 Fritz!Box Monitor & Call Monitor
 
-Das Dashboard enthält ein integriertes, hochmodernes Fritz!Box-Widget zur Echtzeitüberwachung deines Heimnetzwerks und der Telefonie:
+The dashboard contains a built-in Fritz!Box widget for real-time monitoring of your home network and telephony:
 
-- **Live Netzwerk- & Internet-Status (LEDs):** Das System misst alle 10 Sekunden asynchron und extrem ressourcenschonend die Latenz zu deinem lokalen Gateway (Fritz!Box) und einem öffentlichen DNS (`1.1.1.1`), um die Latenzen in Millisekunden und den Online-Zustand per leuchtender LED (Grün/Rot) darzustellen.
-- **Echtzeit-Anruf-Monitor:** Verbindet sich backendseitig über einen robusten, selbstheilenden TCP-Client direkt mit Port `1012` deiner Fritz!Box. Bei einem eingehenden Anruf wird sofort ein bildschirmfüllendes, pulsierendes Pop-up auf allen Tablets eingeblendet. Nach Gesprächsende wird der Anruf mit Gesprächsdauer in die Anrufliste übernommen.
-- **Anrufliste:** Zeigt die letzten 10 Anrufe mit Typ-Symbolen (Eingehend, Ausgehend, Verpasst, Verbunden) und Dauer in Echtzeit an.
+- **Live Network & Internet Status (LEDs):** The system measures latency to your local gateway (Fritz!Box) and public DNS (`1.1.1.1`) every 10 seconds to show network health.
+- **Real-time Call Monitor:** Connects to port `1012` of your Fritz!Box via a self-healing TCP client. Incoming calls trigger a full-screen, pulsing pop-up overlay across all active dashboard panels. Finished calls are logged with call duration.
+- **Call List:** Displays the last 10 calls with type icons (Incoming, Outgoing, Missed, Connected) and duration in real time.
 
-### 🔐 Wichtig für deine Privatsphäre (Datensicherheit)
-Die Zugangsdaten deiner Fritz!Box und dein Anrufprotokoll werden **ausschließlich lokal** in den Dateien `fritzbox.json` und `fritzbox_calls.json` gespeichert. Beide Dateien sind permanent über `.gitignore` blockiert und werden **niemals auf GitHub hochgeladen**!
+### 🔐 Privacy & Security
+Your Fritz!Box credentials and call log are stored **locally** on your host in `fritzbox.json` and `fritzbox_calls.json`. These files are ignored by Git and never uploaded to GitHub.
 
-### ⚙️ Einrichtung des Call-Monitors
-Damit die Live-Anrufe auf Port 1012 an das Dashboard gesendet werden, muss der Call-Monitor deiner Fritz!Box einmalig freigeschaltet werden. Wähle dazu einfach an einem an der Fritz!Box angeschlossenen Telefon die Tastenkombination:
-- **Aktivieren:** `#96*5*` (und abheben / wählen)
-- **Deaktivieren (optional):** `#96*6*`
+### ⚙️ Enabling the Fritz!Box Call Monitor
+To allow the live call monitor on port 1012, you must enable it on your Fritz!Box by dialing the following code on a connected phone:
+- **Enable:** `#96*5*` (and dial/call)
+- **Disable (optional):** `#96*6*`
 
-## 🚀 Betrieb
+## 🚀 Execution
 
-### Windows (Vollautomatisch & Empfohlen)
-Doppelklicke im Projektverzeichnis einfach auf die Datei:
+### Windows (Automated & Recommended)
+Double-click the file in the project root:
 ```text
 start-dashboard.bat
 ```
-*Diese Batch-Datei prüft automatisch Ihre Node.js-Pfade (inklusive Selbstreparatur bei fehlenden globalen Umgebungsvariablen), installiert eventuell fehlende Bibliotheken (`npm install`), öffnet direkt Ihren Webbrowser mit dem Dashboard (`http://localhost:8443`) und startet den Server.*
+*This batch file checks Node.js environment paths, installs missing dependencies (`npm install`), launches the backend server, and opens your browser at `http://localhost:8443`.*
 
-### Linux & macOS (Manuell)
+### Linux & macOS (Manual)
 ```bash
 npm install
 npm start
 ```
 
-Standardmäßig läuft der Server (auf Linux/macOS mit SSL) auf:
+By default, the server runs on:
 
 ```text
 https://0.0.0.0:8443
@@ -137,157 +137,152 @@ https://0.0.0.0:8443
 
 ## 🐋 Docker & TrueNAS Setup Guide
 
-Dieses Projekt ist vollständig containerisiert. Alle Einstellungen, hochgeladene Kalenderdateien (`calendar.ics`), Webradio-Sender, Fritz!Box-Verbindungsdaten, Kameras und Anruflisten werden über ein einziges persistentes Volume gesichert. Das macht den Betrieb auf einem **TrueNAS SCALE**-Heimserver (Electric Eel & neuer) oder jedem anderen Docker-Host im Netzwerk extrem einfach und absolut sicher.
+This project is fully containerized. All settings, uploaded calendar files (`calendar.ics`), web radio streams, Fritz!Box connections, camera feeds, and call lists are persisted in a single mount volume. This makes running it on **TrueNAS SCALE** (Electric Eel & newer) or any other Docker host extremely simple.
 
-### 📂 Struktur der persistenten Daten
+### 📂 Persistent Data Structure
 
-Alle Daten werden im Container unter `/app/data` verwaltet. Wenn du dieses Verzeichnis auf einen Host-Pfad mountest, entstehen dort automatisch folgende Dateien und Ordner:
+All data inside the container is stored under `/app/data`. Mounting this directory onto a host path will automatically create the following files and folders:
 
-| Datei / Ordner | Beschreibung |
+| File / Directory | Description |
 | :--- | :--- |
-| `tasmota.json` | Konfiguration deiner lokalen Tasmota-Geräte |
-| `radio.json` | Deine gespeicherten Webradio-Sender |
-| `cameras.json` | Deine Kamera-Streams |
-| `fritzbox.json` | Verbindungs- und Zugangsdaten deiner Fritz!Box |
-| `fritzbox_calls.json` | Die lokale Anrufliste des Call-Monitors |
-| `presence.json` | Einstellungen zur Anwesenheitserkennung |
-| `uploads/` | Enthält deine hochgeladene Abfallkalender-Datei (`calendar.ics`) |
-| `ssl/` | (Optional) Für HTTPS: Lege hier `key.pem` und `cert.pem` ab |
+| `tasmota.json` | Configuration of your local Tasmota devices |
+| `radio.json` | Saved web radio stations |
+| `cameras.json` | Camera stream configurations |
+| `fritzbox.json` | Fritz!Box connection credentials |
+| `fritzbox_calls.json` | Local call list from the call monitor |
+| `presence.json` | Settings for presence detection |
+| `uploads/` | Directory containing your waste calendar file (`calendar.ics`) |
+| `ssl/` | (Optional) Store `key.pem` and `cert.pem` here to enable HTTPS |
 
 ---
 
-### 🛠️ Methode 1: Docker Compose (Schnellstart & SSH)
+### 🛠️ Method 1: Docker Compose (CLI & SSH)
 
-Nutzt du SSH-Zugriff auf deine Maschine oder ein Tool wie **Portainer / Dockge**, ist Docker Compose der einfachste und schnellste Weg:
+If you have SSH access or use a manager like **Portainer** or **Dockge**, Docker Compose is the fastest setup method:
 
-1. **Repository klonen:**
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/Daddelgreis74/smart-home-dashboard.git
    cd smart-home-dashboard
    ```
 
-2. **Container im Hintergrund starten:**
+2. **Start the container in the background:**
    ```bash
    docker compose up -d --build
    ```
 
-Das Dashboard ist sofort unter `http://<DEINE-SERVER-IP>:8443` erreichbar!
+The dashboard is accessible at `http://<YOUR-SERVER-IP>:8443`!
 
 ---
 
-### 🎛️ Methode 2: TrueNAS SCALE Web-Oberfläche (Custom App)
+### 🎛️ Method 2: TrueNAS SCALE Web GUI (Custom App)
 
 > [!NOTE]
-> Optimiert für TrueNAS SCALE **24.10+ (Electric Eel)** und neuere, rein Docker-basierte Versionen (wie **v26.0+**), da K3s/Kubernetes vollständig entfernt wurden.
+> Optimized for TrueNAS SCALE **24.10+ (Electric Eel)** and newer Docker-based versions.
 
-Da das Dashboard lokal gebaut wird, verbinden wir den CLI-Build direkt mit dem Web-Interface von TrueNAS SCALE:
+Since the dashboard is built locally, build the image on the TrueNAS host first:
 
-#### Schritt 1: Docker-Image in TrueNAS bauen (SSH)
-Logge dich per SSH auf deinem TrueNAS ein, navigiere in dein Dashboard-Verzeichnis und baue das Image mit dem exakten lokalen Namen, den TrueNAS erwartet:
+#### Step 1: Build Docker Image (SSH)
+Log into your TrueNAS system via SSH, navigate to the dashboard directory, and build the image with the tag name expected by TrueNAS:
 ```bash
-cd /mnt/Datenpfad/username/smart-home-dashboard
+cd /mnt/pool/username/smart-home-dashboard
 docker build -t local/smart-home-dashboard:latest .
 ```
 
-#### Schritt 2: Custom App im TrueNAS-Webinterface anlegen
-1. Navigiere zu **Apps** ➡️ **Discover Apps** ➡️ **Custom App** (oben rechts).
-2. Konfiguriere das Formular mit folgenden Parametern:
+#### Step 2: Create Custom App in TrueNAS Web UI
+1. Go to **Apps** ➡️ **Discover Apps** ➡️ **Custom App** (top right).
+2. Configure the app settings as follows:
 
-| Bereich | Einstellung | Wert |
+| Section | Setting | Value |
 | :--- | :--- | :--- |
-| **Identifikation** | Application Name | `smart-home-dashboard` |
-| **Container-Image** | Image Repository | `local/smart-home-dashboard` |
+| **Identification** | Application Name | `smart-home-dashboard` |
+| **Container Image** | Image Repository | `local/smart-home-dashboard` |
 | | Image Tag | `latest` |
-| | Restart Policy | `Unless Stopped` *(Wichtig für Auto-Start nach Server-Reboot)* |
-| **Netzwerk / Ports** | Container Port | `8443` |
-| | Host Port | `8443` *(oder freier Wunschport)* |
+| | Restart Policy | `Unless Stopped` |
+| **Network Settings** | Container Port | `8443` |
+| | Host Port | `8443` (or any available port) |
 | | Protocol | `TCP` |
-| **Speicher (Storage)**| Type | `Host Path` |
+| **Storage Settings** | Type | `Host Path` |
 | | Container Path | `/app/data` |
-| | Host Path | Ordner-Picker ➡️ Dein ZFS-Datenpfad (z.B. `/mnt/Datenpfad/username/smart-home-dashboard/data`) |
+| | Host Path | Choose directory ➡️ Your ZFS data path (e.g. `/mnt/pool/username/smart-home-dashboard/data`) |
 | **Web Portal** | Portal Name | `web` |
 | | Port | `8443` |
 
-3. Klicke ganz unten auf **Save**. 
-
-> [!TIP]
-> Die App ist nach wenigen Sekunden **Active (Running)**. Du kannst sie jetzt ganz bequem direkt über den klickbaren **"Web Portal"**-Button in der TrueNAS-Oberfläche öffnen!
+3. Click **Save** at the bottom.
 
 ---
 
-### 🎮 Steuerung & Befehle im Alltag
+### 🎮 Daily Commands
 
-Da der Container im Hintergrund läuft (Detached Mode), kannst du ihn über einfache Befehle in deinem Projektverzeichnis verwalten:
+Since the container runs in detached mode, you can manage it with these commands inside the directory:
 
-* **Dashboard stoppen (Ausschalten):**
+* **Stop the dashboard:**
   ```bash
   docker compose down
   ```
-* **Dashboard starten (Einschalten):**
+* **Start the dashboard:**
   ```bash
   docker compose up -d
   ```
-* **Status & Port-Bindungen anzeigen:**
+* **Check status and port bindings:**
   ```bash
   docker compose ps
   ```
-* **Live-Logs einsehen (zur Fehlersuche):**
+* **View logs (for debugging):**
   ```bash
   docker compose logs -f
   ```
 
 ---
 
-### 🔄 Updates ohne Datenverlust einspielen
+### 🔄 Updates Without Data Loss
 
-Wenn eine neue Dashboard-Version auf GitHub erscheint, aktualisierst du sie ganz einfach auf deinem Server:
+To update the dashboard to a newer version on your host:
 
-1. **In das Projektverzeichnis wechseln:**
+1. **Navigate to the directory:**
    ```bash
-   cd /mnt/Datenpfad/username/smart-home-dashboard
+   cd /mnt/pool/username/smart-home-dashboard
    ```
-2. **Neuesten Code von GitHub ziehen:**
+2. **Pull the latest code from GitHub:**
    ```bash
    git pull
    ```
-3. **Container neu bauen und starten:**
-   * **Für Docker Compose:**
+3. **Rebuild and restart the container:**
+   * **For Docker Compose:**
      ```bash
      docker compose up -d --build
      ```
-   * **Für TrueNAS App:**
+   * **For TrueNAS App:**
      ```bash
      docker build -t local/smart-home-dashboard:latest .
-     # In der TrueNAS-Oberfläche danach auf der App einfach "Restart" klicken
+     # In the TrueNAS Web UI, click "Restart" on the application card
      ```
 
 > [!IMPORTANT]
-> Deine Einstellungen, Kameras, Fritz!Box-Passwörter und hochgeladenen Kalender im gemounteten Host-Pfad (`data/`) bleiben bei jedem Update absolut sicher und unangetastet!
+> Your settings, configurations, and uploaded calendar files in the mounted directory (`data/`) remain untouched and safe across updates!
 
 ---
 
-### 🧹 Docker-System aufräumen & Speicher freigeben
+### 🧹 Cleaning Up Docker Storage
 
-Beim wiederholten Bauen von Docker-Images entstehen oft ungenutzte Zwischenschritte (sogenannte *Dangling Images* `<none>`). So hältst du dein TrueNAS sauber:
+Rebuilding Docker images can leave unused intermediate layers (known as *dangling images* `<none>`). Keep your TrueNAS clean with:
 
-* **Sicheres & empfohlenes Aufräumen:**
-  Löscht alle ungenutzten Images, gestoppten Container und Netzwerke:
+* **Clean up unused resources (containers, networks, images):**
   ```bash
   docker system prune -f
   ```
-* **Nur verwaiste (namenlose `<none>`) Images löschen:**
+* **Delete dangling images only:**
   ```bash
   docker image prune -f
   ```
-* **Der Rundum-Sorglos-Großputz (Gibt maximalen Speicherplatz frei):**
-  Löscht alle gestoppten Container, ungenutzten Netzwerke, alle ungenutzten Images und den gesamten Docker-Build-Cache:
+* **Comprehensive deep clean (free up maximum space):**
   ```bash
   docker system prune -a -f
   ```
 
 ---
 
-## 🧪 Checks
+## 🧪 Verification
 
 ```bash
 node --check server.js
@@ -295,4 +290,4 @@ node --check public/app.js
 npm audit --omit=dev
 ```
 
-Mit 👻 entwickelt von **Neo**, dem digitalen Hausgeist.
+Developed with 👻 by **Neo**, the digital house ghost.
