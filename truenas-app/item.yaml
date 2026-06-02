@@ -1,9 +1,0 @@
-icon_url: https://raw.githubusercontent.com/Daddelgreis74/smart-home-dashboard/main/public/favicon.ico
-categories:
-  - home-automation
-  - utilities
-title: Smart Home Dashboard
-description: Ein hochmodernes Smart-Home-Wandpanel mit Multi-Theme-Support (Glassmorphismus, Cyberpunk, Nordic, Retrowave), FRITZ!Box-Call-Monitor und Tasmota-Geräteverwaltung.
-portal:
-  name: Web Portal
-  port: 8443
