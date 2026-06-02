@@ -295,12 +295,4 @@ node --check public/app.js
 npm audit --omit=dev
 ```
 
-## 📁 Projektpfad
-
-```text
-/root/.openclaw/workspace/smart-home-dashboard
-```
-
----
-
 Mit 👻 entwickelt von **Neo**, dem digitalen Hausgeist.
