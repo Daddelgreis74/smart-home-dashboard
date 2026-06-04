@@ -190,14 +190,16 @@ The Smart Home Dashboard is available as an official Community App for TrueNAS S
 If you want to install the dashboard manually as a Custom App without using the App Store, you can do so by pasting a Docker Compose YAML:
 
 #### Step 1: Prepare the Host Directory & Permissions
-The container runs under the standard TrueNAS application user (`568:568`). You **must** set the correct permissions on your host path before starting the container, otherwise the app will fail with permission errors:
+The container runs under the standard TrueNAS application user (`568:568`). You **must** set the correct permissions on your host path before starting the container, otherwise the app will fail with permission errors. 
+
+Replace `/mnt/your-pool/your-dataset/smart-home-dashboard` with your actual TrueNAS dataset path:
 ```bash
-# Create the directory on your ZFS pool (adjust the path to match your layout)
-mkdir -p /mnt/Datensicherung/daddelgreis74/smart-home-dashboard
+# Create the directory on your ZFS pool
+mkdir -p /mnt/your-pool/your-dataset/smart-home-dashboard
 
 # Change ownership to the TrueNAS 'apps' user (568)
-chown -R 568:568 /mnt/Datensicherung/daddelgreis74/smart-home-dashboard
-chmod -R 770 /mnt/Datensicherung/daddelgreis74/smart-home-dashboard
+chown -R 568:568 /mnt/your-pool/your-dataset/smart-home-dashboard
+chmod -R 770 /mnt/your-pool/your-dataset/smart-home-dashboard
 ```
 
 #### Step 2: Install via TrueNAS Custom App
@@ -218,7 +220,8 @@ services:
       HOST: "0.0.0.0"
       DATA_DIR: /app/data
     volumes:
-      - /mnt/Datensicherung/daddelgreis74/smart-home-dashboard:/app/data
+      # Replace with your actual TrueNAS dataset path
+      - /mnt/your-pool/your-dataset/smart-home-dashboard:/app/data
 ```
 
 4. Click **Save** at the bottom to deploy.
