@@ -175,46 +175,59 @@ The dashboard is accessible at `http://<YOUR-SERVER-IP>:8443`!
 
 ---
 
-### 🎛️ Method 2: TrueNAS SCALE Web GUI (Custom App)
+### 🎛️ Method 2: TrueNAS SCALE App Store (Community Train)
 
-> [!NOTE]
-> Optimized for TrueNAS SCALE **24.10+ (Electric Eel)** and newer Docker-based versions.
+The Smart Home Dashboard is available as an official Community App for TrueNAS SCALE **24.10+ (Electric Eel)** and newer:
 
-Since the dashboard is built locally, build the image on the TrueNAS host first:
+1. Go to **Apps** ➡️ **Discover Apps** in your TrueNAS Web UI.
+2. Search for `Smart Home Dashboard` and click **Install**.
+3. Follow the installation wizard to set up your storage, port (default `30436`), and environment.
 
-#### Step 1: Build Docker Image (SSH)
-Log into your TrueNAS system via SSH, navigate to the dashboard directory, and build the image with the tag name expected by TrueNAS:
+---
+
+### 📝 Method 3: TrueNAS SCALE Web GUI (Custom App via YAML)
+
+If you want to install the dashboard manually as a Custom App without using the App Store, you can do so by pasting a Docker Compose YAML:
+
+#### Step 1: Prepare the Host Directory & Permissions
+The container runs under the standard TrueNAS application user (`568:568`). You **must** set the correct permissions on your host path before starting the container, otherwise the app will fail with permission errors:
 ```bash
-cd /mnt/pool/username/smart-home-dashboard
-docker build -t local/smart-home-dashboard:latest .
+# Create the directory on your ZFS pool (adjust the path to match your layout)
+mkdir -p /mnt/Datensicherung/daddelgreis74/smart-home-dashboard
+
+# Change ownership to the TrueNAS 'apps' user (568)
+chown -R 568:568 /mnt/Datensicherung/daddelgreis74/smart-home-dashboard
+chmod -R 770 /mnt/Datensicherung/daddelgreis74/smart-home-dashboard
 ```
 
-#### Step 2: Create Custom App in TrueNAS Web UI
+#### Step 2: Install via TrueNAS Custom App
 1. Go to **Apps** ➡️ **Discover Apps** ➡️ **Custom App** (top right).
-2. Configure the app settings as follows:
+2. Give the application a name (e.g. `smart-home-dashboard`).
+3. Under **Configuration**, paste the following YAML (do not use local `docker build` commands, the image is automatically pulled from the GitHub Container Registry):
 
-| Section | Setting | Value |
-| :--- | :--- | :--- |
-| **Identification** | Application Name | `smart-home-dashboard` |
-| **Container Image** | Image Repository | `local/smart-home-dashboard` |
-| | Image Tag | `latest` |
-| | Restart Policy | `Unless Stopped` |
-| **Network Settings** | Container Port | `8443` |
-| | Host Port | `8443` (or any available port) |
-| | Protocol | `TCP` |
-| **Storage Settings** | Type | `Host Path` |
-| | Container Path | `/app/data` |
-| | Host Path | Choose directory ➡️ Your ZFS data path (e.g. `/mnt/pool/username/smart-home-dashboard/data`) |
-| **Web Portal** | Portal Name | `web` |
-| | Port | `8443` |
+```yaml
+services:
+  smart-home-dashboard:
+    image: ghcr.io/daddelgreis74/smart-home-dashboard:3.9.3
+    restart: unless-stopped
+    user: "568:568"
+    ports:
+      - "30436:30436"
+    environment:
+      PORT: "30436"
+      HOST: "0.0.0.0"
+      DATA_DIR: /app/data
+    volumes:
+      - /mnt/Datensicherung/daddelgreis74/smart-home-dashboard:/app/data
+```
 
-3. Click **Save** at the bottom.
+4. Click **Save** at the bottom to deploy.
 
 ---
 
 ### 🎮 Daily Commands
 
-Since the container runs in detached mode, you can manage it with these commands inside the directory:
+Since the container runs in detached mode, you can manage it with these commands inside the directory (for local Docker Compose setups):
 
 * **Stop the dashboard:**
   ```bash
@@ -239,24 +252,22 @@ Since the container runs in detached mode, you can manage it with these commands
 
 To update the dashboard to a newer version on your host:
 
+#### For Docker Compose setups:
 1. **Navigate to the directory:**
    ```bash
-   cd /mnt/pool/username/smart-home-dashboard
+   cd smart-home-dashboard
    ```
 2. **Pull the latest code from GitHub:**
    ```bash
    git pull
    ```
 3. **Rebuild and restart the container:**
-   * **For Docker Compose:**
-     ```bash
-     docker compose up -d --build
-     ```
-   * **For TrueNAS App:**
-     ```bash
-     docker build -t local/smart-home-dashboard:latest .
-     # In the TrueNAS Web UI, click "Restart" on the application card
-     ```
+   ```bash
+   docker compose up -d --build
+   ```
+
+#### For TrueNAS App / Custom App setups:
+In the TrueNAS Web UI, click the **Update** or **Re-deploy** button on the application card to pull the latest image. Your settings, configurations, and uploaded calendar files in the mounted directory (`data/`) remain untouched and safe across updates!
 
 > [!IMPORTANT]
 > Your settings, configurations, and uploaded calendar files in the mounted directory (`data/`) remain untouched and safe across updates!
