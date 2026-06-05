@@ -1,3 +1,5 @@
+> 🌐 **Language / Sprache:** &nbsp; 🇬🇧 [English](README.md) &nbsp;|&nbsp; 🇩🇪 [Deutsch](README_DE.md)
+
 # Smart Home Dashboard v3 · Neo Deck 🏠👻
 
 ![Dashboard Vorschau](preview.png)
