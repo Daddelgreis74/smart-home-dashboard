@@ -139,6 +139,9 @@ https://0.0.0.0:8443
 
 This project is fully containerized. All settings, uploaded calendar files (`calendar.ics`), web radio streams, Fritz!Box connections, camera feeds, and call lists are persisted in a single mount volume. This makes running it on **TrueNAS SCALE** (Electric Eel & newer) or any other Docker host extremely simple.
 
+> [!TIP]
+> The easiest way to install is via the **TrueNAS App Store** (Method 1). No SSH, no YAML, no Docker commands needed.
+
 ### 📂 Persistent Data Structure
 
 All data inside the container is stored under `/app/data`. Mounting this directory onto a host path will automatically create the following files and folders:
@@ -156,9 +159,24 @@ All data inside the container is stored under `/app/data`. Mounting this directo
 
 ---
 
-### 🛠️ Method 1: Docker Compose (CLI & SSH)
+### 🎛️ Method 1: TrueNAS SCALE App Store (Recommended)
 
-If you have SSH access or use a manager like **Portainer** or **Dockge**, Docker Compose is the fastest setup method:
+The Smart Home Dashboard is available as an **official Community App** in the TrueNAS App Store:
+
+👉 [**View in TrueNAS App Catalog**](https://apps.truenas.com/catalog/smart-home-dashboard_community/)
+
+1. Go to **Apps** ➡️ **Discover Apps** in your TrueNAS Web UI.
+2. Search for `Smart Home Dashboard` and click **Install**.
+3. Follow the installation wizard to set up your storage, port (default `30436`), and environment.
+4. Click **Save** – done! The app is running.
+
+Updates are delivered automatically through the TrueNAS catalog. When a new version is available, an **Update** badge appears on the app card in your Web UI.
+
+---
+
+### 🛠️ Method 2: Docker Compose (CLI & SSH)
+
+If you run Docker on a Linux server, NAS, or use a manager like **Portainer** or **Dockge**:
 
 1. **Clone the repository:**
    ```bash
@@ -175,29 +193,16 @@ The dashboard is accessible at `http://<YOUR-SERVER-IP>:8443`!
 
 ---
 
-### 🎛️ Method 2: TrueNAS SCALE App Store (Community Train)
+### 📝 Method 3: TrueNAS Custom App (Manual YAML)
 
-The Smart Home Dashboard is available as an official Community App for TrueNAS SCALE **24.10+ (Electric Eel)** and newer:
-
-1. Go to **Apps** ➡️ **Discover Apps** in your TrueNAS Web UI.
-2. Search for `Smart Home Dashboard` and click **Install**.
-3. Follow the installation wizard to set up your storage, port (default `30436`), and environment.
-
----
-
-### 📝 Method 3: TrueNAS SCALE Web GUI (Custom App via YAML)
-
-If you want to install the dashboard manually as a Custom App without using the App Store, you can do so by pasting a Docker Compose YAML:
+If you want to install the dashboard manually without the App Store, you can paste a Docker Compose YAML directly:
 
 #### Step 1: Prepare the Host Directory & Permissions
-The container runs under the standard TrueNAS application user (`568:568`). You **must** set the correct permissions on your host path before starting the container, otherwise the app will fail with permission errors. 
+The container runs as user `568:568` (TrueNAS `apps` user). Set the correct permissions first:
 
 Replace `/mnt/your-pool/your-dataset/smart-home-dashboard` with your actual TrueNAS dataset path:
 ```bash
-# Create the directory on your ZFS pool
 mkdir -p /mnt/your-pool/your-dataset/smart-home-dashboard
-
-# Change ownership to the TrueNAS 'apps' user (568)
 chown -R 568:568 /mnt/your-pool/your-dataset/smart-home-dashboard
 chmod -R 770 /mnt/your-pool/your-dataset/smart-home-dashboard
 ```
@@ -205,7 +210,7 @@ chmod -R 770 /mnt/your-pool/your-dataset/smart-home-dashboard
 #### Step 2: Install via TrueNAS Custom App
 1. Go to **Apps** ➡️ **Discover Apps** ➡️ **Custom App** (top right).
 2. Give the application a name (e.g. `smart-home-dashboard`).
-3. Under **Configuration**, paste the following YAML (do not use local `docker build` commands, the image is automatically pulled from the GitHub Container Registry):
+3. Paste the following YAML:
 
 ```yaml
 services:
@@ -224,75 +229,33 @@ services:
       - /mnt/your-pool/your-dataset/smart-home-dashboard:/app/data
 ```
 
-4. Click **Save** at the bottom to deploy.
+4. Click **Save** to deploy.
 
 ---
 
-### 🎮 Daily Commands
+### 🎮 Daily Commands (Docker Compose)
 
-Since the container runs in detached mode, you can manage it with these commands inside the directory (for local Docker Compose setups):
-
-* **Stop the dashboard:**
-  ```bash
-  docker compose down
-  ```
-* **Start the dashboard:**
-  ```bash
-  docker compose up -d
-  ```
-* **Check status and port bindings:**
-  ```bash
-  docker compose ps
-  ```
-* **View logs (for debugging):**
-  ```bash
-  docker compose logs -f
-  ```
+* **Stop:** `docker compose down`
+* **Start:** `docker compose up -d`
+* **Status:** `docker compose ps`
+* **Logs:** `docker compose logs -f`
 
 ---
 
 ### 🔄 Updates Without Data Loss
 
-To update the dashboard to a newer version on your host:
+#### TrueNAS App Store (Method 1):
+When a new version is available, click the **Update** button on the app card in the TrueNAS Web UI. That's it!
 
-#### For Docker Compose setups:
-1. **Navigate to the directory:**
-   ```bash
-   cd smart-home-dashboard
-   ```
-2. **Pull the latest code from GitHub:**
-   ```bash
-   git pull
-   ```
-3. **Rebuild and restart the container:**
-   ```bash
-   docker compose up -d --build
-   ```
-
-#### For TrueNAS App / Custom App setups:
-In the TrueNAS Web UI, click the **Update** or **Re-deploy** button on the application card to pull the latest image. Your settings, configurations, and uploaded calendar files in the mounted directory (`data/`) remain untouched and safe across updates!
+#### Docker Compose (Method 2):
+```bash
+cd smart-home-dashboard
+git pull
+docker compose up -d --build
+```
 
 > [!IMPORTANT]
-> Your settings, configurations, and uploaded calendar files in the mounted directory (`data/`) remain untouched and safe across updates!
-
----
-
-### 🧹 Cleaning Up Docker Storage
-
-Rebuilding Docker images can leave unused intermediate layers (known as *dangling images* `<none>`). Keep your TrueNAS clean with:
-
-* **Clean up unused resources (containers, networks, images):**
-  ```bash
-  docker system prune -f
-  ```
-* **Delete dangling images only:**
-  ```bash
-  docker image prune -f
-  ```
-* **Comprehensive deep clean (free up maximum space):**
-  ```bash
-  docker system prune -a -f
-  ```
+> Your settings, configurations, and uploaded calendar files in the data directory remain untouched and safe across all updates!
 
 ---
 
