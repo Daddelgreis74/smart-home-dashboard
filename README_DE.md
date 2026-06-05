@@ -137,7 +137,10 @@ https://0.0.0.0:8443
 
 ## 🐋 Docker & TrueNAS Setup Guide
 
-Dieses Projekt ist vollständig containerisiert. Alle Einstellungen, hochgeladene Kalenderdateien (`calendar.ics`), Webradio-Sender, Fritz!Box-Verbindungsdaten, Kameras und Anruflisten werden über ein einziges persistentes Volume gesichert. Das macht den Betrieb auf einem **TrueNAS SCALE**-Heimserver (Electric Eel & neuer) oder jedem anderen Docker-Host im Netzwerk extrem einfach und absolut sicher.
+Dieses Projekt ist vollständig containerisiert. Alle Einstellungen, hochgeladene Kalenderdateien (`calendar.ics`), Webradio-Sender, Fritz!Box-Verbindungsdaten, Kameras und Anruflisten werden über ein einziges persistentes Volume gesichert. Das macht den Betrieb auf einem **TrueNAS SCALE**-Heimserver (Electric Eel & neuer) oder jedem anderen Docker-Host extrem einfach.
+
+> [!TIP]
+> Der einfachste Weg ist die Installation über den **TrueNAS App Store** (Methode 1). Kein SSH, kein YAML, keine Docker-Befehle nötig.
 
 ### 📂 Struktur der persistenten Daten
 
@@ -156,9 +159,24 @@ Alle Daten werden im Container unter `/app/data` verwaltet. Wenn du dieses Verze
 
 ---
 
-### 🛠️ Methode 1: Docker Compose (Schnellstart & SSH)
+### 🎛️ Methode 1: TrueNAS SCALE App Store (Empfohlen)
 
-Nutzt du SSH-Zugriff auf deine Maschine oder ein Tool wie **Portainer / Dockge**, ist Docker Compose der einfachste und schnellste Weg:
+Das Smart Home Dashboard ist als **offizielle Community App** im TrueNAS App Store verfügbar:
+
+👉 [**Im TrueNAS App-Katalog anzeigen**](https://apps.truenas.com/catalog/smart-home-dashboard_community/)
+
+1. Öffne **Apps** ➡️ **Discover Apps** in deiner TrueNAS Web-Oberfläche.
+2. Suche nach `Smart Home Dashboard` und klicke auf **Install**.
+3. Folge dem Installationsassistenten für Speicher, Port (Standard `30436`) und Umgebung.
+4. Klicke auf **Save** – fertig! Die App läuft.
+
+Updates werden automatisch über den TrueNAS-Katalog bereitgestellt. Wenn eine neue Version verfügbar ist, erscheint ein **Update**-Badge auf der App-Kachel in deiner Web-Oberfläche.
+
+---
+
+### 🛠️ Methode 2: Docker Compose (CLI & SSH)
+
+Wenn du Docker auf einem Linux-Server, NAS oder mit einem Tool wie **Portainer** / **Dockge** betreibst:
 
 1. **Repository klonen:**
    ```bash
@@ -175,115 +193,69 @@ Das Dashboard ist sofort unter `http://<DEINE-SERVER-IP>:8443` erreichbar!
 
 ---
 
-### 🎛️ Methode 2: TrueNAS SCALE Web-Oberfläche (Custom App)
+### 📝 Methode 3: TrueNAS Custom App (Manuelles YAML)
 
-> [!NOTE]
-> Optimiert für TrueNAS SCALE **24.10+ (Electric Eel)** und neuere, rein Docker-basierte Versionen (wie **v26.0+**), da K3s/Kubernetes vollständig entfernt wurden.
+Falls du das Dashboard manuell ohne den App Store installieren möchtest, kannst du ein Docker-Compose-YAML direkt einfügen:
 
-Da das Dashboard lokal gebaut wird, verbinden wir den CLI-Build direkt mit dem Web-Interface von TrueNAS SCALE:
+#### Schritt 1: Host-Verzeichnis & Berechtigungen vorbereiten
+Der Container läuft als Benutzer `568:568` (TrueNAS `apps`-User). Setze zuerst die korrekten Berechtigungen:
 
-#### Schritt 1: Docker-Image in TrueNAS bauen (SSH)
-Logge dich per SSH auf deinem TrueNAS ein, navigiere in dein Dashboard-Verzeichnis und baue das Image mit dem exakten lokalen Namen, den TrueNAS erwartet:
+Ersetze `/mnt/your-pool/your-dataset/smart-home-dashboard` mit deinem tatsächlichen TrueNAS-Dataset-Pfad:
 ```bash
-cd /mnt/Datenpfad/username/smart-home-dashboard
-docker build -t local/smart-home-dashboard:latest .
+mkdir -p /mnt/your-pool/your-dataset/smart-home-dashboard
+chown -R 568:568 /mnt/your-pool/your-dataset/smart-home-dashboard
+chmod -R 770 /mnt/your-pool/your-dataset/smart-home-dashboard
 ```
 
-#### Schritt 2: Custom App im TrueNAS-Webinterface anlegen
-1. Navigiere zu **Apps** ➡️ **Discover Apps** ➡️ **Custom App** (oben rechts).
-2. Konfiguriere das Formular mit folgenden Parametern:
+#### Schritt 2: Installation über TrueNAS Custom App
+1. Gehe zu **Apps** ➡️ **Discover Apps** ➡️ **Custom App** (oben rechts).
+2. Gib der App einen Namen (z.B. `smart-home-dashboard`).
+3. Füge folgendes YAML ein:
 
-| Bereich | Einstellung | Wert |
-| :--- | :--- | :--- |
-| **Identifikation** | Application Name | `smart-home-dashboard` |
-| **Container-Image** | Image Repository | `local/smart-home-dashboard` |
-| | Image Tag | `latest` |
-| | Restart Policy | `Unless Stopped` *(Wichtig für Auto-Start nach Server-Reboot)* |
-| **Netzwerk / Ports** | Container Port | `8443` |
-| | Host Port | `8443` *(oder freier Wunschport)* |
-| | Protocol | `TCP` |
-| **Speicher (Storage)**| Type | `Host Path` |
-| | Container Path | `/app/data` |
-| | Host Path | Ordner-Picker ➡️ Dein ZFS-Datenpfad (z.B. `/mnt/Datenpfad/username/smart-home-dashboard/data`) |
-| **Web Portal** | Portal Name | `web` |
-| | Port | `8443` |
+```yaml
+services:
+  smart-home-dashboard:
+    image: ghcr.io/daddelgreis74/smart-home-dashboard:3.9.3
+    restart: unless-stopped
+    user: "568:568"
+    ports:
+      - "30436:30436"
+    environment:
+      PORT: "30436"
+      HOST: "0.0.0.0"
+      DATA_DIR: /app/data
+    volumes:
+      # Ersetze mit deinem tatsächlichen TrueNAS-Dataset-Pfad
+      - /mnt/your-pool/your-dataset/smart-home-dashboard:/app/data
+```
 
-3. Klicke ganz unten auf **Save**. 
-
-> [!TIP]
-> Die App ist nach wenigen Sekunden **Active (Running)**. Du kannst sie jetzt ganz bequem direkt über den klickbaren **"Web Portal"**-Button in der TrueNAS-Oberfläche öffnen!
-
----
-
-### 🎮 Steuerung & Befehle im Alltag
-
-Da der Container im Hintergrund läuft (Detached Mode), kannst du ihn über einfache Befehle in deinem Projektverzeichnis verwalten:
-
-* **Dashboard stoppen (Ausschalten):**
-  ```bash
-  docker compose down
-  ```
-* **Dashboard starten (Einschalten):**
-  ```bash
-  docker compose up -d
-  ```
-* **Status & Port-Bindungen anzeigen:**
-  ```bash
-  docker compose ps
-  ```
-* **Live-Logs einsehen (zur Fehlersuche):**
-  ```bash
-  docker compose logs -f
-  ```
+4. Klicke auf **Save** zum Deployen.
 
 ---
 
-### 🔄 Updates ohne Datenverlust einspielen
+### 🎮 Tägliche Befehle (Docker Compose)
 
-Wenn eine neue Dashboard-Version auf GitHub erscheint, aktualisierst du sie ganz einfach auf deinem Server:
+* **Stoppen:** `docker compose down`
+* **Starten:** `docker compose up -d`
+* **Status:** `docker compose ps`
+* **Logs:** `docker compose logs -f`
 
-1. **In das Projektverzeichnis wechseln:**
-   ```bash
-   cd /mnt/Datenpfad/username/smart-home-dashboard
-   ```
-2. **Neuesten Code von GitHub ziehen:**
-   ```bash
-   git pull
-   ```
-3. **Container neu bauen und starten:**
-   * **Für Docker Compose:**
-     ```bash
-     docker compose up -d --build
-     ```
-   * **Für TrueNAS App:**
-     ```bash
-     docker build -t local/smart-home-dashboard:latest .
-     # In der TrueNAS-Oberfläche danach auf der App einfach "Restart" klicken
-     ```
+---
+
+### 🔄 Updates ohne Datenverlust
+
+#### TrueNAS App Store (Methode 1):
+Wenn eine neue Version verfügbar ist, klicke einfach auf den **Update**-Button auf der App-Kachel in der TrueNAS Web-Oberfläche. Das war's!
+
+#### Docker Compose (Methode 2):
+```bash
+cd smart-home-dashboard
+git pull
+docker compose up -d --build
+```
 
 > [!IMPORTANT]
-> Deine Einstellungen, Kameras, Fritz!Box-Passwörter und hochgeladenen Kalender im gemounteten Host-Pfad (`data/`) bleiben bei jedem Update absolut sicher und unangetastet!
-
----
-
-### 🧹 Docker-System aufräumen & Speicher freigeben
-
-Beim wiederholten Bauen von Docker-Images entstehen oft ungenutzte Zwischenschritte (sogenannte *Dangling Images* `<none>`). So hältst du dein TrueNAS sauber:
-
-* **Sicheres & empfohlenes Aufräumen:**
-  Löscht alle ungenutzten Images, gestoppten Container und Netzwerke:
-  ```bash
-  docker system prune -f
-  ```
-* **Nur verwaiste (namenlose `<none>`) Images löschen:**
-  ```bash
-  docker image prune -f
-  ```
-* **Der Rundum-Sorglos-Großputz (Gibt maximalen Speicherplatz frei):**
-  Löscht alle gestoppten Container, ungenutzten Netzwerke, alle ungenutzten Images und den gesamten Docker-Build-Cache:
-  ```bash
-  docker system prune -a -f
-  ```
+> Deine Einstellungen, Konfigurationen und hochgeladenen Kalenderdateien im Datenverzeichnis bleiben bei allen Updates sicher und unangetastet!
 
 ---
 
@@ -296,3 +268,4 @@ npm audit --omit=dev
 ```
 
 Mit 👻 entwickelt von **Neo**, dem digitalen Hausgeist.
+
