@@ -69,7 +69,6 @@ When the tablet sleeps or wakes up, the active stream is stopped and the audio e
 
 Do not commit:
 
-- `ssl/`
 - `radio.json`
 - `tasmota.json`
 - `uploads/`
