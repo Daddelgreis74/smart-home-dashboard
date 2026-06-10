@@ -20,7 +20,7 @@ The dashboard supports four completely different, switchable design styles:
 
 ## ✨ Highlights
 
-- **Multi-Theme System:** 4 premium, freely switchable designs (Neo-Aurora Glassmorphism, Cyberpunk Tactical HUD, Cozy Nordic Dark, Retrowave Laser Synth) with persistent browser storage.
+- **Multi-Theme System:** 5 premium, freely switchable designs (Neo-Aurora Glassmorphism, Cyberpunk Tactical HUD, Cozy Nordic Dark, Retrowave Laser Synth, Terminal Classic, OLED Stealth) with persistent browser storage.
 - **Neo Aurora Command Deck:** Dark, high-quality wall panel design with aurora glow, glass/metal cards, and an adaptive 2-row layout.
 - **Adaptive Widgets:** Layout adapts to the aspect ratio and Fully Kiosk viewport instead of cutting off content.
 - **Weather Pro:** Open-Meteo data containing temperature, feels-like temperature, min/max, humidity, rain probability, wind speed, air pressure, cloud cover, and UV index.
@@ -217,7 +217,7 @@ chmod -R 770 /mnt/your-pool/your-dataset/smart-home-dashboard
 ```yaml
 services:
   smart-home-dashboard:
-    image: ghcr.io/daddelgreis74/smart-home-dashboard:3.9.3
+    image: ghcr.io/daddelgreis74/smart-home-dashboard:3.9.4
     restart: unless-stopped
     user: "568:568"
     ports:
