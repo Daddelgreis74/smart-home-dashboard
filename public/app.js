@@ -3,6 +3,241 @@ let hlsCore = null;
 let isPlaying = false;
 let tasmotaDevices = [];
 
+const localLangMap = {
+  de: {
+    turnOffRadio: "Radio ausschalten",
+    connecting: "Verbinde...",
+    atHome: "Zu Hause",
+    away: "Unterwegs",
+    inbound: "Eingehend",
+    outbound: "Ausgehend",
+    missed: "Verpasst",
+    connected: "Verbunden",
+    ringing: "Klingelt...",
+    noConnection: "Keine Verb.",
+    offline: "offline",
+    online: "Online",
+    loadingStations: "Senderliste wird geladen...",
+    demoLoaded: "Demo geladen",
+    stationsFound: "Sender gefunden",
+    pingError: "Fehler beim Laden des Feeds für",
+    enterIp: "Bitte gib die IP-Adresse deiner Fritz!Box ein.",
+    enterPresence: "Bitte gib Name und MAC-Adresse ein.",
+    invalidMac: "Ungültiges MAC-Adressen-Format. Bitte verwende z.B. AA:BB:CC:DD:EE:FF",
+    deletePersonConfirm: "Möchtest du diese Person wirklich löschen?",
+    deletePersonError: "Fehler beim Löschen:",
+    deleteCameraConfirm: "Möchtest du diese Kamera wirklich löschen?",
+    deleteCameraError: "Fehler beim Löschen der Kamera:",
+    enterCamera: "Bitte gib Name und URL für die Kamera ein.",
+    tasmotaNewFound: "neue(s) Tasmota-Gerät(e) gefunden und hinzugefügt!",
+    tasmotaAlreadyReg: "Gerät(e) im Netzwerk gefunden, aber alle sind bereits in deiner Liste registriert.",
+    tasmotaNone: "Keine Tasmota-Geräte im Netzwerk gefunden. Bitte stelle sicher, dass sie eingeschaltet und im selben WLAN sind.",
+    tasmotaScanErr: "Fehler beim Scannen des Netzwerks.",
+    weatherLimit: "Limit erreicht",
+    taupunkt: "Taupunkt"
+  },
+  en: {
+    turnOffRadio: "Turn off Radio",
+    connecting: "Connecting...",
+    atHome: "At Home",
+    away: "Away",
+    inbound: "Inbound",
+    outbound: "Outbound",
+    missed: "Missed",
+    connected: "Connected",
+    ringing: "Ringing...",
+    noConnection: "No connection",
+    offline: "offline",
+    online: "Online",
+    loadingStations: "Loading station list...",
+    demoLoaded: "Demo loaded",
+    stationsFound: "stations found",
+    pingError: "Error loading feed for",
+    enterIp: "Please enter your Fritz!Box IP address.",
+    enterPresence: "Please enter a name and MAC address.",
+    invalidMac: "Invalid MAC address format. Please use e.g. AA:BB:CC:DD:EE:FF",
+    deletePersonConfirm: "Do you really want to delete this person?",
+    deletePersonError: "Delete error:",
+    deleteCameraConfirm: "Do you really want to delete this camera?",
+    deleteCameraError: "Error deleting camera:",
+    enterCamera: "Please enter a name and URL for the camera.",
+    tasmotaNewFound: "new Tasmota device(s) found and added!",
+    tasmotaAlreadyReg: "device(s) found in network, but all are already registered in your list.",
+    tasmotaNone: "No Tasmota devices found in the network. Please make sure they are powered on and on the same Wi-Fi.",
+    tasmotaScanErr: "Error scanning network.",
+    weatherLimit: "Limit reached",
+    taupunkt: "Dew point"
+  },
+  fr: {
+    turnOffRadio: "Éteindre la radio",
+    connecting: "Connexion...",
+    atHome: "À la maison",
+    away: "Dehors",
+    inbound: "Entrant",
+    outbound: "Sortant",
+    missed: "Manqué",
+    connected: "Connecté",
+    ringing: "Sonnerie...",
+    noConnection: "Pas de conn.",
+    offline: "hors ligne",
+    online: "En ligne",
+    loadingStations: "Chargement de la liste...",
+    demoLoaded: "Démo chargée",
+    stationsFound: "stations trouvées",
+    pingError: "Erreur de chargement du flux pour",
+    enterIp: "Veuillez saisir l'adresse IP de votre Fritz!Box.",
+    enterPresence: "Veuillez saisir un nom et une adresse MAC.",
+    invalidMac: "Format d'adresse MAC invalide. Veuillez utiliser par ex. AA:BB:CC:DD:EE:FF",
+    deletePersonConfirm: "Voulez-vous vraiment supprimer cette personne?",
+    deletePersonError: "Erreur de suppression:",
+    deleteCameraConfirm: "Voulez-vous vraiment supprimer cette caméra?",
+    deleteCameraError: "Erreur lors de la suppression de la caméra:",
+    enterCamera: "Veuillez saisir un nom et une URL pour la caméra.",
+    tasmotaNewFound: "nouveau(x) périphérique(s) Tasmota trouvé(s) et ajouté(s)!",
+    tasmotaAlreadyReg: "périphérique(s) trouvé(s), mais tous sont déjà enregistrés.",
+    tasmotaNone: "Aucun périphérique Tasmota trouvé. Veuillez vérifier qu'ils sont allumés et sur le même Wi-Fi.",
+    tasmotaScanErr: "Erreur lors du scan du réseau.",
+    weatherLimit: "Limite atteinte",
+    taupunkt: "Point de rosée"
+  },
+  es: {
+    turnOffRadio: "Apagar la radio",
+    connecting: "Conectando...",
+    atHome: "En casa",
+    away: "Fuera",
+    inbound: "Entrante",
+    outbound: "Saliente",
+    missed: "Perdida",
+    connected: "Conectado",
+    ringing: "Llamando...",
+    noConnection: "Sin conex.",
+    offline: "desconectado",
+    online: "En línea",
+    loadingStations: "Cargando lista de emisoras...",
+    demoLoaded: "Demo cargada",
+    stationsFound: "emisoras encontradas",
+    pingError: "Error al cargar el feed de",
+    enterIp: "Por favor ingrese la dirección IP de su Fritz!Box.",
+    enterPresence: "Por favor ingrese un nombre y dirección MAC.",
+    invalidMac: "Formato de dirección MAC no válido. Por favor use p.ej. AA:BB:CC:DD:EE:FF",
+    deletePersonConfirm: "¿Realmente quieres eliminar a esta persona?",
+    deletePersonError: "Error al eliminar:",
+    deleteCameraConfirm: "¿Realmente quieres eliminar esta cámara?",
+    deleteCameraError: "Error al eliminar la cámara:",
+    enterCamera: "Por favor ingrese un nombre y URL para la cámara.",
+    tasmotaNewFound: "¡nuevo(s) dispositivo(s) Tasmota encontrado(s) y agregado(s)!",
+    tasmotaAlreadyReg: "dispositivo(s) encontrado(s) en la red, pero todos ya están registrados.",
+    tasmotaNone: "No se encontraron dispositivos Tasmota en la red. Asegúrese de que estén encendidos y en el mismo Wi-Fi.",
+    tasmotaScanErr: "Error al escanear la red.",
+    weatherLimit: "Límite alcanzado",
+    taupunkt: "Punto de rocío"
+  },
+  it: {
+    turnOffRadio: "Spegni la radio",
+    connecting: "Connessione...",
+    atHome: "A casa",
+    away: "Fuori",
+    inbound: "In entrata",
+    outbound: "In uscita",
+    missed: "Persa",
+    connected: "Connesso",
+    ringing: "Squilla...",
+    noConnection: "Senza conn.",
+    offline: "non in linea",
+    online: "In linea",
+    loadingStations: "Caricamento lista stazioni...",
+    demoLoaded: "Demo caricata",
+    stationsFound: "stazioni trovate",
+    pingError: "Errore durante il caricamento del feed per",
+    enterIp: "Inserisci l'indirizzo IP del tuo Fritz!Box.",
+    enterPresence: "Inserisci un nome e un indirizzo MAC.",
+    invalidMac: "Formato dell'indirizzo MAC non valido. Utilizzare ad es. AA:BB:CC:DD:EE:FF",
+    deletePersonConfirm: "Vuoi davvero cancellare questa persona?",
+    deletePersonError: "Errore durante la cancellazione:",
+    deleteCameraConfirm: "Vuoi davvero eliminare questa telecamera?",
+    deleteCameraError: "Errore durante l'eliminazione della telecamera:",
+    enterCamera: "Inserisci un nome e un URL per la telecamera.",
+    tasmotaNewFound: "nuovo/i dispositivo/i Tasmota trovato/i e aggiunto/i!",
+    tasmotaAlreadyReg: "dispositivo/i trovato/i nella rete, ma tutti sono già registrati.",
+    tasmotaNone: "Nessun dispositivo Tasmota trovato nella rete. Assicurarsi che siano accesi e sulla stessa rete Wi-Fi.",
+    tasmotaScanErr: "Errore durante la scansione della rete.",
+    weatherLimit: "Limite raggiunto",
+    taupunkt: "Punto di rugiada"
+  },
+  nl: {
+    turnOffRadio: "Radio uitschakelen",
+    connecting: "Verbinden...",
+    atHome: "Thuis",
+    away: "Onderweg",
+    inbound: "Inkomend",
+    outbound: "Uitgaand",
+    missed: "Gemist",
+    connected: "Verbonden",
+    ringing: "Overgaan...",
+    noConnection: "Geen verb.",
+    offline: "offline",
+    online: "Online",
+    loadingStations: "Zenderlijst laden...",
+    demoLoaded: "Demo geladen",
+    stationsFound: "zenders gevonden",
+    pingError: "Fout bij laden van feed voor",
+    enterIp: "Voer het IP-adres van uw Fritz!Box in.",
+    enterPresence: "Voer een naam en MAC-adres in.",
+    invalidMac: "Ongeldig MAC-adres formaat. Gebruik bijv. AA:BB:CC:DD:EE:FF",
+    deletePersonConfirm: "Weet u zeker dat u deze persoon wilt verwijderen?",
+    deletePersonError: "Fout bij verwijderen:",
+    deleteCameraConfirm: "Weet u zeker dat u deze camera wilt verwijderen?",
+    deleteCameraError: "Fout bij verwijderen van camera:",
+    enterCamera: "Voer een naam en URL in voor de camera.",
+    tasmotaNewFound: "nieuw(e) Tasmota appara(a)t(en) gevonden en toegevoegd!",
+    tasmotaAlreadyReg: "appara(a)t(en) gevonden in netwerk, maar allemaal al geregistreerd.",
+    tasmotaNone: "Geen Tasmota apparaten gevonden in het netwerk. Zorg ervoor dat ze aan staan en op dezelfde Wi-Fi zitten.",
+    tasmotaScanErr: "Fout bij scannen van netwerk.",
+    weatherLimit: "Limiet bereikt",
+    taupunkt: "Dauwpunt"
+  },
+  pl: {
+    turnOffRadio: "Wyłącz radio",
+    connecting: "Łączenie...",
+    atHome: "W domu",
+    away: "Poza domem",
+    inbound: "Przychodzące",
+    outbound: "Wychodzące",
+    missed: "Nieodebrane",
+    connected: "Połączone",
+    ringing: "Dzwoni...",
+    noConnection: "Brak poł.",
+    offline: "offline",
+    online: "Online",
+    loadingStations: "Ładowanie listy stacji...",
+    demoLoaded: "Załadowano demo",
+    stationsFound: "znalezionych stacji",
+    pingError: "Błąd ładowania strumienia dla",
+    enterIp: "Wprowadź adres IP Fritz!Box.",
+    enterPresence: "Wprowadź imię i adres MAC.",
+    invalidMac: "Nieprawidłowy format adresu MAC. Użyj np. AA:BB:CC:DD:EE:FF",
+    deletePersonConfirm: "Czy na pewno chcesz usunąć tę osobę?",
+    deletePersonError: "Błąd usuwania:",
+    deleteCameraConfirm: "Czy na pewno chcesz usunąć tę kamerę?",
+    deleteCameraError: "Błąd usuwania kamery:",
+    enterCamera: "Wprowadź nazwę i URL kamery.",
+    tasmotaNewFound: "znaleziono i dodano nowe urządzenia Tasmota!",
+    tasmotaAlreadyReg: "znaleziono urządzenia w sieci, ale wszystkie są już zarejestrowane.",
+    tasmotaNone: "Nie znaleziono urządzeń Tasmota w sieci. Upewnij się, że są włączone i w tej samej sieci Wi-Fi.",
+    tasmotaScanErr: "Błąd skanowania sieci.",
+    weatherLimit: "Osiągnięto limit",
+    taupunkt: "Punkt rosy"
+  }
+};
+
+function getLangText(key) {
+  const lang = localStorage.getItem('dashboard_lang') || 'de';
+  if (localLangMap[lang] && localLangMap[lang][key] !== undefined) {
+    return localLangMap[lang][key];
+  }
+  return localLangMap['de'][key] || key;
+}
+
 function applyTheme(themeClass) {
   document.body.classList.remove('theme-aurora', 'theme-cyberpunk', 'theme-nordic', 'theme-retrowave', 'theme-terminal', 'theme-stealth');
   document.body.classList.add(themeClass);
@@ -63,6 +298,18 @@ function loadSavedSettings() {
   applyTheme(savedTheme);
   const themeSelector = document.getElementById('themeSelector');
   if (themeSelector) themeSelector.value = savedTheme;
+
+  // Sprache laden und anwenden
+  let savedLang = localStorage.getItem('dashboard_lang');
+  if (!savedLang) {
+    const browserLang = navigator.language ? navigator.language.split('-')[0] : 'de';
+    savedLang = (translations && translations[browserLang]) ? browserLang : 'de';
+  }
+  const langSelector = document.getElementById('langSelector');
+  if (langSelector) langSelector.value = savedLang;
+  if (typeof applyTranslations === 'function') {
+    applyTranslations(savedLang);
+  }
 
   const savedLoc = localStorage.getItem('weatherLoc');
   if (savedLoc) document.getElementById('weatherLoc').value = savedLoc;
@@ -138,8 +385,19 @@ socket.on('layout-updated', (layout) => {
 
 function updateDateTime() {
   const now = new Date();
-  const timeStr = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-  const dateStr = now.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
+  const lang = localStorage.getItem('dashboard_lang') || 'de';
+  const localeMap = {
+    de: 'de-DE',
+    en: 'en-US',
+    fr: 'fr-FR',
+    es: 'es-ES',
+    it: 'it-IT',
+    nl: 'nl-NL',
+    pl: 'pl-PL'
+  };
+  const locale = localeMap[lang] || 'de-DE';
+  const timeStr = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+  const dateStr = now.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' });
   const hTime = document.getElementById('headerTime'); const hDate = document.getElementById('headerDate');
   if(hTime) hTime.innerHTML = timeStr; if(hDate) hDate.innerHTML = dateStr;
 }
@@ -152,6 +410,21 @@ function initSettings() {
   if (themeSelector) {
     themeSelector.addEventListener('change', (e) => {
       applyTheme(e.target.value);
+    });
+  }
+
+  // Sprache Selector Event Listener
+  const langSelector = document.getElementById('langSelector');
+  if (langSelector) {
+    langSelector.addEventListener('change', (e) => {
+      const selectedLang = e.target.value;
+      if (typeof applyTranslations === 'function') {
+        applyTranslations(selectedLang);
+      }
+      updateDateTime();
+      loadWeather();
+      loadICS();
+      updateRadioUi(isPlaying);
     });
   }
 
@@ -240,10 +513,11 @@ async function loadWeather() {
   let lon = parseFloat(localStorage.getItem('weather_lon'));
   let cachedLoc = localStorage.getItem('weather_loc_resolved');
 
+  const lang = localStorage.getItem('dashboard_lang') || 'de';
   // 1. Geocoding nur machen, wenn die Stadt geaendert wurde oder noch keine Koordinaten da sind (fuer Open-Meteo)
   if (provider === 'openmeteo' && (!lat || !lon || cachedLoc !== locName)) {
     try {
-      const geoRes = await (await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(locName)}&count=1&language=de&format=json`)).json();
+      const geoRes = await (await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(locName)}&count=1&language=${lang}&format=json`)).json();
       if (geoRes.results && geoRes.results.length > 0) {
         lat = geoRes.results[0].latitude;
         lon = geoRes.results[0].longitude;
@@ -269,7 +543,7 @@ async function loadWeather() {
   if (provider === 'weatherapi' && apiKey) {
     try {
       const query = (lat && lon) ? `${lat},${lon}` : locName;
-      const weatherUrl = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${encodeURIComponent(query)}&days=1&aqi=no&alerts=no&lang=de`;
+      const weatherUrl = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${encodeURIComponent(query)}&days=1&aqi=no&alerts=no&lang=${lang}`;
       const response = await fetch(weatherUrl);
       if (response.ok) {
         const rawData = await response.json();
@@ -344,7 +618,7 @@ async function loadWeather() {
       console.log(`Nutze gecachte Wetterdaten von ${cachedTime} Uhr.`);
     } else {
       document.getElementById('weatherCity').textContent = locName;
-      document.getElementById('weatherCondition').textContent = 'Limit erreicht';
+      document.getElementById('weatherCondition').textContent = getLangText('weatherLimit');
       return;
     }
   }
@@ -372,9 +646,9 @@ async function loadWeather() {
       const text = d.current.condition_text || '';
       
       if (code === 1000) {
-        cond = { text: 'Sonnig', icon: 'fa-sun', style: 'sunny' };
+        cond = { text: (translations[lang] ? translations[lang].weather_sunny || 'Sonnig' : 'Sonnig'), icon: 'fa-sun', style: 'sunny' };
       } else if (code === 1003) {
-        cond = { text: 'Leicht bewölkt', icon: 'fa-cloud-sun', style: 'cloudy' };
+        cond = { text: (translations[lang] ? translations[lang].weather_partly_cloudy || 'Leicht bewölkt' : 'Leicht bewölkt'), icon: 'fa-cloud-sun', style: 'cloudy' };
       } else if (code === 1006 || code === 1009) {
         cond = { text: text || 'Bewölkt', icon: 'fa-cloud', style: 'cloudy' };
       } else if (code === 1030 || code === 1135 || code === 1147) {
@@ -391,24 +665,63 @@ async function loadWeather() {
         cond = { text: text || 'Bedeckt', icon: 'fa-cloud', style: 'cloudy' };
       }
     } else {
-      const conditions = {
-        0:{text:'Klar',icon:'fa-sun',style:'sunny'},
-        1:{text:'Überwiegend klar',icon:'fa-sun',style:'sunny'},
-        2:{text:'Leicht bewölkt',icon:'fa-cloud-sun',style:'cloudy'},
-        3:{text:'Bewölkt',icon:'fa-cloud',style:'cloudy'},
-        45:{text:'Nebel',icon:'fa-smog',style:'cloudy'},
-        48:{text:'Reifnebel',icon:'fa-smog',style:'cloudy'},
-        51:{text:'Nieselregen',icon:'fa-cloud-rain',style:'rainy'},
-        53:{text:'Nieselregen',icon:'fa-cloud-rain',style:'rainy'},
-        55:{text:'Starker Nieselregen',icon:'fa-cloud-rain',style:'rainy'},
-        61:{text:'Regen',icon:'fa-cloud-rain',style:'rainy'},
-        63:{text:'Regen',icon:'fa-cloud-showers-heavy',style:'rainy'},
-        65:{text:'Starker Regen',icon:'fa-cloud-showers-heavy',style:'rainy'},
-        71:{text:'Schnee',icon:'fa-snowflake',style:'cloudy'},
-        80:{text:'Regenschauer',icon:'fa-cloud-sun-rain',style:'rainy'},
-        95:{text:'Gewitter',icon:'fa-cloud-bolt',style:'rainy'}
+      const conditionsMap = {
+        de: {
+          0: 'Klar', 1: 'Überwiegend klar', 2: 'Leicht bewölkt', 3: 'Bewölkt', 45: 'Nebel', 48: 'Reifnebel',
+          51: 'Nieselregen', 53: 'Nieselregen', 55: 'Starker Nieselregen', 61: 'Regen', 63: 'Regen',
+          65: 'Starker Regen', 71: 'Schnee', 80: 'Regenschauer', 95: 'Gewitter'
+        },
+        en: {
+          0: 'Clear', 1: 'Mostly clear', 2: 'Partly cloudy', 3: 'Cloudy', 45: 'Fog', 48: 'Depositing rime fog',
+          51: 'Drizzle', 53: 'Drizzle', 55: 'Heavy drizzle', 61: 'Rain', 63: 'Rain',
+          65: 'Heavy rain', 71: 'Snow', 80: 'Rain showers', 95: 'Thunderstorm'
+        },
+        fr: {
+          0: 'Clair', 1: 'Principalement clair', 2: 'Partiellement nuageux', 3: 'Nuageux', 45: 'Brouillard', 48: 'Brouillard givrant',
+          51: 'Bruine', 53: 'Bruine', 55: 'Bruine forte', 61: 'Pluie', 63: 'Pluie',
+          65: 'Pluie forte', 71: 'Neige', 80: 'Averses de pluie', 95: 'Orage'
+        },
+        es: {
+          0: 'Despejado', 1: 'Mayormente despejado', 2: 'Parcialmente nublado', 3: 'Nublado', 45: 'Niebla', 48: 'Niebla helada',
+          51: 'Llovizna', 53: 'Llovizna', 55: 'Llovizna fuerte', 61: 'Lluvia', 63: 'Lluvia',
+          65: 'Lluvia fuerte', 71: 'Nieve', 80: 'Chubascos de lluvia', 95: 'Tormenta'
+        },
+        it: {
+          0: 'Sereno', 1: 'Prevalentemente sereno', 2: 'Parzialmente nuvoloso', 3: 'Nuvoloso', 45: 'Nebbia', 48: 'Nebbia con brina',
+          51: 'Pioggerellina', 53: 'Pioggerellina', 55: 'Pioggerellina intensa', 61: 'Pioggia', 63: 'Pioggia',
+          65: 'Pioggia forte', 71: 'Neve', 80: 'Rovesci di pioggia', 95: 'Temporale'
+        },
+        nl: {
+          0: 'Helder', 1: 'Overwegend helder', 2: 'Licht bewolkt', 3: 'Bewolkt', 45: 'Mist', 48: 'Rijpmist',
+          51: 'Motregen', 53: 'Motregen', 55: 'Zware motregen', 61: 'Regen', 63: 'Regen',
+          65: 'Zware regen', 71: 'Sneeuw', 80: 'Regenbuien', 95: 'Onweer'
+        },
+        pl: {
+          0: 'Jasno', 1: 'Przeważnie jasno', 2: 'Lekkie zachmurzenie', 3: 'Zachmurzenie', 45: 'Mgła', 48: 'Mgła osadzająca szadź',
+          51: 'Mżawka', 53: 'Mżawka', 55: 'Silna mżawka', 61: 'Deszcz', 63: 'Deszcz',
+          65: 'Silny deszcz', 71: 'Śnieg', 80: 'Opady deszczu', 95: 'Burza'
+        }
       };
-      cond = conditions[d.current.weather_code] || { text: 'Bedeckt', icon: 'fa-cloud', style: 'cloudy' };
+      const langConds = conditionsMap[lang] || conditionsMap['de'];
+      
+      const conditions = {
+        0:{text:langConds[0],icon:'fa-sun',style:'sunny'},
+        1:{text:langConds[1],icon:'fa-sun',style:'sunny'},
+        2:{text:langConds[2],icon:'fa-cloud-sun',style:'cloudy'},
+        3:{text:langConds[3],icon:'fa-cloud',style:'cloudy'},
+        45:{text:langConds[45],icon:'fa-smog',style:'cloudy'},
+        48:{text:langConds[48],icon:'fa-smog',style:'cloudy'},
+        51:{text:langConds[51],icon:'fa-cloud-rain',style:'rainy'},
+        53:{text:langConds[53],icon:'fa-cloud-rain',style:'rainy'},
+        55:{text:langConds[55],icon:'fa-cloud-rain',style:'rainy'},
+        61:{text:langConds[61],icon:'fa-cloud-rain',style:'rainy'},
+        63:{text:langConds[63],icon:'fa-cloud-showers-heavy',style:'rainy'},
+        65:{text:langConds[65],icon:'fa-cloud-showers-heavy',style:'rainy'},
+        71:{text:langConds[71],icon:'fa-snowflake',style:'cloudy'},
+        80:{text:langConds[80],icon:'fa-cloud-sun-rain',style:'rainy'},
+        95:{text:langConds[95],icon:'fa-cloud-bolt',style:'rainy'}
+      };
+      cond = conditions[d.current.weather_code] || { text: (translations[lang] ? translations[lang].weather_clouds || 'Bedeckt' : 'Bedeckt'), icon: 'fa-cloud', style: 'cloudy' };
     }
     
     document.getElementById('weatherCondition').textContent = cond.text;
@@ -420,6 +733,20 @@ async function loadWeather() {
 }
 
 async function loadICS() {
+  const lang = localStorage.getItem('dashboard_lang') || 'de';
+  const localeMap = {
+    de: 'de-DE',
+    en: 'en-US',
+    fr: 'fr-FR',
+    es: 'es-ES',
+    it: 'it-IT',
+    nl: 'nl-NL',
+    pl: 'pl-PL'
+  };
+  const locale = localeMap[lang] || 'de-DE';
+  const todayText = translations[lang] ? translations[lang].today_waste_alert.replace(':', '') : 'Heute';
+  const tomorrowText = translations[lang] ? translations[lang].tomorrow_waste_alert.replace(':', '') : 'Morgen';
+
   try {
     const r = await fetch('/api/ics-data');
     const d = await r.json();
@@ -445,7 +772,7 @@ async function loadICS() {
       const upcoming = events.filter(e => e.date >= todayStr).slice(0, 4);
       
       if(upcoming.length === 0) { 
-        list.innerHTML = '<p style="color:rgba(255,255,255,0.5);">Keine Termine.</p>'; 
+        list.innerHTML = (translations[lang] && translations[lang].waste_no_dates) ? `<p style="color:rgba(255,255,255,0.5);">${translations[lang].waste_no_dates}</p>` : '<p style="color:rgba(255,255,255,0.5);">Keine Termine.</p>'; 
         const alertContainer = document.getElementById('headerWasteAlert');
         if (alertContainer) { alertContainer.style.display = 'none'; alertContainer.innerHTML = ''; }
         return; 
@@ -458,11 +785,11 @@ async function loadICS() {
         const dt = new Date(e.date.substring(0,4), e.date.substring(4,6)-1, e.date.substring(6,8));
         let type = 'residual'; const s = e.summary.toLowerCase();
         if(s.includes('bio')) type = 'bio'; else if(s.includes('papier')) type = 'paper'; else if(s.includes('gelb')||s.includes('plastik')) type = 'plastic';
-        let dateStr = dt.toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' });
+        let dateStr = dt.toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short' });
         // Compare calendar days, not the current clock time. Otherwise tomorrow
         // before the current time-of-day was shown as "Heute".
         const diff = Math.round((dt - today) / (1000 * 60 * 60 * 24));
-        if(diff === 0) dateStr = 'Heute'; else if(diff === 1) dateStr = 'Morgen';
+        if(diff === 0) dateStr = todayText; else if(diff === 1) dateStr = tomorrowText;
 
         html += `
           <div class="waste-item ${type}">
@@ -478,7 +805,7 @@ async function loadICS() {
             summary: e.summary.replace(' in Altenburg', ''),
             type,
             diff,
-            dateStr: diff === 0 ? 'Heute' : 'Morgen'
+            dateStr: diff === 0 ? todayText : tomorrowText
           });
         }
       });
@@ -571,7 +898,8 @@ function updateRadioUi(playing) {
   }
   
   if (statusLabel) {
-    statusLabel.textContent = playing ? 'LIVE' : 'Sender wählen';
+    const lang = localStorage.getItem('dashboard_lang') || 'de';
+    statusLabel.textContent = playing ? (translations[lang] ? translations[lang].radio_status_live || 'LIVE' : 'LIVE') : (translations[lang] ? translations[lang].radio_status_choose || 'Sender wählen' : 'Sender wählen');
     statusLabel.style.color = playing ? 'var(--primary)' : 'var(--accent-blue)';
   }
 }
@@ -808,7 +1136,7 @@ function initFritzRadioPopup() {
       stopCard.className = 'station-btn stop-btn';
       stopCard.style.cssText = 'border-color: rgba(239, 68, 68, 0.3) !important; background: rgba(239, 68, 68, 0.05) !important; color: #ef4444 !important; font-weight: 600;';
       stopCard.innerHTML = '<i class="fas fa-power-off" style="color: #ef4444;"></i>' +
-        '<span class="station-name" style="color: #ef4444; font-weight: 600;">Radio ausschalten</span>' +
+        '<span class="station-name" style="color: #ef4444; font-weight: 600;">' + getLangText('turnOffRadio') + '</span>' +
         '<div class="station-status-indicator" style="background: #ef4444; box-shadow: 0 0 8px #ef4444;"></div>';
       
       stopCard.addEventListener('click', () => {
@@ -894,7 +1222,7 @@ async function refreshSensorWidget() {
     }
     if(dewEl) {
       const dew = Number(data.dewPoint);
-      dewEl.textContent = Number.isFinite(dew) ? `Taupunkt ${dew.toFixed(1)}°` : 'Taupunkt --°';
+      dewEl.textContent = Number.isFinite(dew) ? `${getLangText('taupunkt')} ${dew.toFixed(1)}°` : `${getLangText('taupunkt')} --°`;
     }
     if(status) status.textContent = data.time ? data.time.slice(11, 16) : ip;
   } catch(e) {
@@ -904,8 +1232,8 @@ async function refreshSensorWidget() {
       humidityEl.textContent = '--%';
       setGauge('humidityGauge', 0, 0, 100);
     }
-    if(dewEl) dewEl.textContent = 'Taupunkt --°';
-    if(status) status.textContent = 'offline';
+    if(dewEl) dewEl.textContent = `${getLangText('taupunkt')} --°`;
+    if(status) status.textContent = getLangText('offline');
   }
 }
 
@@ -978,16 +1306,16 @@ async function initTasmota() {
           await saveTasmotaList();
           
           if (newCount > 0) {
-            alert(`${newCount} neue(s) Tasmota-Gerät(e) gefunden und hinzugefügt!`);
+            alert(`${newCount} ` + getLangText('tasmotaNewFound'));
           } else {
-            alert(`Es wurden ${data.found.length} Gerät(e) im Netzwerk gefunden, aber alle sind bereits in deiner Liste registriert.`);
+            alert(getLangText('tasmotaAlreadyReg'));
           }
         } else {
-          alert("Keine Tasmota-Geräte im Netzwerk gefunden. Bitte stelle sicher, dass sie eingeschaltet und im selben WLAN sind.");
+          alert(getLangText('tasmotaNone'));
         }
       } catch(e) {
         console.error("Tasmota Scan Error", e);
-        alert("Fehler beim Scannen des Netzwerks.");
+        alert(getLangText('tasmotaScanErr'));
       }
       scanBtn.innerHTML = '<i class="fas fa-search"></i>';
     });
@@ -1165,13 +1493,13 @@ async function initFritzbox() {
       const callMonitorEnabled = document.getElementById('toggleFritzCallMonitor').checked;
       
       if(!ip) {
-        alert('Bitte gib die IP-Adresse deiner Fritz!Box ein.');
+        alert(getLangText('enterIp'));
         return;
       }
 
       saveBtn.disabled = true;
       const oldText = saveBtn.innerHTML;
-      saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verbinde...';
+      saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + getLangText('connecting');
 
       try {
         const response = await fetch('/api/fritzbox/config', {
@@ -1181,10 +1509,10 @@ async function initFritzbox() {
         });
         const data = await response.json();
         if(data && data.success) {
-          alert('Fritz!Box Konfiguration erfolgreich gespeichert und verbunden!');
+          alert(translations[lang] && translations[lang].fritzbox_connect ? translations[lang].fritzbox_connect : 'Fritz!Box Connected!');
           if(document.getElementById('fritzPassword')) document.getElementById('fritzPassword').value = ''; // clear password field
         } else {
-          alert('Fehler beim Speichern der Konfiguration: ' + (data.error || 'Unbekannter Fehler'));
+          alert('Error: ' + (data.error || 'Unknown Error'));
         }
       } catch(err) {
         alert('Verbindungsfehler: ' + err.message);
@@ -1207,20 +1535,20 @@ async function initFritzbox() {
     if(ledFritz && valFritzStatus) {
       if(status.fritzOnline) {
         ledFritz.className = 'led-dot green';
-        valFritzStatus.textContent = `Online (${status.fritzLatency}ms)`;
+        valFritzStatus.textContent = `${getLangText('online')} (${status.fritzLatency}ms)`;
       } else {
         ledFritz.className = 'led-dot red';
-        valFritzStatus.textContent = 'Offline';
+        valFritzStatus.textContent = getLangText('offline');
       }
     }
 
     if(ledInternet && valInternetStatus) {
       if(status.internetOnline) {
         ledInternet.className = 'led-dot green';
-        valInternetStatus.textContent = `Online (${status.internetLatency}ms)`;
+        valInternetStatus.textContent = `${getLangText('online')} (${status.internetLatency}ms)`;
       } else {
         ledInternet.className = 'led-dot red';
-        valInternetStatus.textContent = 'Offline';
+        valInternetStatus.textContent = getLangText('offline');
       }
     }
   });
@@ -1231,7 +1559,7 @@ async function initFritzbox() {
     if(!list) return;
 
     if(!calls || calls.length === 0) {
-      list.innerHTML = '<div class="no-calls">Keine Anrufe protokolliert.</div>';
+      list.innerHTML = `<div class="no-calls" data-i18n="fritzbox_no_calls">${translations[lang] ? translations[lang].fritzbox_no_calls : 'Keine Anrufe protokolliert.'}</div>`;
       return;
     }
 
@@ -1242,24 +1570,24 @@ async function initFritzbox() {
       
       let iconClass = 'fa-phone';
       let iconStyleClass = 'inbound';
-      let typeLabel = 'Eingehend';
+      let typeLabel = getLangText('inbound');
 
       if(call.type === 'RING') {
         iconClass = 'fa-phone-volume';
         iconStyleClass = 'inbound';
-        typeLabel = 'Eingehend';
+        typeLabel = getLangText('inbound');
       } else if(call.type === 'CALL') {
         iconClass = 'fa-phone-flip';
         iconStyleClass = 'outbound';
-        typeLabel = 'Ausgehend';
+        typeLabel = getLangText('outbound');
       } else if(call.type === 'MISSED') {
         iconClass = 'fa-phone-slash';
         iconStyleClass = 'missed';
-        typeLabel = 'Verpasst';
+        typeLabel = getLangText('missed');
       } else if(call.type === 'CONNECTED') {
         iconClass = 'fa-phone-square';
         iconStyleClass = 'connected';
-        typeLabel = 'Verbunden';
+        typeLabel = getLangText('connected');
       }
 
       // Format Duration
@@ -1269,19 +1597,20 @@ async function initFritzbox() {
         const s = call.duration % 60;
         durText = m > 0 ? `${m}m ${s}s` : `${s}s`;
       } else if(call.type === 'MISSED') {
-        durText = 'Verpasst';
+        durText = getLangText('missed');
       } else if(call.type === 'RING') {
-        durText = 'Klingelt...';
+        durText = getLangText('ringing');
       } else {
-        durText = 'Keine Verb.';
+        durText = getLangText('noConnection');
       }
 
+      const uhrText = lang === 'de' ? ' Uhr' : '';
       item.innerHTML = `
         <div class="call-info-left">
           <div class="call-icon ${iconStyleClass}"><i class="fas ${iconClass}"></i></div>
           <div class="call-details">
             <span class="call-name">${call.callerName || call.number}</span>
-            <span class="call-time">${call.time} Uhr · ${typeLabel}</span>
+            <span class="call-time">${call.time}${uhrText} · ${typeLabel}</span>
           </div>
         </div>
         <span class="call-duration">${durText}</span>
@@ -1300,7 +1629,7 @@ async function initFritzbox() {
 
     if(event.active) {
       if(toastNumber) toastNumber.textContent = event.number;
-      if(toastCaller) toastCaller.textContent = event.callerName || 'Unbekannter Anrufer';
+      if(toastCaller) toastCaller.textContent = event.callerName || (translations[lang] ? translations[lang].toast_unknown_caller : 'Unbekannter Anrufer');
       overlay.removeAttribute('hidden');
     } else {
       overlay.setAttribute('hidden', '');
@@ -1320,7 +1649,7 @@ async function initPresence() {
     fileInput.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if(!file) {
-        fileNameSpan.textContent = 'Kein Bild gewählt';
+        fileNameSpan.textContent = translations[lang] ? translations[lang].presence_no_avatar : 'Kein Bild gewählt';
         uploadedAvatarUrl = '';
         return;
       }
@@ -1358,12 +1687,12 @@ async function initPresence() {
       const mac = macInput.value.trim();
 
       if(!name || !mac) {
-        alert('Bitte gib Name und MAC-Adresse ein.');
+        alert(getLangText('enterPresence'));
         return;
       }
 
       if(!/^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$/i.test(mac)) {
-        alert('Ungültiges MAC-Adressen-Format. Bitte verwende z.B. AA:BB:CC:DD:EE:FF');
+        alert(getLangText('invalidMac'));
         return;
       }
 
@@ -1382,7 +1711,7 @@ async function initPresence() {
           nameInput.value = '';
           macInput.value = '';
           fileInput.value = '';
-          fileNameSpan.textContent = 'Kein Bild gewählt';
+          fileNameSpan.textContent = translations[lang] ? translations[lang].presence_no_avatar : 'Kein Bild gewählt';
           uploadedAvatarUrl = '';
         } else {
           alert('Fehler beim Hinzufügen: ' + (data.error || 'Unbekannter Fehler'));
@@ -1434,7 +1763,7 @@ async function initPresence() {
     list.innerHTML = '';
 
     if(persons.length === 0) {
-      list.innerHTML = '<div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 10px;">Keine Personen registriert.</div>';
+      list.innerHTML = `<div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 10px;">${translations[lang] ? translations[lang].presence_no_people : 'Keine Personen registriert.'}</div>`;
       return;
     }
 
@@ -1458,12 +1787,12 @@ async function initPresence() {
   }
 
   window.removePerson = async function(id) {
-    if(!confirm('Möchtest du diese Person wirklich löschen?')) return;
+    if(!confirm(getLangText('deletePersonConfirm'))) return;
     try {
       const res = await fetch('/api/presence/' + id, { method: 'DELETE' });
       const data = await res.json();
       if(!data.success) {
-        alert('Fehler beim Löschen: ' + (data.error || 'Unbekannter Fehler'));
+        alert(getLangText('deletePersonError') + ' ' + (data.error || 'Error'));
       }
     } catch(err) {
       console.error('Löschen fehlgeschlagen:', err);
@@ -1476,7 +1805,7 @@ async function initPresence() {
     grid.innerHTML = '';
 
     if(persons.length === 0) {
-      grid.innerHTML = '<div class="no-presence-devices">Keine Personen registriert.</div>';
+      grid.innerHTML = `<div class="no-presence-devices">${translations[lang] ? translations[lang].presence_no_people : 'Keine Personen registriert.'}</div>`;
       return;
     }
 
@@ -1487,7 +1816,7 @@ async function initPresence() {
       card.style.cssText = 'display: flex; flex-direction: column; align-items: center; gap: 8px; transition: var(--transition);';
       
       const badgeStyle = p.active ? 'background-color: var(--green);' : 'background-color: var(--text-muted);';
-      const statusText = p.active ? 'Zu Hause' : 'Unterwegs';
+      const statusText = p.active ? getLangText('atHome') : getLangText('away');
       const statusColor = p.active ? 'color: var(--green);' : 'color: var(--text-muted);';
 
       card.innerHTML = `
@@ -1524,7 +1853,7 @@ async function initPresence() {
           ring.classList.add('active');
           badge.classList.add('active');
           badge.style.backgroundColor = 'var(--green)';
-          status.textContent = 'Zu Hause';
+          status.textContent = getLangText('atHome');
           status.style.color = 'var(--green)';
           
           if(wasInactive) {
@@ -1536,7 +1865,7 @@ async function initPresence() {
           ring.classList.remove('active');
           badge.classList.remove('active');
           badge.style.backgroundColor = 'var(--text-muted)';
-          status.textContent = 'Unterwegs';
+          status.textContent = getLangText('away');
           status.style.color = 'var(--text-muted)';
         }
       }
@@ -1590,7 +1919,7 @@ async function initCameraWidget() {
     const interval = Number(intervalSelect.value);
 
     if(!name || !url) {
-      alert('Bitte gib Name und URL für die Kamera ein.');
+      alert(getLangText('enterCamera'));
       return;
     }
 
@@ -1690,7 +2019,8 @@ function renderCameraSettings(cameras) {
   list.innerHTML = '';
 
   if(cameras.length === 0) {
-    list.innerHTML = '<div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 10px;">Keine Kameras registriert.</div>';
+    const lang = localStorage.getItem('dashboard_lang') || 'de';
+    list.innerHTML = `<div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 10px;">${translations[lang] ? translations[lang].camera_no_cameras : 'Keine Kameras registriert.'}</div>`;
     return;
   }
 
@@ -1716,12 +2046,12 @@ function renderCameraSettings(cameras) {
 }
 
 window.removeCamera = async function(id) {
-  if(!confirm('Möchtest du diese Kamera wirklich löschen?')) return;
+  if(!confirm(getLangText('deleteCameraConfirm'))) return;
   try {
     const res = await fetch('/api/cameras/' + id, { method: 'DELETE' });
     const data = await res.json();
     if(!data.success) {
-      alert('Fehler beim Löschen: ' + (data.error || 'Unbekannter Fehler'));
+      alert(getLangText('deleteCameraError') + ' ' + (data.error || 'Error'));
     }
   } catch(err) {
     console.error('Löschen der Kamera fehlgeschlagen:', err);
@@ -1740,7 +2070,8 @@ function renderCameraWidget(cameras) {
   grid.innerHTML = '';
 
   if(cameras.length === 0) {
-    grid.innerHTML = '<div class="no-cameras">Keine Kameras eingerichtet.</div>';
+    const lang = localStorage.getItem('dashboard_lang') || 'de';
+    grid.innerHTML = `<div class="no-cameras">${translations[lang] ? translations[lang].camera_no_cameras : 'Keine Kameras eingerichtet.'}</div>`;
     return;
   }
 

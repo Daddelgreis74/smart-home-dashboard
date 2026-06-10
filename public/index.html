@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="styles.css?v=fritzbox-radio-20260529-3">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+  <script src="translations.js"></script>
 </head>
 <body>
   <div class="bg-orbs">
@@ -24,8 +25,8 @@
       <div class="logo">
         <div class="header-time" id="headerTime">--:--</div>
         <div class="deck-title">
-          <span>Neo Deck</span>
-          <small>Smart Home Command Center</small>
+          <span data-i18n="deck_title">Neo Deck</span>
+          <small data-i18n="deck_subtitle">Smart Home Command Center</small>
         </div>
       </div>
       <div class="header-alert" id="headerWasteAlert" style="display: none;"></div>
@@ -39,8 +40,8 @@
       <div class="settings-panel">
         <div class="settings-header">
           <div>
-            <h2><i class="fas fa-sliders-h"></i> Einstellungen</h2>
-            <p>Dashboard, Geräte, Radio und Datenquellen</p>
+            <h2><i class="fas fa-sliders-h"></i> <span data-i18n="settings_title">Einstellungen</span></h2>
+            <p data-i18n="settings_subtitle">Dashboard, Geräte, Radio und Datenquellen</p>
           </div>
           <button class="close-btn" id="closeSettings"><i class="fas fa-times"></i></button>
         </div>
@@ -48,9 +49,9 @@
           
           <!-- 0. DASHBOARD DESIGN -->
           <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-palette"></i> Dashboard Design <i class="fas fa-chevron-down acc-icon"></i></h3>
+            <h3 class="accordion-header"><i class="fas fa-palette"></i> <span data-i18n="design_section_title">Dashboard Design</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
             <div class="accordion-body">
-              <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Wähle das visuelle Thema deines Dashboards aus.</p>
+              <p data-i18n="design_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Wähle das visuelle Thema deines Dashboards aus.</p>
               <div class="input-group">
                 <select id="themeSelector" class="radio-select" style="max-width: 100%; width: 100%;">
                   <option value="theme-aurora">🌌 Neo-Aurora (Glas & Glow)</option>
@@ -61,25 +62,37 @@
                   <option value="theme-stealth">🌑 OLED Stealth (Nachtmodus)</option>
                 </select>
               </div>
+              <div class="input-group" style="margin-top: 15px;">
+                <label class="setting-sub-label" data-i18n="settings_lang_label">Sprache / Language</label>
+                <select id="langSelector" class="radio-select" style="max-width: 100%; width: 100%;">
+                  <option value="de">🇩🇪 Deutsch</option>
+                  <option value="en">🇬🇧 English</option>
+                  <option value="fr">🇫🇷 Français</option>
+                  <option value="es">🇪🇸 Español</option>
+                  <option value="it">🇮🇹 Italiano</option>
+                  <option value="nl">🇳🇱 Nederlands</option>
+                  <option value="pl">🇵🇱 Polski</option>
+                </select>
+              </div>
             </div>
             <div class="section-divider"></div>
           </div>
 
           <!-- 1. DASHBOARD LAYOUT -->
           <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-layer-group"></i> Dashboard Layout <i class="fas fa-chevron-down acc-icon"></i></h3>
+            <h3 class="accordion-header"><i class="fas fa-layer-group"></i> <span data-i18n="layout_section_title">Dashboard Layout</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
             <div class="accordion-body">
-              <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Wähle, welche Widgets auf dem Display angezeigt werden sollen.</p>
+              <p data-i18n="layout_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Wähle, welche Widgets auf dem Display angezeigt werden sollen.</p>
               <div class="toggle-group">
-                <label class="toggle-label"><span>Wetter & Klima</span><input type="checkbox" id="toggle-weather" checked><div class="toggle-switch"></div></label>
-                <label class="toggle-label"><span>Abfallkalender</span><input type="checkbox" id="toggle-waste" checked><div class="toggle-switch"></div></label>
-                <label class="toggle-label"><span>Live Radio</span><input type="checkbox" id="toggle-player" checked><div class="toggle-switch"></div></label>
-                <label class="toggle-label"><span>Temperatur</span><input type="checkbox" id="toggle-sensor" checked><div class="toggle-switch"></div></label>
-                <label class="toggle-label"><span>System Status</span><input type="checkbox" id="toggle-system" checked><div class="toggle-switch"></div></label>
-                <label class="toggle-label"><span>Tasmota Geräte</span><input type="checkbox" id="toggle-tasmota" checked><div class="toggle-switch"></div></label>
-                <label class="toggle-label"><span>Fritz!Box Monitor</span><input type="checkbox" id="toggle-fritzbox" checked><div class="toggle-switch"></div></label>
-                <label class="toggle-label"><span>Anwesenheitserkennung</span><input type="checkbox" id="toggle-presence" checked><div class="toggle-switch"></div></label>
-                <label class="toggle-label"><span>Kamera-Monitor</span><input type="checkbox" id="toggle-camera" checked><div class="toggle-switch"></div></label>
+                <label class="toggle-label"><span data-i18n="toggle_layout_weather">Wetter & Klima</span><input type="checkbox" id="toggle-weather" checked><div class="toggle-switch"></div></label>
+                <label class="toggle-label"><span data-i18n="toggle_layout_waste">Abfallkalender</span><input type="checkbox" id="toggle-waste" checked><div class="toggle-switch"></div></label>
+                <label class="toggle-label"><span data-i18n="toggle_layout_player">Live Radio</span><input type="checkbox" id="toggle-player" checked><div class="toggle-switch"></div></label>
+                <label class="toggle-label"><span data-i18n="toggle_layout_sensor">Temperatur</span><input type="checkbox" id="toggle-sensor" checked><div class="toggle-switch"></div></label>
+                <label class="toggle-label"><span data-i18n="toggle_layout_system">System Status</span><input type="checkbox" id="toggle-system" checked><div class="toggle-switch"></div></label>
+                <label class="toggle-label"><span data-i18n="toggle_layout_tasmota">Tasmota Geräte</span><input type="checkbox" id="toggle-tasmota" checked><div class="toggle-switch"></div></label>
+                <label class="toggle-label"><span data-i18n="toggle_layout_fritzbox">Fritz!Box Monitor</span><input type="checkbox" id="toggle-fritzbox" checked><div class="toggle-switch"></div></label>
+                <label class="toggle-label"><span data-i18n="toggle_layout_presence">Anwesenheitserkennung</span><input type="checkbox" id="toggle-presence" checked><div class="toggle-switch"></div></label>
+                <label class="toggle-label"><span data-i18n="toggle_layout_camera">Kamera-Monitor</span><input type="checkbox" id="toggle-camera" checked><div class="toggle-switch"></div></label>
               </div>
             </div>
             <div class="section-divider"></div>
@@ -87,18 +100,18 @@
 
           <!-- 2. TASMOTA SMART HOME -->
           <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-plug"></i> Smart Home (Tasmota) <i class="fas fa-chevron-down acc-icon"></i></h3>
+            <h3 class="accordion-header"><i class="fas fa-plug"></i> <span data-i18n="tasmota_section_title">Smart Home (Tasmota)</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
             <div class="accordion-body">
               <div class="input-group">
-                <label class="setting-sub-label">Netzwerk automatisch Scannen:</label>
+                <label class="setting-sub-label" data-i18n="tasmota_subnet_label">Netzwerk automatisch Scannen:</label>
                 <div style="display:flex; gap: 8px;">
                   <input type="text" id="tasmotaSubnet" value="192.168.178" placeholder="192.168.178">
                   <button class="btn" id="scanTasmota" title="Netzwerk Scannen"><i class="fas fa-search"></i></button>
                 </div>
-                <label class="setting-sub-label" style="margin-top: 10px;">Manuell Gerät hinzufügen:</label>
+                <label class="setting-sub-label" data-i18n="tasmota_manual_label" style="margin-top: 10px;">Manuell Gerät hinzufügen:</label>
                 <div style="display:flex; gap: 8px;">
-                  <input type="text" id="tasmotaManIp" placeholder="z.b. 192.168.1.10">
-                  <input type="text" id="tasmotaManName" placeholder="Lampenname">
+                  <input type="text" id="tasmotaManIp" data-i18n="tasmota_ip_placeholder" placeholder="z.b. 192.168.1.10">
+                  <input type="text" id="tasmotaManName" data-i18n="tasmota_name_placeholder" placeholder="Lampenname">
                   <button class="btn" id="addTasmota"><i class="fas fa-plus"></i></button>
                 </div>
               </div>
@@ -111,13 +124,13 @@
 
           <!-- 3. TASMOTA AM2301 SENSOR -->
           <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-gauge-high"></i> Temperatur <i class="fas fa-chevron-down acc-icon"></i></h3>
+            <h3 class="accordion-header"><i class="fas fa-gauge-high"></i> <span data-i18n="sensor_section_title">Temperatur</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
             <div class="accordion-body">
               <div class="input-group">
-                <label class="setting-sub-label">AM2301 HTTP-Adresse:</label>
+                <label class="setting-sub-label" data-i18n="sensor_ip_label">AM2301 HTTP-Adresse:</label>
                 <div style="display:flex; gap: 8px;">
                   <input type="text" id="sensorIp" value="192.168.178.40" placeholder="192.168.178.40">
-                  <button class="btn" id="updateSensorIp">Speichern</button>
+                  <button class="btn" id="updateSensorIp" data-i18n="sensor_save">Speichern</button>
                 </div>
               </div>
             </div>
@@ -126,10 +139,10 @@
 
           <!-- 4. ABFALLKALENDER -->
           <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-trash-can"></i> Abfallkalender Sync <i class="fas fa-chevron-down acc-icon"></i></h3>
+            <h3 class="accordion-header"><i class="fas fa-trash-can"></i> <span data-i18n="waste_section_title">Abfallkalender Sync</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
             <div class="accordion-body">
               <div class="input-group">
-                <label class="setting-sub-label">Lade eine aktuelle .ICS Datei deiner Stadt hoch.</label>
+                <label class="setting-sub-label" data-i18n="waste_desc">Lade eine aktuelle .ICS Datei deiner Stadt hoch.</label>
                 <div style="display:flex; gap: 8px;">
                   <input type="file" id="icsFile" accept=".ics">
                   <button class="btn" id="uploadIcs">Upload</button>
@@ -141,24 +154,24 @@
 
           <!-- 5. LOKALES WETTER -->
           <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-cloud-sun"></i> Wetter & Standort <i class="fas fa-chevron-down acc-icon"></i></h3>
+            <h3 class="accordion-header"><i class="fas fa-cloud-sun"></i> <span data-i18n="weather_section_title">Wetter & Standort</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
             <div class="accordion-body">
               <div class="input-group" style="margin-bottom: 12px;">
-                <label class="setting-sub-label">Standort:</label>
+                <label class="setting-sub-label" data-i18n="weather_loc_label">Standort:</label>
                 <div style="display:flex; gap: 8px;">
                   <input type="text" id="weatherLoc" placeholder="z.B. Berlin, Deutschland">
                   <button class="btn" id="updateWeather">Suchen</button>
                 </div>
               </div>
               <div class="input-group" style="margin-bottom: 12px;">
-                <label class="setting-sub-label">Wetter-Provider:</label>
+                <label class="setting-sub-label" data-i18n="weather_provider_label">Wetter-Provider:</label>
                 <select id="weatherProvider" class="radio-select" style="max-width: 100%; width: 100%;">
                   <option value="openmeteo">🌤️ Open-Meteo (Schlüssellos / Global)</option>
                   <option value="weatherapi">🌐 WeatherAPI.com (Genau / API-Key benötigt)</option>
                 </select>
               </div>
               <div class="input-group" id="weatherApiKeyGroup" style="display: none; margin-bottom: 12px;">
-                <label class="setting-sub-label">WeatherAPI API-Key:</label>
+                <label class="setting-sub-label" data-i18n="weather_apikey_label">WeatherAPI API-Key:</label>
                 <input type="password" id="weatherApiKey" placeholder="API-Key von weatherapi.com" style="width: 100%;">
               </div>
             </div>
@@ -170,25 +183,25 @@
 
           <!-- 8. FRITZ!BOX MONITOR -->
           <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-ethernet"></i> Fritz!Box Monitor <i class="fas fa-chevron-down acc-icon"></i></h3>
+            <h3 class="accordion-header"><i class="fas fa-ethernet"></i> <span data-i18n="fritzbox_section_title">Fritz!Box Monitor</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
             <div class="accordion-body">
               <div class="input-group">
-                <label class="setting-sub-label">Fritz!Box IP-Adresse / Hostname:</label>
+                <label class="setting-sub-label" data-i18n="fritzbox_ip_label">Fritz!Box IP-Adresse / Hostname:</label>
                 <input type="text" id="fritzIp" value="192.168.178.1" placeholder="z.B. 192.168.178.1">
                 
-                <label class="setting-sub-label" style="margin-top: 10px;">Benutzername (optional):</label>
+                <label class="setting-sub-label" data-i18n="fritzbox_user_label" style="margin-top: 10px;">Benutzername (optional):</label>
                 <input type="text" id="fritzUser" placeholder="z.B. admin">
                 
-                <label class="setting-sub-label" style="margin-top: 10px;">Passwort:</label>
+                <label class="setting-sub-label" data-i18n="fritzbox_pass_label" style="margin-top: 10px;">Passwort:</label>
                 <input type="password" id="fritzPassword" placeholder="Fritz!Box Passwort">
                 
                 <label class="toggle-label" style="margin-top: 15px;">
-                  <span>Anruf-Monitor (Port 1012)</span>
+                  <span data-i18n="fritzbox_callmonitor_label">Anruf-Monitor (Port 1012)</span>
                   <input type="checkbox" id="toggleFritzCallMonitor" checked>
                   <div class="toggle-switch"></div>
                 </label>
                 
-                <button class="btn" id="saveFritzConfig" style="margin-top: 15px; width: 100%;"><i class="fas fa-save"></i> Fritz!Box Verbinden</button>
+                <button class="btn" id="saveFritzConfig" style="margin-top: 15px; width: 100%;"><i class="fas fa-save"></i> <span data-i18n="fritzbox_connect">Fritz!Box Verbinden</span></button>
               </div>
             </div>
             <div class="section-divider"></div>
@@ -196,27 +209,27 @@
 
           <!-- 9. ANWESENHEITSERKENNUNG -->
           <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-users"></i> Anwesenheitserkennung <i class="fas fa-chevron-down acc-icon"></i></h3>
+            <h3 class="accordion-header"><i class="fas fa-users"></i> <span data-i18n="presence_section_title">Anwesenheitserkennung</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
             <div class="accordion-body">
               <div class="input-group">
-                <label class="setting-sub-label">Person hinzufügen:</label>
+                <label class="setting-sub-label" data-i18n="presence_add_label">Person hinzufügen:</label>
                 <div style="display:flex; flex-direction: column; gap: 8px;">
-                  <input type="text" id="presenceManName" placeholder="Name">
-                  <input type="text" id="presenceManMac" placeholder="MAC-Adresse (z.B. AA:BB:CC:DD:EE:FF)">
+                  <input type="text" id="presenceManName" data-i18n="presence_name_placeholder" placeholder="Name">
+                  <input type="text" id="presenceManMac" data-i18n="presence_mac_placeholder" placeholder="MAC-Adresse (z.B. AA:BB:CC:DD:EE:FF)">
                   
                   <div style="display: flex; align-items: center; gap: 8px; margin-top: 5px;">
                     <label class="btn" style="flex: 1; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; font-size: 13px;">
-                      <i class="fas fa-image"></i> Profilbild wählen
+                      <i class="fas fa-image"></i> <span data-i18n="presence_avatar_label">Profilbild wählen</span>
                       <input type="file" id="presenceManAvatar" accept="image/*" style="display: none;">
                     </label>
-                    <span id="presenceManAvatarName" style="font-size: 11px; color: var(--text-muted); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Kein Bild gewählt</span>
+                    <span id="presenceManAvatarName" data-i18n="presence_no_avatar" style="font-size: 11px; color: var(--text-muted); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Kein Bild gewählt</span>
                   </div>
                   
-                  <button class="btn" id="addPresenceBtn" style="margin-top: 5px;"><i class="fas fa-plus"></i> Person hinzufügen</button>
+                  <button class="btn" id="addPresenceBtn" style="margin-top: 5px;"><i class="fas fa-plus"></i> <span data-i18n="presence_add_btn">Person hinzufügen</span></button>
                 </div>
               </div>
               
-              <label class="setting-sub-label" style="margin-top: 15px; display: block;">Aktive Personen:</label>
+              <label class="setting-sub-label" data-i18n="presence_active_label" style="margin-top: 15px; display: block;">Aktive Personen:</label>
               <div id="presenceList" class="tasmota-list-settings" style="margin-top: 5px; display: flex; flex-direction: column; gap: 8px;">
                 <!-- Dynamische Personen-Liste -->
               </div>
@@ -226,24 +239,24 @@
 
           <!-- 10. KAMERA-MONITOR -->
           <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-video"></i> Kamera-Monitor <i class="fas fa-chevron-down acc-icon"></i></h3>
+            <h3 class="accordion-header"><i class="fas fa-video"></i> <span data-i18n="camera_section_title">Kamera-Monitor</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
             <div class="accordion-body">
               <div class="input-group">
-                <label class="setting-sub-label">Kamera hinzufügen (Max. 4):</label>
+                <label class="setting-sub-label" data-i18n="camera_add_label">Kamera hinzufügen (Max. 4):</label>
                 <div style="display:flex; flex-direction: column; gap: 8px;">
-                  <input type="text" id="cameraManName" placeholder="Kameraname (z.B. Haustür)">
-                  <input type="text" id="cameraManUrl" placeholder="HTTP-Bild- oder Stream-URL (JPEG/MJPEG)">
+                  <input type="text" id="cameraManName" data-i18n="camera_name_placeholder" placeholder="Kameraname (z.B. Haustür)">
+                  <input type="text" id="cameraManUrl" data-i18n="camera_url_placeholder" placeholder="HTTP-Bild- oder Stream-URL (JPEG/MJPEG)">
                   <select id="cameraManInterval" class="radio-select" style="max-width: 100%; width: 100%;">
-                    <option value="0">🎥 Live-Video / MJPEG-Stream</option>
-                    <option value="1">⏱️ Aktualisierung jede Sekunde</option>
-                    <option value="2">⏱️ Aktualisierung alle 2 Sekunden</option>
-                    <option value="5">⏱️ Aktualisierung alle 5 Sekunden</option>
+                    <option value="0" data-i18n="camera_mode_live">🎥 Live-Video / MJPEG-Stream</option>
+                    <option value="1" data-i18n="camera_mode_1s">⏱️ Aktualisierung jede Sekunde</option>
+                    <option value="2" data-i18n="camera_mode_2s">⏱️ Aktualisierung alle 2 Sekunden</option>
+                    <option value="5" data-i18n="camera_mode_5s">⏱️ Aktualisierung alle 5 Sekunden</option>
                   </select>
-                  <button class="btn" id="addCameraBtn" style="margin-top: 5px;"><i class="fas fa-plus"></i> Kamera hinzufügen</button>
+                  <button class="btn" id="addCameraBtn" style="margin-top: 5px;"><i class="fas fa-plus"></i> <span data-i18n="camera_add_btn">Kamera hinzufügen</span></button>
                 </div>
               </div>
               
-              <label class="setting-sub-label" style="margin-top: 15px; display: block;">Aktive Kameras:</label>
+              <label class="setting-sub-label" data-i18n="camera_active_label" style="margin-top: 15px; display: block;">Aktive Kameras:</label>
               <div id="cameraSettingsList" class="tasmota-list-settings" style="margin-top: 5px; display: flex; flex-direction: column; gap: 8px;">
                 <!-- Dynamische Kameras-Liste -->
               </div>
@@ -251,7 +264,7 @@
               <!-- Kamera-Hilfe & Anleitung -->
               <div class="camera-help-box" style="margin-top: 15px; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px;">
                 <span style="font-size: 11px; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none;" onclick="document.getElementById('cameraHelpText').toggleAttribute('hidden')">
-                  <i class="fas fa-question-circle"></i> Anleitung: Kamera einbinden <i class="fas fa-chevron-down" style="font-size: 9px; margin-left: auto;"></i>
+                  <i class="fas fa-question-circle"></i> <span data-i18n="camera_guide_title">Anleitung: Kamera einbinden</span> <i class="fas fa-chevron-down" style="font-size: 9px; margin-left: auto;"></i>
                 </span>
                 <div id="cameraHelpText" style="margin-top: 8px; font-size: 10px; color: var(--text-muted); line-height: 1.4; display: flex; flex-direction: column; gap: 6px;" hidden>
                   <p><strong>Unterstützte Formate:</strong> Dieser Monitor benötigt eine Web-Adresse (beginnend mit <code>http://</code> oder <code>https://</code>), die einen <strong>MJPEG-Videostream</strong> oder <strong>JPEG-Schnappschüsse</strong> liefert.</p>
@@ -300,7 +313,7 @@
 
       <div class="widget" data-type="waste">
         <div class="widget-header">
-          <h3>Abfallkalender</h3>
+          <h3 data-i18n="widget_title_waste">Abfallkalender</h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body" id="wasteBody"></div>
@@ -308,7 +321,7 @@
 
       <div class="widget" data-type="player">
         <div class="widget-header">
-          <h3><i class="fas fa-radio" style="color:var(--primary)"></i> Live Radio</h3>
+          <h3><i class="fas fa-radio" style="color:var(--primary)"></i> <span data-i18n="widget_title_radio">Live Radio</span></h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body player-layout" style="padding: 12px; display: flex; flex-direction: column; align-items: stretch; justify-content: space-between; height: calc(100% - 35px);">
@@ -336,7 +349,7 @@
             <!-- Metadata & Station name -->
             <div style="text-align: center; width: 100%; margin-top: 12px; z-index: 2;">
               <h4 id="widgetRadioStation" style="font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; margin: 0; padding: 0 5px; color: var(--text-main); letter-spacing: 0.5px;">FRITZ!Box Radio</h4>
-              <small id="widgetRadioStatus" style="font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-blue); display: block; margin-top: 4px; font-weight: 700;">Sender wählen</small>
+              <small id="widgetRadioStatus" data-i18n="radio_status_choose" style="font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-blue); display: block; margin-top: 4px; font-weight: 700;">Sender wählen</small>
             </div>
           </div>
 
@@ -345,7 +358,7 @@
             <!-- Stationsauswahl-Button -->
             <button id="chooseStationBtn" class="btn" aria-label="FRITZ!Box Radio öffnen">
               <i class="fas fa-list-ul" style="font-size: 11px; color: var(--accent-blue);"></i>
-              <span>Sender</span>
+              <span data-i18n="radio_btn_choose">Sender</span>
             </button>
 
             <!-- Play/Pause Toggle -->
@@ -369,24 +382,24 @@
       
       <div class="widget" data-type="system">
         <div class="widget-header">
-          <h3>System Status</h3>
+          <h3 data-i18n="widget_title_system">System Status</h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body system-layout" id="systemBody">
           <div class="bar-row">
-            <div class="bar-info"><span class="bar-label"><i class="fas fa-microchip"></i> CPU</span><span class="bar-val" id="val-cpu">0 %</span></div>
+            <div class="bar-info"><span class="bar-label"><i class="fas fa-microchip"></i> <span data-i18n="system_cpu">CPU</span></span><span class="bar-val" id="val-cpu">0 %</span></div>
             <div class="segments" id="seg-cpu"></div>
           </div>
           <div class="bar-row">
-            <div class="bar-info"><span class="bar-label"><i class="fas fa-memory"></i> RAM</span><span class="bar-val" id="val-ram">0 %</span></div>
+            <div class="bar-info"><span class="bar-label"><i class="fas fa-memory"></i> <span data-i18n="system_ram">RAM</span></span><span class="bar-val" id="val-ram">0 %</span></div>
             <div class="segments" id="seg-ram"></div>
           </div>
           <div class="bar-row">
-            <div class="bar-info"><span class="bar-label"><i class="fas fa-temperature-empty"></i> Temp</span><span class="bar-val" id="val-temp">0 °C</span></div>
+            <div class="bar-info"><span class="bar-label"><i class="fas fa-temperature-empty"></i> <span data-i18n="system_temp">Temp</span></span><span class="bar-val" id="val-temp">0 °C</span></div>
             <div class="segments" id="seg-temp"></div>
           </div>
           <div class="bar-row">
-            <div class="bar-info"><span class="bar-label"><i class="fas fa-network-wired"></i> Net</span><span class="bar-val" id="val-net">0 MB/s</span></div>
+            <div class="bar-info"><span class="bar-label"><i class="fas fa-network-wired"></i> <span data-i18n="system_net">Net</span></span><span class="bar-val" id="val-net">0 MB/s</span></div>
             <div class="segments" id="seg-net"></div>
           </div>
         </div>
@@ -394,7 +407,7 @@
 
       <div class="widget" data-type="sensor">
         <div class="widget-header">
-          <h3><i class="fas fa-temperature-half" style="color:var(--primary)"></i> Temperatur</h3>
+          <h3><i class="fas fa-temperature-half" style="color:var(--primary)"></i> <span data-i18n="widget_title_temp">Temperatur</span></h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body sensor-layout" id="sensorBody">
@@ -403,7 +416,7 @@
               <div class="gauge-core">
                 <i class="fas fa-temperature-half"></i>
                 <strong id="sensorTemp">--°</strong>
-                <small>Temperatur</small>
+                <small data-i18n="sensor_unit">Temperatur</small>
               </div>
             </div>
           </div>
@@ -412,7 +425,7 @@
 
       <div class="widget" data-type="tasmota">
         <div class="widget-header">
-          <h3><i class="fas fa-plug" style="color:var(--primary)"></i> Smart Home Geräte</h3>
+          <h3><i class="fas fa-plug" style="color:var(--primary)"></i> <span data-i18n="widget_title_tasmota">Smart Home Geräte</span></h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body tasmota-layout" id="tasmotaBody">
@@ -422,7 +435,7 @@
 
       <div class="widget" data-type="fritzbox">
         <div class="widget-header">
-          <h3><i class="fas fa-ethernet" style="color:var(--primary)"></i> Fritz!Box Monitor</h3>
+          <h3><i class="fas fa-ethernet" style="color:var(--primary)"></i> <span data-i18n="widget_title_fritzbox">Fritz!Box Monitor</span></h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body fritzbox-layout">
@@ -430,41 +443,41 @@
           <div class="fritz-network-status">
             <div class="net-indicator">
               <span class="led-dot red" id="ledFritz"></span>
-              <span>Fritz!Box: <strong id="valFritzStatus">Offline</strong></span>
+              <span><span data-i18n="fritzbox_fritz_label">Fritz!Box:</span> <strong id="valFritzStatus">Offline</strong></span>
             </div>
             <div class="net-indicator">
               <span class="led-dot red" id="ledInternet"></span>
-              <span>Internet: <strong id="valInternetStatus">Offline</strong></span>
+              <span><span data-i18n="fritzbox_internet_label">Internet:</span> <strong id="valInternetStatus">Offline</strong></span>
             </div>
           </div>
           <!-- Recent Call List -->
-          <div class="fritz-call-title"><i class="fas fa-phone-volume"></i> Letzte Anrufe</div>
+          <div class="fritz-call-title"><i class="fas fa-phone-volume"></i> <span data-i18n="fritzbox_recent_calls">Letzte Anrufe</span></div>
           <div class="fritz-call-list" id="fritzCallList">
-            <div class="no-calls">Keine Anrufe protokolliert.</div>
+            <div class="no-calls" data-i18n="fritzbox_no_calls">Keine Anrufe protokolliert.</div>
           </div>
         </div>
       </div>
 
       <div class="widget" data-type="presence">
         <div class="widget-header">
-          <h3><i class="fas fa-users" style="color:var(--primary)"></i> Anwesenheit</h3>
+          <h3><i class="fas fa-users" style="color:var(--primary)"></i> <span data-i18n="widget_title_presence">Anwesenheit</span></h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body presence-layout">
           <div class="presence-avatars-grid" id="presenceAvatarsGrid">
-            <div class="no-presence-devices">Keine Personen registriert.</div>
+            <div class="no-presence-devices" data-i18n="presence_no_people">Keine Personen registriert.</div>
           </div>
         </div>
       </div>
 
       <div class="widget" data-type="camera">
         <div class="widget-header">
-          <h3><i class="fas fa-video" style="color:var(--primary)"></i> Kamera-Monitor</h3>
+          <h3><i class="fas fa-video" style="color:var(--primary)"></i> <span data-i18n="widget_title_camera">Kamera-Monitor</span></h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body camera-layout">
           <div class="camera-grid" id="cameraGrid">
-            <div class="no-cameras">Keine Kameras eingerichtet.</div>
+            <div class="no-cameras" data-i18n="camera_no_cameras">Keine Kameras eingerichtet.</div>
           </div>
         </div>
       </div>
@@ -476,9 +489,9 @@
     <div class="fritz-toast-card">
       <div class="fritz-toast-pulse"><i class="fas fa-phone-volume"></i></div>
       <div class="fritz-toast-info">
-        <span class="fritz-toast-status">EINGEHENDER ANRUF...</span>
+        <span class="fritz-toast-status" data-i18n="toast_incoming_call">EINGEHENDER ANRUF...</span>
         <h2 class="fritz-toast-number" id="fritzToastNumber">--</h2>
-        <span class="fritz-toast-caller" id="fritzToastCaller">Unbekannter Anrufer</span>
+        <span class="fritz-toast-caller" id="fritzToastCaller" data-i18n="toast_unknown_caller">Unbekannter Anrufer</span>
       </div>
     </div>
   </div>
@@ -497,10 +510,10 @@
     <button class="close-fullscreen-btn" id="closeFritzRadio" aria-label="Auswahl schließen"><i class="fas fa-times"></i></button>
     <div class="fullscreen-content" style="max-width: 900px; width: 92%;">
       <div class="overlay-header" style="text-align: center; margin-bottom: 25px;">
-        <h2 style="font-size: 1.8rem; font-weight: 600; margin-bottom: 5px;"><i class="fas fa-broadcast-tower" style="color:var(--primary)"></i> FRITZ!Box Mediaserver</h2>
-        <p style="font-size: 0.9rem; color: var(--text-muted);">Wähle einen deiner in der FRITZ!Box eingerichteten Radiosender aus.</p>
+        <h2 style="font-size: 1.8rem; font-weight: 600; margin-bottom: 5px;"><i class="fas fa-broadcast-tower" style="color:var(--primary)"></i> <span data-i18n="popup_radio_title">FRITZ!Box Mediaserver</span></h2>
+        <p style="font-size: 0.9rem; color: var(--text-muted);" data-i18n="popup_radio_subtitle">Wähle einen deiner in der FRITZ!Box eingerichteten Radiosender aus.</p>
       </div>
-      <div id="overlayStationsCount" class="badge" style="display: block; margin: 0 auto 20px; width: fit-content; font-size: 11px; padding: 4px 10px; border-radius: 12px; background: rgba(74,222,128,0.15); color: var(--primary); border: 1px solid rgba(74,222,128,0.3); font-weight: 600;">Laden...</div>
+      <div id="overlayStationsCount" class="badge" data-i18n="popup_radio_loading" style="display: block; margin: 0 auto 20px; width: fit-content; font-size: 11px; padding: 4px 10px; border-radius: 12px; background: rgba(74,222,128,0.15); color: var(--primary); border: 1px solid rgba(74,222,128,0.3); font-weight: 600;">Laden...</div>
       <div class="overlay-stations-grid" id="overlayStationsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; width: 100%; max-height: 65vh; overflow-y: auto; padding: 5px;">
         <!-- Dynamische Kacheln -->
       </div>
@@ -508,9 +521,8 @@
       <div class="info-card" id="overlayInfoCard" style="display: none; background: rgba(239,68,68,0.06); border: 1px dashed rgba(239,68,68,0.25); border-radius: 12px; padding: 15px; margin-top: 20px; gap: 12px; align-items: flex-start;">
         <i class="fas fa-info-circle" style="font-size: 1.2rem; color: #ef4444; margin-top: 2px;"></i>
         <div class="info-text" style="font-size: 0.8rem; line-height: 1.4; color: var(--text-muted);">
-          <strong style="color: var(--text-main);">Keine Sender im Mediaserver gefunden!</strong><br>
-          Bitte stelle sicher, dass unter <code>http://fritz.box</code> (Heimnetz ➡️ Mediaserver ➡️ Internetradio) deine Sender eingerichtet sind.<br>
-          <em>(Es wurden temporär Demo-Sender geladen, damit du das Radio testen kannst!)</em>
+          <strong style="color: var(--text-main);" data-i18n="popup_radio_no_stations">Keine Sender im Mediaserver gefunden!</strong><br>
+          <span data-i18n="popup_radio_no_stations_desc">Bitte stelle sicher, dass unter fritz.box deine Sender eingerichtet sind. (Es wurden Demosender geladen!)</span>
         </div>
       </div>
 
