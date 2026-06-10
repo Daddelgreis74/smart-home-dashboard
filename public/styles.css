@@ -3420,5 +3420,43 @@ body.theme-retrowave .fritz-radio-main-btn.playing .radio-tower-icon-wrapper {
   box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
 }
 
+/* Dropdown Option contrast fixes */
+.radio-select option,
+select option {
+  background-color: #0b101f;
+  color: #f8fbff;
+}
+
+body.theme-cyberpunk select option,
+body.theme-cyberpunk .radio-select option {
+  background-color: #100d14;
+  color: #ffd1a4;
+}
+
+body.theme-nordic select option,
+body.theme-nordic .radio-select option {
+  background-color: #242933;
+  color: #eceff4;
+}
+
+body.theme-retrowave select option,
+body.theme-retrowave .radio-select option {
+  background-color: #140418;
+  color: #ffedf6;
+}
+
+body.theme-terminal select option,
+body.theme-terminal .radio-select option {
+  background-color: #051208;
+  color: #33ff33;
+}
+
+body.theme-stealth select option,
+body.theme-stealth .radio-select option {
+  background-color: #000000;
+  color: #f3f4f6;
+}
+
+
 
 
