@@ -10,7 +10,7 @@ const { execFile } = require('child_process');
 const crypto = require('crypto');
 
 const app = express();
-const PORT = Number(process.env.PORT || 8443);
+const PORT = Number(process.env.PORT || 30436);
 const HOST = process.env.HOST || '0.0.0.0';
 
 const DATA_DIR = process.env.DATA_DIR || __dirname;
