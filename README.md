@@ -216,7 +216,7 @@ chmod -R 770 /mnt/your-pool/your-dataset/smart-home-dashboard
 ```yaml
 services:
   smart-home-dashboard:
-    image: ghcr.io/daddelgreis74/smart-home-dashboard:3.9.4
+    image: ghcr.io/daddelgreis74/smart-home-dashboard:3.9.5
     restart: unless-stopped
     user: "568:568"
     ports:
