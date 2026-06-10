@@ -2166,6 +2166,107 @@ body.theme-retrowave .tasmota-btn.active {
 }
 body.theme-retrowave .tasmota-btn.active i { color: #ff3399; }
 
+/* --- 5. TERMINAL CLASSIC (THEME 5) --- */
+body.theme-terminal {
+  --bg-color: #030a05;
+  --panel-bg: rgba(5, 18, 8, 0.85);
+  --panel-border: rgba(0, 255, 68, 0.25);
+  --text-main: #33ff33;
+  --text-muted: rgba(51, 255, 51, 0.5);
+  --primary: #00ff44;
+  --primary-glow: rgba(0, 255, 68, 0.3);
+  --accent-blue: #00ff88;
+  --accent-violet: #adff2f;
+  --radius-lg: 4px;
+  --radius-md: 2px;
+  --radius-sm: 0px;
+  --blur: none;
+  font-family: 'Courier New', Courier, monospace !important;
+}
+body.theme-terminal {
+  background: 
+    linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+    linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)),
+    #050e05 !important;
+  background-size: 100% 4px, 6px 100%;
+}
+body.theme-terminal::before {
+  content: " ";
+  display: block;
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  z-index: 9999;
+  background-size: 100% 3px, 3px 100%;
+  pointer-events: none;
+}
+body.theme-terminal .bg-orbs { display: none !important; }
+body.theme-terminal .widget {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 0 15px rgba(0, 255, 68, 0.1);
+}
+body.theme-terminal .play-round-btn, body.theme-terminal .floating-voice-btn {
+  background: #00ff44 !important;
+  color: #000 !important;
+  box-shadow: 0 0 15px rgba(0, 255, 68, 0.4) !important;
+}
+body.theme-terminal .preset-btn.assigned {
+  background: #00ff88 !important;
+  color: #000 !important;
+  box-shadow: 0 0 12px rgba(0, 255, 136, 0.3) !important;
+}
+body.theme-terminal .tasmota-btn.active {
+  background: rgba(0, 255, 68, 0.15) !important;
+  border-color: #00ff44 !important;
+}
+body.theme-terminal .tasmota-btn.active i { color: #00ff44 !important; }
+
+/* --- 7. OLED STEALTH (THEME 7) --- */
+body.theme-stealth {
+  --bg-color: #000000;
+  --panel-bg: #000000;
+  --panel-border: rgba(255, 255, 255, 0.1);
+  --text-main: #f3f4f6;
+  --text-muted: #6b7280;
+  --primary: #9ca3af;
+  --primary-glow: rgba(255, 255, 255, 0.05);
+  --accent-blue: #4b5563;
+  --accent-violet: #374151;
+  --radius-lg: 14px;
+  --radius-md: 8px;
+  --radius-sm: 4px;
+  --blur: none;
+}
+body.theme-stealth {
+  background: #000000 !important;
+}
+body.theme-stealth::before { display: none !important; }
+body.theme-stealth .bg-orbs { display: none !important; }
+body.theme-stealth .widget {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  box-shadow: none !important;
+}
+body.theme-stealth .widget::before, body.theme-stealth .widget::after { display: none !important; }
+body.theme-stealth .play-round-btn, body.theme-stealth .floating-voice-btn {
+  background: #374151 !important;
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  box-shadow: none !important;
+}
+body.theme-stealth .preset-btn.assigned {
+  background: #4b5563 !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+body.theme-stealth .tasmota-btn.active {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+body.theme-stealth .tasmota-btn.active i { color: #fff !important; }
+
+
 /* ==========================================================================
    FRITZ!BOX MONITOR WIDGET & CALL-TOAST STYLING
    ========================================================================== */
