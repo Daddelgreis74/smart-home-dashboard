@@ -69,7 +69,6 @@ Beim Schlafen/Aufwecken des Tablets wird ein aktiver Stream hart gestoppt und da
 
 Nicht committen:
 
-- `ssl/`
 - `radio.json`
 - `tasmota.json`
 - `uploads/`
