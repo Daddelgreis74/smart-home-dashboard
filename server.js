@@ -172,41 +172,68 @@ app.get('/api/proxy-stream', (req, res) => {
     return res.status(400).send('Invalid url protocol');
   }
 
-  console.log(`[Proxy] Routing HTTP stream through secure HTTPS proxy: ${streamUrl}`);
+  try {
+    const parsedUrl = new URL(streamUrl);
+    const hostname = parsedUrl.hostname;
 
-  const clientModule = streamUrl.startsWith('https') ? require('https') : require('http');
-
-  const proxyReq = clientModule.get(streamUrl, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    if (hostname === 'localhost' || hostname === 'localhost.localdomain' || hostname === '[::1]') {
+      return res.status(403).send('Access to local network is restricted');
     }
-  }, (proxyRes) => {
-    res.writeHead(proxyRes.statusCode, {
-      'Content-Type': proxyRes.headers['content-type'] || 'audio/mpeg',
-      'Transfer-Encoding': 'chunked',
-      'Connection': 'keep-alive',
-      'Cache-Control': 'no-cache',
-      'Pragma': 'no-cache',
-      'Expires': '0'
+
+    const dns = require('dns');
+    dns.lookup(hostname, (err, address) => {
+      if (err) {
+        return res.status(400).send('DNS Resolution failed');
+      }
+
+      if (address === '127.0.0.1' || address === '::1' || address.startsWith('127.') || isPrivateIPv4(address)) {
+        console.warn(`[Proxy Blocked] Attempted SSRF to local IP: ${address} (${streamUrl})`);
+        return res.status(403).send('Access to private/local IP addresses is restricted');
+      }
+
+      console.log(`[Proxy] Routing HTTP stream through secure HTTPS proxy: ${streamUrl}`);
+
+      const clientModule = streamUrl.startsWith('https') ? require('https') : require('http');
+
+      const proxyReq = clientModule.get(streamUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+      }, (proxyRes) => {
+        res.writeHead(proxyRes.statusCode, {
+          'Content-Type': proxyRes.headers['content-type'] || 'audio/mpeg',
+          'Transfer-Encoding': 'chunked',
+          'Connection': 'keep-alive',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        });
+
+        proxyRes.pipe(res);
+      });
+
+      proxyReq.on('error', (err) => {
+        console.error(`[Proxy Error] Failed to stream audio from ${streamUrl}:`, err.message);
+        if (!res.headersSent) {
+          res.status(500).send('Failed to stream audio');
+        }
+      });
+
+      req.on('close', () => {
+        proxyReq.destroy();
+      });
     });
-
-    proxyRes.pipe(res);
-  });
-
-  proxyReq.on('error', (err) => {
-    console.error(`[Proxy Error] Failed to stream audio from ${streamUrl}:`, err.message);
-    if (!res.headersSent) {
-      res.status(500).send('Failed to stream audio');
-    }
-  });
-
-  req.on('close', () => {
-    proxyReq.destroy();
-  });
+  } catch (e) {
+    return res.status(400).send('Invalid URL format');
+  }
 });
 
-app.post('/api/upload-ics', upload.single('icsFile'), (req, res) => {
-  res.json({ success: true });
+app.post('/api/upload-ics', (req, res, next) => {
+  upload.single('icsFile')(req, res, (err) => {
+    if (err) return res.status(400).json({ success: false, error: err.message });
+    if (!req.file) return res.status(400).json({ success: false, error: 'Keine Datei.' });
+    res.json({ success: true });
+  });
 });
 app.get('/api/ics-data', (req, res) => {
   const icsPath = path.join(UPLOAD_DIR, 'calendar.ics');
@@ -302,21 +329,18 @@ app.post('/api/tasmota/scan', async (req, res) => {
   console.log("Start Tasmota Scan in Subnet: " + baseIp + ".x");
 
   async function scanChunk(ips) {
-    const promises = ips.map(ip => {
-      return new Promise(async (resolve) => {
-        try {
-          const controller = new AbortController();
-          const timeout = setTimeout(() => controller.abort(), 2500); 
-          const r = await fetch(`http://${ip}/cm?cmnd=Status`, { signal: controller.signal });
-          clearTimeout(timeout);
-          const data = await r.json();
-          if (data && data.Status && data.Status.FriendlyName) {
-            console.log("GEFUNDEN: " + ip);
-            found.push({ip: ip, name: data.Status.FriendlyName[0] || `Tasmota (${ip})`});
-          }
-        } catch (err) {}
-        resolve();
-      });
+    const promises = ips.map(async (ip) => {
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 2500); 
+        const r = await fetch(`http://${ip}/cm?cmnd=Status`, { signal: controller.signal });
+        clearTimeout(timeout);
+        const data = await r.json();
+        if (data && data.Status && data.Status.FriendlyName) {
+          console.log("GEFUNDEN: " + ip);
+          found.push({ip: ip, name: data.Status.FriendlyName[0] || `Tasmota (${ip})`});
+        }
+      } catch (err) {}
     });
     await Promise.all(promises);
   }
@@ -431,7 +455,7 @@ function pingTcp(host, port, timeout = 1200) {
     };
 
     socket.connect(port, host, () => done(true));
-    socket.on('error', () => done(true));
+    socket.on('error', () => done(false));
     socket.on('timeout', () => done(false));
   });
 }
@@ -909,7 +933,7 @@ app.delete('/api/presence/:id', (req, res) => {
     if (index >= 0) {
       const person = presenceRAM[index];
       if (person.image && person.image.startsWith('/uploads/avatar_')) {
-        const filePath = path.join(__dirname, person.image);
+        const filePath = path.join(UPLOAD_DIR, path.basename(person.image));
         if (fs.existsSync(filePath)) {
           try { fs.unlinkSync(filePath); } catch (err) {}
         }
@@ -982,7 +1006,6 @@ app.post('/api/cameras', (req, res) => {
     const cleanI = Math.max(0, Number(interval || 0));
 
     const index = camerasRAM.findIndex(c => c.id === cleanId);
-    const existing = index >= 0 ? camerasRAM[index] : null;
 
     const camera = {
       id: cleanId,
