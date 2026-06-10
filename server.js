@@ -37,7 +37,6 @@ if (useSSL) {
 } else {
   const http = require('http');
   server = http.createServer(app);
-  console.log('Keine SSL-Zertifikate in ssl/ gefunden. Starte Standard-HTTP-Server.');
 }
 
 const io = new Server(server);
