@@ -30,6 +30,7 @@ Das Dashboard unterstützt vier komplett unterschiedliche, umschaltbare Design-S
 - **Live Radio:** Preset-Tasten im Dashboard, Senderverwaltung in den Präferenzen, HLS/MP3/AAC-Unterstützung und Schutz gegen ungewollten Autostart beim Tablet-Wakeup.
 - **System Status:** Live CPU/RAM/Temperatur/Netzwerk per Socket.IO.
 - **Fritz!Box Monitor:** Live Netzwerk- & Internet-Status (LEDs/Latenz in ms) sowie ein Echtzeit-Anruf-Monitor (Port 1012) mit bildschirmfüllendem Live-Anrufer-Overlay (Toast) und historischer Anrufliste.
+- **Mehrsprachigkeit (i18n):** Vollständige Benutzeroberflächen-Übersetzungen für 🇩🇪 Deutsch, 🇬🇧 Englisch, 🇫🇷 Französisch, 🇪🇸 Spanisch, 🇮🇹 Italienisch, 🇳🇱 Niederländisch und 🇵🇱 Polnisch, direkt in den Einstellungen umschaltbar.
 - **Touch-ready:** Drag & Drop via Sortable.js mit Fully-Kiosk-kompatibler Verzögerung.
 
 ## 🧭 Bedienung
@@ -37,7 +38,7 @@ Das Dashboard unterstützt vier komplett unterschiedliche, umschaltbare Design-S
 ### Präferenzen
 Über das Menü oben rechts lassen sich konfigurieren:
 
-- Multi-Theme
+- Design-Thema & Sprache
 - sichtbare Widgets
 - Tasmota-Geräte und Subnetz-Scan
 - AM2301/Tasmota-Klima-Sensor-IP

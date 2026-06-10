@@ -30,6 +30,7 @@ The dashboard supports four completely different, switchable design styles:
 - **Live Radio:** Preset buttons in the dashboard, station management in preferences, HLS/MP3/AAC support, and protection against accidental autostart on tablet wakeup.
 - **System Status:** Live CPU, RAM, temperature, and network stats via Socket.IO.
 - **Fritz!Box Monitor:** Live network & internet status (LEDs/latency in ms) and a real-time call monitor (port 1012) with full-screen live caller overlay (Toast) and call history.
+- **Multi-Language Support (i18n):** Complete client-side UI translations for 🇩🇪 German, 🇬🇧 English, 🇫🇷 French, 🇪🇸 Spanish, 🇮🇹 Italian, 🇳🇱 Dutch, and 🇵🇱 Polish, switchable directly in settings.
 - **Touch-ready:** Drag & drop sorting via Sortable.js with Fully Kiosk compatible delay.
 
 ## 🧭 Operation
@@ -37,7 +38,7 @@ The dashboard supports four completely different, switchable design styles:
 ### Preferences
 Through the menu in the upper right, you can configure:
 
-- Active Theme
+- Active Theme & Language
 - Visible Widgets
 - Tasmota Devices and Subnet Scan
 - AM2301/Tasmota Climate Sensor IP
