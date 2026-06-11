@@ -253,6 +253,8 @@ body {
   stroke-dasharray: 251.3;
   stroke-dashoffset: 251.3;
   transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: stroke-dashoffset;
+  transform: translateZ(0);
 }
 .gauge-cpu {
   stroke: #4ade80;
