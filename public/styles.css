@@ -217,10 +217,10 @@ body {
 /* System Status */
 /* System Status - Circular */
 .system-layout-circular {
-  padding-top: 8px;
+  padding-top: 10px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px 10px;
+  gap: 16px 12px;
   justify-content: center;
   align-items: center;
   height: 100%;
@@ -233,8 +233,8 @@ body {
 }
 .gauge-ring {
   position: relative;
-  width: 86px;
-  height: 86px;
+  width: 100px;
+  height: 100px;
 }
 .gauge-ring svg {
   width: 100%;
@@ -283,19 +283,19 @@ body {
   gap: 2px;
 }
 .gauge-icon {
-  font-size: 13px;
+  font-size: 15px;
   color: rgba(255, 255, 255, 0.4);
 }
 .gauge-value-text {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text-main);
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 .gauge-label {
-  margin-top: 6px;
-  font-size: 11px;
+  margin-top: 8px;
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -303,11 +303,11 @@ body {
 }
 
 @media (max-height: 760px) {
-  .system-layout-circular { gap: 10px 8px; padding-top: 4px; }
-  .gauge-ring { width: 72px; height: 72px; }
-  .gauge-icon { font-size: 11px; }
-  .gauge-value-text { font-size: 11px; }
-  .gauge-label { font-size: 10px; margin-top: 4px; }
+  .system-layout-circular { gap: 12px 10px; padding-top: 4px; }
+  .gauge-ring { width: 84px; height: 84px; }
+  .gauge-icon { font-size: 13px; }
+  .gauge-value-text { font-size: 13px; }
+  .gauge-label { font-size: 11px; margin-top: 6px; }
 }
 
 .val-green { color: #4ade80; }
