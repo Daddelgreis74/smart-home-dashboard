@@ -1243,27 +1243,22 @@ function initSensorWidget() {
 }
 
 function initSystemBargraph() {
-  function createSegments(id) {
-    const c = document.getElementById(id); if(!c) return; c.innerHTML = '';
-    for(let i=0; i<20; i++) {
-      const s = document.createElement('div'); s.className = 'segment';
-      if(i<12) s.classList.add('c-green'); else if(i<17) s.classList.add('c-yellow'); else s.classList.add('c-red');
-      c.appendChild(s);
-    }
-  }
-  ['seg-cpu','seg-ram','seg-temp','seg-net'].forEach(createSegments);
-
   function updateBar(id, val, max, unit, dec=0) {
     const el = document.getElementById('val-'+id); if(!el) return;
     el.textContent = (dec?val.toFixed(dec):Math.round(val)) + ' ' + unit;
-    const c = document.getElementById('seg-'+id); if(!c) return;
+    
+    const circle = document.getElementById('circle-'+id); if(!circle) return;
     const pct = Math.max(0, Math.min(val/max, 1));
-    const active = Math.round(pct * 20);
-    for(let i=0; i<20; i++) i < active ? c.children[i].classList.add('active') : c.children[i].classList.remove('active');
+    const circumference = 251.327; // 2 * Math.PI * 40
+    const offset = circumference * (1 - pct);
+    circle.style.strokeDashoffset = offset;
   }
 
   socket.on('sys-status', d => {
-    updateBar('cpu', d.cpu, 100, '%'); updateBar('ram', d.ram, 100, '%'); updateBar('temp', d.temp, 90, '°C'); updateBar('net', d.net, 15, 'MB/s', 2);
+    updateBar('cpu', d.cpu, 100, '%');
+    updateBar('ram', d.ram, 100, '%');
+    updateBar('temp', d.temp, 90, '°C');
+    updateBar('net', d.net, 15, 'MB/s', 2);
   });
 }
 
