@@ -1243,6 +1243,15 @@ function initSensorWidget() {
 }
 
 function initSystemBargraph() {
+  function formatBitrate(bytesPerSec) {
+    if (!bytesPerSec || bytesPerSec < 0) return '0.0 Mbit/s';
+    const bitsPerSec = bytesPerSec * 8;
+    if (bitsPerSec < 1000000) {
+      return (bitsPerSec / 1000).toFixed(0) + ' Kbit/s';
+    }
+    return (bitsPerSec / 1000000).toFixed(1) + ' Mbit/s';
+  }
+
   function updateBar(id, val, max, unit, dec=0) {
     const el = document.getElementById('val-'+id); if(!el) return;
     el.textContent = (dec?val.toFixed(dec):Math.round(val)) + ' ' + unit;
@@ -1259,6 +1268,15 @@ function initSystemBargraph() {
     updateBar('ram', d.ram, 100, '%');
     updateBar('temp', d.temp, 90, '°C');
     updateBar('net', d.net, 15, 'MB/s', 2);
+
+    const elDown = document.getElementById('valFritzDown');
+    if (elDown && d.netDown !== undefined) {
+      elDown.textContent = formatBitrate(d.netDown);
+    }
+    const elUp = document.getElementById('valFritzUp');
+    if (elUp && d.netUp !== undefined) {
+      elUp.textContent = formatBitrate(d.netUp);
+    }
   });
 }
 

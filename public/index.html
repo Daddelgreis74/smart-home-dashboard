@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=3.9.6-circular-gauges-v3">
+  <link rel="stylesheet" href="styles.css?v=3.9.6-circular-gauges-v4">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
   <script src="translations.js"></script>
@@ -493,6 +493,11 @@
               <span><span data-i18n="fritzbox_internet_label">Internet:</span> <strong id="valInternetStatus">Offline</strong></span>
             </div>
           </div>
+          <!-- Traffic rates -->
+          <div class="fritz-traffic-rates" style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 12px; padding: 4px 0px; border-bottom: 1px dashed rgba(255,255,255,0.05);">
+            <div><i class="fas fa-arrow-down" style="color: #4ade80; margin-right: 4px;"></i><span data-i18n="fritzbox_down_label">Down:</span> <strong id="valFritzDown" style="color: var(--text-main); font-variant-numeric: tabular-nums;">0.0 Mbit/s</strong></div>
+            <div><i class="fas fa-arrow-up" style="color: #a855f7; margin-right: 4px;"></i><span data-i18n="fritzbox_up_label">Up:</span> <strong id="valFritzUp" style="color: var(--text-main); font-variant-numeric: tabular-nums;">0.0 Mbit/s</strong></div>
+          </div>
           <!-- Recent Call List -->
           <div class="fritz-call-title"><i class="fas fa-phone-volume"></i> <span data-i18n="fritzbox_recent_calls">Letzte Anrufe</span></div>
           <div class="fritz-call-list" id="fritzCallList">
@@ -580,6 +585,6 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script src="app.js?v=3.9.6-circular-gauges-v3"></script>
+  <script src="app.js?v=3.9.6-circular-gauges-v4"></script>
 </body>
 </html>

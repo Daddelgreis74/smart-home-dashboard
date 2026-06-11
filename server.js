@@ -1084,7 +1084,9 @@ setInterval(async () => {
       cpu: cpuLoad.currentLoad,                   
       ram: (mem.active / mem.total) * 100,        
       temp: temp.main || 40,                      
-      net: totalNetMb                             
+      net: totalNetMb,
+      netDown: rx_sec,
+      netUp: tx_sec
     });
   } catch (e) {}
 }, 2000);
