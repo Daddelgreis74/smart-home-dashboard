@@ -260,7 +260,7 @@ app.get('/api/tasmota/status', async (req, res) => {
   const results = await Promise.all(devices.map(async d => {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 1200);
+      const timeout = setTimeout(() => controller.abort(), 2500);
       const r = await fetch(`http://${d.ip}/cm?cmnd=Power`, { signal: controller.signal });
       clearTimeout(timeout);
       const j = await r.json();
@@ -1050,8 +1050,8 @@ app.delete('/api/cameras/:id', (req, res) => {
 setInterval(async () => {
   if (!fritzConfig.ip) return;
   try {
-    const fritzPing = await pingTcp(fritzConfig.ip, 80, 1000);
-    const internetPing = await pingTcp('1.1.1.1', 53, 1000);
+    const fritzPing = await pingTcp(fritzConfig.ip, 80, 2500);
+    const internetPing = await pingTcp('1.1.1.1', 53, 2500);
     io.emit('fritz-status', {
       fritzOnline: fritzPing.online,
       fritzLatency: fritzPing.latency,
