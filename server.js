@@ -1089,7 +1089,7 @@ setInterval(async () => {
       netUp: tx_sec
     });
   } catch (e) {}
-}, 2000);
+}, 5000);
 
 server.listen(PORT, HOST, () => {
   const protocol = useSSL ? 'https' : 'http';
