@@ -65,10 +65,11 @@ echo.
 :start_server
 echo [INFO] Oeffne Dashboard im Webbrowser...
 :: Öffnet das Dashboard im Standard-Webbrowser des PCs
-start http://localhost:30436
+start http://localhost:8443
 
 echo [INFO] Starte Server...
 echo.
+set PORT=8443
 call npm start
 
 if %errorlevel% neq 0 (
