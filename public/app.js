@@ -1556,6 +1556,11 @@ async function initFritzbox() {
       }
     }
 
+    const settingsLedFritz = document.getElementById('settingsLedFritz');
+    if(settingsLedFritz) {
+      settingsLedFritz.className = status.fritzOnline ? 'led-dot green' : 'led-dot red';
+    }
+
     if(ledInternet && valInternetStatus) {
       if(status.internetOnline) {
         ledInternet.className = 'led-dot green';
