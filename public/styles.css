@@ -217,10 +217,10 @@ body {
 /* System Status */
 /* System Status - Circular */
 .system-layout-circular {
-  padding-top: 10px;
+  padding-top: 12px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px 12px;
+  gap: 20px 14px;
   justify-content: center;
   align-items: center;
   height: 100%;
@@ -233,8 +233,8 @@ body {
 }
 .gauge-ring {
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 118px;
+  height: 118px;
 }
 .gauge-ring svg {
   width: 100%;
@@ -244,11 +244,11 @@ body {
 .gauge-bg {
   fill: none;
   stroke: rgba(255, 255, 255, 0.05);
-  stroke-width: 7;
+  stroke-width: 8;
 }
 .gauge-value {
   fill: none;
-  stroke-width: 7;
+  stroke-width: 8;
   stroke-linecap: round;
   stroke-dasharray: 251.3;
   stroke-dashoffset: 251.3;
@@ -283,11 +283,11 @@ body {
   gap: 2px;
 }
 .gauge-icon {
-  font-size: 15px;
+  font-size: 18px;
   color: rgba(255, 255, 255, 0.4);
 }
 .gauge-value-text {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--text-main);
   font-variant-numeric: tabular-nums;
@@ -295,7 +295,7 @@ body {
 }
 .gauge-label {
   margin-top: 8px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
