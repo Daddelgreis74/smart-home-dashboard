@@ -1485,6 +1485,7 @@ function initAccordion() {
 }
 
 async function initFritzbox() {
+  const lang = localStorage.getItem('dashboard_lang') || 'de';
   // Load saved Fritz!Box configuration (excluding password for security)
   try {
     const res = await fetch('/api/fritzbox/config');
@@ -1651,6 +1652,7 @@ async function initFritzbox() {
 }
 
 async function initPresence() {
+  const lang = localStorage.getItem('dashboard_lang') || 'de';
   const addBtn = document.getElementById('addPresenceBtn');
   const fileInput = document.getElementById('presenceManAvatar');
   const fileNameSpan = document.getElementById('presenceManAvatarName');
