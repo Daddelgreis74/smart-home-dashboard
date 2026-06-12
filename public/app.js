@@ -763,13 +763,36 @@ async function loadICS() {
         }
       });
       events.sort((a,b) => a.date.localeCompare(b.date));
+
+      // Deduplicate: merge events that share the same waste-type keyword AND
+      // the same calendar day into a single entry so e.g. Schadstoffmobil
+      // (which has multiple location/time entries per day) shows only once.
+      const deduped = [];
+      const seen = new Set();
+      events.forEach(e => {
+        // Derive a stable type key from the summary
+        const s = (e.summary || '').toLowerCase();
+        let typeKey;
+        if (s.includes('bio')) typeKey = 'bio';
+        else if (s.includes('papier')) typeKey = 'paper';
+        else if (s.includes('gelb') || s.includes('plastik')) typeKey = 'plastic';
+        else if (s.includes('schadstoff')) typeKey = 'schadstoff';
+        else if (s.includes('restm')) typeKey = 'residual';
+        else typeKey = s.replace(/\s+/g, '_').substring(0, 30);
+        const key = typeKey + '_' + e.date;
+        if (!seen.has(key)) {
+          seen.add(key);
+          deduped.push(e);
+        }
+      });
+
       const list = document.getElementById('wasteBody');
       if(!list) return;
       
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const todayStr = today.getFullYear() + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
-      const upcoming = events.filter(e => e.date >= todayStr).slice(0, 4);
+      const upcoming = deduped.filter(e => e.date >= todayStr).slice(0, 4);
       
       if(upcoming.length === 0) { 
         list.innerHTML = (translations[lang] && translations[lang].waste_no_dates) ? `<p style="color:rgba(255,255,255,0.5);">${translations[lang].waste_no_dates}</p>` : '<p style="color:rgba(255,255,255,0.5);">Keine Termine.</p>'; 
@@ -784,7 +807,7 @@ async function loadICS() {
       upcoming.forEach(e => {
         const dt = new Date(e.date.substring(0,4), e.date.substring(4,6)-1, e.date.substring(6,8));
         let type = 'residual'; const s = e.summary.toLowerCase();
-        if(s.includes('bio')) type = 'bio'; else if(s.includes('papier')) type = 'paper'; else if(s.includes('gelb')||s.includes('plastik')) type = 'plastic';
+        if(s.includes('bio')) type = 'bio'; else if(s.includes('papier')) type = 'paper'; else if(s.includes('gelb')||s.includes('plastik')) type = 'plastic'; else if(s.includes('schadstoff')) type = 'hazardous';
         let dateStr = dt.toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short' });
         // Compare calendar days, not the current clock time. Otherwise tomorrow
         // before the current time-of-day was shown as "Heute".
@@ -826,6 +849,7 @@ async function loadICS() {
             if (alert.type === 'bio') icon = 'fa-leaf';
             else if (alert.type === 'paper') icon = 'fa-box-open';
             else if (alert.type === 'plastic') icon = 'fa-recycle';
+            else if (alert.type === 'hazardous') icon = 'fa-skull-crossbones';
             
             pill.innerHTML = `
               <i class="fas ${icon} alert-icon-pulse"></i>

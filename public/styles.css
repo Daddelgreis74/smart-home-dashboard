@@ -139,6 +139,7 @@ body {
 .waste-item.paper { border-left: 4px solid #60a5fa; }
 .waste-item.plastic { border-left: 4px solid #facc15; }
 .waste-item.residual { border-left: 4px solid #94a3b8; }
+.waste-item.hazardous { border-left: 4px solid #f97316; }
 .waste-item span:first-child { flex: 1; font-weight: 500; font-size: 14px; }
 .waste-item span:last-child { color: var(--text-muted); font-size: 12px; text-align: right;}
 .waste-item i { font-size: 16px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.1)); }
@@ -1621,6 +1622,7 @@ body::before {
 .bin-paper { --bin-color: #60a5fa; --bin-glow: rgba(96, 165, 250, 0.35); }
 .bin-plastic { --bin-color: #facc15; --bin-glow: rgba(250, 204, 21, 0.34); }
 .bin-residual { --bin-color: #94a3b8; --bin-glow: rgba(148, 163, 184, 0.28); }
+.bin-hazardous { --bin-color: #f97316; --bin-glow: rgba(249, 115, 22, 0.35); }
 
 @media (max-height: 760px) {
   .bin-icon {
@@ -2717,6 +2719,12 @@ body.theme-stealth .tasmota-btn.active i { color: #fff !important; }
   color: #ffd666;
   text-shadow: 0 0 8px rgba(255, 214, 102, 0.3);
 }
+.waste-alert-hazardous {
+  background: rgba(249, 115, 22, 0.1);
+  border-color: rgba(249, 115, 22, 0.3);
+  color: #fb923c;
+  text-shadow: 0 0 8px rgba(249, 115, 22, 0.3);
+}
 
 /* Animations */
 @keyframes wasteAlertPulse {
@@ -2776,6 +2784,12 @@ body.theme-cyberpunk .waste-alert-plastic {
   color: #ffea00;
   text-shadow: 0 0 5px rgba(255, 234, 0, 0.5);
 }
+body.theme-cyberpunk .waste-alert-hazardous {
+  background: rgba(255, 140, 0, 0.08);
+  border-color: #ff8c00;
+  color: #ff8c00;
+  text-shadow: 0 0 5px rgba(255, 140, 0, 0.5);
+}
 
 @keyframes cyberpunkAlertPulse {
   0%, 100% { opacity: 1; }
@@ -2817,6 +2831,11 @@ body.theme-nordic .waste-alert-plastic {
   background: rgba(197, 172, 129, 0.25);
   color: #dbcaac;
   border-color: rgba(197, 172, 129, 0.35);
+}
+body.theme-nordic .waste-alert-hazardous {
+  background: rgba(200, 140, 80, 0.25);
+  color: #d4a574;
+  border-color: rgba(200, 140, 80, 0.35);
 }
 
 
