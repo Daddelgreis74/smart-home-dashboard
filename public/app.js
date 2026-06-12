@@ -1754,14 +1754,17 @@ async function initPresence() {
         if(data && data.success) {
           nameInput.value = '';
           macInput.value = '';
-          fileInput.value = '';
-          fileNameSpan.textContent = translations[lang] ? translations[lang].presence_no_avatar : 'Kein Bild gewählt';
+          if (fileInput) fileInput.value = '';
+          if (fileNameSpan) {
+            fileNameSpan.textContent = (typeof translations !== 'undefined' && translations[lang]) ? translations[lang].presence_no_avatar : 'Kein Bild gewählt';
+          }
           uploadedAvatarUrl = '';
         } else {
           alert('Fehler beim Hinzufügen: ' + (data.error || 'Unbekannter Fehler'));
         }
       } catch(err) {
-        alert('Fehler beim Hinzufügen der Person.');
+        console.error('Fehler beim Hinzufügen der Person:', err);
+        alert('Fehler beim Hinzufügen der Person: ' + err.message);
       }
     });
   }
@@ -1982,7 +1985,8 @@ async function initCameraWidget() {
         alert('Fehler beim Hinzufügen: ' + (data.error || 'Unbekannter Fehler'));
       }
     } catch(err) {
-      alert('Fehler beim Hinzufügen der Kamera.');
+      console.error('Fehler beim Hinzufügen der Kamera:', err);
+      alert('Fehler beim Hinzufügen der Kamera: ' + err.message);
     }
   });
 
