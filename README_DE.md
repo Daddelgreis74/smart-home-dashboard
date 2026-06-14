@@ -4,175 +4,88 @@
 
 ![Dashboard Vorschau](preview.png)
 
-Ein modernes Smart-Home-Wandpanel für ein **Lenovo Tab M10 FHD Plus (10.3", 1920×1200, 16:10)** im Querformat. Optimiert für den dauerhaften Betrieb im **Fully Kiosk Browser**.
+Ein modernes, hochgradig anpassbares Smart-Home-Wandpanel für Tablets (optimiert für ein **Lenovo Tab M10 FHD Plus (10.3", 1920×1200, 16:10)** im Querformat). Perfekt ausgelegt für den dauerhaften Betrieb im **Fully Kiosk Browser**.
 
-### 🎨 Dashboard Themes (Vorschau)
-Das Dashboard unterstützt vier komplett unterschiedliche, umschaltbare Design-Stile:
+---
 
-*   **Neo-Aurora (Standard):** Transparente Frosted-Glass-Karten mit weichen Auras und leuchtenden Widgets.
-    ![Neo-Aurora](public/themes/neo_aurora.png)
-*   **Cyberpunk HUD:** Taktischer High-Tech-Look in Orange/Amber mit scharfen Ecken und Gitternetz-Hintergrund.
-    ![Cyberpunk HUD](public/themes/cyberpunk_hud.png)
-*   **Cozy Nordic Dark:** Beruhigende, organische Ästhetik mit salbeigrünen Akzenten und weichen Schatten.
-    ![Cozy Nordic Dark](public/themes/nordic_dark.png)
-*   **Retrowave Laser Synth:** Nostalgischer 80er-Retro-Look in Pink/Cyan mit perspektivischer Laser-Bodenlinie.
-    ![Retrowave Laser Synth](public/themes/retrowave_synth.png)
+## ⚡ Schnellstart (One-Liner-Installation)
 
-## ✨ Highlights
+Die schnellste Methode, um das Dashboard einzurichten. Der Installer prüft automatisch alle Abhängigkeiten (Node.js, Git, npm, optional Docker) und installiert fehlende Programme nach.
 
-- **Multi-Theme-System:** 5 edle, frei umschaltbare Premium-Designs (Neo-Aurora Glassmorphism, Cyberpunk Tactical HUD, Cozy Nordic Dark, Retrowave Laser Synth, Terminal Classic, OLED Stealth) mit persistentem Speicher im Browser.
-- **Neo Aurora Command Deck:** dunkles, hochwertiges Wall-Panel-Design mit Aurora-Glow, Glas-/Metal-Karten und adaptivem 2-Reihen-Layout.
-- **Adaptive Widgets:** Layout passt sich besser an Seitenverhältnis und Fully-Kiosk-Viewport an, statt unten Inhalte abzuschneiden.
-- **Wetter Pro:** Open-Meteo Daten mit Temperatur, Gefühlter Temperatur, Min/Max, Luftfeuchte, Regenwahrscheinlichkeit, Wind, Luftdruck, Wolken und UV-Index.
-- **Smart Home / Tasmota:** lokale Geräteverwaltung, Scan im privaten Heimnetz, Toggle-Buttons mit Statusanzeige und Offline-Dimmung.
-- **AM2301 Klima-Sensor:** eigenes Tasmota-Sensor-Widget mit Temperatur-/Feuchte-Gauges, Taupunkt und konfigurierbarer lokaler IP.
-- **Abfallkalender:** `.ics` Upload, kommende Leerungen, farbige Mülltonnen-Icons und kalendertagsgenaue Heute/Morgen-Anzeige ohne Uhrzeit-Versatz.
-- **Live Radio:** Preset-Tasten im Dashboard, Senderverwaltung in den Präferenzen, HLS/MP3/AAC-Unterstützung und Schutz gegen ungewollten Autostart beim Tablet-Wakeup.
-- **System Status:** Live CPU/RAM/Temperatur/Netzwerk per Socket.IO.
-- **Fritz!Box Monitor:** Live Netzwerk- & Internet-Status (LEDs/Latenz in ms) sowie ein Echtzeit-Anruf-Monitor (Port 1012) mit bildschirmfüllendem Live-Anrufer-Overlay (Toast) und historischer Anrufliste.
-- **Mehrsprachigkeit (i18n):** Vollständige Benutzeroberflächen-Übersetzungen für 🇩🇪 Deutsch, 🇬🇧 Englisch, 🇫🇷 Französisch, 🇪🇸 Spanisch, 🇮🇹 Italienisch, 🇳🇱 Niederländisch und 🇵🇱 Polnisch, direkt in den Einstellungen umschaltbar.
-- **Touch-ready:** Drag & Drop via Sortable.js mit Fully-Kiosk-kompatibler Verzögerung.
-
-## 🧭 Bedienung
-
-### Präferenzen
-Über das Menü oben rechts lassen sich konfigurieren:
-
-- Design-Thema & Sprache
-- sichtbare Widgets
-- Tasmota-Geräte und Subnetz-Scan
-- AM2301/Tasmota-Klima-Sensor-IP
-- Abfallkalender-Upload
-- Wetterstandort
-- Radio-Sender und Preset-Tasten
-- Fritz!Box-Verbindungsdaten und Call-Monitor
-
-### Radio-Autoplay-Schutz
-Das Radio startet **nur** noch durch expliziten Klick auf:
-
-- Play-Button
-- Preset-Taste
-
-Beim Schlafen/Aufwecken des Tablets wird ein aktiver Stream hart gestoppt und das Audio-Element entfernt, damit Fully Kiosk/Android keinen Stream selbstständig wiederbelebt.
-
-## 🛠️ Architektur
-
-- **Backend:** Node.js, Express.js
-- **Realtime:** Socket.IO
-- **Systemdaten:** `systeminformation`
-- **Uploads:** `multer`
-- **Frontend:** Vanilla JS, CSS Grid, Sortable.js, HLS.js
-- **Wetter:** Open-Meteo API, ohne API-Key
-- **Port:** `8443`
-- **HTTPS & HTTP-Fallback:** Läuft standardmäßig auf HTTPS mit Zertifikat unter `ssl/`. Bietet einen automatischen, sicheren Fallback auf Standard-HTTP, falls keine SSL-Zertifikate vorhanden sind (ideal für lokale Windows-Testserver).
-
-## 🔐 Sicherheit & lokale Dateien
-
-Nicht committen:
-
-- `radio.json`
-- `tasmota.json`
-- `uploads/`
-- `node_modules/`
-- `fritzbox.json`
-- `fritzbox_calls.json`
-
-Die `.gitignore` ist entsprechend vorbereitet.
-
-Backend-Härtungen:
-
-- JSON Body-Limit
-- `.ics` Upload-Limit und Dateifilter
-- Tasmota Toggle/Scan/Sensor-Abfrage nur für private IPv4-Netze
-- Radio-URLs werden validiert/normalisiert
-
-## 🗓️ Abfallkalender-Datumslogik
-
-Ganztägige `.ics` Termine werden als lokale Kalendertage verglichen. Dadurch wird z.B. eine morgige Leerung morgens nicht mehr fälschlich als „Heute“ angezeigt, nur weil die aktuelle Uhrzeit bereits nach `00:00` liegt.
-
-## 🌡️ AM2301/Tasmota Klima-Sensor
-
-Das Sensor-Widget fragt lokal einen Tasmota-Endpunkt ab:
-
-```text
-GET /api/tasmota/sensor?ip=192.168.178.40
-```
-
-Die IP ist im Präferenzen-Menü änderbar und wird im Browser per `localStorage` gespeichert. Das Backend akzeptiert bewusst nur private IPv4-Adressen.
-
-## 📞 Fritz!Box Monitor & Call-Monitor
-
-Das Dashboard enthält ein integriertes, hochmodernes Fritz!Box-Widget zur Echtzeitüberwachung deines Heimnetzwerks und der Telefonie:
-
-- **Live Netzwerk- & Internet-Status (LEDs):** Das System misst alle 10 Sekunden asynchron und extrem ressourcenschonend die Latenz zu deinem lokalen Gateway (Fritz!Box) und einem öffentlichen DNS (`1.1.1.1`), um die Latenzen in Millisekunden und den Online-Zustand per leuchtender LED (Grün/Rot) darzustellen.
-- **Echtzeit-Anruf-Monitor:** Verbindet sich backendseitig über einen robusten, selbstheilenden TCP-Client direkt mit Port `1012` deiner Fritz!Box. Bei einem eingehenden Anruf wird sofort ein bildschirmfüllendes, pulsierendes Pop-up auf allen Tablets eingeblendet. Nach Gesprächsende wird der Anruf mit Gesprächsdauer in die Anrufliste übernommen.
-- **Anrufliste:** Zeigt die letzten 10 Anrufe mit Typ-Symbolen (Eingehend, Ausgehend, Verpasst, Verbunden) und Dauer in Echtzeit an.
-
-### 🔐 Wichtig für deine Privatsphäre (Datensicherheit)
-Die Zugangsdaten deiner Fritz!Box und dein Anrufprotokoll werden **ausschließlich lokal** in den Dateien `fritzbox.json` und `fritzbox_calls.json` gespeichert. Beide Dateien sind permanent über `.gitignore` blockiert und werden **niemals auf GitHub hochgeladen**!
-
-### ⚙️ Einrichtung des Call-Monitors
-Damit die Live-Anrufe auf Port 1012 an das Dashboard gesendet werden, muss der Call-Monitor deiner Fritz!Box einmalig freigeschaltet werden. Wähle dazu einfach an einem an der Fritz!Box angeschlossenen Telefon die Tastenkombination:
-- **Aktivieren:** `#96*5*` (und abheben / wählen)
-- **Deaktivieren (optional):** `#96*6*`
-
-## 🚀 Betrieb & Installation
-
-Das Dashboard kann entweder vollautomatisch über eine einzige Terminal-Zeile (One-Liner) oder manuell eingerichtet werden.
-
-### ⚡ One-Liner-Installation (Schnell & Automatisch)
-
-Die Installer prüfen automatisch alle Abhängigkeiten (Node.js, Git, npm, optional Docker) auf deinem System und installieren fehlende Programme nach.
-
-#### Windows (PowerShell)
+### 💻 Windows (PowerShell)
 Öffne die PowerShell und führe folgenden Befehl aus:
 ```powershell
 irm https://raw.githubusercontent.com/Daddelgreis74/smart-home-dashboard/main/install.ps1 | iex
 ```
-*Unter Windows werden fehlende Abhängigkeiten (wie Git oder Node.js) vollautomatisch über den Windows Package Manager (`winget`) installiert. Auf Wunsch wird eine Desktop-Verknüpfung angelegt.*
+*Fehlende Programme (wie Git oder Node.js) werden vollautomatisch über den Windows Package Manager (`winget`) installiert. Auf Wunsch wird direkt eine Desktop-Verknüpfung angelegt.*
 
-#### Linux / Raspberry Pi (Bash)
-Öffne dein Terminal und führe folgenden Befehl aus:
+### 🐧 Linux / Raspberry Pi (Bash)
+Öffne das Terminal und führe folgenden Befehl aus:
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/Daddelgreis74/smart-home-dashboard/main/install.sh)
 ```
-*Bietet die Wahl zwischen lokaler Installation (inkl. vollautomatischer Einrichtung als Systemd-Hintergrunddienst) oder einer Docker-Compose-Bereitstellung.*
+*Ermöglicht die Wahl zwischen lokaler Installation (inklusive vollautomatischer Einrichtung als Systemd-Hintergrunddienst für den Start beim Booten) oder einer Docker-Compose-Bereitstellung.*
 
 ---
 
-### 🛠️ Manuelle Installation
+## ✨ Highlights & Features
 
-#### Windows
-1. Lade dir dieses Repository als ZIP herunter (oder klone es) und entpacke es.
+- **Multi-Theme-System:** 5 edle, frei umschaltbare Premium-Designs (Neo-Aurora Glassmorphism, Cyberpunk Tactical HUD, Cozy Nordic Dark, Retrowave Laser Synth, Terminal Classic und OLED Stealth) mit persistentem Speicher.
+- **Adaptive Widgets:** Das Layout passt sich dynamisch an das Seitenverhältnis und den Viewport des Tablets an, um abgeschnittene Inhalte zu verhindern.
+- **Wetter Pro:** Open-Meteo Integration mit Temperatur, Gefühlter Temperatur, Min/Max, Luftfeuchte, Regenwahrscheinlichkeit, Wind, Luftdruck, Wolken und UV-Index (ohne API-Key).
+- **Smart Home / Tasmota:** Lokale Geräteverwaltung, automatischer Netzwerk-Scan und Toggle-Buttons mit Statusanzeige sowie Offline-Dimmung.
+- **AM2301 Klima-Sensor:** Eigenes Tasmota-Sensor-Widget mit Temperatur-/Feuchtigkeits-Gauges und Taupunkt.
+- **Abfallkalender:** `.ics` Upload, kommende Leerungen, farbige Tonnen-Icons und kalendertagsgenaue Heute/Morgen-Anzeige.
+- **Live Radio:** Preset-Tasten, integrierte Senderverwaltung in den Einstellungen und HLS/MP3/AAC-Unterstützung mit Autostart-Schutz beim Aufwecken des Tablets.
+- **System Status:** Live CPU, RAM, Temperatur und Netzwerk-Statistiken per Socket.IO.
+- **Fritz!Box Monitor:** Live-Latenz und Online-Zustand (LEDs) sowie ein Echtzeit-Anruf-Monitor (Port 1012) mit vollflächigem Pop-up-Overlay bei Anruf und historischer Anrufliste.
+- **Mehrsprachigkeit (i18n):** Vollständige Übersetzungen für 🇩🇪 Deutsch, 🇬🇧 Englisch, 🇫🇷 Französisch, 🇪🇸 Spanisch, 🇮🇹 Italienisch, 🇳🇱 Niederländisch und 🇵🇱 Polnisch.
+
+---
+
+## 🎨 Dashboard Themes
+
+Das Dashboard lässt sich direkt über das Zahnrad-Menü oben rechts zwischen folgenden Designs umschalten:
+
+| Theme | Vorschau |
+| :--- | :--- |
+| **Neo-Aurora**<br>Transparente Frosted-Glass-Karten mit weichen Auras und leuchtenden Widgets. | ![Neo-Aurora](public/themes/neo_aurora.png) |
+| **Cyberpunk HUD**<br>Taktischer High-Tech-Look in Orange/Amber mit scharfen Ecken und Gitter-Hintergrund. | ![Cyberpunk HUD](public/themes/cyberpunk_hud.png) |
+| **Cozy Nordic Dark**<br>Beruhigende, organische Ästhetik mit salbeigrünen Akzenten und weichen Schatten. | ![Cozy Nordic Dark](public/themes/nordic_dark.png) |
+| **Retrowave Laser Synth**<br>Nostalgischer 80er-Retro-Look in Pink/Cyan mit perspektivischer Laser-Bodenlinie. | ![Retrowave Laser Synth](public/themes/retrowave_synth.png) |
+
+---
+
+## 🛠️ Manuelle Installation
+
+Falls du die One-Liner-Skripte nicht nutzen möchtest, kannst du die App manuell einrichten:
+
+### Windows
+1. Lade dieses Repository herunter und entpacke es.
 2. Doppelklicke im Projektverzeichnis einfach auf die Datei:
    ```text
    start-dashboard.bat
    ```
-   *Diese Batch-Datei prüft automatisch deine Node.js-Pfade, installiert fehlende Bibliotheken (`npm install`), öffnet das Dashboard im Browser und startet den Server.*
+   *Diese Batch-Datei prüft deine Pfade, installiert bei Bedarf Bibliotheken (`npm install`), öffnet das Dashboard im Browser und startet den Server.*
 
-#### Linux & macOS
-1. Repository klonen:
+### Linux & macOS
+1. Repository klonen und in den Ordner wechseln:
    ```bash
    git clone https://github.com/Daddelgreis74/smart-home-dashboard.git
    cd smart-home-dashboard
    ```
-2. Abhängigkeiten installieren und starten:
+2. Bibliotheken installieren und starten:
    ```bash
    npm install
    npm start
    ```
+   Der manuelle Server läuft standardmäßig auf `http://localhost:8443` (oder `https://localhost:8443` mit SSL).
 
-Standardmäßig läuft der manuelle Server auf:
-```text
-http://localhost:8443   (bzw. https://localhost:8443 mit SSL)
-```
+---
 
 ## 🐋 Docker & TrueNAS Setup Guide
 
-Dieses Projekt ist vollständig containerisiert. Alle Einstellungen, hochgeladene Kalenderdateien (`calendar.ics`), Webradio-Sender, Fritz!Box-Verbindungsdaten, Kameras und Anruflisten werden über ein einziges persistentes Volume gesichert. Das macht den Betrieb auf einem **TrueNAS SCALE**-Heimserver (Electric Eel & neuer) oder jedem anderen Docker-Host extrem einfach.
-
-> [!TIP]
-> Der einfachste Weg ist die Installation über den **TrueNAS App Store** (Methode 1). Kein SSH, kein YAML, keine Docker-Befehle nötig.
+Dieses Projekt ist vollständig containerisiert. Alle Einstellungen, hochgeladene Kalenderdateien (`calendar.ics`), Webradio-Sender, Fritz!Box-Verbindungsdaten, Kameras und Anruflisten werden über ein einziges persistentes Volume gesichert. Das macht den Betrieb auf einem **TrueNAS SCALE**-Heimserver oder jedem anderen Docker-Host extrem einfach.
 
 ### 📂 Struktur der persistenten Daten
 
@@ -202,26 +115,20 @@ Das Smart Home Dashboard ist als **offizielle Community App** im TrueNAS App Sto
 3. Folge dem Installationsassistenten für Speicher, Port (Standard `30436`) und Umgebung.
 4. Klicke auf **Save** – fertig! Die App läuft.
 
-Updates werden automatisch über den TrueNAS-Katalog bereitgestellt. Wenn eine neue Version verfügbar ist, erscheint ein **Update**-Badge auf der App-Kachel in deiner Web-Oberfläche.
-
 ---
 
 ### 🛠️ Methode 2: Docker Compose (CLI & SSH)
-
-Wenn du Docker auf einem Linux-Server, NAS oder mit einem Tool wie **Portainer** / **Dockge** betreibst:
 
 1. **Repository klonen:**
    ```bash
    git clone https://github.com/Daddelgreis74/smart-home-dashboard.git
    cd smart-home-dashboard
    ```
-
 2. **Container im Hintergrund starten:**
    ```bash
    docker compose up -d --build
    ```
-
-Das Dashboard ist sofort unter `http://<DEINE-SERVER-IP>:8443` erreichbar!
+   Das Dashboard ist sofort unter `http://<DEINE-SERVER-IP>:8443` erreichbar!
 
 ---
 
@@ -244,7 +151,7 @@ chmod -R 770 /mnt/dein-pool/dein-dataset/smart-home-dashboard
 2. Fülle die Felder wie folgt aus:
    * **Application Name:** `smart-home-dashboard`
    * **Repository:** `ghcr.io/daddelgreis74/smart-home-dashboard`
-   * **Tag:** `3.9.8`  *(oder `latest`)*
+   * **Tag:** `3.9.8` *(oder `latest`)*
 3. **Netzwerk-Konfiguration (Sehr wichtig für die Bandbreitenmessung):**
    * **Empfehlung:** Aktiviere die Checkbox **Host Network**. Dadurch teilt sich der Container die Netzwerkkarte mit dem TrueNAS-Host, und das System-Status-Widget auf dem Dashboard kann die echte Netzwerkgeschwindigkeit deines Servers messen.
    * *Hinweis bei Host-Network:* Die App lauscht dann direkt auf dem Port `8443` deines TrueNAS-Servers. Du erreichst das Dashboard unter `http://<DEINE-TRUENAS-IP>:8443`.
@@ -253,43 +160,42 @@ chmod -R 770 /mnt/dein-pool/dein-dataset/smart-home-dashboard
    * Füge ein **Host Path Volume** hinzu:
      * **Host Path:** `/mnt/dein-pool/dein-dataset/smart-home-dashboard` (Dein zuvor erstellter Pfad)
      * **Mount Path:** `/app/data`
-5. Klicke ganz unten auf **Save** – fertig! TrueNAS lädt das Image herunter und startet das Dashboard.
+5. Klicke ganz unten auf **Save** – fertig! TrueNAS startet das Dashboard.
 
 ---
 
-### 🎮 Tägliche Befehle (Docker Compose)
+## ⚙️ Erweiterte Konfiguration
 
-* **Stoppen:** `docker compose down`
-* **Starten:** `docker compose up -d`
-* **Status:** `docker compose ps`
-* **Logs:** `docker compose logs -f`
+### 📞 Fritz!Box Monitor & Call-Monitor einrichten
+- **Verbindung:** Die Zugangsdaten deiner Fritz!Box und dein Anrufprotokoll werden **ausschließlich lokal** in den Dateien `fritzbox.json` und `fritzbox_calls.json` gespeichert.
+- **Freischaltung des Call-Monitors:** Damit Live-Anrufe auf Port 1012 an das Dashboard gesendet werden, muss der Call-Monitor deiner Fritz!Box einmalig freigeschaltet werden. Wähle dazu an einem an der Fritz!Box angeschlossenen Telefon:
+  * **Aktivieren:** `#96*5*` (und abheben/wählen)
+  * **Deaktivieren (optional):** `#96*6*`
 
----
+### 🌡️ AM2301/Tasmota Klima-Sensor
+Das Sensor-Widget fragt lokal einen Tasmota-Endpunkt ab:
+`GET /api/tasmota/sensor?ip=192.168.178.40`
+Die IP ist im Präferenzen-Menü oben rechts änderbar. Das Backend akzeptiert bewusst nur private IPv4-Adressen.
 
-### 🔄 Updates ohne Datenverlust
-
-#### TrueNAS App Store (Methode 1):
-Wenn eine neue Version verfügbar ist, klicke einfach auf den **Update**-Button auf der App-Kachel in der TrueNAS Web-Oberfläche. Das war's!
-
-#### Docker Compose (Methode 2):
-```bash
-cd smart-home-dashboard
-git pull
-docker compose up -d --build
-```
-
-> [!IMPORTANT]
-> Deine Einstellungen, Konfigurationen und hochgeladenen Kalenderdateien im Datenverzeichnis bleiben bei allen Updates sicher und unangetastet!
+### 🗓️ Abfallkalender-Datumslogik
+Ganztägige `.ics` Termine werden als lokale Kalendertage verglichen. Dadurch wird z.B. eine morgige Leerung morgens nicht mehr fälschlich als „Heute“ angezeigt, nur weil die aktuelle Uhrzeit bereits nach `00:00` liegt.
 
 ---
 
-## 🧪 Checks
+## 🔐 Sicherheit & Lokale Dateien
 
+Folgende Dateien enthalten persönliche Konfigurationen und werden **niemals auf GitHub hochgeladen** (über `.gitignore` geschützt):
+- `radio.json`, `tasmota.json`, `fritzbox.json`, `fritzbox_calls.json`, `presence.json`, `uploads/`, `node_modules/`, `ssl/`
+
+---
+
+## 🧪 Checks & Tests
+Du kannst die Integrität der Dateien manuell mit folgenden Befehlen überprüfen:
 ```bash
 node --check server.js
 node --check public/app.js
 npm audit --omit=dev
 ```
 
+---
 Mit 👻 entwickelt von **Neo**, dem digitalen Hausgeist.
-
