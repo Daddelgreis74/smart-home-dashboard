@@ -116,25 +116,55 @@ Damit die Live-Anrufe auf Port 1012 an das Dashboard gesendet werden, muss der C
 - **Aktivieren:** `#96*5*` (und abheben / wählen)
 - **Deaktivieren (optional):** `#96*6*`
 
-## 🚀 Betrieb
+## 🚀 Betrieb & Installation
 
-### Windows (Vollautomatisch & Empfohlen)
-Doppelklicke im Projektverzeichnis einfach auf die Datei:
-```text
-start-dashboard.bat
+Das Dashboard kann entweder vollautomatisch über eine einzige Terminal-Zeile (One-Liner) oder manuell eingerichtet werden.
+
+### ⚡ One-Liner-Installation (Schnell & Automatisch)
+
+Die Installer prüfen automatisch alle Abhängigkeiten (Node.js, Git, npm, optional Docker) auf deinem System und installieren fehlende Programme nach.
+
+#### Windows (PowerShell)
+Öffne die PowerShell und führe folgenden Befehl aus:
+```powershell
+irm https://raw.githubusercontent.com/Daddelgreis74/smart-home-dashboard/main/install.ps1 | iex
 ```
-*Diese Batch-Datei prüft automatisch Ihre Node.js-Pfade (inklusive Selbstreparatur bei fehlenden globalen Umgebungsvariablen), installiert eventuell fehlende Bibliotheken (`npm install`), öffnet direkt Ihren Webbrowser mit dem Dashboard (`http://localhost:8443`) und startet den Server.*
+*Unter Windows werden fehlende Abhängigkeiten (wie Git oder Node.js) vollautomatisch über den Windows Package Manager (`winget`) installiert. Auf Wunsch wird eine Desktop-Verknüpfung angelegt.*
 
-### Linux & macOS (Manuell)
+#### Linux / Raspberry Pi (Bash)
+Öffne dein Terminal und führe folgenden Befehl aus:
 ```bash
-npm install
-npm start
+curl -fsSL https://raw.githubusercontent.com/Daddelgreis74/smart-home-dashboard/main/install.sh | bash
 ```
+*Bietet die Wahl zwischen lokaler Installation (inkl. vollautomatischer Einrichtung als Systemd-Hintergrunddienst) oder einer Docker-Compose-Bereitstellung.*
 
-Standardmäßig läuft der Server (auf Linux/macOS mit SSL) auf:
+---
 
+### 🛠️ Manuelle Installation
+
+#### Windows
+1. Lade dir dieses Repository als ZIP herunter (oder klone es) und entpacke es.
+2. Doppelklicke im Projektverzeichnis einfach auf die Datei:
+   ```text
+   start-dashboard.bat
+   ```
+   *Diese Batch-Datei prüft automatisch deine Node.js-Pfade, installiert fehlende Bibliotheken (`npm install`), öffnet das Dashboard im Browser und startet den Server.*
+
+#### Linux & macOS
+1. Repository klonen:
+   ```bash
+   git clone https://github.com/Daddelgreis74/smart-home-dashboard.git
+   cd smart-home-dashboard
+   ```
+2. Abhängigkeiten installieren und starten:
+   ```bash
+   npm install
+   npm start
+   ```
+
+Standardmäßig läuft der manuelle Server auf:
 ```text
-https://0.0.0.0:8443
+http://localhost:8443   (bzw. https://localhost:8443 mit SSL)
 ```
 
 ## 🐋 Docker & TrueNAS Setup Guide
@@ -195,43 +225,35 @@ Das Dashboard ist sofort unter `http://<DEINE-SERVER-IP>:8443` erreichbar!
 
 ---
 
-### 📝 Methode 3: TrueNAS Custom App (Manuelles YAML)
+### 📝 Methode 3: TrueNAS Custom App (GUI-Installation)
 
-Falls du das Dashboard manuell ohne den App Store installieren möchtest, kannst du ein Docker-Compose-YAML direkt einfügen:
+Falls du das Dashboard manuell als Custom App über die TrueNAS-Weboberfläche installieren möchtest, folge diesen Schritten:
 
-#### Schritt 1: Host-Verzeichnis & Berechtigungen vorbereiten
-Der Container läuft als Benutzer `568:568` (TrueNAS `apps`-User). Setze zuerst die korrekten Berechtigungen:
+#### Schritt 1: Dataset & Berechtigungen vorbereiten
+Da der Container als Benutzer `568:568` (Standard-User `apps` in TrueNAS) ausgeführt wird, müssen die Berechtigungen für das Datenverzeichnis auf dem TrueNAS-Host vorbereitet werden.
 
-Ersetze `/mnt/your-pool/your-dataset/smart-home-dashboard` mit deinem tatsächlichen TrueNAS-Dataset-Pfad:
+Ersetze `/mnt/dein-pool/dein-dataset/smart-home-dashboard` mit deinem tatsächlichen TrueNAS-Dataset-Pfad:
 ```bash
-mkdir -p /mnt/your-pool/your-dataset/smart-home-dashboard
-chown -R 568:568 /mnt/your-pool/your-dataset/smart-home-dashboard
-chmod -R 770 /mnt/your-pool/your-dataset/smart-home-dashboard
+mkdir -p /mnt/dein-pool/dein-dataset/smart-home-dashboard
+chown -R 568:568 /mnt/dein-pool/dein-dataset/smart-home-dashboard
+chmod -R 770 /mnt/dein-pool/dein-dataset/smart-home-dashboard
 ```
 
-#### Schritt 2: Installation über TrueNAS Custom App
-1. Gehe zu **Apps** ➡️ **Discover Apps** ➡️ **Custom App** (oben rechts).
-2. Gib der App einen Namen (z.B. `smart-home-dashboard`).
-3. Füge folgendes YAML ein:
-
-```yaml
-services:
-  smart-home-dashboard:
-    image: ghcr.io/daddelgreis74/smart-home-dashboard:3.9.5
-    restart: unless-stopped
-    user: "568:568"
-    ports:
-      - "30436:30436"
-    environment:
-      PORT: "30436"
-      HOST: "0.0.0.0"
-      DATA_DIR: /app/data
-    volumes:
-      # Ersetze mit deinem tatsächlichen TrueNAS-Dataset-Pfad
-      - /mnt/your-pool/your-dataset/smart-home-dashboard:/app/data
-```
-
-4. Klicke auf **Save** zum Deployen.
+#### Schritt 2: Installation über die TrueNAS-Weboberfläche
+1. Gehe in TrueNAS auf **Apps** ➡️ **Discover Apps** ➡️ **Custom App** (oben rechts).
+2. Fülle die Felder wie folgt aus:
+   * **Application Name:** `smart-home-dashboard`
+   * **Repository:** `ghcr.io/daddelgreis74/smart-home-dashboard`
+   * **Tag:** `3.9.8`  *(oder `latest`)*
+3. **Netzwerk-Konfiguration (Sehr wichtig für die Bandbreitenmessung):**
+   * **Empfehlung:** Aktiviere die Checkbox **Host Network**. Dadurch teilt sich der Container die Netzwerkkarte mit dem TrueNAS-Host, und das System-Status-Widget auf dem Dashboard kann die echte Netzwerkgeschwindigkeit deines Servers messen.
+   * *Hinweis bei Host-Network:* Die App lauscht dann direkt auf dem Port `8443` deines TrueNAS-Servers. Du erreichst das Dashboard unter `http://<DEINE-TRUENAS-IP>:8443`.
+   * *Alternative (Bridge):* Wenn du kein Host-Netzwerk möchtest, deaktiviere die Checkbox, füge eine Portweiterleitung hinzu und leite den Host-Port `30436` auf den Container-Port `8443` um. (Hierbei bleibt die Netzwerkmessung im Dashboard jedoch bei `0.00 MB/s`).
+4. **Speicher-Konfiguration (Storage):**
+   * Füge ein **Host Path Volume** hinzu:
+     * **Host Path:** `/mnt/dein-pool/dein-dataset/smart-home-dashboard` (Dein zuvor erstellter Pfad)
+     * **Mount Path:** `/app/data`
+5. Klicke ganz unten auf **Save** – fertig! TrueNAS lädt das Image herunter und startet das Dashboard.
 
 ---
 

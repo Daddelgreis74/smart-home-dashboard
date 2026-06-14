@@ -116,25 +116,55 @@ To allow the live call monitor on port 1012, you must enable it on your Fritz!Bo
 - **Enable:** `#96*5*` (and dial/call)
 - **Disable (optional):** `#96*6*`
 
-## 🚀 Execution
+## 🚀 Installation & Execution
 
-### Windows (Automated & Recommended)
-Double-click the file in the project root:
-```text
-start-dashboard.bat
+The dashboard can be set up either fully automatically via a single terminal command (One-Liner) or manually.
+
+### ⚡ One-Liner Installation (Fast & Automated)
+
+The installers automatically check all dependencies (Node.js, Git, npm, and optionally Docker) on your system and install any missing components.
+
+#### Windows (PowerShell)
+Open PowerShell and run the following command:
+```powershell
+irm https://raw.githubusercontent.com/Daddelgreis74/smart-home-dashboard/main/install.ps1 | iex
 ```
-*This batch file checks Node.js environment paths, installs missing dependencies (`npm install`), launches the backend server, and opens your browser at `http://localhost:8443`.*
+*On Windows, missing dependencies (like Git or Node.js) are automatically installed via the Windows Package Manager (`winget`). An optional desktop shortcut can be created.*
 
-### Linux & macOS (Manual)
+#### Linux / Raspberry Pi (Bash)
+Open your terminal and run the following command:
 ```bash
-npm install
-npm start
+curl -fsSL https://raw.githubusercontent.com/Daddelgreis74/smart-home-dashboard/main/install.sh | bash
 ```
+*Offers the choice between a local host installation (including automatic systemd service setup for background execution on boot) or a Docker Compose deployment.*
 
-By default, the server runs on:
+---
 
+### 🛠️ Manual Installation
+
+#### Windows
+1. Download this repository as a ZIP file (or clone it) and extract it.
+2. Double-click the file in the project root:
+   ```text
+   start-dashboard.bat
+   ```
+   *This batch file checks Node.js environment paths, installs missing dependencies (`npm install`), launches the backend server, and opens your browser at `http://localhost:8443`.*
+
+#### Linux & macOS
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Daddelgreis74/smart-home-dashboard.git
+   cd smart-home-dashboard
+   ```
+2. Install dependencies and start:
+   ```bash
+   npm install
+   npm start
+   ```
+
+By default, the manual server runs on:
 ```text
-https://0.0.0.0:8443
+http://localhost:8443   (or https://localhost:8443 with SSL)
 ```
 
 ## 🐋 Docker & TrueNAS Setup Guide
@@ -195,12 +225,12 @@ The dashboard is accessible at `http://<YOUR-SERVER-IP>:8443`!
 
 ---
 
-### 📝 Method 3: TrueNAS Custom App (Manual YAML)
+### 📝 Method 3: TrueNAS Custom App (GUI Installation)
 
-If you want to install the dashboard manually without the App Store, you can paste a Docker Compose YAML directly:
+If you wish to manually install the dashboard as a Custom App using the TrueNAS Web UI, follow these steps:
 
-#### Step 1: Prepare the Host Directory & Permissions
-The container runs as user `568:568` (TrueNAS `apps` user). Set the correct permissions first:
+#### Step 1: Prepare the Dataset & Permissions
+The container runs as user `568:568` (TrueNAS `apps` user). Set the correct host folder permissions first.
 
 Replace `/mnt/your-pool/your-dataset/smart-home-dashboard` with your actual TrueNAS dataset path:
 ```bash
@@ -209,29 +239,21 @@ chown -R 568:568 /mnt/your-pool/your-dataset/smart-home-dashboard
 chmod -R 770 /mnt/your-pool/your-dataset/smart-home-dashboard
 ```
 
-#### Step 2: Install via TrueNAS Custom App
+#### Step 2: Install via TrueNAS Web Interface
 1. Go to **Apps** ➡️ **Discover Apps** ➡️ **Custom App** (top right).
-2. Give the application a name (e.g. `smart-home-dashboard`).
-3. Paste the following YAML:
-
-```yaml
-services:
-  smart-home-dashboard:
-    image: ghcr.io/daddelgreis74/smart-home-dashboard:3.9.5
-    restart: unless-stopped
-    user: "568:568"
-    ports:
-      - "30436:30436"
-    environment:
-      PORT: "30436"
-      HOST: "0.0.0.0"
-      DATA_DIR: /app/data
-    volumes:
-      # Replace with your actual TrueNAS dataset path
-      - /mnt/your-pool/your-dataset/smart-home-dashboard:/app/data
-```
-
-4. Click **Save** to deploy.
+2. Configure the following fields:
+   * **Application Name:** `smart-home-dashboard`
+   * **Repository:** `ghcr.io/daddelgreis74/smart-home-dashboard`
+   * **Tag:** `3.9.8`  *(or `latest`)*
+3. **Network Configuration (Crucial for network stats):**
+   * **Recommended:** Enable the **Host Network** checkbox. This allows the container to share the network stack with the TrueNAS host, enabling the System Status widget on your dashboard to measure the actual network speed of your server.
+   * *Note with Host Network:* The app will listen directly on port `8443` of your TrueNAS host. Access it via `http://<YOUR-TRUENAS-IP>:8443`.
+   * *Alternative (Bridge):* If you prefer not to use host networking, keep the checkbox disabled, add port forwarding, and map host port `30436` to container port `8443`. (Note: Network speed stats in the dashboard will remain at `0.00 MB/s` in this mode).
+4. **Storage Configuration:**
+   * Add a **Host Path Volume**:
+     * **Host Path:** `/mnt/your-pool/your-dataset/smart-home-dashboard` (Your previously created path)
+     * **Mount Path:** `/app/data`
+5. Click **Save** at the bottom of the page – done! TrueNAS will pull the image and deploy the dashboard.
 
 ---
 
