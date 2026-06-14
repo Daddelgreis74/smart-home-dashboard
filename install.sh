@@ -2,7 +2,7 @@
 # Neo Deck - Smart Home Dashboard Linux Installer 🏠👻
 #
 # Aufruf über:
-# curl -fsSL https://raw.githubusercontent.com/Daddelgreis74/smart-home-dashboard/main/install.sh | bash
+# bash <(curl -fsSL https://raw.githubusercontent.com/Daddelgreis74/smart-home-dashboard/main/install.sh)
 
 set -e
 

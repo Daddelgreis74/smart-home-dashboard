@@ -134,7 +134,7 @@ irm https://raw.githubusercontent.com/Daddelgreis74/smart-home-dashboard/main/in
 #### Linux / Raspberry Pi (Bash)
 Öffne dein Terminal und führe folgenden Befehl aus:
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Daddelgreis74/smart-home-dashboard/main/install.sh | bash
+bash <(curl -fsSL https://raw.githubusercontent.com/Daddelgreis74/smart-home-dashboard/main/install.sh)
 ```
 *Bietet die Wahl zwischen lokaler Installation (inkl. vollautomatischer Einrichtung als Systemd-Hintergrunddienst) oder einer Docker-Compose-Bereitstellung.*
 
