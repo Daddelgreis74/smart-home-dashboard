@@ -30,7 +30,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Daddelgreis74/smart-home-das
 
 ## ✨ Highlights & Features
 
-- **Multi-Theme System:** 5 elegant, switchable premium designs (Neo-Aurora Glassmorphism, Cyberpunk Tactical HUD, Cozy Nordic Dark, Retrowave Laser Synth, Terminal Classic, and OLED Stealth) with persistent storage.
+- **Multi-Theme System:** 6 elegant, switchable premium designs (Neo-Aurora Glassmorphism, Cyberpunk Tactical HUD, Cozy Nordic Dark, Retrowave Laser Synth, Terminal Classic, and OLED Stealth) with persistent storage.
 - **Adaptive Widgets:** Layout adapts dynamically to aspect ratio and Fully Kiosk viewport to prevent cut-off content.
 - **Weather Pro:** Open-Meteo integration containing temperature, feels-like temperature, min/max, humidity, rain probability, wind speed, air pressure, cloud cover, and UV index (no API key required).
 - **Smart Home / Tasmota:** Local device management, private subnet scan, toggle buttons with status indicators, and offline dimming.
