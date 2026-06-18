@@ -110,7 +110,28 @@ const translations = {
     "toggle_layout_tasmota": "Tasmota Geräte",
     "toggle_layout_fritzbox": "Fritz!Box Monitor",
     "toggle_layout_presence": "Anwesenheitserkennung",
-    "toggle_layout_camera": "Kamera-Monitor"
+    "toggle_layout_camera": "Kamera-Monitor",
+    "widget_title_jarvis": "J.A.R.V.I.S. Assistent",
+    "toggle_layout_jarvis": "J.A.R.V.I.S. KI-Assistent",
+    "jarvis_section_title": "J.A.R.V.I.S. KI-Assistent",
+    "jarvis_section_desc": "Konfiguriere das KI-Modell und die API-Schlüssel für deinen Sprachassistenten.",
+    "jarvis_provider_label": "API-Provider:",
+    "jarvis_apikey_label": "API-Key:",
+    "jarvis_model_label": "Modell:",
+    "jarvis_prompt_label": "System-Prompt (Persönlichkeit):",
+    "jarvis_tts_label": "Sprachausgabe (Text-to-Speech)",
+    "jarvis_save": "Einstellungen speichern",
+    "widget_title_calendar": "Terminkalender",
+    "toggle_layout_calendar": "Terminkalender",
+    "calendar_add_btn_widget": "Eintrag",
+    "calendar_no_events": "Keine Termine geplant.",
+    "calendar_modal_title": "Termin hinzufügen",
+    "calendar_label_title": "Titel",
+    "calendar_label_date": "Datum",
+    "calendar_label_time": "Uhrzeit",
+    "calendar_label_desc": "Beschreibung (optional)",
+    "calendar_btn_cancel": "Abbrechen",
+    "calendar_btn_save": "Speichern"
   },
   en: {
     // Header
@@ -223,7 +244,28 @@ const translations = {
     "toggle_layout_tasmota": "Tasmota Devices",
     "toggle_layout_fritzbox": "Fritz!Box Monitor",
     "toggle_layout_presence": "Presence Detection",
-    "toggle_layout_camera": "Camera Monitor"
+    "toggle_layout_camera": "Camera Monitor",
+    "widget_title_jarvis": "J.A.R.V.I.S. Assistant",
+    "toggle_layout_jarvis": "J.A.R.V.I.S. AI Assistant",
+    "jarvis_section_title": "J.A.R.V.I.S. AI Assistant",
+    "jarvis_section_desc": "Configure the AI model and API keys for your voice assistant.",
+    "jarvis_provider_label": "API Provider:",
+    "jarvis_apikey_label": "API Key:",
+    "jarvis_model_label": "Model:",
+    "jarvis_prompt_label": "System Prompt (Personality):",
+    "jarvis_tts_label": "Text-to-Speech (Voice Output)",
+    "jarvis_save": "Save Settings",
+    "widget_title_calendar": "Calendar",
+    "toggle_layout_calendar": "Calendar",
+    "calendar_add_btn_widget": "Add Event",
+    "calendar_no_events": "No events scheduled.",
+    "calendar_modal_title": "Add Event",
+    "calendar_label_title": "Title",
+    "calendar_label_date": "Date",
+    "calendar_label_time": "Time",
+    "calendar_label_desc": "Description (optional)",
+    "calendar_btn_cancel": "Cancel",
+    "calendar_btn_save": "Save"
   },
   fr: {
     // Header
@@ -336,7 +378,17 @@ const translations = {
     "toggle_layout_tasmota": "Appareils Tasmota",
     "toggle_layout_fritzbox": "Moniteur Fritz!Box",
     "toggle_layout_presence": "Détection de Présence",
-    "toggle_layout_camera": "Moniteur Caméra"
+    "toggle_layout_camera": "Moniteur Caméra",
+    "widget_title_jarvis": "Assistant J.A.R.V.I.S.",
+    "toggle_layout_jarvis": "Assistant IA J.A.R.V.I.S.",
+    "jarvis_section_title": "Assistant IA J.A.R.V.I.S.",
+    "jarvis_section_desc": "Configurez le modèle d'IA et les clés API de votre assistant vocal.",
+    "jarvis_provider_label": "Fournisseur d'API:",
+    "jarvis_apikey_label": "Clé API:",
+    "jarvis_model_label": "Modèle:",
+    "jarvis_prompt_label": "Invite système (personnalité):",
+    "jarvis_tts_label": "Synthèse Vocale (Sortie Audio)",
+    "jarvis_save": "Enregistrer les paramètres"
   },
   es: {
     // Header
@@ -449,7 +501,17 @@ const translations = {
     "toggle_layout_tasmota": "Dispositivos Tasmota",
     "toggle_layout_fritzbox": "Monitor Fritz!Box",
     "toggle_layout_presence": "Detección de Presencia",
-    "toggle_layout_camera": "Monitor de Cámara"
+    "toggle_layout_camera": "Monitor de Cámara",
+    "widget_title_jarvis": "Asistente J.A.R.V.I.S.",
+    "toggle_layout_jarvis": "Asistente IA J.A.R.V.I.S.",
+    "jarvis_section_title": "Asistente IA J.A.R.V.I.S.",
+    "jarvis_section_desc": "Configura el modelo de IA y las claves API de tu asistente de voz.",
+    "jarvis_provider_label": "Proveedor de API:",
+    "jarvis_apikey_label": "Clave API:",
+    "jarvis_model_label": "Modelo:",
+    "jarvis_prompt_label": "Mensaje del sistema (personalidad):",
+    "jarvis_tts_label": "Salida de voz (Texto a voz)",
+    "jarvis_save": "Guardar configuración"
   },
   it: {
     // Header
@@ -562,7 +624,17 @@ const translations = {
     "toggle_layout_tasmota": "Dispositivi Tasmota",
     "toggle_layout_fritzbox": "Monitor Fritz!Box",
     "toggle_layout_presence": "Rilevamento Presenze",
-    "toggle_layout_camera": "Monitor Telecamera"
+    "toggle_layout_camera": "Monitor Telecamera",
+    "widget_title_jarvis": "Assistente J.A.R.V.I.S.",
+    "toggle_layout_jarvis": "Assistente IA J.A.R.V.I.S.",
+    "jarvis_section_title": "Assistente IA J.A.R.V.I.S.",
+    "jarvis_section_desc": "Configura il modello AI e le chiavi API per il tuo assistente vocale.",
+    "jarvis_provider_label": "Fornitore API:",
+    "jarvis_apikey_label": "Chiave API:",
+    "jarvis_model_label": "Modello:",
+    "jarvis_prompt_label": "Prompt di sistema (personalità):",
+    "jarvis_tts_label": "Sintesi Vocale (Uscita Audio)",
+    "jarvis_save": "Salva impostazioni"
   },
   nl: {
     // Header
@@ -675,7 +747,17 @@ const translations = {
     "toggle_layout_tasmota": "Tasmota Apparaten",
     "toggle_layout_fritzbox": "Fritz!Box Monitor",
     "toggle_layout_presence": "Aanwezigheidsdetectie",
-    "toggle_layout_camera": "Cameramonitor"
+    "toggle_layout_camera": "Cameramonitor",
+    "widget_title_jarvis": "J.A.R.V.I.S. Assistent",
+    "toggle_layout_jarvis": "J.A.R.V.I.S. AI-assistent",
+    "jarvis_section_title": "J.A.R.V.I.S. AI-assistent",
+    "jarvis_section_desc": "Configureer het AI-model en de API-sleutels voor uw spraakassistent.",
+    "jarvis_provider_label": "API-provider:",
+    "jarvis_apikey_label": "API-sleutel:",
+    "jarvis_model_label": "Model:",
+    "jarvis_prompt_label": "Systeemprompt (persoonlijkheid):",
+    "jarvis_tts_label": "Spraakuitvoer (Text-to-Speech)",
+    "jarvis_save": "Instellingen opslaan"
   },
   pl: {
     // Header
@@ -788,7 +870,17 @@ const translations = {
     "toggle_layout_tasmota": "Urządzenia Tasmota",
     "toggle_layout_fritzbox": "Monitor Fritz!Box",
     "toggle_layout_presence": "Wykrywanie Obecności",
-    "toggle_layout_camera": "Monitor Kamer"
+    "toggle_layout_camera": "Monitor Kamer",
+    "widget_title_jarvis": "Asystent J.A.R.V.I.S.",
+    "toggle_layout_jarvis": "Asystent AI J.A.R.V.I.S.",
+    "jarvis_section_title": "Asystent AI J.A.R.V.I.S.",
+    "jarvis_section_desc": "Skonfiguruj model AI i klucze API dla swojego asystenta głosowego.",
+    "jarvis_provider_label": "Dostawca API:",
+    "jarvis_apikey_label": "Klucz API:",
+    "jarvis_model_label": "Model:",
+    "jarvis_prompt_label": "Monit systemowy (osobowość):",
+    "jarvis_tts_label": "Synteza mowy (Lektor)",
+    "jarvis_save": "Zapisz ustawienia"
   }
 };
 

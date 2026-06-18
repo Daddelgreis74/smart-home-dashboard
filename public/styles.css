@@ -97,7 +97,7 @@ body {
 /* WICHTIG FÜR SORTABLE GHOST (Die Schattengrafik beim Dragen) */
 .sortable-ghost { opacity: 0.4; transform: scale(0.95); background: rgba(74, 222, 128, 0.1); border-color: var(--primary); }
 
-.widget[data-type="player"], .widget[data-type="weather"], .widget[data-type="waste"], .widget[data-type="system"], .widget[data-type="tasmota"] {
+.widget[data-type="player"], .widget[data-type="weather"], .widget[data-type="waste"], .widget[data-type="calendar"], .widget[data-type="system"], .widget[data-type="tasmota"] {
     grid-column: span 1;
     grid-row: span 1;
 }
@@ -903,7 +903,7 @@ body::before {
 .widget > * { position: relative; z-index: 1; }
 
 .widget[data-type="weather"] { grid-column: span 2; grid-row: span 1; }
-.widget[data-type="waste"] { grid-column: span 2; grid-row: span 1; }
+.widget[data-type="waste"], .widget[data-type="calendar"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="system"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="tasmota"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="player"] { grid-column: span 2; grid-row: span 1; }
@@ -1466,7 +1466,7 @@ body::before {
    Row 1: Weather | Waste | System
    Row 2: Smart Home wide | Radio */
 .widget[data-type="weather"] { grid-column: span 2; grid-row: span 1; }
-.widget[data-type="waste"] { grid-column: span 2; grid-row: span 1; }
+.widget[data-type="waste"], .widget[data-type="calendar"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="system"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="tasmota"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="player"] { grid-column: span 2; grid-row: span 1; }
@@ -1492,7 +1492,7 @@ body::before {
 @media (min-aspect-ratio: 17/9) {
   .dashboard { grid-template-columns: repeat(8, minmax(0, 1fr)); }
   .widget[data-type="weather"] { grid-column: span 3; }
-  .widget[data-type="waste"] { grid-column: span 2; }
+  .widget[data-type="waste"], .widget[data-type="calendar"] { grid-column: span 2; }
   .widget[data-type="system"] { grid-column: span 3; }
   .widget[data-type="tasmota"] { grid-column: span 3; }
   .widget[data-type="player"] { grid-column: span 3; }
@@ -1506,7 +1506,7 @@ body::before {
     grid-template-rows: repeat(2, minmax(0, 1fr));
   }
   .widget[data-type="weather"],
-  .widget[data-type="waste"],
+  .widget[data-type="waste"], .widget[data-type="calendar"],
   .widget[data-type="system"],
   .widget[data-type="player"],
   .widget[data-type="presence"],
@@ -1530,7 +1530,7 @@ body::before {
     padding-bottom: 18px;
   }
   .widget[data-type="weather"],
-  .widget[data-type="waste"],
+  .widget[data-type="waste"], .widget[data-type="calendar"],
   .widget[data-type="system"],
   .widget[data-type="tasmota"],
   .widget[data-type="player"] {
@@ -1838,7 +1838,7 @@ body::before {
   grid-auto-rows: minmax(320px, 1fr);
 }
 .widget[data-type="weather"] { grid-column: span 4; grid-row: span 1; }
-.widget[data-type="waste"] { grid-column: span 4; grid-row: span 1; }
+.widget[data-type="waste"], .widget[data-type="calendar"] { grid-column: span 4; grid-row: span 1; }
 .widget[data-type="system"] { grid-column: span 4; grid-row: span 1; }
 .widget[data-type="tasmota"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="player"] { grid-column: span 3; grid-row: span 1; }
@@ -1847,7 +1847,7 @@ body::before {
 @media (min-aspect-ratio: 17/9) {
   .dashboard { grid-template-columns: repeat(12, minmax(0, 1fr)); }
   .widget[data-type="weather"] { grid-column: span 4; }
-  .widget[data-type="waste"] { grid-column: span 3; }
+  .widget[data-type="waste"], .widget[data-type="calendar"] { grid-column: span 3; }
   .widget[data-type="system"] { grid-column: span 5; }
   .widget[data-type="player"],
   .widget[data-type="presence"],
@@ -1862,7 +1862,7 @@ body::before {
     grid-auto-rows: minmax(270px, 1fr);
   }
   .widget[data-type="weather"],
-  .widget[data-type="waste"],
+  .widget[data-type="waste"], .widget[data-type="calendar"],
   .widget[data-type="system"] { grid-column: span 4; }
   .widget[data-type="player"],
   .widget[data-type="presence"],
@@ -1875,7 +1875,7 @@ body::before {
     grid-template-rows: none;
   }
   .widget[data-type="weather"],
-  .widget[data-type="waste"],
+  .widget[data-type="waste"], .widget[data-type="calendar"],
   .widget[data-type="system"],
   .widget[data-type="player"],
   .widget[data-type="presence"] { grid-column: span 1; }
@@ -1895,7 +1895,7 @@ body::before {
 
 /* --- AM2301 TASMOTA SENSOR GAUGES --- */
 .widget[data-type="weather"],
-.widget[data-type="waste"],
+.widget[data-type="waste"], .widget[data-type="calendar"],
 .widget[data-type="system"],
 .widget[data-type="fritzbox"],
 .widget[data-type="player"],
@@ -2014,12 +2014,14 @@ body::before {
 
 @media (max-aspect-ratio: 4/3) {
   .widget[data-type="weather"],
-  .widget[data-type="waste"],
+  .widget[data-type="waste"], .widget[data-type="calendar"],
   .widget[data-type="system"],
   .widget[data-type="sensor"],
   .widget[data-type="player"],
   .widget[data-type="fritzbox"],
-  .widget[data-type="presence"] { grid-column: span 1; }
+  .widget[data-type="presence"],
+  .widget[data-type="camera"],
+  .widget[data-type="jarvis"] { grid-column: span 1; }
   .widget[data-type="tasmota"] { grid-column: span 2; }
 }
 
@@ -3561,6 +3563,469 @@ body.theme-stealth .radio-select option {
   background-color: #000000;
   color: #f3f4f6;
 }
+
+/* ==========================================
+   J.A.R.V.I.S. KI-ASSISTENT WIDGET STYLES
+   ========================================== */
+
+/* Layout */
+.widget[data-type="jarvis"] {
+  grid-column: span 3;
+  grid-row: span 1;
+}
+
+.jarvis-layout {
+  overflow: hidden;
+}
+
+/* Chat bubble styling */
+.jarvis-msg {
+  padding: 6px 10px;
+  border-radius: 10px;
+  word-break: break-word;
+  max-width: 90%;
+}
+
+.jarvis-msg-user {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+  align-self: flex-end;
+  border-bottom-right-radius: 2px;
+}
+
+.jarvis-msg-assistant {
+  background: rgba(74, 222, 128, 0.05);
+  border: 1px solid rgba(74, 222, 128, 0.1);
+  color: var(--text-main);
+  align-self: flex-start;
+  border-bottom-left-radius: 2px;
+}
+
+/* Custom theme overrides for assistant message borders if active theme overrides it */
+body.theme-aurora .jarvis-msg-assistant {
+  background: rgba(74, 222, 128, 0.05);
+  border-color: rgba(74, 222, 128, 0.15);
+}
+body.theme-cyberpunk .jarvis-msg-assistant {
+  background: rgba(255, 159, 28, 0.05);
+  border-color: rgba(255, 159, 28, 0.2);
+}
+body.theme-retrowave .jarvis-msg-assistant {
+  background: rgba(168, 85, 247, 0.05);
+  border-color: rgba(168, 85, 247, 0.2);
+}
+body.theme-terminal .jarvis-msg-assistant {
+  background: rgba(0, 255, 0, 0.03);
+  border-color: rgba(0, 255, 0, 0.2);
+}
+
+.jarvis-msg-system {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-style: italic;
+  align-self: center;
+  font-size: 10px;
+  text-align: center;
+}
+
+.jarvis-msg-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  align-self: center;
+  font-size: 10px;
+}
+
+/* Scrollbar customization for Jarvis chat log */
+.jarvis-chat-log-wrapper::-webkit-scrollbar {
+  width: 4px;
+}
+.jarvis-chat-log-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+.jarvis-chat-log-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+.jarvis-chat-log-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Arc Reactor Animation Keyframes */
+@keyframes spin-clockwise {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spin-counterclockwise {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+@keyframes reactor-pulse {
+  0% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.06); }
+  100% { opacity: 0.8; transform: scale(1); }
+}
+
+@keyframes reactor-glow-thinking {
+  0% { filter: drop-shadow(0 0 2px var(--primary)); }
+  50% { filter: drop-shadow(0 0 12px var(--primary)); }
+  100% { filter: drop-shadow(0 0 2px var(--primary)); }
+}
+
+/* Default spin speeds */
+/* --- 3D Holographic Orbital Sphere Core --- */
+.jarvis-orbital-container {
+  --reactor-color: #00d2ff;
+  --reactor-glow: rgba(0, 210, 255, 0.6);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  filter: drop-shadow(0 0 8px var(--reactor-glow));
+  transition: filter 0.3s ease;
+}
+
+/* Color states based on class */
+.jarvis-orbital-container.thinking,
+.jarvis-orbital-container.listening {
+  --reactor-color: #ef4444;
+  --reactor-glow: rgba(239, 68, 68, 0.7);
+}
+
+/* Outer/Middle/Inner concentric orbital rings */
+.orbital-ring {
+  position: absolute;
+  top: 5%; left: 5%; width: 90%; height: 90%;
+  border: 1.5px dashed var(--reactor-color);
+  border-radius: 50%;
+  opacity: 0.7;
+  transition: border-color 0.3s ease;
+  transform-style: preserve-3d;
+}
+
+/* Center core globe */
+.orbital-core {
+  position: absolute;
+  top: 35%; left: 35%; width: 30%; height: 30%;
+  background: #fff;
+  border: 2px solid var(--reactor-color);
+  border-radius: 50%;
+  box-shadow: 0 0 16px var(--reactor-color), inset 0 0 8px var(--reactor-color);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  animation: core-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes core-pulse {
+  0% { transform: scale(0.9) translateZ(0px); opacity: 0.8; }
+  100% { transform: scale(1.1) translateZ(10px); opacity: 1; }
+}
+
+/* Ring 3D tilts and custom spins */
+.ring-1 {
+  animation: spin-ring-1 12s linear infinite;
+}
+@keyframes spin-ring-1 {
+  from { transform: rotateX(70deg) rotateY(20deg) rotateZ(0deg); }
+  to { transform: rotateX(70deg) rotateY(20deg) rotateZ(360deg); }
+}
+
+.ring-2 {
+  animation: spin-ring-2 8s linear infinite reverse;
+}
+@keyframes spin-ring-2 {
+  from { transform: rotateX(45deg) rotateY(-40deg) rotateZ(0deg); }
+  to { transform: rotateX(45deg) rotateY(-40deg) rotateZ(360deg); }
+}
+
+.ring-3 {
+  border-style: dotted;
+  border-width: 2px;
+  animation: spin-ring-3 16s linear infinite;
+}
+@keyframes spin-ring-3 {
+  from { transform: rotateX(-60deg) rotateY(30deg) rotateZ(0deg); }
+  to { transform: rotateX(-60deg) rotateY(30deg) rotateZ(360deg); }
+}
+
+.ring-4 {
+  border-style: solid;
+  border-width: 1px;
+  opacity: 0.4;
+  animation: spin-ring-4 6s linear infinite;
+}
+@keyframes spin-ring-4 {
+  from { transform: rotateX(85deg) rotateY(10deg) rotateZ(0deg); }
+  to { transform: rotateX(85deg) rotateY(10deg) rotateZ(360deg); }
+}
+
+.ring-5 {
+  border-style: dashed;
+  animation: spin-ring-5 10s linear infinite reverse;
+}
+@keyframes spin-ring-5 {
+  from { transform: rotateX(20deg) rotateY(75deg) rotateZ(0deg); }
+  to { transform: rotateX(20deg) rotateY(75deg) rotateZ(360deg); }
+}
+
+/* Speed ups when thinking (processing) */
+.jarvis-orbital-container.thinking .ring-1 { animation-duration: 3s; }
+.jarvis-orbital-container.thinking .ring-2 { animation-duration: 2s; }
+.jarvis-orbital-container.thinking .ring-3 { animation-duration: 4s; }
+.jarvis-orbital-container.thinking .ring-4 { animation-duration: 1.5s; }
+.jarvis-orbital-container.thinking .ring-5 { animation-duration: 2.5s; }
+.jarvis-orbital-container.thinking .orbital-core { animation: core-pulse 0.4s ease-in-out infinite alternate; }
+
+/* Speed ups when listening (speech in) */
+.jarvis-orbital-container.listening .ring-1 { animation-duration: 4s; }
+.jarvis-orbital-container.listening .ring-2 { animation-duration: 3s; }
+.jarvis-orbital-container.listening .ring-3 { animation-duration: 5s; }
+.jarvis-orbital-container.listening .ring-4 { animation-duration: 2s; }
+.jarvis-orbital-container.listening .ring-5 { animation-duration: 3.5s; }
+.jarvis-orbital-container.listening .orbital-core { animation: core-pulse 0.6s ease-in-out infinite alternate; }
+
+/* Pulse changes when speaking (speech out) */
+.jarvis-orbital-container.speaking .orbital-core { animation: core-pulse 0.7s ease-in-out infinite alternate; }
+
+/* Microphone button animation when listening */
+#jarvisMicBtn.listening {
+  background: rgba(239, 68, 68, 0.2) !important;
+  border-color: #ef4444 !important;
+  color: #ef4444 !important;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+  animation: mic-pulse 1s infinite alternate;
+}
+
+@keyframes mic-pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.08); opacity: 1; }
+}
+
+/* Dropdown selections for provider option hiding */
+.prov-opt {
+  display: none;
+}
+select#jarvisModel option {
+  background-color: #0f172a;
+  color: #fff;
+}
+
+/* J.A.R.V.I.S Status-Textfarben passend zum Reaktorzustand */
+.arc-reactor-container:has(.jarvis-orbital-container.thinking) + #jarvisStatus,
+.arc-reactor-container:has(.jarvis-orbital-container.listening) + #jarvisStatus {
+  color: #ef4444 !important;
+}
+.arc-reactor-container:has(.jarvis-orbital-container.speaking) + #jarvisStatus,
+.arc-reactor-container:has(.jarvis-orbital-container:not(.thinking):not(.listening)) + #jarvisStatus {
+  color: #00d2ff !important;
+}
+
+/* ==== CALENDAR WIDGET & MANUAL ADD FORM ==== */
+
+.calendar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.calendar-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--panel-border);
+  border-left: 4px solid var(--primary); /* Neon green/teal aurora style border-left */
+  transition: all 0.2s ease;
+}
+
+.calendar-item:hover {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.calendar-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+
+.calendar-item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.calendar-item-time {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 0.5px;
+  font-variant-numeric: tabular-nums;
+  background: var(--primary-glow);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.calendar-item-date {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.calendar-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calendar-item-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calendar-item-actions {
+  margin-left: 10px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.calendar-item-actions:hover {
+  opacity: 1;
+}
+
+.calendar-item-del-btn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.calendar-item-del-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.calendar-no-events {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-style: italic;
+  text-align: center;
+}
+
+/* Toast styling for custom calendar reminders */
+.calendar-reminder-toast {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-md);
+  padding: 15px 20px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px var(--primary-glow);
+  transform: translateY(100px);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s;
+}
+
+.calendar-reminder-toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.calendar-reminder-icon {
+  font-size: 20px;
+  color: var(--primary);
+  animation: alarm-shake 0.5s infinite alternate;
+}
+
+@keyframes alarm-shake {
+  0% { transform: rotate(-10deg); }
+  100% { transform: rotate(10deg); }
+}
+
+.calendar-reminder-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.calendar-reminder-info h4 {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.calendar-reminder-info p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.btn-add-event {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--panel-border);
+  color: var(--text-main);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.2s ease;
+  pointer-events: auto;
+}
+
+.btn-add-event:hover {
+  background: var(--primary-glow);
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: 0 0 8px var(--primary-glow);
+}
+
+.calendar-layout {
+  padding: 5px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 10px;
+  overflow-y: auto;
+  height: calc(100% - 35px); /* Matches header offset */
+}
+
+
 
 
 

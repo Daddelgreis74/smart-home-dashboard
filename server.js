@@ -17,6 +17,7 @@ const DATA_DIR = process.env.DATA_DIR || __dirname;
 const TASMOTA_FILE = path.join(DATA_DIR, 'tasmota.json');
 const RADIO_FILE = path.join(DATA_DIR, 'radio.json');
 const CAMERAS_FILE = path.join(DATA_DIR, 'cameras.json');
+const APPOINTMENTS_FILE = path.join(DATA_DIR, 'appointments.json');
 const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
 const SSL_DIR = process.env.SSL_DIR || path.join(__dirname, 'ssl');
 
@@ -316,6 +317,26 @@ app.post('/api/tasmota/toggle', async (req, res) => {
     res.json({success: true, state: j.POWER});
   } catch (e) {
     console.error("Tasmota Toggle Error", e.message);
+    res.json({success: false, error: e.message});
+  }
+});
+
+app.post('/api/tasmota/power', async (req, res) => {
+  const ip = String(req.body?.ip || '').trim();
+  let action = String(req.body?.action || 'TOGGLE').trim().toUpperCase();
+  if (action !== 'ON' && action !== 'OFF') {
+    action = 'TOGGLE';
+  }
+  if (!isPrivateIPv4(ip)) return res.status(400).json({success: false, error: 'Ungültige lokale IPv4-Adresse'});
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 2000);
+    const r = await fetch(`http://${ip}/cm?cmnd=Power%20${action}`, { signal: controller.signal });
+    clearTimeout(timeout);
+    const j = await r.json();
+    res.json({success: true, state: j.POWER});
+  } catch (e) {
+    console.error("Tasmota Power Error", e.message);
     res.json({success: false, error: e.message});
   }
 });
@@ -1045,6 +1066,122 @@ app.delete('/api/cameras/:id', (req, res) => {
   }
 });
 
+// ==== APPOINTMENTS MONITOR LOGIC & API ====
+let appointmentsRAM = [];
+
+function sanitizeAppointments(value) {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 500).reduce((acc, appt) => {
+    const id = String(appt?.id || Date.now() + Math.random().toString(36).substring(2, 7));
+    const title = cleanName(appt?.title, 'Termin');
+    
+    // date validation YYYY-MM-DD
+    const date = String(appt?.date || '').trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return acc;
+    
+    // time validation HH:MM
+    let time = String(appt?.time || '').trim();
+    if (time && !/^\d{2}:\d{2}$/.test(time)) {
+      time = '00:00';
+    } else if (!time) {
+      time = '00:00';
+    }
+    
+    const description = String(appt?.description || '').replace(/[\r\n\t]/g, ' ').trim().slice(0, 500);
+    
+    acc.push({ id, title, date, time, description });
+    return acc;
+  }, []);
+}
+
+function loadAppointments() {
+  if (fs.existsSync(APPOINTMENTS_FILE)) {
+    try {
+      appointmentsRAM = sanitizeAppointments(JSON.parse(fs.readFileSync(APPOINTMENTS_FILE, 'utf8')));
+    } catch(e) { console.error("[Appointments] Parse Error", e); }
+  }
+  return appointmentsRAM;
+}
+
+function saveAppointments(data) {
+  appointmentsRAM = sanitizeAppointments(data);
+  try {
+    fs.writeFileSync(APPOINTMENTS_FILE, JSON.stringify(appointmentsRAM, null, 2));
+  } catch(e) { console.error("[Appointments] Schreibfehler", e); }
+}
+
+// Initialisiere Termine
+loadAppointments();
+
+app.get('/api/appointments', (req, res) => {
+  res.json(appointmentsRAM);
+});
+
+app.post('/api/appointments', (req, res) => {
+  try {
+    const { id, title, date, time, description } = req.body;
+    const cleanId = String(id || Date.now());
+    const cleanT = cleanName(title, 'Termin');
+    const cleanD = String(date || '').trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(cleanD)) {
+      return res.status(400).json({ success: false, error: 'Ungültiges Datumsformat. YYYY-MM-DD erforderlich.' });
+    }
+    let cleanTime = String(time || '').trim();
+    if (cleanTime && !/^\d{2}:\d{2}$/.test(cleanTime)) {
+      cleanTime = '00:00';
+    } else if (!cleanTime) {
+      cleanTime = '00:00';
+    }
+    const cleanDesc = String(description || '').replace(/[\r\n\t]/g, ' ').trim().slice(0, 500);
+
+    const index = appointmentsRAM.findIndex(a => a.id === cleanId);
+    const appt = {
+      id: cleanId,
+      title: cleanT,
+      date: cleanD,
+      time: cleanTime,
+      description: cleanDesc
+    };
+
+    if (index >= 0) {
+      appointmentsRAM[index] = appt;
+    } else {
+      appointmentsRAM.push(appt);
+    }
+
+    // Sort by date and time
+    appointmentsRAM.sort((a, b) => {
+      const dateTimeA = new Date(`${a.date}T${a.time}`);
+      const dateTimeB = new Date(`${b.date}T${b.time}`);
+      return dateTimeA - dateTimeB;
+    });
+
+    saveAppointments(appointmentsRAM);
+    res.json({ success: true, appointment: appt });
+    io.emit('appointments-updated', appointmentsRAM);
+  } catch(e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+app.delete('/api/appointments/:id', (req, res) => {
+  try {
+    const id = String(req.params.id);
+    const index = appointmentsRAM.findIndex(a => a.id === id);
+    if (index >= 0) {
+      appointmentsRAM.splice(index, 1);
+      saveAppointments(appointmentsRAM);
+      res.json({ success: true });
+      io.emit('appointments-updated', appointmentsRAM);
+    } else {
+      res.status(404).json({ success: false, error: 'Termin nicht gefunden.' });
+    }
+  } catch(e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+
 // Netzwerk Status-Schleife (alle 10s)
 
 setInterval(async () => {
@@ -1067,6 +1204,7 @@ io.on('connection', (socket) => {
   socket.emit('fritz-calls', getMergedCalls());
   socket.emit('presence-list-updated', presenceRAM);
   socket.emit('cameras-updated', camerasRAM);
+  socket.emit('appointments-updated', appointmentsRAM);
 });
 
 setInterval(async () => {

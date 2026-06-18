@@ -93,6 +93,8 @@
                 <label class="toggle-label"><span data-i18n="toggle_layout_fritzbox">Fritz!Box Monitor</span><input type="checkbox" id="toggle-fritzbox" checked><div class="toggle-switch"></div></label>
                 <label class="toggle-label"><span data-i18n="toggle_layout_presence">Anwesenheitserkennung</span><input type="checkbox" id="toggle-presence" checked><div class="toggle-switch"></div></label>
                 <label class="toggle-label"><span data-i18n="toggle_layout_camera">Kamera-Monitor</span><input type="checkbox" id="toggle-camera" checked><div class="toggle-switch"></div></label>
+                <label class="toggle-label"><span data-i18n="toggle_layout_calendar">Terminkalender</span><input type="checkbox" id="toggle-calendar" checked><div class="toggle-switch"></div></label>
+                <label class="toggle-label"><span data-i18n="toggle_layout_jarvis">J.A.R.V.I.S. KI-Assistent</span><input type="checkbox" id="toggle-jarvis" checked><div class="toggle-switch"></div></label>
               </div>
             </div>
             <div class="section-divider"></div>
@@ -289,6 +291,65 @@
             <div class="section-divider"></div>
           </div>
 
+          <!-- 11. J.A.R.V.I.S. KI-ASSISTENT -->
+          <div class="setting-section">
+            <h3 class="accordion-header"><i class="fas fa-brain"></i> <span data-i18n="jarvis_section_title">J.A.R.V.I.S. KI-Assistent</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
+            <div class="accordion-body">
+              <p data-i18n="jarvis_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Konfiguriere das KI-Modell und die API-Schlüssel für deinen Sprachassistenten.</p>
+              
+              <div class="input-group" style="margin-bottom: 12px;">
+                <label class="setting-sub-label" data-i18n="jarvis_provider_label">API-Provider:</label>
+                <select id="jarvisProvider" class="radio-select" style="max-width: 100%; width: 100%;">
+                  <option value="gemini">♊ Google Gemini (Direkt)</option>
+                  <option value="openrouter">📡 OpenRouter (LLaMA, Qwen, etc.)</option>
+                  <option value="simulator">🎮 Simulator-Modus (Lokale Antworten)</option>
+                </select>
+              </div>
+
+              <div class="input-group" id="jarvisApiKeyGroup" style="margin-bottom: 12px;">
+                <label class="setting-sub-label" data-i18n="jarvis_apikey_label">API-Schlüssel:</label>
+                <div style="display: flex; gap: 8px; width: 100%;">
+                  <input type="password" id="jarvisApiKey" placeholder="API Key eintragen" style="flex: 1;">
+                  <button type="button" id="jarvisClearKeyBtn" class="btn" style="padding: 8px 12px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; display: flex; align-items: center; justify-content: center;" title="API-Schlüssel für diesen Provider löschen"><i class="fas fa-trash-alt"></i></button>
+                </div>
+              </div>
+
+              <div class="input-group" id="jarvisModelGroup" style="margin-bottom: 12px;">
+                <label class="setting-sub-label" data-i18n="jarvis_model_label">KI-Modell:</label>
+                <select id="jarvisModel" class="radio-select" style="max-width: 100%; width: 100%;">
+                  <option class="prov-opt gemini-opt" value="gemini-2.5-flash">gemini-2.5-flash (Schnell & Empfohlen)</option>
+                  <option class="prov-opt gemini-opt" value="gemini-2.5-pro">gemini-2.5-pro (Intelligent)</option>
+                  <option class="prov-opt gemini-opt" value="gemini-2.0-flash">gemini-2.0-flash</option>
+                  <option class="prov-opt gemini-opt" value="gemini-1.5-flash">gemini-1.5-flash</option>
+                  <option class="prov-opt openrouter-opt" value="google/gemini-2.5-flash:free">Gemini 2.5 Flash Free</option>
+                  <option class="prov-opt openrouter-opt" value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B Free</option>
+                  <option class="prov-opt openrouter-opt" value="qwen/qwen-2.5-72b-instruct:free">Qwen 2.5 72B Free</option>
+                  <option class="prov-opt openrouter-opt" value="deepseek/deepseek-chat">DeepSeek Chat</option>
+                </select>
+                <input type="text" id="jarvisCustomModel" placeholder="Benutzerdefiniertes Modell (optional)" style="width: 100%; margin-top: 8px;">
+              </div>
+
+              <div class="input-group" style="margin-bottom: 12px;">
+                <label class="setting-sub-label" data-i18n="jarvis_prompt_label">System-Prompt (Charakter):</label>
+                <textarea id="jarvisSystemPrompt" rows="3" style="width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--panel-border); padding: 10px 15px; border-radius: var(--radius-sm); color: #fff; font-family: inherit; font-size: 13px; outline: none; resize: vertical;" placeholder="Du bist J.A.R.V.I.S., eine hochentwickelte KI. Antworte kurz, präzise und charmant auf Deutsch."></textarea>
+              </div>
+
+              <div class="toggle-group" style="margin-bottom: 15px;">
+                <label class="toggle-label">
+                  <span data-i18n="jarvis_tts_label">Sprachausgabe (Text-to-Speech)</span>
+                  <input type="checkbox" id="jarvisTtsEnabled" checked>
+                  <div class="toggle-switch"></div>
+                </label>
+              </div>
+
+              <div style="display: flex; gap: 8px; width: 100%;">
+                <button class="btn" id="saveJarvisConfig" style="flex: 1;"><i class="fas fa-save"></i> <span data-i18n="jarvis_save">Einstellungen speichern</span></button>
+                <button type="button" class="btn" id="jarvisClearHistoryBtn" style="padding: 8px 12px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; display: flex; align-items: center; justify-content: center; gap: 6px;" title="Chatverlauf löschen"><i class="fas fa-trash-alt"></i> <span style="font-size: 11px;">Verlauf löschen</span></button>
+              </div>
+            </div>
+            <div class="section-divider"></div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -324,6 +385,20 @@
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body" id="wasteBody"></div>
+      </div>
+
+      <div class="widget" data-type="calendar">
+        <div class="widget-header">
+          <h3><i class="fas fa-calendar-alt" style="color:var(--primary)"></i> <span data-i18n="widget_title_calendar">Terminkalender</span></h3>
+          <div class="widget-header-right" style="pointer-events: auto; display: flex; align-items: center; gap: 5px;">
+            <button class="btn-add-event" id="addEventBtn" title="Termin hinzufügen"><i class="fas fa-plus"></i></button>
+            <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
+          </div>
+        </div>
+        <div class="widget-body calendar-layout" id="calendarBody">
+          <!-- Dynamische Termine -->
+          <div class="calendar-no-events" data-i18n="calendar_no_events">Keine Termine geplant.</div>
+        </div>
       </div>
 
       <div class="widget" data-type="player">
@@ -537,6 +612,44 @@
         </div>
       </div>
 
+      <!-- J.A.R.V.I.S. KI-ASSISTENT WIDGET -->
+      <div class="widget" data-type="jarvis">
+        <div class="widget-header">
+          <h3><i class="fas fa-brain" style="color:var(--primary)"></i> <span data-i18n="widget_title_jarvis">J.A.R.V.I.S. Assistent</span></h3>
+          <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
+        </div>
+        <div class="widget-body jarvis-layout" style="display: flex; flex-direction: column; justify-content: space-between; height: calc(100% - 35px); padding: 10px 15px 12px;">
+          <div class="jarvis-widget-content" style="display: flex; flex: 1; min-height: 0; gap: 12px; margin-bottom: 10px;">
+            <!-- Left: SVG Arc Reactor & Status -->
+            <div class="reactor-wrapper" style="width: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0;">
+              <div class="arc-reactor-container" style="position: relative; width: 70px; height: 70px;">
+                <div class="jarvis-orbital-container" id="jarvisReactor">
+                  <div class="orbital-core"></div>
+                  <div class="orbital-ring ring-1"></div>
+                  <div class="orbital-ring ring-2"></div>
+                  <div class="orbital-ring ring-3"></div>
+                  <div class="orbital-ring ring-4"></div>
+                  <div class="orbital-ring ring-5"></div>
+                </div>
+              </div>
+              <span id="jarvisStatus" style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--primary);">Online</span>
+            </div>
+            <!-- Right: Chat Messages -->
+            <div class="jarvis-chat-log-wrapper" style="flex: 1; display: flex; flex-direction: column; background: rgba(0,0,0,0.25); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); padding: 8px; overflow-y: auto; min-width: 0;">
+              <div id="jarvisChatLog" style="display: flex; flex-direction: column; gap: 8px; font-size: 11px; line-height: 1.4;">
+                <div class="jarvis-msg jarvis-msg-system" style="color: var(--primary); font-weight: 500;"><span style="color: var(--primary); font-weight: 700;">J.A.R.V.I.S.:</span> Hallo. Ich stehe zu Ihrer Verfügung.</div>
+              </div>
+            </div>
+          </div>
+          <!-- Input -->
+          <div class="jarvis-input-area" style="display: flex; gap: 8px; align-items: center;">
+            <input type="text" id="jarvisInput" placeholder="Fragen oder Sprachbefehl..." style="flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--panel-border); padding: 8px 12px; border-radius: 100px; color: #fff; font-family: inherit; font-size: 12px; outline: none;" />
+            <button id="jarvisMicBtn" class="btn" style="padding: 8px 12px; font-size: 12px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border: 1px solid var(--panel-border); color: var(--text-main);" title="Spracheingabe starten"><i class="fas fa-microphone"></i></button>
+            <button id="jarvisSendBtn" class="btn" style="padding: 8px 16px; font-size: 12px; display: flex; align-items: center; justify-content: center; background: var(--primary); color: #000;"><i class="fas fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
   <!-- Live Fritz!Box Call Toast Overlay -->
@@ -587,6 +700,40 @@
         <input type="range" id="popupVolumeSlider" min="0" max="100" value="50" style="flex: 1; accent-color: var(--primary); height: 4px; border-radius: 2px; cursor: pointer;" aria-label="Lautstärke">
         <i class="fas fa-volume-up" style="color: var(--text-muted); font-size: 14px;"></i>
       </div>
+    </div>
+  </div>
+
+  <!-- calendar event manual creation modal -->
+  <div class="radio-fullscreen-overlay" id="calendarAddModal" hidden>
+    <div class="fullscreen-content" style="max-width: 500px; width: 92%; padding: 25px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);">
+      <div class="overlay-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="font-size: 1.5rem; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 10px;"><i class="fas fa-calendar-plus" style="color:var(--primary)"></i> <span data-i18n="calendar_modal_title">Termin hinzufügen</span></h2>
+        <button class="close-btn" id="closeCalendarModal" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem;"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="calendarAddForm" style="display: flex; flex-direction: column; gap: 15px;">
+        <div class="input-group" style="display: flex; flex-direction: column; gap: 6px;">
+          <label class="setting-sub-label" for="apptTitle" data-i18n="calendar_label_title">Titel</label>
+          <input type="text" id="apptTitle" required placeholder="z. B. Arztbesuch" style="width: 100%; padding: 10px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); color: #fff;">
+        </div>
+        <div style="display: flex; gap: 15px;">
+          <div class="input-group" style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+            <label class="setting-sub-label" for="apptDate" data-i18n="calendar_label_date">Datum</label>
+            <input type="date" id="apptDate" required style="width: 100%; padding: 10px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); color: #fff;">
+          </div>
+          <div class="input-group" style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+            <label class="setting-sub-label" for="apptTime" data-i18n="calendar_label_time">Uhrzeit</label>
+            <input type="time" id="apptTime" required style="width: 100%; padding: 10px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); color: #fff;">
+          </div>
+        </div>
+        <div class="input-group" style="display: flex; flex-direction: column; gap: 6px;">
+          <label class="setting-sub-label" for="apptDesc" data-i18n="calendar_label_desc">Beschreibung (optional)</label>
+          <input type="text" id="apptDesc" placeholder="Details zum Termin..." style="width: 100%; padding: 10px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); color: #fff;">
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 10px; justify-content: flex-end;">
+          <button type="button" class="btn" id="cancelApptBtn" style="background: rgba(255,255,255,0.05); border: 1px solid var(--panel-border); color: var(--text-main);" data-i18n="calendar_btn_cancel">Abbrechen</button>
+          <button type="submit" class="btn" style="background: var(--primary); color: #000; font-weight: 500;" data-i18n="calendar_btn_save">Speichern</button>
+        </div>
+      </form>
     </div>
   </div>
 
