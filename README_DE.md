@@ -37,6 +37,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Daddelgreis74/smart-home-das
 - **AM2301 Klima-Sensor:** Eigenes Tasmota-Sensor-Widget mit Temperatur-/Feuchtigkeits-Gauges und Taupunkt.
 - **Abfallkalender:** `.ics` Upload, kommende Leerungen, farbige Tonnen-Icons und kalendertagsgenaue Heute/Morgen-Anzeige.
 - **Interaktiver Terminkalender:** Manuelle Termineingabe direkt über ein Modal-Formular, Live-Updates per WebSockets, automatische clientseitige Erinnerungen (Visuelle Popups, Audio-Beeps, Sprachausgabe) und vollständige J.A.R.V.I.S.-Integration (Sprachbefehle zum Eintragen und Abfragen).
+- **J.A.R.V.I.S. KI-Assistent:** Integriertes Sprach- und Text-Eingabewidget mit animiertem Arc-Reaktor / Orbital-Visualisierer (Visualisierung der TTS- und Listening-Zustände), lokalem Chat-Verlauf, flexibler Provider-Konfiguration (Gemini, OpenRouter oder benutzerdefiniert) und anpassbarem System-Prompt.
 - **Live Radio:** Preset-Tasten, integrierte Senderverwaltung in den Einstellungen und HLS/MP3/AAC-Unterstützung mit Autostart-Schutz beim Aufwecken des Tablets.
 - **System Status:** Live CPU, RAM, Temperatur und Netzwerk-Statistiken per Socket.IO.
 - **Fritz!Box Monitor:** Live-Latenz und Online-Zustand (LEDs) sowie ein Echtzeit-Anruf-Monitor (Port 1012) mit vollflächigem Pop-up-Overlay bei Anruf und historischer Anrufliste.
