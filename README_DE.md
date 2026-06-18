@@ -36,6 +36,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Daddelgreis74/smart-home-das
 - **Smart Home / Tasmota:** Lokale Geräteverwaltung, automatischer Netzwerk-Scan und Toggle-Buttons mit Statusanzeige sowie Offline-Dimmung.
 - **AM2301 Klima-Sensor:** Eigenes Tasmota-Sensor-Widget mit Temperatur-/Feuchtigkeits-Gauges und Taupunkt.
 - **Abfallkalender:** `.ics` Upload, kommende Leerungen, farbige Tonnen-Icons und kalendertagsgenaue Heute/Morgen-Anzeige.
+- **Interaktiver Terminkalender:** Manuelle Termineingabe direkt über ein Modal-Formular, Live-Updates per WebSockets, automatische clientseitige Erinnerungen (Visuelle Popups, Audio-Beeps, Sprachausgabe) und vollständige J.A.R.V.I.S.-Integration (Sprachbefehle zum Eintragen und Abfragen).
 - **Live Radio:** Preset-Tasten, integrierte Senderverwaltung in den Einstellungen und HLS/MP3/AAC-Unterstützung mit Autostart-Schutz beim Aufwecken des Tablets.
 - **System Status:** Live CPU, RAM, Temperatur und Netzwerk-Statistiken per Socket.IO.
 - **Fritz!Box Monitor:** Live-Latenz und Online-Zustand (LEDs) sowie ein Echtzeit-Anruf-Monitor (Port 1012) mit vollflächigem Pop-up-Overlay bei Anruf und historischer Anrufliste.
@@ -185,7 +186,7 @@ Ganztägige `.ics` Termine werden als lokale Kalendertage verglichen. Dadurch wi
 ## 🔐 Sicherheit & Lokale Dateien
 
 Folgende Dateien enthalten persönliche Konfigurationen und werden **niemals auf GitHub hochgeladen** (über `.gitignore` geschützt):
-- `radio.json`, `tasmota.json`, `fritzbox.json`, `fritzbox_calls.json`, `presence.json`, `uploads/`, `node_modules/`, `ssl/`
+- `appointments.json`, `data/`, `www/`, `radio.json`, `tasmota.json`, `fritzbox.json`, `fritzbox_calls.json`, `presence.json`, `uploads/`, `node_modules/`, `ssl/`
 
 ---
 
