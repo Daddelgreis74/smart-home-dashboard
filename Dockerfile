@@ -1,5 +1,7 @@
-# Basis-Image: Leichtgewichtiges und sicheres Node.js auf Alpine Linux
 FROM node:20-alpine
+
+# Installiere openssl für die automatische Zertifikatserstellung
+RUN apk add --no-cache openssl
 
 # Setze Umgebungsvariablen für Produktion und Standardpfade
 ENV NODE_ENV=production
