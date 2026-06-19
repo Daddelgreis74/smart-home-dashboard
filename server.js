@@ -199,7 +199,7 @@ app.get('/api/proxy-stream', (req, res) => {
     const hostname = parsedUrl.hostname;
 
     if (hostname === 'localhost' || hostname === 'localhost.localdomain' || hostname === '[::1]') {
-      return res.status(403).send('Access to local network is restricted');
+      return res.status(403).send('Access to loopback interface is restricted');
     }
 
     const dns = require('dns');
@@ -208,9 +208,9 @@ app.get('/api/proxy-stream', (req, res) => {
         return res.status(400).send('DNS Resolution failed');
       }
 
-      if (address === '127.0.0.1' || address === '::1' || address.startsWith('127.') || isPrivateIPv4(address)) {
-        console.warn(`[Proxy Blocked] Attempted SSRF to local IP: ${address} (${streamUrl})`);
-        return res.status(403).send('Access to private/local IP addresses is restricted');
+      if (address === '127.0.0.1' || address === '::1' || address.startsWith('127.')) {
+        console.warn(`[Proxy Blocked] Attempted SSRF to loopback IP: ${address} (${streamUrl})`);
+        return res.status(403).send('Access to loopback IP addresses is restricted');
       }
 
       console.log(`[Proxy] Routing HTTP stream through secure HTTPS proxy: ${streamUrl}`);
