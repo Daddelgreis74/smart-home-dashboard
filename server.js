@@ -10,7 +10,7 @@ const { execFile } = require('child_process');
 const crypto = require('crypto');
 
 const app = express();
-const PORT = Number(process.env.PORT || 30436);
+const PORT = Number(process.env.PORT || 8443);
 const HOST = process.env.HOST || '0.0.0.0';
 
 const DATA_DIR = process.env.DATA_DIR || __dirname;
@@ -37,6 +37,12 @@ if (autoSSL && (!fs.existsSync(sslKeyPath) || !fs.existsSync(sslCertPath))) {
     console.log('Selbstsigniertes Zertifikat erfolgreich generiert.');
   } catch (err) {
     console.error('Fehler bei der automatischen Generierung des SSL-Zertifikats:', err.message);
+  }
+
+  // Fail-fast: Falls nach der Generierung immer noch Zertifikatsdateien fehlen, brechen wir ab
+  if (!fs.existsSync(sslKeyPath) || !fs.existsSync(sslCertPath)) {
+    console.error('CRITICAL ERROR: AUTO_SSL=true konfiguriert, aber die SSL-Zertifikatsdateien (key.pem/cert.pem) konnten weder gefunden noch generiert werden.');
+    process.exit(1);
   }
 }
 
@@ -1243,6 +1249,20 @@ setInterval(async () => {
     });
   } catch (e) {}
 }, 5000);
+
+if (useSSL) {
+  const http = require('http');
+  const redirectPort = Number(process.env.REDIRECT_PORT || 8080);
+  const redirectServer = http.createServer((req, res) => {
+    const hostHeader = req.headers.host || '';
+    const host = hostHeader.split(':')[0] || HOST;
+    res.writeHead(301, { Location: `https://${host}:${PORT}${req.url}` });
+    res.end();
+  });
+  redirectServer.listen(redirectPort, HOST, () => {
+    console.log(`HTTP-Redirect-Server läuft auf http://${HOST}:${redirectPort} -> https://${HOST}:${PORT}`);
+  });
+}
 
 server.listen(PORT, HOST, () => {
   const protocol = useSSL ? 'https' : 'http';

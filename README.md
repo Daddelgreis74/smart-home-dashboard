@@ -168,6 +168,25 @@ chmod -R 770 /mnt/your-pool/your-dataset/smart-home-dashboard
 
 ## ⚙️ Advanced Configuration
 
+### 🌐 Environment Variables
+
+The application can be configured using the following environment variables:
+
+| Variable | Default Value | Description |
+| :--- | :--- | :--- |
+| `PORT` | `8443` | The primary port of the dashboard web server (HTTPS if SSL certificates exist, otherwise HTTP). |
+| `HOST` | `0.0.0.0` | The IP address interface the server binds to. |
+| `DATA_DIR` | (App directory) | Path to the directory where configs (`tasmota.json`, etc.) are saved. |
+| `UPLOAD_DIR` | `DATA_DIR/uploads` | Path to the directory where uploaded `.ics` files are saved. |
+| `SSL_DIR` | `DATA_DIR/ssl` | Path to the directory containing SSL/TLS certificates (`key.pem` and `cert.pem`). |
+| `AUTO_SSL` | `false` | Set to `true` to automatically generate a self-signed SSL/TLS certificate if missing in `SSL_DIR`. |
+| `REDIRECT_PORT` | `8080` | Port for the plain HTTP redirect server (only active if SSL/HTTPS is used). |
+
+#### 🐳 TrueNAS / Docker Port-Mapping Example
+When deploying the dashboard, it is recommended to map both ports:
+* **Port 8443 (HTTPS):** Map host port (e.g. `8443` or `30436`) to container port `8443` for secure HTTPS access (required for microphone access).
+* **Port 8080 (HTTP Redirect):** Map host port (e.g. `8080` or `30437`) to container port `8080` to automatically redirect unencrypted HTTP traffic to your secure HTTPS port.
+
 ### 📞 Fritz!Box Monitor & Call Monitor Setup
 - **Connection:** Your Fritz!Box credentials and call logs are stored **locally** on your host inside `fritzbox.json` and `fritzbox_calls.json`. These files are ignored by Git and never uploaded.
 - **Enabling the Call Monitor:** To allow the live call monitor on port 1012, you must enable it on your Fritz!Box by dialing the following code on a connected phone:

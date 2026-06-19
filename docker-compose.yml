@@ -6,11 +6,13 @@ services:
     # network_mode: "host"
     ports:
       - "8443:8443"
+      - "8080:8080"
     volumes:
       # Mountet alle Konfigurationen, Kalender-Uploads (calendar.ics) und SSL-Zertifikate in einen lokalen Ordner
       - ./data:/app/data
     environment:
       - PORT=8443
+      - REDIRECT_PORT=8080
       - HOST=0.0.0.0
       - AUTO_SSL=true
 

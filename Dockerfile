@@ -10,6 +10,7 @@ ENV HOST=0.0.0.0
 ENV DATA_DIR=/app/data
 ENV UPLOAD_DIR=/app/data/uploads
 ENV SSL_DIR=/app/data/ssl
+ENV REDIRECT_PORT=8080
 
 # Arbeitsverzeichnis im Container festlegen
 WORKDIR /app
@@ -29,6 +30,7 @@ RUN mkdir -p /app/data
 
 # Exponiere den Standard-Port des Dashboards
 EXPOSE 8443
+EXPOSE 8080
 
 # Starte den Dashboard-Server
 CMD ["node", "server.js"]
