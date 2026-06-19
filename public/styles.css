@@ -3181,6 +3181,8 @@ body.theme-retrowave .fullscreen-title {
   align-items: center;
   animation: scaleUp 0.3s cubic-bezier(0.19, 1, 0.22, 1);
   position: relative;
+  aspect-ratio: auto !important;
+  overflow: visible !important;
 }
 
 @keyframes scaleUp {
