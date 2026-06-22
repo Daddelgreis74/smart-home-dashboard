@@ -2221,6 +2221,8 @@ function renderCameraWidget(cameras) {
 let jarvisHistory = [];
 let jarvisRecognition = null;
 let jarvisSpeakingUtterance = null;
+let elevenLabsAudio = null;
+let currentTtsRequestId = 0;
 
 function playJarvisBeep(freq, duration, volume = 0.15) {
   try {
@@ -2248,23 +2250,27 @@ function playJarvisBeep(freq, duration, volume = 0.15) {
 }
 
 function cancelJarvisSpeech() {
+  currentTtsRequestId++; // Invalidate any ongoing fetch request
   if ('speechSynthesis' in window) {
     try { window.speechSynthesis.cancel(); } catch(e) {}
+  }
+  if (elevenLabsAudio) {
+    try {
+      elevenLabsAudio.pause();
+      elevenLabsAudio.currentTime = 0;
+    } catch(e) {}
+    elevenLabsAudio = null;
   }
   const reactor = document.getElementById('jarvisReactor');
   if (reactor) reactor.classList.remove('speaking');
   const statusSpan = document.getElementById('jarvisStatus');
-  if (statusSpan && (statusSpan.textContent === 'Antwortet...' || statusSpan.textContent === 'Hört zu...')) {
+  if (statusSpan && (statusSpan.textContent === 'Antwortet...' || statusSpan.textContent === 'Hör zu...')) {
     statusSpan.textContent = 'Online';
   }
 }
 
-function speakJarvisReply(text) {
+function speakLocalSpeech(text) {
   if (!('speechSynthesis' in window)) return;
-  cancelJarvisSpeech();
-  
-  const enabled = localStorage.getItem('jarvis_tts_enabled') !== 'false';
-  if (!enabled) return;
   
   const lang = localStorage.getItem('dashboard_lang') || 'de';
   jarvisSpeakingUtterance = new SpeechSynthesisUtterance(text);
@@ -2290,50 +2296,145 @@ function speakJarvisReply(text) {
   jarvisSpeakingUtterance.onerror = resetSpeechUI;
   
   // Sprachcode setzen
-  const langMap = {
-    de: 'de-DE', en: 'en-US', fr: 'fr-FR', es: 'es-ES', it: 'it-IT', nl: 'nl-NL', pl: 'pl-PL'
-  };
-  jarvisSpeakingUtterance.lang = langMap[lang] || 'de-DE';
-  
   // Versuchen eine passende Stimme zu wählen
   const voices = window.speechSynthesis.getVoices();
   if (voices && voices.length > 0) {
-    const langVoices = voices.filter(v => v.lang.startsWith(lang));
-    if (langVoices.length > 0) {
-      // Männliche Stimm-Indikatoren
-      const maleNames = ['stefan', 'conrad', 'yannick', 'markus', 'christoph', 'klaus', 'male', 'guy', 'männlich'];
-      
-      // 1. Bevorzuge hochqualitative "natural" oder "online" Männerstimmen
-      let maleVoice = langVoices.find(v => {
-        const nameLower = v.name.toLowerCase();
-        return (nameLower.includes('natural') || nameLower.includes('online')) &&
-               maleNames.some(name => nameLower.includes(name));
-      });
-      
-      // 2. Fallback auf eine normale lokale Männerstimme
-      if (!maleVoice) {
-        maleVoice = langVoices.find(v => {
-          const nameLower = v.name.toLowerCase();
-          return maleNames.some(name => nameLower.includes(name));
-        });
+    // Check if user picked a specific browser voice from the unified dropdown
+    const savedLocalVoiceName = localStorage.getItem('jarvis_local_voice_name') || '';
+    if (savedLocalVoiceName) {
+      const exact = voices.find(v => v.name === savedLocalVoiceName);
+      if (exact) {
+        jarvisSpeakingUtterance.voice = exact;
       }
-      
-      // 3. Fallback auf eine "natural" oder "online" Stimme (auch weiblich), da diese besser klingen
-      if (!maleVoice) {
-        maleVoice = langVoices.find(v => {
+    } else {
+      // Auto-detect: prefer male voices matching the UI language
+      const langVoices = voices.filter(v => v.lang.startsWith(lang));
+      if (langVoices.length > 0) {
+        const maleNames = ['stefan', 'Conrad', 'yannick', 'markus', 'christoph', 'Klaus', 'male', 'guy', 'männlich'];
+        let maleVoice = langVoices.find(v => {
           const nameLower = v.name.toLowerCase();
-          return nameLower.includes('natural') || nameLower.includes('online');
+          return (nameLower.includes('natural') || nameLower.includes('online')) &&
+                 maleNames.some(n => nameLower.includes(n));
         });
+        if (!maleVoice) {
+          maleVoice = langVoices.find(v => {
+            const nameLower = v.name.toLowerCase();
+            return maleNames.some(n => nameLower.includes(n));
+          });
+        }
+        if (!maleVoice) {
+          maleVoice = langVoices.find(v => {
+            const nameLower = v.name.toLowerCase();
+            return nameLower.includes('natural') || nameLower.includes('online');
+          });
+        }
+        jarvisSpeakingUtterance.voice = maleVoice || langVoices[0];
       }
-      
-      jarvisSpeakingUtterance.voice = maleVoice || langVoices[0];
     }
   }
-  
+
+  const langMap = { de: 'de-DE', en: 'en-US', fr: 'fr-FR', es: 'es-ES', it: 'it-IT', nl: 'nl-NL', pl: 'pl-PL' };
+  jarvisSpeakingUtterance.lang = langMap[lang] || 'de-DE';
   jarvisSpeakingUtterance.rate = 1.05;
-  jarvisSpeakingUtterance.pitch = 0.95; // Leicht tiefere Stimme für Jarvis-Vibe
-  
+  jarvisSpeakingUtterance.pitch = 0.95;
+
   window.speechSynthesis.speak(jarvisSpeakingUtterance);
+}
+
+function speakJarvisReply(text) {
+  cancelJarvisSpeech();
+  
+  const enabled = localStorage.getItem('jarvis_tts_enabled') !== 'false';
+  if (!enabled) return;
+  
+  const provider = localStorage.getItem('jarvis_tts_provider') || 'local';
+  
+  if (provider === 'elevenlabs') {
+    const apiKey = localStorage.getItem('jarvis_eleven_api_key') || '';
+    const voiceId = localStorage.getItem('jarvis_eleven_voice_id') || '21m00Tcm4TlvDq8ikWAM';
+    
+    if (!apiKey) {
+      console.warn("ElevenLabs API Key fehlt, nutze lokale Sprachausgabe.");
+      speakLocalSpeech(text);
+      return;
+    }
+    
+    const requestId = ++currentTtsRequestId;
+    
+    // Status-Event-Listener für Sprachausgabe setzen
+    const statusSpan = document.getElementById('jarvisStatus');
+    if (statusSpan) statusSpan.textContent = 'Antwortet...';
+    const reactor = document.getElementById('jarvisReactor');
+    if (reactor) reactor.classList.add('speaking');
+    
+    fetch('/api/elevenlabs/tts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-ElevenLabs-Key': apiKey
+      },
+      body: JSON.stringify({ text, voiceId })
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('ElevenLabs API returned ' + response.status);
+      }
+      return response.blob();
+    })
+    .then(blob => {
+      if (requestId !== currentTtsRequestId) {
+        console.log("ElevenLabs: Eine neuere Sprachausgabe wurde gestartet, verwerfe alte.");
+        return;
+      }
+      
+      const audioUrl = URL.createObjectURL(blob);
+      elevenLabsAudio = new Audio(audioUrl);
+      
+      const resetSpeechUI = () => {
+        const currentStatusSpan = document.getElementById('jarvisStatus');
+        if (currentStatusSpan && currentStatusSpan.textContent === 'Antwortet...') {
+          currentStatusSpan.textContent = 'Online';
+        }
+        const currentReactor = document.getElementById('jarvisReactor');
+        if (currentReactor) currentReactor.classList.remove('speaking');
+        if (elevenLabsAudio) {
+          URL.revokeObjectURL(audioUrl);
+          elevenLabsAudio = null;
+        }
+      };
+      
+      elevenLabsAudio.onended = resetSpeechUI;
+      elevenLabsAudio.onerror = (e) => {
+        console.error("Audio-Fehler bei ElevenLabs Playback:", e);
+        resetSpeechUI();
+        if (requestId === currentTtsRequestId) {
+          speakLocalSpeech(text);
+        }
+      };
+      
+      elevenLabsAudio.play().catch(err => {
+        console.error("Fehler beim Abspielen von ElevenLabs Audio:", err);
+        resetSpeechUI();
+        if (requestId === currentTtsRequestId) {
+          speakLocalSpeech(text);
+        }
+      });
+    })
+    .catch(err => {
+      console.error("ElevenLabs TTS-Anfrage fehlgeschlagen:", err);
+      if (requestId === currentTtsRequestId) {
+        const currentStatusSpan = document.getElementById('jarvisStatus');
+        if (currentStatusSpan && currentStatusSpan.textContent === 'Antwortet...') {
+          currentStatusSpan.textContent = 'Online';
+        }
+        const currentReactor = document.getElementById('jarvisReactor');
+        if (currentReactor) currentReactor.classList.remove('speaking');
+        speakLocalSpeech(text);
+      }
+    });
+  } else {
+    speakLocalSpeech(text);
+  }
 }
 
 async function callJarvisAPI(prompt) {
@@ -2889,6 +2990,34 @@ function updateJarvisSettingsUI() {
       }
     }
   }
+
+  const searchToggleGroup = document.getElementById('jarvisSearchToggleGroup');
+  const braveKeyGroup = document.getElementById('jarvisBraveKeyGroup');
+  const searchEnabled = document.getElementById('jarvisSearchEnabled')?.checked;
+  
+  if (provider === 'gemini') {
+    if (searchToggleGroup) searchToggleGroup.style.display = 'block';
+    if (braveKeyGroup) {
+      braveKeyGroup.style.display = searchEnabled ? 'block' : 'none';
+    }
+  } else {
+    if (searchToggleGroup) searchToggleGroup.style.display = 'none';
+    if (braveKeyGroup) braveKeyGroup.style.display = 'none';
+  }
+
+  const ttsEnabled = document.getElementById('jarvisTtsEnabled')?.checked;
+  const ttsSettingsGroup = document.getElementById('jarvisTtsSettingsGroup');
+  const elevenLabsGroup = document.getElementById('jarvisElevenLabsGroup');
+  const voiceSelect = document.getElementById('jarvisVoiceSelect');
+
+  if (ttsSettingsGroup) {
+    ttsSettingsGroup.style.display = ttsEnabled ? 'block' : 'none';
+  }
+  // Show ElevenLabs API key only if an ElevenLabs voice is selected
+  if (elevenLabsGroup) {
+    const selectedVal = voiceSelect?.value || '';
+    elevenLabsGroup.style.display = (ttsEnabled && selectedVal.startsWith('eleven:')) ? 'block' : 'none';
+  }
 }
 
 function appendJarvisMessage(sender, text, type = 'assistant') {
@@ -2972,6 +3101,101 @@ async function sendJarvisMessage() {
   }
 }
 
+// Populate Browser (local) voices into the unified dropdown optgroup
+function populateLocalVoicesGroup() {
+  const group = document.getElementById('jarvisLocalVoicesGroup');
+  if (!group) return;
+
+  const allVoices = window.speechSynthesis?.getVoices() || [];
+  // Sort alphabetically by language code, then name
+  const sorted = [...allVoices].sort((a, b) => {
+    const langCmp = a.lang.localeCompare(b.lang);
+    return langCmp !== 0 ? langCmp : a.name.localeCompare(b.name);
+  });
+
+  // Remove old browser options (keep the auto option)
+  Array.from(group.querySelectorAll('option:not([value="local:auto"])')).forEach(o => o.remove());
+
+  sorted.forEach(voice => {
+    const opt = document.createElement('option');
+    opt.value = `local:${voice.name}`;
+    opt.textContent = `${voice.name} (${voice.lang})`;
+    group.appendChild(opt);
+  });
+}
+
+// Populate ElevenLabs voices into the unified dropdown optgroup
+function populateElevenLabsVoicesGroup(voices) {
+  const group = document.getElementById('jarvisElevenVoicesGroup');
+  const unifiedSelect = document.getElementById('jarvisVoiceSelect');
+  if (!group) return;
+
+  // Remove old ElevenLabs options
+  group.innerHTML = '';
+
+  if (!voices || voices.length === 0) {
+    const opt = document.createElement('option');
+    opt.value = 'eleven:loading';
+    opt.disabled = true;
+    opt.textContent = '— Keine ElevenLabs-Stimmen —';
+    group.appendChild(opt);
+    return;
+  }
+
+  // Sort alphabetically by name
+  const sorted = [...voices].sort((a, b) => a.name.localeCompare(b.name));
+
+  sorted.forEach(voice => {
+    const opt = document.createElement('option');
+    opt.value = `eleven:${voice.voice_id}`;
+    const gender = voice.labels?.gender
+      ? ` · ${voice.labels.gender === 'female' ? '♀' : voice.labels.gender === 'male' ? '♂' : voice.labels.gender}`
+      : '';
+    opt.textContent = `${voice.name}${gender}`;
+    group.appendChild(opt);
+  });
+
+  // Restore saved ElevenLabs selection
+  const savedVoiceId = localStorage.getItem('jarvis_eleven_voice_id');
+  if (savedVoiceId && unifiedSelect) {
+    const match = Array.from(unifiedSelect.options).find(o => o.value === `eleven:${savedVoiceId}`);
+    if (match) unifiedSelect.value = match.value;
+  }
+}
+
+// Backward-compat alias (legacy references)
+function populateElevenLabsVoicesDropdown(voices) {
+  populateElevenLabsVoicesGroup(voices);
+}
+
+async function loadElevenLabsVoices(apiKeyOverride = null) {
+  const apiKey = apiKeyOverride || document.getElementById('jarvisElevenApiKey')?.value.trim() || localStorage.getItem('jarvis_eleven_api_key') || '';
+  if (!apiKey) {
+    alert('Bitte zuerst den ElevenLabs API-Key eintragen.');
+    return;
+  }
+
+  const btn = document.getElementById('jarvisLoadVoicesBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; }
+
+  try {
+    const response = await fetch('/api/elevenlabs/voices', {
+      headers: { 'X-ElevenLabs-Key': apiKey }
+    });
+    const data = await response.json();
+    if (!data.success) throw new Error(data.error || 'Fehler beim Laden');
+
+    const voices = data.voices || [];
+    localStorage.setItem('jarvis_eleven_voices_cache', JSON.stringify(voices));
+    populateElevenLabsVoicesGroup(voices);
+  } catch (err) {
+    console.error('ElevenLabs Stimmen konnten nicht geladen werden:', err);
+    alert('ElevenLabs Stimmen konnten nicht geladen werden: ' + err.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i>'; }
+  }
+}
+
 function initJarvis() {
   const input = document.getElementById('jarvisInput');
   const sendBtn = document.getElementById('jarvisSendBtn');
@@ -3046,6 +3270,10 @@ function initJarvis() {
     localStorage.setItem('jarvis_system_prompt', newPrompt);
   }
   const savedTts = localStorage.getItem('jarvis_tts_enabled') !== 'false';
+  const savedSearch = localStorage.getItem('jarvis_search_enabled') === 'true';
+  const savedBraveKey = localStorage.getItem('jarvis_brave_api_key') || '';
+  const savedTtsProvider = localStorage.getItem('jarvis_tts_provider') || 'local';
+  const savedElevenKey = localStorage.getItem('jarvis_eleven_api_key') || '';
   
   if (providerSelect) providerSelect.value = savedProvider;
   if (document.getElementById('jarvisApiKey')) document.getElementById('jarvisApiKey').value = savedKey;
@@ -3053,7 +3281,42 @@ function initJarvis() {
   if (document.getElementById('jarvisCustomModel')) document.getElementById('jarvisCustomModel').value = savedCustom;
   if (document.getElementById('jarvisSystemPrompt')) document.getElementById('jarvisSystemPrompt').value = savedPrompt;
   if (document.getElementById('jarvisTtsEnabled')) document.getElementById('jarvisTtsEnabled').checked = savedTts;
-  
+  if (document.getElementById('jarvisSearchEnabled')) document.getElementById('jarvisSearchEnabled').checked = savedSearch;
+  if (document.getElementById('jarvisBraveApiKey')) document.getElementById('jarvisBraveApiKey').value = savedBraveKey;
+  if (document.getElementById('jarvisElevenApiKey')) document.getElementById('jarvisElevenApiKey').value = savedElevenKey;
+
+  // Restore unified voice selection
+  const savedVoiceSelection = localStorage.getItem('jarvis_unified_voice') || 'local:auto';
+
+  // Populate local browser voices & restore selection
+  const doPopulateVoices = () => {
+    populateLocalVoicesGroup();
+    // Restore cached ElevenLabs voices into optgroup
+    try {
+      const cached = localStorage.getItem('jarvis_eleven_voices_cache');
+      if (cached) populateElevenLabsVoicesGroup(JSON.parse(cached));
+    } catch (e) {
+      console.warn('Fehler beim Laden gecachter Stimmen:', e);
+    }
+    // Restore saved unified voice
+    const vs = document.getElementById('jarvisVoiceSelect');
+    if (vs && Array.from(vs.options).some(o => o.value === savedVoiceSelection)) {
+      vs.value = savedVoiceSelection;
+    }
+    updateJarvisSettingsUI();
+  };
+
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.getVoices(); // warm up
+    if (window.speechSynthesis.getVoices().length > 0) {
+      doPopulateVoices();
+    } else {
+      window.speechSynthesis.addEventListener('voiceschanged', doPopulateVoices, { once: true });
+    }
+  } else {
+    doPopulateVoices();
+  }
+
   // Event-Handler für Provider Dropdown mit getrennter API-Key Verwaltung
   let currentProvider = savedProvider;
   if (providerSelect) {
@@ -3086,34 +3349,83 @@ function initJarvis() {
     });
     updateJarvisSettingsUI();
   }
-  
+
+  const searchCheckbox = document.getElementById('jarvisSearchEnabled');
+  if (searchCheckbox) {
+    searchCheckbox.addEventListener('change', updateJarvisSettingsUI);
+  }
+
+  const ttsCheckbox = document.getElementById('jarvisTtsEnabled');
+  if (ttsCheckbox) {
+    ttsCheckbox.addEventListener('change', updateJarvisSettingsUI);
+  }
+
+  // Unified voice select: update ElevenLabs key visibility on change
+  const unifiedVoiceSelect = document.getElementById('jarvisVoiceSelect');
+  if (unifiedVoiceSelect) {
+    unifiedVoiceSelect.addEventListener('change', updateJarvisSettingsUI);
+  }
+
+  const loadVoicesBtn = document.getElementById('jarvisLoadVoicesBtn');
+  if (loadVoicesBtn) {
+    loadVoicesBtn.addEventListener('click', () => loadElevenLabsVoices());
+  }
+
   // Save Settings Button Listener
+  const saveJarvisSettings = () => {
+    const provider = providerSelect.value;
+    const apiKey = document.getElementById('jarvisApiKey')?.value.trim() || '';
+    const model = document.getElementById('jarvisModel')?.value || 'gemini-2.5-flash';
+    const customModel = document.getElementById('jarvisCustomModel')?.value.trim() || '';
+    const systemPrompt = document.getElementById('jarvisSystemPrompt')?.value.trim() || '';
+    const ttsEnabled = document.getElementById('jarvisTtsEnabled')?.checked;
+    const searchEnabled = document.getElementById('jarvisSearchEnabled')?.checked;
+    const braveApiKey = document.getElementById('jarvisBraveApiKey')?.value.trim() || '';
+    const elevenApiKey = document.getElementById('jarvisElevenApiKey')?.value.trim() || '';
+
+    // Derive TTS provider & voice ID from unified dropdown
+    const unifiedVal = document.getElementById('jarvisVoiceSelect')?.value || 'local:auto';
+    const ttsProvider = unifiedVal.startsWith('eleven:') ? 'elevenlabs' : 'local';
+    const elevenVoice = unifiedVal.startsWith('eleven:') ? unifiedVal.replace('eleven:', '') : '';
+    const localVoiceName = unifiedVal.startsWith('local:') && unifiedVal !== 'local:auto'
+      ? unifiedVal.replace('local:', '') : '';
+
+    localStorage.setItem('jarvis_provider', provider);
+
+    // Getrennt nach aktivem Provider speichern
+    if (provider === 'gemini') {
+      localStorage.setItem('jarvis_gemini_api_key', apiKey);
+    } else if (provider === 'openrouter') {
+      localStorage.setItem('jarvis_openrouter_api_key', apiKey);
+    }
+
+    localStorage.setItem('jarvis_model', model);
+    localStorage.setItem('jarvis_custom_model', customModel);
+    localStorage.setItem('jarvis_system_prompt', systemPrompt);
+    localStorage.setItem('jarvis_tts_enabled', ttsEnabled);
+    localStorage.setItem('jarvis_search_enabled', searchEnabled);
+    localStorage.setItem('jarvis_brave_api_key', braveApiKey);
+    localStorage.setItem('jarvis_tts_provider', ttsProvider);
+    localStorage.setItem('jarvis_eleven_api_key', elevenApiKey);
+    localStorage.setItem('jarvis_eleven_voice_id', elevenVoice);
+    localStorage.setItem('jarvis_local_voice_name', localVoiceName);
+    localStorage.setItem('jarvis_unified_voice', unifiedVal);
+
+    alert('J.A.R.V.I.S. Einstellungen erfolgreich gespeichert.');
+    updateJarvisSettingsUI();
+  };
+
+
   if (saveBtn) {
-    saveBtn.addEventListener('click', () => {
-      const provider = providerSelect.value;
-      const apiKey = document.getElementById('jarvisApiKey')?.value.trim() || '';
-      const model = document.getElementById('jarvisModel')?.value || 'gemini-2.5-flash';
-      const customModel = document.getElementById('jarvisCustomModel')?.value.trim() || '';
-      const systemPrompt = document.getElementById('jarvisSystemPrompt')?.value.trim() || '';
-      const ttsEnabled = document.getElementById('jarvisTtsEnabled')?.checked;
-      
-      localStorage.setItem('jarvis_provider', provider);
-      
-      // Getrennt nach aktivem Provider speichern
-      if (provider === 'gemini') {
-        localStorage.setItem('jarvis_gemini_api_key', apiKey);
-      } else if (provider === 'openrouter') {
-        localStorage.setItem('jarvis_openrouter_api_key', apiKey);
-      }
-      
-      localStorage.setItem('jarvis_model', model);
-      localStorage.setItem('jarvis_custom_model', customModel);
-      localStorage.setItem('jarvis_system_prompt', systemPrompt);
-      localStorage.setItem('jarvis_tts_enabled', ttsEnabled);
-      
-      alert("J.A.R.V.I.S. Einstellungen erfolgreich gespeichert.");
-      updateJarvisSettingsUI();
-    });
+    saveBtn.addEventListener('click', saveJarvisSettings);
+  }
+  const saveTtsBtn = document.getElementById('saveJarvisConfigTts');
+  if (saveTtsBtn) {
+    saveTtsBtn.addEventListener('click', saveJarvisSettings);
+  }
+  const saveSearchBtn = document.getElementById('saveJarvisConfigSearch');
+  if (saveSearchBtn) {
+    saveSearchBtn.addEventListener('click', saveJarvisSettings);
   }
   
   // API-Key löschen Button Listener

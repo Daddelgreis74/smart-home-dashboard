@@ -121,6 +121,15 @@ const translations = {
     "jarvis_prompt_label": "System-Prompt (Persönlichkeit):",
     "jarvis_tts_label": "Sprachausgabe (Text-to-Speech)",
     "jarvis_save": "Einstellungen speichern",
+    "jarvis_search_label": "Brave-Websuche erlauben",
+    "jarvis_bravekey_label": "Brave Search API-Schlüssel:",
+    "jarvis_tts_provider_label": "Sprachausgabe-Provider:",
+    "jarvis_elevenkey_label": "ElevenLabs API-Schlüssel:",
+    "jarvis_elevenvoice_label": "ElevenLabs Stimme:",
+    "jarvis_tts_section_title": "J.A.R.V.I.S. Sprachausgabe",
+    "jarvis_tts_section_desc": "Konfiguriere die Sprachausgabe (Text-to-Speech) deines Assistenten.",
+    "jarvis_search_section_title": "J.A.R.V.I.S. Websuche",
+    "jarvis_search_section_desc": "Erlaube J.A.R.V.I.S., bei aktuellen Fragen im Internet zu suchen.",
     "widget_title_calendar": "Terminkalender",
     "toggle_layout_calendar": "Terminkalender",
     "calendar_add_btn_widget": "Eintrag",
@@ -255,6 +264,15 @@ const translations = {
     "jarvis_prompt_label": "System Prompt (Personality):",
     "jarvis_tts_label": "Text-to-Speech (Voice Output)",
     "jarvis_save": "Save Settings",
+    "jarvis_search_label": "Allow Brave Web Search",
+    "jarvis_bravekey_label": "Brave Search API Key:",
+    "jarvis_tts_provider_label": "Text-to-Speech Provider:",
+    "jarvis_elevenkey_label": "ElevenLabs API Key:",
+    "jarvis_elevenvoice_label": "ElevenLabs Voice:",
+    "jarvis_tts_section_title": "J.A.R.V.I.S. Text-to-Speech",
+    "jarvis_tts_section_desc": "Configure the Text-to-Speech settings for your assistant.",
+    "jarvis_search_section_title": "J.A.R.V.I.S. Web Search",
+    "jarvis_search_section_desc": "Allow J.A.R.V.I.S. to search the web for current questions.",
     "widget_title_calendar": "Calendar",
     "toggle_layout_calendar": "Calendar",
     "calendar_add_btn_widget": "Add Event",
@@ -388,7 +406,16 @@ const translations = {
     "jarvis_model_label": "Modèle:",
     "jarvis_prompt_label": "Invite système (personnalité):",
     "jarvis_tts_label": "Synthèse Vocale (Sortie Audio)",
-    "jarvis_save": "Enregistrer les paramètres"
+    "jarvis_save": "Enregistrer les paramètres",
+    "jarvis_search_label": "Autoriser la recherche Web Brave",
+    "jarvis_bravekey_label": "Clé API Brave Search:",
+    "jarvis_tts_provider_label": "Fournisseur de synthèse vocale:",
+    "jarvis_elevenkey_label": "Clé API ElevenLabs:",
+    "jarvis_elevenvoice_label": "Voix ElevenLabs:",
+    "jarvis_tts_section_title": "Synthèse vocale J.A.R.V.I.S.",
+    "jarvis_tts_section_desc": "Configurez les paramètres de synthèse vocale pour votre assistant.",
+    "jarvis_search_section_title": "Recherche Web J.A.R.V.I.S.",
+    "jarvis_search_section_desc": "Autorisez J.A.R.V.I.S. à effectuer des recherches sur le Web pour les questions d'actualité.",
   },
   es: {
     // Header
@@ -511,7 +538,16 @@ const translations = {
     "jarvis_model_label": "Modelo:",
     "jarvis_prompt_label": "Mensaje del sistema (personalidad):",
     "jarvis_tts_label": "Salida de voz (Texto a voz)",
-    "jarvis_save": "Guardar configuración"
+    "jarvis_save": "Guardar configuración",
+    "jarvis_search_label": "Permitir búsqueda web de Brave",
+    "jarvis_bravekey_label": "Clave API Brave Search:",
+    "jarvis_tts_provider_label": "Proveedor de texto a voz:",
+    "jarvis_elevenkey_label": "Clave API de ElevenLabs:",
+    "jarvis_elevenvoice_label": "Voz de ElevenLabs:",
+    "jarvis_tts_section_title": "Salida de voz J.A.R.V.I.S.",
+    "jarvis_tts_section_desc": "Configura los ajustes de texto a voz para tu asistente.",
+    "jarvis_search_section_title": "Búsqueda web J.A.R.V.I.S.",
+    "jarvis_search_section_desc": "Permite que J.A.R.V.I.S. busque en la web preguntas actuales.",
   },
   it: {
     // Header
@@ -634,7 +670,16 @@ const translations = {
     "jarvis_model_label": "Modello:",
     "jarvis_prompt_label": "Prompt di sistema (personalità):",
     "jarvis_tts_label": "Sintesi Vocale (Uscita Audio)",
-    "jarvis_save": "Salva impostazioni"
+    "jarvis_save": "Salva impostazioni",
+    "jarvis_search_label": "Consenti ricerca web Brave",
+    "jarvis_bravekey_label": "Chiave API Brave Search:",
+    "jarvis_tts_provider_label": "Fornitore sintesi vocale:",
+    "jarvis_elevenkey_label": "Chiave API ElevenLabs:",
+    "jarvis_elevenvoice_label": "Voce ElevenLabs:",
+    "jarvis_tts_section_title": "Sintesi vocale J.A.R.V.I.S.",
+    "jarvis_tts_section_desc": "Configura le impostazioni di sintesi vocale per il tuo assistente.",
+    "jarvis_search_section_title": "Ricerca web J.A.R.V.I.S.",
+    "jarvis_search_section_desc": "Consenti a J.A.R.V.I.S. di cercare nel web per domande attuali.",
   },
   nl: {
     // Header
@@ -757,7 +802,16 @@ const translations = {
     "jarvis_model_label": "Model:",
     "jarvis_prompt_label": "Systeemprompt (persoonlijkheid):",
     "jarvis_tts_label": "Spraakuitvoer (Text-to-Speech)",
-    "jarvis_save": "Instellingen opslaan"
+    "jarvis_save": "Instellingen opslaan",
+    "jarvis_search_label": "Brave-webzoekopdracht toestaan",
+    "jarvis_bravekey_label": "Brave Search API-sleutel:",
+    "jarvis_tts_provider_label": "Text-to-Speech-provider:",
+    "jarvis_elevenkey_label": "ElevenLabs API-sleutel:",
+    "jarvis_elevenvoice_label": "ElevenLabs stem:",
+    "jarvis_tts_section_title": "J.A.R.V.I.S. Spraakuitvoer",
+    "jarvis_tts_section_desc": "Configureer de Text-to-Speech-instellingen voor uw assistent.",
+    "jarvis_search_section_title": "J.A.R.V.I.S. Webzoekopdracht",
+    "jarvis_search_section_desc": "Sta J.A.R.V.I.S. toe op het web te zoeken naar actuele vragen.",
   },
   pl: {
     // Header
@@ -880,7 +934,16 @@ const translations = {
     "jarvis_model_label": "Model:",
     "jarvis_prompt_label": "Monit systemowy (osobowość):",
     "jarvis_tts_label": "Synteza mowy (Lektor)",
-    "jarvis_save": "Zapisz ustawienia"
+    "jarvis_save": "Zapisz ustawienia",
+    "jarvis_search_label": "Zezwalaj na wyszukiwanie w sieci Brave",
+    "jarvis_bravekey_label": "Klucz API Brave Search:",
+    "jarvis_tts_provider_label": "Dostawca syntezy mowy:",
+    "jarvis_elevenkey_label": "Klucz API ElevenLabs:",
+    "jarvis_elevenvoice_label": "Głos ElevenLabs:",
+    "jarvis_tts_section_title": "Synteza mowy J.A.R.V.I.S.",
+    "jarvis_tts_section_desc": "Skonfiguruj ustawienia lektora (Text-to-Speech) dla swojego asystenta.",
+    "jarvis_search_section_title": "Wyszukiwanie w sieci J.A.R.V.I.S.",
+    "jarvis_search_section_desc": "Zezwól J.A.R.V.I.S. na wyszukiwanie w sieci aktualnych pytań."
   }
 };
 

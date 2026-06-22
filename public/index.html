@@ -334,7 +334,21 @@
                 <textarea id="jarvisSystemPrompt" rows="3" style="width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--panel-border); padding: 10px 15px; border-radius: var(--radius-sm); color: #fff; font-family: inherit; font-size: 13px; outline: none; resize: vertical;" placeholder="Du bist J.A.R.V.I.S., eine hochentwickelte KI. Antworte kurz, präzise und charmant auf Deutsch."></textarea>
               </div>
 
-              <div class="toggle-group" style="margin-bottom: 15px;">
+              <div style="display: flex; gap: 8px; width: 100%;">
+                <button class="btn" id="saveJarvisConfig" style="flex: 1;"><i class="fas fa-save"></i> <span data-i18n="jarvis_save">Einstellungen speichern</span></button>
+                <button type="button" class="btn" id="jarvisClearHistoryBtn" style="padding: 8px 12px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; display: flex; align-items: center; justify-content: center; gap: 6px;" title="Chatverlauf löschen"><i class="fas fa-trash-alt"></i> <span style="font-size: 11px;">Verlauf löschen</span></button>
+              </div>
+            </div>
+            <div class="section-divider"></div>
+          </div>
+
+          <!-- 12. J.A.R.V.I.S. SPRACHAUSGABE (TTS) -->
+          <div class="setting-section">
+            <h3 class="accordion-header"><i class="fas fa-volume-up"></i> <span data-i18n="jarvis_tts_section_title">J.A.R.V.I.S. Sprachausgabe</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
+            <div class="accordion-body">
+              <p data-i18n="jarvis_tts_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Konfiguriere die Sprachausgabe (Text-to-Speech) deines Assistenten.</p>
+              
+              <div class="toggle-group" style="margin-bottom: 12px;">
                 <label class="toggle-label">
                   <span data-i18n="jarvis_tts_label">Sprachausgabe (Text-to-Speech)</span>
                   <input type="checkbox" id="jarvisTtsEnabled" checked>
@@ -342,10 +356,57 @@
                 </label>
               </div>
 
-              <div style="display: flex; gap: 8px; width: 100%;">
-                <button class="btn" id="saveJarvisConfig" style="flex: 1;"><i class="fas fa-save"></i> <span data-i18n="jarvis_save">Einstellungen speichern</span></button>
-                <button type="button" class="btn" id="jarvisClearHistoryBtn" style="padding: 8px 12px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; display: flex; align-items: center; justify-content: center; gap: 6px;" title="Chatverlauf löschen"><i class="fas fa-trash-alt"></i> <span style="font-size: 11px;">Verlauf löschen</span></button>
+              <div id="jarvisTtsSettingsGroup" style="margin-bottom: 12px; display: none;">
+                <!-- Unified grouped voice dropdown -->
+                <div class="input-group" style="margin-bottom: 12px;">
+                  <label class="setting-sub-label" data-i18n="jarvis_voice_label">Stimme auswählen:</label>
+                  <div style="display: flex; gap: 8px; width: 100%;">
+                    <select id="jarvisVoiceSelect" class="radio-select" style="flex: 1;">
+                      <optgroup label="🌐 Browser-Stimmen" id="jarvisLocalVoicesGroup">
+                        <option value="local:auto">Automatisch (Sprach-optimiert)</option>
+                      </optgroup>
+                      <optgroup label="🎙️ ElevenLabs-Stimmen" id="jarvisElevenVoicesGroup">
+                        <option value="eleven:loading" disabled>— API-Key eingeben und laden —</option>
+                      </optgroup>
+                    </select>
+                    <button type="button" class="btn" id="jarvisLoadVoicesBtn" style="padding: 8px 12px; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px;" title="Stimmen aktualisieren"><i class="fas fa-sync-alt"></i></button>
+                  </div>
+                </div>
+
+                <!-- ElevenLabs API key - only visible when an ElevenLabs voice is selected -->
+                <div id="jarvisElevenLabsGroup" style="display: none; margin-bottom: 12px;">
+                  <div class="input-group">
+                    <label class="setting-sub-label" data-i18n="jarvis_elevenkey_label">ElevenLabs API-Key:</label>
+                    <input type="password" id="jarvisElevenApiKey" placeholder="ElevenLabs API Key eintragen" style="width: 100%;">
+                  </div>
+                </div>
               </div>
+
+              <button class="btn" id="saveJarvisConfigTts" style="width: 100%;"><i class="fas fa-save"></i> <span data-i18n="jarvis_save">Einstellungen speichern</span></button>
+            </div>
+            <div class="section-divider"></div>
+          </div>
+
+          <!-- 13. J.A.R.V.I.S. WEBSUCHE -->
+          <div class="setting-section">
+            <h3 class="accordion-header"><i class="fas fa-search"></i> <span data-i18n="jarvis_search_section_title">J.A.R.V.I.S. Websuche</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
+            <div class="accordion-body">
+              <p data-i18n="jarvis_search_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Erlaube J.A.R.V.I.S. bei aktuellen Fragen im Internet zu suchen.</p>
+              
+              <div class="toggle-group" id="jarvisSearchToggleGroup" style="margin-bottom: 12px; display: none;">
+                <label class="toggle-label">
+                  <span data-i18n="jarvis_search_label">Brave-Websuche erlauben</span>
+                  <input type="checkbox" id="jarvisSearchEnabled">
+                  <div class="toggle-switch"></div>
+                </label>
+              </div>
+
+              <div class="input-group" id="jarvisBraveKeyGroup" style="margin-bottom: 15px; display: none;">
+                <label class="setting-sub-label" data-i18n="jarvis_bravekey_label">Brave Search API-Key:</label>
+                <input type="password" id="jarvisBraveApiKey" placeholder="Brave Search API Key eintragen" style="width: 100%;">
+              </div>
+
+              <button class="btn" id="saveJarvisConfigSearch" style="width: 100%;"><i class="fas fa-save"></i> <span data-i18n="jarvis_save">Einstellungen speichern</span></button>
             </div>
             <div class="section-divider"></div>
           </div>

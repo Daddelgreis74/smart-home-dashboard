@@ -1203,6 +1203,129 @@ app.delete('/api/appointments/:id', (req, res) => {
 });
 
 
+// ==== BRAVE SEARCH API ENDPOINT ====
+app.get('/api/search', async (req, res) => {
+  const query = String(req.query.q || '').trim();
+  const apiKey = String(req.headers['x-brave-key'] || '').trim();
+
+  if (!query) {
+    return res.status(400).json({ success: false, error: 'Query parameter q is required' });
+  }
+  if (!apiKey) {
+    return res.status(400).json({ success: false, error: 'Brave Search API key is missing' });
+  }
+
+  try {
+    const url = `https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(query)}&count=5`;
+    const response = await fetch(url, {
+      headers: {
+        'Accept': 'application/json',
+        'X-Subscription-Token': apiKey
+      }
+    });
+
+    if (!response.ok) {
+      const errText = await response.text().catch(() => '');
+      throw new Error(`Brave API error (status ${response.status}): ${errText}`);
+    }
+
+    const data = await response.json();
+    const rawResults = data.web?.results || [];
+    const results = rawResults.map(r => ({
+      title: r.title || '',
+      url: r.url || '',
+      snippet: r.description || ''
+    }));
+
+    res.json({ success: true, results });
+  } catch (err) {
+    console.error('[Search] Brave search failed:', err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+// ==== ELEVENLABS VOICES LIST ENDPOINT ====
+app.get('/api/elevenlabs/voices', async (req, res) => {
+  const apiKey = String(req.headers['x-elevenlabs-key'] || '').trim();
+
+  if (!apiKey) {
+    return res.status(400).json({ success: false, error: 'ElevenLabs API key is missing' });
+  }
+
+  try {
+    const url = 'https://api.elevenlabs.io/v1/voices';
+    const response = await fetch(url, {
+      headers: {
+        'xi-api-key': apiKey,
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errText = await response.text().catch(() => '');
+      throw new Error(`ElevenLabs API error (status ${response.status}): ${errText}`);
+    }
+
+    const data = await response.json();
+    res.json({ success: true, voices: data.voices || [] });
+  } catch (err) {
+    console.error('[TTS] ElevenLabs voices fetch failed:', err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+// ==== ELEVENLABS TEXT-TO-SPEECH ENDPOINT ====
+app.post('/api/elevenlabs/tts', async (req, res) => {
+  const apiKey = String(req.headers['x-elevenlabs-key'] || '').trim();
+  const text = String(req.body.text || '').trim();
+  const voiceId = String(req.body.voiceId || '21m00Tcm4TlvDq8ikWAM').trim(); // Rachel default
+
+  if (!apiKey) {
+    return res.status(400).json({ success: false, error: 'ElevenLabs API key is missing' });
+  }
+  if (!text) {
+    return res.status(400).json({ success: false, error: 'Text parameter is required' });
+  }
+
+  try {
+    const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'xi-api-key': apiKey,
+        'Content-Type': 'application/json',
+        'accept': 'audio/mpeg'
+      },
+      body: JSON.stringify({
+        text: text,
+        model_id: 'eleven_multilingual_v2',
+        voice_settings: {
+          stability: 0.5,
+          similarity_boost: 0.75
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const errText = await response.text().catch(() => '');
+      throw new Error(`ElevenLabs API error (status ${response.status}): ${errText}`);
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    res.setHeader('Content-Type', 'audio/mpeg');
+    res.send(buffer);
+  } catch (err) {
+    console.error('[TTS] ElevenLabs TTS failed:', err.message);
+    if (!res.headersSent) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+});
+
+
 // Netzwerk Status-Schleife (alle 10s)
 
 setInterval(async () => {
