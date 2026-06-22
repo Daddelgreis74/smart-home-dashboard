@@ -18,6 +18,7 @@ const TASMOTA_FILE = path.join(DATA_DIR, 'tasmota.json');
 const RADIO_FILE = path.join(DATA_DIR, 'radio.json');
 const CAMERAS_FILE = path.join(DATA_DIR, 'cameras.json');
 const APPOINTMENTS_FILE = path.join(DATA_DIR, 'appointments.json');
+const CONFIG_FILE = path.join(DATA_DIR, 'config.json');
 const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
 const SSL_DIR = process.env.SSL_DIR || path.join(__dirname, 'ssl');
 
@@ -1246,6 +1247,46 @@ app.get('/api/search', async (req, res) => {
 
 
 // ==== ELEVENLABS VOICES LIST ENDPOINT ====
+// ==== CENTRAL CONFIG API ====
+// Speichert alle Widget-Einstellungen & API-Keys server-seitig in /app/data/config.json
+// -> geräteübergreifend: einmal eingerichtet, auf allen Geräten verfügbar
+
+app.get('/api/config', (req, res) => {
+  try {
+    const data = fs.existsSync(CONFIG_FILE)
+      ? JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'))
+      : {};
+    res.json(data);
+  } catch (e) {
+    console.error('Config lesen fehlgeschlagen:', e.message);
+    res.json({});
+  }
+});
+
+app.post('/api/config', (req, res) => {
+  try {
+    fs.writeFileSync(CONFIG_FILE, JSON.stringify(req.body, null, 2), 'utf8');
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('Config schreiben fehlgeschlagen:', e.message);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+app.patch('/api/config/:key', (req, res) => {
+  try {
+    const cfg = fs.existsSync(CONFIG_FILE)
+      ? JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'))
+      : {};
+    cfg[req.params.key] = req.body.value;
+    fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfg, null, 2), 'utf8');
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('Config key aktualisieren fehlgeschlagen:', e.message);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
 app.get('/api/elevenlabs/voices', async (req, res) => {
   const apiKey = String(req.headers['x-elevenlabs-key'] || '').trim();
 

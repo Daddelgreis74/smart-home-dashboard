@@ -1,3 +1,99 @@
+// ==== ZENTRALER CONFIG-SPEICHER ====
+// Alle Einstellungen & API-Keys werden in /app/data/config.json auf dem Server gespeichert.
+// Geräteübergreifend: einmal eingerichtet, auf allen Geräten im Netzwerk verfügbar.
+class Config {
+  static _data = {};
+  static _loaded = false;
+
+  /** Lädt die gesamte Config vom Server */
+  static async load() {
+    try {
+      const res = await fetch('/api/config');
+      if (res.ok) {
+        Config._data = await res.json();
+      }
+    } catch (e) {
+      console.warn('Config: Server nicht erreichbar, nutze localStorage-Fallback');
+    }
+    Config._loaded = true;
+  }
+
+  /** Liest einen Wert aus der Config (mit optionalem Standardwert) */
+  static get(key, defaultValue = null) {
+    const val = Config._data[key];
+    if (val === undefined || val === null) return defaultValue;
+    return val;
+  }
+
+  /** Speichert einen einzelnen Wert auf dem Server (und im lokalen Cache) */
+  static async set(key, value) {
+    Config._data[key] = value;
+    try {
+      await fetch(`/api/config/${encodeURIComponent(key)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value })
+      });
+    } catch (e) {
+      console.warn('Config.set: Server-Fehler, nur im RAM gespeichert');
+    }
+  }
+
+  /** Schreibt mehrere Werte auf einmal zum Server */
+  static async setMany(obj) {
+    Object.assign(Config._data, obj);
+    try {
+      await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Config._data)
+      });
+    } catch (e) {
+      console.warn('Config.setMany: Server-Fehler, nur im RAM gespeichert');
+    }
+  }
+
+  /**
+   * Einmalige Migration: Liest noch vorhandene localStorage-Keys
+   * und überträgt sie zur Server-Config, danach werden sie gelöscht.
+   */
+  static async migrate() {
+    const KEYS = [
+      'dashboard_lang', 'jarvis_provider', 'jarvis_gemini_api_key',
+      'jarvis_openrouter_api_key', 'jarvis_model', 'jarvis_custom_model',
+      'jarvis_system_prompt', 'jarvis_tts_enabled', 'jarvis_tts_provider',
+      'jarvis_unified_voice', 'jarvis_local_voice_name', 'jarvis_eleven_api_key',
+      'jarvis_eleven_voice_id', 'jarvis_eleven_voices_cache',
+      'jarvis_search_enabled', 'jarvis_brave_api_key', 'jarvis_chat_history',
+      'sensorIp', 'tasmotaBackup'
+    ];
+    const toMigrate = {};
+    for (const key of KEYS) {
+      const val = localStorage.getItem(key);
+      if (val !== null && Config._data[key] === undefined) {
+        toMigrate[key] = val;
+      }
+    }
+    if (Object.keys(toMigrate).length > 0) {
+      Object.assign(Config._data, toMigrate);
+      try {
+        await fetch('/api/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(Config._data)
+        });
+        // Lokalen localStorage bereinigen
+        for (const key of Object.keys(toMigrate)) {
+          localStorage.removeItem(key);
+        }
+        console.log(`Config: ${Object.keys(toMigrate).length} Einstellungen aus localStorage migriert`);
+      } catch (e) {
+        console.warn('Config.migrate: Migration fehlgeschlagen:', e);
+      }
+    }
+  }
+}
+
 const socket = io();
 let hlsCore = null;
 let isPlaying = false;
@@ -231,7 +327,7 @@ const localLangMap = {
 };
 
 function getLangText(key) {
-  const lang = localStorage.getItem('dashboard_lang') || 'de';
+  const lang = Config.get('dashboard_lang', 'de');
   if (localLangMap[lang] && localLangMap[lang][key] !== undefined) {
     return localLangMap[lang][key];
   }
@@ -244,7 +340,10 @@ function applyTheme(themeClass) {
   localStorage.setItem('dashboard_theme', themeClass);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // Config zuerst laden (server-seitig) + einmalige localStorage-Migration
+  await Config.load();
+  await Config.migrate();
   init();
 });
 
@@ -302,7 +401,7 @@ function loadSavedSettings() {
   if (themeSelector) themeSelector.value = savedTheme;
 
   // Sprache laden und anwenden
-  let savedLang = localStorage.getItem('dashboard_lang');
+  let savedLang = Config.get('dashboard_lang');
   if (!savedLang) {
     const browserLang = navigator.language ? navigator.language.split('-')[0] : 'de';
     savedLang = (translations && translations[browserLang]) ? browserLang : 'de';
@@ -353,7 +452,7 @@ function loadSavedSettings() {
     });
   }
 
-  const savedSensorIp = localStorage.getItem('sensorIp') || '192.168.178.40';
+  const savedSensorIp = Config.get('sensorIp', '192.168.178.40');
   const sensorIpInput = document.getElementById('sensorIp');
   if(sensorIpInput) sensorIpInput.value = savedSensorIp;
 
@@ -387,7 +486,7 @@ socket.on('layout-updated', (layout) => {
 
 function updateDateTime() {
   const now = new Date();
-  const lang = localStorage.getItem('dashboard_lang') || 'de';
+  const lang = Config.get('dashboard_lang', 'de');
   const localeMap = {
     de: 'de-DE',
     en: 'en-US',
@@ -484,7 +583,7 @@ function initSettings() {
       const input = document.getElementById('sensorIp');
       const ip = input ? input.value.trim() : '';
       if(ip) {
-        localStorage.setItem('sensorIp', ip);
+        Config.set('sensorIp', ip);
         refreshSensorWidget();
       }
     });
@@ -515,7 +614,7 @@ async function loadWeather() {
   let lon = parseFloat(localStorage.getItem('weather_lon'));
   let cachedLoc = localStorage.getItem('weather_loc_resolved');
 
-  const lang = localStorage.getItem('dashboard_lang') || 'de';
+  const lang = Config.get('dashboard_lang', 'de');
   // 1. Geocoding nur machen, wenn die Stadt geaendert wurde oder noch keine Koordinaten da sind (fuer Open-Meteo)
   if (provider === 'openmeteo' && (!lat || !lon || cachedLoc !== locName)) {
     try {
@@ -735,7 +834,7 @@ async function loadWeather() {
 }
 
 async function loadICS() {
-  const lang = localStorage.getItem('dashboard_lang') || 'de';
+  const lang = Config.get('dashboard_lang', 'de');
   const localeMap = {
     de: 'de-DE',
     en: 'en-US',
@@ -924,7 +1023,7 @@ function updateRadioUi(playing) {
   }
   
   if (statusLabel) {
-    const lang = localStorage.getItem('dashboard_lang') || 'de';
+    const lang = Config.get('dashboard_lang', 'de');
     statusLabel.textContent = playing ? (translations[lang] ? translations[lang].radio_status_live || 'LIVE' : 'LIVE') : (translations[lang] ? translations[lang].radio_status_choose || 'Sender wählen' : 'Sender wählen');
     statusLabel.style.color = playing ? 'var(--primary)' : 'var(--accent-blue)';
   }
@@ -1231,7 +1330,7 @@ async function refreshSensorWidget() {
   const dewEl = document.getElementById('sensorDew');
   if(!tempEl) return;
 
-  const ip = localStorage.getItem('sensorIp') || '192.168.178.40';
+  const ip = Config.get('sensorIp', '192.168.178.40');
   try {
     const res = await fetch(`/api/tasmota/sensor?ip=${encodeURIComponent(ip)}`);
     const data = await res.json();
@@ -1369,7 +1468,7 @@ async function fetchTasmotaList() {
     if(data && Array.isArray(data)) tasmotaDevices = data;
     else tasmotaDevices = [];
   } catch(e) {
-    tasmotaDevices = JSON.parse(localStorage.getItem('tasmotaBackup') || '[]');
+    tasmotaDevices = JSON.parse(Config.get('tasmotaBackup', '[]'));
   }
   renderTasmotaSettings();
   renderTasmotaButtons();
@@ -1377,7 +1476,7 @@ async function fetchTasmotaList() {
 }
 
 async function saveTasmotaList() {
-  localStorage.setItem('tasmotaBackup', JSON.stringify(tasmotaDevices));
+  Config.set('tasmotaBackup', JSON.stringify(tasmotaDevices));
   try {
     const res = await fetch('/api/tasmota', {
       method: 'POST', 
@@ -1511,7 +1610,7 @@ function initAccordion() {
 }
 
 async function initFritzbox() {
-  const lang = localStorage.getItem('dashboard_lang') || 'de';
+  const lang = Config.get('dashboard_lang', 'de');
   // Load saved Fritz!Box configuration (excluding password for security)
   try {
     const res = await fetch('/api/fritzbox/config');
@@ -1683,7 +1782,7 @@ async function initFritzbox() {
 }
 
 async function initPresence() {
-  const lang = localStorage.getItem('dashboard_lang') || 'de';
+  const lang = Config.get('dashboard_lang', 'de');
   const addBtn = document.getElementById('addPresenceBtn');
   const fileInput = document.getElementById('presenceManAvatar');
   const fileNameSpan = document.getElementById('presenceManAvatarName');
@@ -2069,7 +2168,7 @@ function renderCameraSettings(cameras) {
   list.innerHTML = '';
 
   if(cameras.length === 0) {
-    const lang = localStorage.getItem('dashboard_lang') || 'de';
+    const lang = Config.get('dashboard_lang', 'de');
     list.innerHTML = `<div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 10px;">${translations[lang] ? translations[lang].camera_no_cameras : 'Keine Kameras registriert.'}</div>`;
     return;
   }
@@ -2120,7 +2219,7 @@ function renderCameraWidget(cameras) {
   grid.innerHTML = '';
 
   if(cameras.length === 0) {
-    const lang = localStorage.getItem('dashboard_lang') || 'de';
+    const lang = Config.get('dashboard_lang', 'de');
     grid.innerHTML = `<div class="no-cameras">${translations[lang] ? translations[lang].camera_no_cameras : 'Keine Kameras eingerichtet.'}</div>`;
     return;
   }
@@ -2272,7 +2371,7 @@ function cancelJarvisSpeech() {
 function speakLocalSpeech(text) {
   if (!('speechSynthesis' in window)) return;
   
-  const lang = localStorage.getItem('dashboard_lang') || 'de';
+  const lang = Config.get('dashboard_lang', 'de');
   jarvisSpeakingUtterance = new SpeechSynthesisUtterance(text);
   
   // Status-Event-Listener für Sprachausgabe
@@ -2300,7 +2399,7 @@ function speakLocalSpeech(text) {
   const voices = window.speechSynthesis.getVoices();
   if (voices && voices.length > 0) {
     // Check if user picked a specific browser voice from the unified dropdown
-    const savedLocalVoiceName = localStorage.getItem('jarvis_local_voice_name') || '';
+    const savedLocalVoiceName = Config.get('jarvis_local_voice_name', '');
     if (savedLocalVoiceName) {
       const exact = voices.find(v => v.name === savedLocalVoiceName);
       if (exact) {
@@ -2344,14 +2443,14 @@ function speakLocalSpeech(text) {
 function speakJarvisReply(text) {
   cancelJarvisSpeech();
   
-  const enabled = localStorage.getItem('jarvis_tts_enabled') !== 'false';
+  const enabled = Config.get('jarvis_tts_enabled', 'true') !== 'false';
   if (!enabled) return;
   
-  const provider = localStorage.getItem('jarvis_tts_provider') || 'local';
+  const provider = Config.get('jarvis_tts_provider', 'local');
   
   if (provider === 'elevenlabs') {
-    const apiKey = localStorage.getItem('jarvis_eleven_api_key') || '';
-    const voiceId = localStorage.getItem('jarvis_eleven_voice_id') || '21m00Tcm4TlvDq8ikWAM';
+    const apiKey = Config.get('jarvis_eleven_api_key', '');
+    const voiceId = Config.get('jarvis_eleven_voice_id', '21m00Tcm4TlvDq8ikWAM');
     
     if (!apiKey) {
       console.warn("ElevenLabs API Key fehlt, nutze lokale Sprachausgabe.");
@@ -2438,16 +2537,16 @@ function speakJarvisReply(text) {
 }
 
 async function callJarvisAPI(prompt) {
-  const provider = localStorage.getItem('jarvis_provider') || 'simulator';
+  const provider = Config.get('jarvis_provider', 'simulator');
   let apiKey = '';
   if (provider === 'gemini') {
-    apiKey = localStorage.getItem('jarvis_gemini_api_key') || '';
+    apiKey = Config.get('jarvis_gemini_api_key', '');
   } else if (provider === 'openrouter') {
-    apiKey = localStorage.getItem('jarvis_openrouter_api_key') || '';
+    apiKey = Config.get('jarvis_openrouter_api_key', '');
   }
-  const model = localStorage.getItem('jarvis_model') || 'gemini-2.5-flash';
-  const customModel = localStorage.getItem('jarvis_custom_model') || '';
-  const systemPrompt = localStorage.getItem('jarvis_system_prompt') || 'Du bist J.A.R.V.I.S., eine hochentwickelte KI. Antworte kurz, präzise und charmant auf Deutsch.';
+  const model = Config.get('jarvis_model', 'gemini-2.5-flash');
+  const customModel = Config.get('jarvis_custom_model', '');
+  const systemPrompt = Config.get('jarvis_system_prompt', 'Du bist J.A.R.V.I.S., eine hochentwickelte KI. Antworte kurz, präzise und charmant auf Deutsch.');
   
   const activeModel = customModel.trim() || model;
   
@@ -3076,12 +3175,12 @@ async function sendJarvisMessage() {
       jarvisHistory.shift();
       jarvisHistory.shift();
     }
-    localStorage.setItem('jarvis_chat_history', JSON.stringify(jarvisHistory));
+    Config.set('jarvis_chat_history', JSON.stringify(jarvisHistory));
     
     // Antwort anzeigen & vorlesen
     appendJarvisMessage('J.A.R.V.I.S.', reply, 'assistant');
     
-    const ttsEnabled = localStorage.getItem('jarvis_tts_enabled') !== 'false';
+    const ttsEnabled = Config.get('jarvis_tts_enabled', 'true') !== 'false';
     if (ttsEnabled) {
       speechStarted = true;
     }
@@ -3155,7 +3254,7 @@ function populateElevenLabsVoicesGroup(voices) {
   });
 
   // Restore saved ElevenLabs selection
-  const savedVoiceId = localStorage.getItem('jarvis_eleven_voice_id');
+  const savedVoiceId = Config.get('jarvis_eleven_voice_id');
   if (savedVoiceId && unifiedSelect) {
     const match = Array.from(unifiedSelect.options).find(o => o.value === `eleven:${savedVoiceId}`);
     if (match) unifiedSelect.value = match.value;
@@ -3168,7 +3267,7 @@ function populateElevenLabsVoicesDropdown(voices) {
 }
 
 async function loadElevenLabsVoices(apiKeyOverride = null) {
-  const apiKey = apiKeyOverride || document.getElementById('jarvisElevenApiKey')?.value.trim() || localStorage.getItem('jarvis_eleven_api_key') || '';
+  const apiKey = apiKeyOverride || document.getElementById('jarvisElevenApiKey')?.value.trim() || Config.get('jarvis_eleven_api_key', '');
   if (!apiKey) {
     alert('Bitte zuerst den ElevenLabs API-Key eintragen.');
     return;
@@ -3185,7 +3284,7 @@ async function loadElevenLabsVoices(apiKeyOverride = null) {
     if (!data.success) throw new Error(data.error || 'Fehler beim Laden');
 
     const voices = data.voices || [];
-    localStorage.setItem('jarvis_eleven_voices_cache', JSON.stringify(voices));
+    Config.set('jarvis_eleven_voices_cache', JSON.stringify(voices));
     populateElevenLabsVoicesGroup(voices);
   } catch (err) {
     console.error('ElevenLabs Stimmen konnten nicht geladen werden:', err);
@@ -3208,7 +3307,7 @@ function initJarvis() {
 
   // Chat-Verlauf aus LocalStorage wiederherstellen und rendern
   try {
-    jarvisHistory = JSON.parse(localStorage.getItem('jarvis_chat_history') || '[]');
+    jarvisHistory = JSON.parse(Config.get('jarvis_chat_history', '[]'));
   } catch (e) {
     jarvisHistory = [];
   }
@@ -3236,43 +3335,43 @@ function initJarvis() {
   }
   
   // 1. Einstellungen laden und vorbelegen
-  const savedProvider = localStorage.getItem('jarvis_provider') || 'simulator';
+  const savedProvider = Config.get('jarvis_provider', 'simulator');
   
   // Einmalige Migration des alten Schlüssels in den Gemini-Slot (da der alte Key immer für Gemini war)
-  const legacyKey = localStorage.getItem('jarvis_api_key');
-  if (legacyKey && !localStorage.getItem('jarvis_gemini_api_key')) {
-    localStorage.setItem('jarvis_gemini_api_key', legacyKey);
-    localStorage.removeItem('jarvis_api_key');
+  const legacyKey = Config.get('jarvis_api_key');
+  if (legacyKey && !Config.get('jarvis_gemini_api_key')) {
+    Config.set('jarvis_gemini_api_key', legacyKey);
+    Config._data['jarvis_api_key'] = undefined;
   }
 
   // Bereinigung falls durch frühere Versionen der Google Key im OpenRouter Slot gelandet ist
-  const gemKey = localStorage.getItem('jarvis_gemini_api_key') || '';
-  const orKey = localStorage.getItem('jarvis_openrouter_api_key') || '';
+  const gemKey = Config.get('jarvis_gemini_api_key', '');
+  const orKey = Config.get('jarvis_openrouter_api_key', '');
   if (orKey && (orKey === gemKey || orKey.startsWith('AIzaSy'))) {
-    localStorage.removeItem('jarvis_openrouter_api_key');
+    Config.set('jarvis_openrouter_api_key', '');
   }
 
   let savedKey = '';
   if (savedProvider === 'gemini') {
-    savedKey = localStorage.getItem('jarvis_gemini_api_key') || '';
+    savedKey = Config.get('jarvis_gemini_api_key', '');
   } else if (savedProvider === 'openrouter') {
-    savedKey = localStorage.getItem('jarvis_openrouter_api_key') || '';
+    savedKey = Config.get('jarvis_openrouter_api_key', '');
   }
-  const savedModel = localStorage.getItem('jarvis_model') || 'gemini-2.5-flash';
-  const savedCustom = localStorage.getItem('jarvis_custom_model') || '';
+  const savedModel = Config.get('jarvis_model', 'gemini-2.5-flash');
+  const savedCustom = Config.get('jarvis_custom_model', '');
   // Migration alter System-Prompt (mit Tony Stark)
-  let savedPrompt = localStorage.getItem('jarvis_system_prompt');
+  let savedPrompt = Config.get('jarvis_system_prompt');
   const oldPrompt = 'Du bist JARVIS, Tony Starks hochentwickelte KI. Antworte kurz, präzise und charmant auf Deutsch.';
   const newPrompt = 'Du bist J.A.R.V.I.S., eine hochentwickelte KI. Antworte kurz, präzise und charmant auf Deutsch.';
   if (!savedPrompt || savedPrompt === oldPrompt) {
     savedPrompt = newPrompt;
-    localStorage.setItem('jarvis_system_prompt', newPrompt);
+    Config.set('jarvis_system_prompt', newPrompt);
   }
-  const savedTts = localStorage.getItem('jarvis_tts_enabled') !== 'false';
-  const savedSearch = localStorage.getItem('jarvis_search_enabled') === 'true';
-  const savedBraveKey = localStorage.getItem('jarvis_brave_api_key') || '';
-  const savedTtsProvider = localStorage.getItem('jarvis_tts_provider') || 'local';
-  const savedElevenKey = localStorage.getItem('jarvis_eleven_api_key') || '';
+  const savedTts = Config.get('jarvis_tts_enabled', 'true') !== 'false';
+  const savedSearch = Config.get('jarvis_search_enabled', 'false') === 'true';
+  const savedBraveKey = Config.get('jarvis_brave_api_key', '');
+  const savedTtsProvider = Config.get('jarvis_tts_provider', 'local');
+  const savedElevenKey = Config.get('jarvis_eleven_api_key', '');
   
   if (providerSelect) providerSelect.value = savedProvider;
   if (document.getElementById('jarvisApiKey')) document.getElementById('jarvisApiKey').value = savedKey;
@@ -3285,14 +3384,14 @@ function initJarvis() {
   if (document.getElementById('jarvisElevenApiKey')) document.getElementById('jarvisElevenApiKey').value = savedElevenKey;
 
   // Restore unified voice selection
-  const savedVoiceSelection = localStorage.getItem('jarvis_unified_voice') || 'local:auto';
+  const savedVoiceSelection = Config.get('jarvis_unified_voice', 'local:auto');
 
   // Populate local browser voices & restore selection
   const doPopulateVoices = () => {
     populateLocalVoicesGroup();
     // Restore cached ElevenLabs voices into optgroup
     try {
-      const cached = localStorage.getItem('jarvis_eleven_voices_cache');
+      const cached = Config.get('jarvis_eleven_voices_cache');
       if (cached) populateElevenLabsVoicesGroup(JSON.parse(cached));
     } catch (e) {
       console.warn('Fehler beim Laden gecachter Stimmen:', e);
@@ -3325,9 +3424,9 @@ function initJarvis() {
       
       // Vorherigen Key zwischenspeichern
       if (currentProvider === 'gemini') {
-        localStorage.setItem('jarvis_gemini_api_key', currentKey);
+        Config.set('jarvis_gemini_api_key', currentKey);
       } else if (currentProvider === 'openrouter') {
-        localStorage.setItem('jarvis_openrouter_api_key', currentKey);
+        Config.set('jarvis_openrouter_api_key', currentKey);
       }
       
       currentProvider = newProvider;
@@ -3335,9 +3434,9 @@ function initJarvis() {
       // Neuen Key laden
       let newKey = '';
       if (newProvider === 'gemini') {
-        newKey = localStorage.getItem('jarvis_gemini_api_key') || '';
+        newKey = Config.get('jarvis_gemini_api_key', '');
       } else if (newProvider === 'openrouter') {
-        newKey = localStorage.getItem('jarvis_openrouter_api_key') || '';
+        newKey = Config.get('jarvis_openrouter_api_key', '');
       }
       
       if (document.getElementById('jarvisApiKey')) {
@@ -3389,26 +3488,28 @@ function initJarvis() {
     const localVoiceName = unifiedVal.startsWith('local:') && unifiedVal !== 'local:auto'
       ? unifiedVal.replace('local:', '') : '';
 
-    localStorage.setItem('jarvis_provider', provider);
-
+    // Alle Einstellungen auf einmal zum Server schreiben (effizient)
+    const settingsToSave = {
+      jarvis_provider: provider,
+      jarvis_model: model,
+      jarvis_custom_model: customModel,
+      jarvis_system_prompt: systemPrompt,
+      jarvis_tts_enabled: String(ttsEnabled),
+      jarvis_search_enabled: String(searchEnabled),
+      jarvis_brave_api_key: braveApiKey,
+      jarvis_tts_provider: ttsProvider,
+      jarvis_eleven_api_key: elevenApiKey,
+      jarvis_eleven_voice_id: elevenVoice,
+      jarvis_local_voice_name: localVoiceName,
+      jarvis_unified_voice: unifiedVal
+    };
     // Getrennt nach aktivem Provider speichern
     if (provider === 'gemini') {
-      localStorage.setItem('jarvis_gemini_api_key', apiKey);
+      settingsToSave.jarvis_gemini_api_key = apiKey;
     } else if (provider === 'openrouter') {
-      localStorage.setItem('jarvis_openrouter_api_key', apiKey);
+      settingsToSave.jarvis_openrouter_api_key = apiKey;
     }
-
-    localStorage.setItem('jarvis_model', model);
-    localStorage.setItem('jarvis_custom_model', customModel);
-    localStorage.setItem('jarvis_system_prompt', systemPrompt);
-    localStorage.setItem('jarvis_tts_enabled', ttsEnabled);
-    localStorage.setItem('jarvis_search_enabled', searchEnabled);
-    localStorage.setItem('jarvis_brave_api_key', braveApiKey);
-    localStorage.setItem('jarvis_tts_provider', ttsProvider);
-    localStorage.setItem('jarvis_eleven_api_key', elevenApiKey);
-    localStorage.setItem('jarvis_eleven_voice_id', elevenVoice);
-    localStorage.setItem('jarvis_local_voice_name', localVoiceName);
-    localStorage.setItem('jarvis_unified_voice', unifiedVal);
+    Config.setMany(settingsToSave);
 
     alert('J.A.R.V.I.S. Einstellungen erfolgreich gespeichert.');
     updateJarvisSettingsUI();
@@ -3436,9 +3537,9 @@ function initJarvis() {
       }
       const provider = providerSelect ? providerSelect.value : 'gemini';
       if (provider === 'gemini') {
-        localStorage.removeItem('jarvis_gemini_api_key');
+        Config.set('jarvis_gemini_api_key', '');
       } else if (provider === 'openrouter') {
-        localStorage.removeItem('jarvis_openrouter_api_key');
+        Config.set('jarvis_openrouter_api_key', '');
       }
       alert("API-Schlüssel für diesen Provider erfolgreich gelöscht.");
       updateJarvisSettingsUI();
@@ -3449,7 +3550,7 @@ function initJarvis() {
   if (clearHistoryBtn) {
     clearHistoryBtn.addEventListener('click', () => {
       jarvisHistory = [];
-      localStorage.removeItem('jarvis_chat_history');
+      Config.set('jarvis_chat_history', '[]');
       const chatLog = document.getElementById('jarvisChatLog');
       if (chatLog) {
         chatLog.innerHTML = '<div class="jarvis-msg jarvis-msg-system" style="color: var(--primary); font-weight: 500;"><span style="color: var(--primary); font-weight: 700;">J.A.R.V.I.S.:</span> Chatverlauf wurde gelöscht.</div>';
@@ -3476,7 +3577,7 @@ function initJarvis() {
       
       // Sprache anpassen
       const updateSpeechLang = () => {
-        const lang = localStorage.getItem('dashboard_lang') || 'de';
+        const lang = Config.get('dashboard_lang', 'de');
         jarvisRecognition.lang = lang === 'de' ? 'de-DE' : 'en-US';
       };
       updateSpeechLang();
@@ -3724,7 +3825,7 @@ function triggerCalendarReminder(appt) {
   setTimeout(() => playJarvisBeep(660, 0.15, 0.2), 250);
 
   // 3. J.A.R.V.I.S speaking reminder (Text-to-Speech)
-  const lang = localStorage.getItem('dashboard_lang') || 'de';
+  const lang = Config.get('dashboard_lang', 'de');
   let speakText = `Sir, ich erinnere Sie an Ihren Termin: ${appt.title}`;
   if (appt.description) speakText += `. Details: ${appt.description}`;
   if (lang !== 'de') {
@@ -3732,7 +3833,7 @@ function triggerCalendarReminder(appt) {
     if (appt.description) speakText += `. Details: ${appt.description}`;
   }
 
-  const ttsEnabled = localStorage.getItem('jarvis_tts_enabled') !== 'false';
+  const ttsEnabled = Config.get('jarvis_tts_enabled', 'true') !== 'false';
   if (ttsEnabled) {
     speakJarvisReply(speakText);
   }
