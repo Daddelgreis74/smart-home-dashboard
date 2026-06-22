@@ -3008,15 +3008,14 @@ function updateJarvisSettingsUI() {
   const ttsEnabled = document.getElementById('jarvisTtsEnabled')?.checked;
   const ttsSettingsGroup = document.getElementById('jarvisTtsSettingsGroup');
   const elevenLabsGroup = document.getElementById('jarvisElevenLabsGroup');
-  const voiceSelect = document.getElementById('jarvisVoiceSelect');
 
   if (ttsSettingsGroup) {
     ttsSettingsGroup.style.display = ttsEnabled ? 'block' : 'none';
   }
-  // Show ElevenLabs API key only if an ElevenLabs voice is selected
+  // Always show ElevenLabs key field when TTS is enabled
+  // (user needs to enter key BEFORE loading ElevenLabs voices)
   if (elevenLabsGroup) {
-    const selectedVal = voiceSelect?.value || '';
-    elevenLabsGroup.style.display = (ttsEnabled && selectedVal.startsWith('eleven:')) ? 'block' : 'none';
+    elevenLabsGroup.style.display = ttsEnabled ? 'block' : 'none';
   }
 }
 

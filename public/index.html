@@ -373,10 +373,13 @@
                   </div>
                 </div>
 
-                <!-- ElevenLabs API key - only visible when an ElevenLabs voice is selected -->
-                <div id="jarvisElevenLabsGroup" style="display: none; margin-bottom: 12px;">
+                <!-- ElevenLabs API key - always visible when TTS enabled -->
+                <div id="jarvisElevenLabsGroup" style="display: none; margin-bottom: 12px; padding: 10px; border: 1px solid rgba(var(--primary-rgb, 0,150,255), 0.2); border-radius: 8px; background: rgba(var(--primary-rgb, 0,150,255), 0.04);">
                   <div class="input-group">
-                    <label class="setting-sub-label" data-i18n="jarvis_elevenkey_label">ElevenLabs API-Key:</label>
+                    <label class="setting-sub-label" data-i18n="jarvis_elevenkey_label" style="display:flex; align-items:center; gap:6px;">
+                      <i class="fas fa-key" style="font-size:10px; opacity:0.6;"></i>
+                      ElevenLabs API-Key <span style="font-size:10px; opacity:0.6; font-weight:400;">(für 🎙️ ElevenLabs-Stimmen)</span>
+                    </label>
                     <input type="password" id="jarvisElevenApiKey" placeholder="ElevenLabs API Key eintragen" style="width: 100%;">
                   </div>
                 </div>
