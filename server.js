@@ -1414,19 +1414,6 @@ setInterval(async () => {
   } catch (e) {}
 }, 5000);
 
-if (useSSL) {
-  const http = require('http');
-  const redirectPort = Number(process.env.REDIRECT_PORT || 8080);
-  const redirectServer = http.createServer((req, res) => {
-    const hostHeader = req.headers.host || '';
-    const host = hostHeader.split(':')[0] || HOST;
-    res.writeHead(301, { Location: `https://${host}:${PORT}${req.url}` });
-    res.end();
-  });
-  redirectServer.listen(redirectPort, HOST, () => {
-    console.log(`HTTP-Redirect-Server läuft auf http://${HOST}:${redirectPort} -> https://${HOST}:${PORT}`);
-  });
-}
 
 server.listen(PORT, HOST, () => {
   const protocol = useSSL ? 'https' : 'http';

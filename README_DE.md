@@ -180,12 +180,10 @@ Die Anwendung kann über folgende Umgebungsvariablen konfiguriert werden:
 | `UPLOAD_DIR` | `DATA_DIR/uploads` | Pfad zum Verzeichnis, in dem hochgeladene `.ics`-Dateien gespeichert werden. |
 | `SSL_DIR` | `DATA_DIR/ssl` | Pfad zum Verzeichnis mit den SSL-Zertifikaten (`key.pem` und `cert.pem`). |
 | `AUTO_SSL` | `false` | Auf `true` setzen, um automatisch ein selbstsigniertes SSL-Zertifikat zu generieren, falls keines in `SSL_DIR` vorhanden ist. |
-| `REDIRECT_PORT` | `8080` | Port für den einfachen HTTP-Redirect-Server (nur aktiv, wenn SSL/HTTPS verwendet wird). |
 
-#### 🐳 TrueNAS / Docker Port-Mapping Beispiel
-Bei der Bereitstellung des Dashboards wird empfohlen, beide Ports zu mappen:
+#### 🐳 Docker Port-Mapping Beispiel
+Bei der Bereitstellung des Dashboards wird empfohlen, den HTTPS-Port zu mappen:
 * **Port 8443 (HTTPS):** Weist einen Host-Port (z.B. `8443` oder `30436`) dem Container-Port `8443` zu, um sicheren HTTPS-Zugriff (erforderlich für das Mikrofon) zu gewährleisten.
-* **Port 8080 (HTTP-Redirect):** Weist einen Host-Port (z.B. `8080` oder `30437`) dem Container-Port `8080` zu, um unverschlüsselten HTTP-Verkehr automatisch auf den sicheren HTTPS-Port umzuleiten.
 
 ### 📞 Fritz!Box Monitor & Call-Monitor einrichten
 - **Verbindung:** Die Zugangsdaten deiner Fritz!Box und dein Anrufprotokoll werden **ausschließlich lokal** in den Dateien `fritzbox.json` und `fritzbox_calls.json` gespeichert.

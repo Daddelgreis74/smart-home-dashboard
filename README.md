@@ -180,12 +180,10 @@ The application can be configured using the following environment variables:
 | `UPLOAD_DIR` | `DATA_DIR/uploads` | Path to the directory where uploaded `.ics` files are saved. |
 | `SSL_DIR` | `DATA_DIR/ssl` | Path to the directory containing SSL/TLS certificates (`key.pem` and `cert.pem`). |
 | `AUTO_SSL` | `false` | Set to `true` to automatically generate a self-signed SSL/TLS certificate if missing in `SSL_DIR`. |
-| `REDIRECT_PORT` | `8080` | Port for the plain HTTP redirect server (only active if SSL/HTTPS is used). |
 
-#### 🐳 TrueNAS / Docker Port-Mapping Example
-When deploying the dashboard, it is recommended to map both ports:
+#### 🐳 Docker Port-Mapping Example
+When deploying the dashboard, it is recommended to map the HTTPS port:
 * **Port 8443 (HTTPS):** Map host port (e.g. `8443` or `30436`) to container port `8443` for secure HTTPS access (required for microphone access).
-* **Port 8080 (HTTP Redirect):** Map host port (e.g. `8080` or `30437`) to container port `8080` to automatically redirect unencrypted HTTP traffic to your secure HTTPS port.
 
 ### 📞 Fritz!Box Monitor & Call Monitor Setup
 - **Connection:** Your Fritz!Box credentials and call logs are stored **locally** on your host inside `fritzbox.json` and `fritzbox_calls.json`. These files are ignored by Git and never uploaded.
