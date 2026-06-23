@@ -19,8 +19,8 @@ const RADIO_FILE = path.join(DATA_DIR, 'radio.json');
 const CAMERAS_FILE = path.join(DATA_DIR, 'cameras.json');
 const APPOINTMENTS_FILE = path.join(DATA_DIR, 'appointments.json');
 const CONFIG_FILE = path.join(DATA_DIR, 'config.json');
-const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
-const SSL_DIR = process.env.SSL_DIR || path.join(__dirname, 'ssl');
+const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(DATA_DIR, 'uploads');
+const SSL_DIR = process.env.SSL_DIR || path.join(DATA_DIR, 'ssl');
 
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -49,6 +49,54 @@ legacyFiles.forEach(file => {
     }
   }
 });
+
+// Automatische Migration des alten uploads/ Ordners
+const oldUploadsDir = path.join(__dirname, 'uploads');
+const newUploadsDir = path.join(DATA_DIR, 'uploads');
+if (fs.existsSync(oldUploadsDir) && oldUploadsDir !== newUploadsDir) {
+  try {
+    if (!fs.existsSync(newUploadsDir)) {
+      fs.renameSync(oldUploadsDir, newUploadsDir);
+      console.log("Migrierte alten 'uploads/' Ordner erfolgreich nach 'data/uploads/'");
+    } else {
+      const files = fs.readdirSync(oldUploadsDir);
+      files.forEach(file => {
+        const oldFile = path.join(oldUploadsDir, file);
+        const newFile = path.join(newUploadsDir, file);
+        if (!fs.existsSync(newFile)) {
+          fs.renameSync(oldFile, newFile);
+        }
+      });
+      console.log("Inhalte des alten 'uploads/' Ordners wurden nach 'data/uploads/' zusammengeführt.");
+    }
+  } catch (err) {
+    console.error("Fehler bei der Migration des 'uploads/' Ordners:", err.message);
+  }
+}
+
+// Automatische Migration des alten ssl/ Ordners
+const oldSslDir = path.join(__dirname, 'ssl');
+const newSslDir = path.join(DATA_DIR, 'ssl');
+if (fs.existsSync(oldSslDir) && oldSslDir !== newSslDir) {
+  try {
+    if (!fs.existsSync(newSslDir)) {
+      fs.renameSync(oldSslDir, newSslDir);
+      console.log("Migrierte alten 'ssl/' Ordner erfolgreich nach 'data/ssl/'");
+    } else {
+      const files = fs.readdirSync(oldSslDir);
+      files.forEach(file => {
+        const oldFile = path.join(oldSslDir, file);
+        const newFile = path.join(newSslDir, file);
+        if (!fs.existsSync(newFile)) {
+          fs.renameSync(oldFile, newFile);
+        }
+      });
+      console.log("Inhalte des alten 'ssl/' Ordners wurden nach 'data/ssl/' zusammengeführt.");
+    }
+  } catch (err) {
+    console.error("Fehler bei der Migration des 'ssl/' Ordners:", err.message);
+  }
+}
 
 const sslKeyPath = path.join(SSL_DIR, 'key.pem');
 const sslCertPath = path.join(SSL_DIR, 'cert.pem');
