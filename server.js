@@ -13,7 +13,7 @@ const app = express();
 const PORT = Number(process.env.PORT || 8443);
 const HOST = process.env.HOST || '0.0.0.0';
 
-const DATA_DIR = process.env.DATA_DIR || __dirname;
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 const TASMOTA_FILE = path.join(DATA_DIR, 'tasmota.json');
 const RADIO_FILE = path.join(DATA_DIR, 'radio.json');
 const CAMERAS_FILE = path.join(DATA_DIR, 'cameras.json');
@@ -23,6 +23,32 @@ const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
 const SSL_DIR = process.env.SSL_DIR || path.join(__dirname, 'ssl');
 
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+fs.mkdirSync(DATA_DIR, { recursive: true });
+
+// Automatische Migration alter Dateien aus dem Wurzelverzeichnis in den data/ Ordner
+const legacyFiles = [
+  'tasmota.json',
+  'radio.json',
+  'cameras.json',
+  'appointments.json',
+  'config.json',
+  'fritzbox.json',
+  'fritzbox_calls.json',
+  'presence.json'
+];
+
+legacyFiles.forEach(file => {
+  const oldPath = path.join(__dirname, file);
+  const newPath = path.join(DATA_DIR, file);
+  if (fs.existsSync(oldPath) && !fs.existsSync(newPath)) {
+    try {
+      fs.renameSync(oldPath, newPath);
+      console.log(`Migrierte alte Konfigurationsdatei: ${file} -> data/${file}`);
+    } catch (err) {
+      console.error(`Fehler bei der Migration von ${file}:`, err.message);
+    }
+  }
+});
 
 const sslKeyPath = path.join(SSL_DIR, 'key.pem');
 const sslCertPath = path.join(SSL_DIR, 'cert.pem');
