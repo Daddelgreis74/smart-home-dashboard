@@ -10,7 +10,7 @@ A modern, highly customizable smart home wall panel for tablets (optimized for a
 
 ## ⚡ Quick Start (One-Liner Installation)
 
-The fastest method to set up the dashboard. The installer automatically checks all dependencies (Node.js, Git, npm, and optionally Docker) on your system and installs any missing components.
+The fastest method to set up the dashboard. The installer automatically checks all dependencies (Node.js, Git, npm) on your system and installs any missing components.
 
 ### 💻 Windows (PowerShell)
 Open PowerShell and run the following command:
@@ -24,7 +24,7 @@ Open your terminal and run the following command:
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/Daddelgreis74/smart-home-dashboard/main/install.sh)
 ```
-*Offers the choice between a local host installation (including automatic systemd service configuration for launching on boot) or a Docker Compose deployment.*
+*Performs a local host installation including automatic systemd service configuration for launching on boot.*
 
 ---
 
@@ -85,86 +85,6 @@ If you prefer not to use the automated One-Liner scripts, you can set up the app
 
 ---
 
-## 🐋 Docker & TrueNAS Setup Guide
-
-This project is fully containerized. All settings, uploaded calendar files (`calendar.ics`), web radio streams, Fritz!Box connections, camera feeds, and call lists are persisted in a single mount volume. This makes running it on **TrueNAS SCALE** or any other Docker host extremely simple.
-
-### 📂 Persistent Data Structure
-
-All data inside the container is stored under `/app/data`. Mounting this directory onto a host path will automatically create the following files and folders:
-
-| File / Directory | Description |
-| :--- | :--- |
-| `tasmota.json` | Configuration of your local Tasmota devices |
-| `radio.json` | Saved web radio stations |
-| `cameras.json` | Camera stream configurations |
-| `fritzbox.json` | Fritz!Box connection credentials |
-| `fritzbox_calls.json` | Local call list from the call monitor |
-| `presence.json` | Settings for presence detection |
-| `uploads/` | Directory containing your waste calendar file (`calendar.ics`) |
-| `ssl/` | (Optional) Store `key.pem` and `cert.pem` here to enable HTTPS |
-
----
-
-### 🎛️ Method 1: TrueNAS SCALE App Store (Recommended)
-
-The Smart Home Dashboard is available as an **official Community App** in the TrueNAS App Store:
-
-👉 [**View in TrueNAS App Catalog**](https://apps.truenas.com/catalog/smart-home-dashboard_community/)
-
-1. Go to **Apps** ➡️ **Discover Apps** in your TrueNAS Web UI.
-2. Search for `Smart Home Dashboard` and click **Install**.
-3. Follow the installation wizard to set up your storage, port (default `30436`), and environment.
-4. Click **Save** – done! The app is running.
-
----
-
-### 🛠️ Method 2: Docker Compose (CLI & SSH)
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/Daddelgreis74/smart-home-dashboard.git
-   cd smart-home-dashboard
-   ```
-2. **Start the container in the background:**
-   ```bash
-   docker compose up -d --build
-   ```
-   The dashboard is instantly accessible at `http://<YOUR-SERVER-IP>:8443`!
-
----
-
-### 📝 Method 3: TrueNAS Custom App (GUI Installation)
-
-If you wish to manually install the dashboard as a Custom App using the TrueNAS Web UI, follow these steps:
-
-#### Step 1: Prepare the Dataset & Permissions
-The container runs as user `568:568` (TrueNAS `apps` user). Set the correct host folder permissions first.
-
-Replace `/mnt/your-pool/your-dataset/smart-home-dashboard` with your actual TrueNAS dataset path:
-```bash
-mkdir -p /mnt/your-pool/your-dataset/smart-home-dashboard
-chown -R 568:568 /mnt/your-pool/your-dataset/smart-home-dashboard
-chmod -R 770 /mnt/your-pool/your-dataset/smart-home-dashboard
-```
-
-#### Step 2: Install via TrueNAS Web Interface
-1. Go to **Apps** ➡️ **Discover Apps** ➡️ **Custom App** (top right).
-2. Configure the following fields:
-   * **Application Name:** `smart-home-dashboard`
-   * **Repository:** `ghcr.io/daddelgreis74/smart-home-dashboard`
-   * **Tag:** `3.9.8` *(or `latest`)*
-3. **Network Configuration (Crucial for network stats):**
-   * **Recommended:** Enable the **Host Network** checkbox. This allows the container to share the network stack with the TrueNAS host, enabling the System Status widget on your dashboard to measure the actual network speed of your server.
-   * *Note with Host Network:* The app will listen directly on port `8443` of your TrueNAS host. Access it via `http://<YOUR-TRUENAS-IP>:8443`.
-   * *Alternative (Bridge):* If you prefer not to use host networking, keep the checkbox disabled, add port forwarding, and map host port `30436` to container port `8443`. (Note: Network speed stats in the dashboard will remain at `0.00 MB/s` in this mode).
-4. **Storage Configuration:**
-   * Add a **Host Path Volume**:
-     * **Host Path:** `/mnt/your-pool/your-dataset/smart-home-dashboard` (Your previously created path)
-     * **Mount Path:** `/app/data`
-5. Click **Save** at the bottom of the page – done! TrueNAS will pull the image and deploy the dashboard.
-
----
 
 ## ⚙️ Advanced Configuration
 
@@ -181,9 +101,7 @@ The application can be configured using the following environment variables:
 | `SSL_DIR` | `DATA_DIR/ssl` | Path to the directory containing SSL/TLS certificates (`key.pem` and `cert.pem`). |
 | `AUTO_SSL` | `false` | Set to `true` to automatically generate a self-signed SSL/TLS certificate if missing in `SSL_DIR`. |
 
-#### 🐳 Docker Port-Mapping Example
-When deploying the dashboard, it is recommended to map the HTTPS port:
-* **Port 8443 (HTTPS):** Map host port (e.g. `8443` or `30436`) to container port `8443` for secure HTTPS access (required for microphone access).
+
 
 ### 📞 Fritz!Box Monitor & Call Monitor Setup
 - **Connection:** Your Fritz!Box credentials and call logs are stored **locally** on your host inside `fritzbox.json` and `fritzbox_calls.json`. These files are ignored by Git and never uploaded.

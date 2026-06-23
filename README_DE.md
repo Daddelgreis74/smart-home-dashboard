@@ -10,7 +10,7 @@ Ein modernes, hochgradig anpassbares Smart-Home-Wandpanel für Tablets (optimier
 
 ## ⚡ Schnellstart (One-Liner-Installation)
 
-Die schnellste Methode, um das Dashboard einzurichten. Der Installer prüft automatisch alle Abhängigkeiten (Node.js, Git, npm, optional Docker) und installiert fehlende Programme nach.
+Die schnellste Methode, um das Dashboard einzurichten. Der Installer prüft automatisch alle Abhängigkeiten (Node.js, Git, npm) und installiert fehlende Programme nach.
 
 ### 💻 Windows (PowerShell)
 Öffne die PowerShell und führe folgenden Befehl aus:
@@ -24,7 +24,7 @@ irm https://raw.githubusercontent.com/Daddelgreis74/smart-home-dashboard/main/in
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/Daddelgreis74/smart-home-dashboard/main/install.sh)
 ```
-*Ermöglicht die Wahl zwischen lokaler Installation (inklusive vollautomatischer Einrichtung als Systemd-Hintergrunddienst für den Start beim Booten) oder einer Docker-Compose-Bereitstellung.*
+*Führt eine lokale Installation inklusive vollautomatischer Einrichtung als Systemd-Hintergrunddienst für den Start beim Booten durch.*
 
 ---
 
@@ -83,89 +83,6 @@ Falls du die One-Liner-Skripte nicht nutzen möchtest, kannst du die App manuell
    ```
    Der manuelle Server läuft standardmäßig auf `http://localhost:8443` (oder `https://localhost:8443` mit SSL).
 
----
-
-## 🐋 Docker & TrueNAS Setup Guide
-
-Dieses Projekt ist vollständig containerisiert. Alle Einstellungen, hochgeladene Kalenderdateien (`calendar.ics`), Webradio-Sender, Fritz!Box-Verbindungsdaten, Kameras und Anruflisten werden über ein einziges persistentes Volume gesichert. Das macht den Betrieb auf einem **TrueNAS SCALE**-Heimserver oder jedem anderen Docker-Host extrem einfach.
-
-### 📂 Struktur der persistenten Daten
-
-Alle Daten werden im Container unter `/app/data` verwaltet. Wenn du dieses Verzeichnis auf einen Host-Pfad mountest, entstehen dort automatisch folgende Dateien und Ordner:
-
-| Datei / Ordner | Beschreibung |
-| :--- | :--- |
-| `tasmota.json` | Konfiguration deiner lokalen Tasmota-Geräte |
-| `radio.json` | Deine gespeicherten Webradio-Sender |
-| `cameras.json` | Deine Kamera-Streams |
-| `fritzbox.json` | Verbindungs- und Zugangsdaten deiner Fritz!Box |
-| `fritzbox_calls.json` | Die lokale Anrufliste des Call-Monitors |
-| `presence.json` | Einstellungen zur Anwesenheitserkennung |
-| `uploads/` | Enthält deine hochgeladene Abfallkalender-Datei (`calendar.ics`) |
-| `ssl/` | (Optional) Für HTTPS: Lege hier `key.pem` und `cert.pem` ab |
-
----
-
-### 🎛️ Methode 1: TrueNAS SCALE App Store (Empfohlen)
-
-Das Smart Home Dashboard ist als **offizielle Community App** im TrueNAS App Store verfügbar:
-
-👉 [**Im TrueNAS App-Katalog anzeigen**](https://apps.truenas.com/catalog/smart-home-dashboard_community/)
-
-1. Öffne **Apps** ➡️ **Discover Apps** in deiner TrueNAS Web-Oberfläche.
-2. Suche nach `Smart Home Dashboard` und klicke auf **Install**.
-3. Folge dem Installationsassistenten für Speicher, Port (Standard `30436`) und Umgebung.
-4. Klicke auf **Save** – fertig! Die App läuft.
-
----
-
-### 🛠️ Methode 2: Docker Compose (CLI & SSH)
-
-1. **Repository klonen:**
-   ```bash
-   git clone https://github.com/Daddelgreis74/smart-home-dashboard.git
-   cd smart-home-dashboard
-   ```
-2. **Container im Hintergrund starten:**
-   ```bash
-   docker compose up -d --build
-   ```
-   Das Dashboard ist sofort unter `http://<DEINE-SERVER-IP>:8443` erreichbar!
-
----
-
-### 📝 Methode 3: TrueNAS Custom App (GUI-Installation)
-
-Falls du das Dashboard manuell als Custom App über die TrueNAS-Weboberfläche installieren möchtest, folge diesen Schritten:
-
-#### Schritt 1: Dataset & Berechtigungen vorbereiten
-Da der Container als Benutzer `568:568` (Standard-User `apps` in TrueNAS) ausgeführt wird, müssen die Berechtigungen für das Datenverzeichnis auf dem TrueNAS-Host vorbereitet werden.
-
-Ersetze `/mnt/dein-pool/dein-dataset/smart-home-dashboard` mit deinem tatsächlichen TrueNAS-Dataset-Pfad:
-```bash
-mkdir -p /mnt/dein-pool/dein-dataset/smart-home-dashboard
-chown -R 568:568 /mnt/dein-pool/dein-dataset/smart-home-dashboard
-chmod -R 770 /mnt/dein-pool/dein-dataset/smart-home-dashboard
-```
-
-#### Schritt 2: Installation über die TrueNAS-Weboberfläche
-1. Gehe in TrueNAS auf **Apps** ➡️ **Discover Apps** ➡️ **Custom App** (oben rechts).
-2. Fülle die Felder wie folgt aus:
-   * **Application Name:** `smart-home-dashboard`
-   * **Repository:** `ghcr.io/daddelgreis74/smart-home-dashboard`
-   * **Tag:** `3.9.8` *(oder `latest`)*
-3. **Netzwerk-Konfiguration (Sehr wichtig für die Bandbreitenmessung):**
-   * **Empfehlung:** Aktiviere die Checkbox **Host Network**. Dadurch teilt sich der Container die Netzwerkkarte mit dem TrueNAS-Host, und das System-Status-Widget auf dem Dashboard kann die echte Netzwerkgeschwindigkeit deines Servers messen.
-   * *Hinweis bei Host-Network:* Die App lauscht dann direkt auf dem Port `8443` deines TrueNAS-Servers. Du erreichst das Dashboard unter `http://<DEINE-TRUENAS-IP>:8443`.
-   * *Alternative (Bridge):* Wenn du kein Host-Netzwerk möchtest, deaktiviere die Checkbox, füge eine Portweiterleitung hinzu und leite den Host-Port `30436` auf den Container-Port `8443` um. (Hierbei bleibt die Netzwerkmessung im Dashboard jedoch bei `0.00 MB/s`).
-4. **Speicher-Konfiguration (Storage):**
-   * Füge ein **Host Path Volume** hinzu:
-     * **Host Path:** `/mnt/dein-pool/dein-dataset/smart-home-dashboard` (Dein zuvor erstellter Pfad)
-     * **Mount Path:** `/app/data`
-5. Klicke ganz unten auf **Save** – fertig! TrueNAS startet das Dashboard.
-
----
-
 ## ⚙️ Erweiterte Konfiguration
 
 ### 🌐 Umgebungsvariablen
@@ -181,9 +98,7 @@ Die Anwendung kann über folgende Umgebungsvariablen konfiguriert werden:
 | `SSL_DIR` | `DATA_DIR/ssl` | Pfad zum Verzeichnis mit den SSL-Zertifikaten (`key.pem` und `cert.pem`). |
 | `AUTO_SSL` | `false` | Auf `true` setzen, um automatisch ein selbstsigniertes SSL-Zertifikat zu generieren, falls keines in `SSL_DIR` vorhanden ist. |
 
-#### 🐳 Docker Port-Mapping Beispiel
-Bei der Bereitstellung des Dashboards wird empfohlen, den HTTPS-Port zu mappen:
-* **Port 8443 (HTTPS):** Weist einen Host-Port (z.B. `8443` oder `30436`) dem Container-Port `8443` zu, um sicheren HTTPS-Zugriff (erforderlich für das Mikrofon) zu gewährleisten.
+
 
 ### 📞 Fritz!Box Monitor & Call-Monitor einrichten
 - **Verbindung:** Die Zugangsdaten deiner Fritz!Box und dein Anrufprotokoll werden **ausschließlich lokal** in den Dateien `fritzbox.json` und `fritzbox_calls.json` gespeichert.

@@ -85,15 +85,7 @@ else
     echo -e "${GREEN}[OK] Git, Node.js und npm sind bereits installiert!${NC}"
 fi
 
-# 3. Installations-Methode wählen
-echo ""
-echo "Wie möchtest du das Dashboard installieren?"
-echo -e "1) ${CYAN}Lokal mit Node.js${NC} (Direkt auf dem System als Hintergrund-Dienst)"
-echo -e "2) ${CYAN}Über Docker Compose${NC} (Im isolierten Container)"
-read -p "Auswahl (1 oder 2, Standard: 1): " INSTALL_MODE
-INSTALL_MODE=${INSTALL_MODE:-1}
-
-# 4. Installationspfad festlegen
+# 3. Installationspfad festlegen
 INSTALL_DIR="$HOME/smart-home-dashboard"
 echo ""
 read -p "Installationsverzeichnis (Standard: $INSTALL_DIR): " USER_DIR
@@ -103,7 +95,7 @@ INSTALL_DIR=${USER_DIR:-$INSTALL_DIR}
 mkdir -p "$INSTALL_DIR"
 cd "$INSTALL_DIR"
 
-# 5. Repository klonen oder updaten
+# 4. Repository klonen oder updaten
 echo -e "${CYAN}[INFO] Lade Quellcode von GitHub herunter...${NC}"
 if [ -d ".git" ]; then
     echo -e "${YELLOW}[INFO] Repository existiert bereits. Aktualisiere...${NC}"
@@ -112,52 +104,24 @@ else
     git clone https://github.com/Daddelgreis74/smart-home-dashboard.git .
 fi
 
-# 6. Installation ausführen
-if [ "$INSTALL_MODE" = "2" ]; then
-    # Docker-Modus
+# 5. Installation ausführen (Lokaler Node.js Modus)
+echo ""
+echo -e "${CYAN}[INFO] Richte lokale Node.js Installation ein...${NC}"
+
+echo -e "${CYAN}[INFO] Installiere npm-Pakete...${NC}"
+npm install
+
+# Optional: Systemd Service einrichten (nur wenn systemctl verfügbar ist)
+if check_cmd systemctl; then
     echo ""
-    echo -e "${CYAN}[INFO] Richte Docker-Installation ein...${NC}"
+    read -p "Möchtest du das Dashboard als Autostart-Hintergrunddienst (systemd) einrichten? (j/n, Standard: j): " SET_SERVICE
+    SET_SERVICE=${SET_SERVICE:-j}
     
-    if ! check_cmd docker; then
-        echo -e "${RED}[FEHLER] Docker ist auf diesem System nicht installiert!${NC}"
-        echo "Bitte installiere Docker zuerst: https://docs.docker.com/engine/install/"
-        exit 1
-    fi
-    
-    if ! docker compose version >/dev/null 2>&1; then
-        echo -e "${RED}[FEHLER] 'docker compose' ist nicht verfügbar!${NC}"
-        echo "Bitte installiere das Docker Compose Plugin."
-        exit 1
-    fi
-    
-    echo -e "${CYAN}[INFO] Starte Docker Container im Hintergrund...${NC}"
-    docker compose up -d
-    
-    echo -e "${GREEN}===================================================${NC}"
-    echo -e "${GREEN}   DOCKER-INSTALLATION ERFOLGREICH! 🎉              ${NC}"
-    echo -e "${GREEN}===================================================${NC}"
-    echo ""
-    echo "Das Dashboard läuft im Hintergrund im Docker-Container."
-    echo "Erreichbar unter: http://localhost:8443 (oder unter deiner Server-IP)"
-else
-    # Lokaler Node.js Modus
-    echo ""
-    echo -e "${CYAN}[INFO] Richte lokale Node.js Installation ein...${NC}"
-    
-    echo -e "${CYAN}[INFO] Installiere npm-Pakete...${NC}"
-    npm install
-    
-    # Optional: Systemd Service einrichten (nur wenn systemctl verfügbar ist)
-    if check_cmd systemctl; then
-        echo ""
-        read -p "Möchtest du das Dashboard als Autostart-Hintergrunddienst (systemd) einrichten? (j/n, Standard: j): " SET_SERVICE
-        SET_SERVICE=${SET_SERVICE:-j}
+    if [[ "$SET_SERVICE" =~ ^[jJyY] ]]; then
+        SERVICE_FILE="/etc/systemd/system/smart-home-dashboard.service"
+        echo -e "${CYAN}[INFO] Erstelle Systemd-Service unter $SERVICE_FILE...${NC}"
         
-        if [[ "$SET_SERVICE" =~ ^[jJyY] ]]; then
-            SERVICE_FILE="/etc/systemd/system/smart-home-dashboard.service"
-            echo -e "${CYAN}[INFO] Erstelle Systemd-Service unter $SERVICE_FILE...${NC}"
-            
-            sudo bash -c "cat <<EOT > $SERVICE_FILE
+        sudo bash -c "cat <<EOT > $SERVICE_FILE
 [Unit]
 Description=Neo Deck Smart Home Dashboard
 After=network.target
@@ -173,32 +137,31 @@ Environment=PORT=8443 HOST=0.0.0.0
 [Install]
 WantedBy=multi-user.target
 EOT"
-            
-            echo -e "${CYAN}[INFO] Aktiviere und starte den Dienst...${NC}"
-            sudo systemctl daemon-reload
-            sudo systemctl enable smart-home-dashboard.service
-            sudo systemctl start smart-home-dashboard.service
-            
-            echo -e "${GREEN}[OK] Hintergrunddienst wurde erfolgreich eingerichtet und gestartet!${NC}"
-        fi
+        
+        echo -e "${CYAN}[INFO] Aktiviere und starte den Dienst...${NC}"
+        sudo systemctl daemon-reload
+        sudo systemctl enable smart-home-dashboard.service
+        sudo systemctl start smart-home-dashboard.service
+        
+        echo -e "${GREEN}[OK] Hintergrunddienst wurde erfolgreich eingerichtet und gestartet!${NC}"
     fi
-    
-    # IP-Adresse ermitteln
-    IP_ADDR=$(hostname -I | awk '{print $1}' || echo "deine-server-ip")
-    
-    echo -e "${GREEN}===================================================${NC}"
-    echo -e "${GREEN}   LOKALE INSTALLATION ERFOLGREICH! 🎉              ${NC}"
-    echo -e "${GREEN}===================================================${NC}"
-    echo ""
-    echo "Das Dashboard wurde erfolgreich installiert."
-    if systemctl is-active --quiet smart-home-dashboard.service 2>/dev/null; then
-        echo "Es läuft aktuell im Hintergrund als Systemdienst."
-        echo "Dienst stoppen: sudo systemctl stop smart-home-dashboard"
-        echo "Dienst starten: sudo systemctl start smart-home-dashboard"
-    else
-        echo "Du kannst es manuell im Projektordner mit folgendem Befehl starten:"
-        echo "  PORT=8443 npm start"
-    fi
-    echo ""
-    echo -e "Erreichbar unter: ${CYAN}http://$IP_ADDR:8443${NC} (oder http://localhost:8443)"
 fi
+
+# IP-Adresse ermitteln
+IP_ADDR=$(hostname -I | awk '{print $1}' || echo "deine-server-ip")
+
+echo -e "${GREEN}===================================================${NC}"
+echo -e "${GREEN}   LOKALE INSTALLATION ERFOLGREICH! 🎉              ${NC}"
+echo -e "${GREEN}===================================================${NC}"
+echo ""
+echo "Das Dashboard wurde erfolgreich installiert."
+if systemctl is-active --quiet smart-home-dashboard.service 2>/dev/null; then
+    echo "Es läuft aktuell im Hintergrund als Systemdienst."
+    echo "Dienst stoppen: sudo systemctl stop smart-home-dashboard"
+    echo "Dienst starten: sudo systemctl start smart-home-dashboard"
+else
+    echo "Du kannst es manuell im Projektordner mit folgendem Befehl starten:"
+    echo "  PORT=8443 npm start"
+fi
+echo ""
+echo -e "Erreichbar unter: ${CYAN}http://$IP_ADDR:8443${NC} (oder http://localhost:8443)"
