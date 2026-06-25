@@ -141,7 +141,7 @@ EOT"
         echo -e "${CYAN}[INFO] Aktiviere und starte den Dienst...${NC}"
         sudo systemctl daemon-reload
         sudo systemctl enable smart-home-dashboard.service
-        sudo systemctl start smart-home-dashboard.service
+        sudo systemctl restart smart-home-dashboard.service
         
         echo -e "${GREEN}[OK] Hintergrunddienst wurde erfolgreich eingerichtet und gestartet!${NC}"
     fi
