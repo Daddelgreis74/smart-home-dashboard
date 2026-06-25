@@ -2538,6 +2538,8 @@ function speakJarvisReply(text) {
 
 async function callJarvisAPI(prompt) {
   const provider = Config.get('jarvis_provider', 'simulator');
+  const searchEnabled = Config.get('jarvis_search_enabled', 'false') === 'true';
+  const braveKey = Config.get('jarvis_brave_api_key', '');
   let apiKey = '';
   if (provider === 'gemini') {
     apiKey = Config.get('jarvis_gemini_api_key', '');
@@ -2559,6 +2561,10 @@ async function callJarvisAPI(prompt) {
   let activeSystemPrompt = systemPrompt;
   activeSystemPrompt += `\nDu bist ein vollfunktionsfähiger, intelligenter Assistent. Du kannst allgemeine Fragen beantworten, Smalltalk führen, und hast zusätzlich Zugriff auf Smart-Home-Funktionen. Begrenze dich nicht selbst auf Smart-Home-Befehle.`;
   activeSystemPrompt += `\nAktuelle Zeit: ${dateStr}, ${timeStr} Uhr. Nutze diese Information, wenn der Benutzer nach Datum oder Uhrzeit fragt.`;
+  
+  if (searchEnabled && braveKey) {
+    activeSystemPrompt += `\nDu hast Zugriff auf eine Echtzeit-Websuche. Nutze das Tool 'web_search', um aktuelle Informationen, Wetter, News oder Wissensfragen zu recherchieren, wenn deine internen Daten nicht ausreichen oder veraltet sein könnten.`;
+  }
   
   if (typeof tasmotaDevices !== 'undefined' && tasmotaDevices.length > 0) {
     const devicesList = tasmotaDevices.map(d => `${d.name} (IP: ${d.ip})`).join(', ');
@@ -2676,6 +2682,23 @@ async function callJarvisAPI(prompt) {
         ]
       }
     ];
+
+    if (searchEnabled && braveKey) {
+      tasmotaTools[0].functionDeclarations.push({
+        name: "web_search",
+        description: "Führt eine Websuche durch, um aktuelle Informationen, News, Wetter oder Daten zu recherchieren.",
+        parameters: {
+          type: "OBJECT",
+          properties: {
+            query: {
+              type: "STRING",
+              description: "Der Suchbegriff oder die Suchanfrage (z.B. 'Wetter heute Berlin' oder 'Wer hat die Bundestagswahl gewonnen')"
+            }
+          },
+          required: ["query"]
+        }
+      });
+    }
 
     let loopCount = 0;
     const maxLoops = 5;
@@ -2960,6 +2983,27 @@ async function callJarvisAPI(prompt) {
                 functionResult = {
                   success: false,
                   error: responseData.error || "Fehler beim Erstellen des Termins."
+                };
+              }
+            }
+          } else if (functionName === 'web_search') {
+            const query = String(args.query || '').trim();
+            if (!query) {
+              functionResult = { success: false, error: "Suchanfrage ist leer." };
+            } else {
+              const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`, {
+                headers: { 'x-brave-key': braveKey }
+              });
+              const searchData = await res.json();
+              if (searchData.success) {
+                functionResult = {
+                  success: true,
+                  results: searchData.results
+                };
+              } else {
+                functionResult = {
+                  success: false,
+                  error: searchData.error || "Websuche war nicht erfolgreich."
                 };
               }
             }
