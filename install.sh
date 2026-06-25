@@ -157,11 +157,12 @@ echo ""
 echo "Das Dashboard wurde erfolgreich installiert."
 if systemctl is-active --quiet smart-home-dashboard.service 2>/dev/null; then
     echo "Es läuft aktuell im Hintergrund als Systemdienst."
-    echo "Dienst stoppen: sudo systemctl stop smart-home-dashboard"
-    echo "Dienst starten: sudo systemctl start smart-home-dashboard"
+    echo "Dienst stoppen:       sudo systemctl stop smart-home-dashboard.service"
+    echo "Dienst starten:       sudo systemctl start smart-home-dashboard.service"
+    echo "Dienst neu starten:   sudo systemctl restart smart-home-dashboard.service"
 else
     echo "Du kannst es manuell im Projektordner mit folgendem Befehl starten:"
-    echo "  PORT=8443 npm start"
+    echo "  PORT=8443 AUTO_SSL=true npm start"
 fi
 echo ""
-echo -e "Erreichbar unter: ${CYAN}http://$IP_ADDR:8443${NC} (oder http://localhost:8443)"
+echo -e "Erreichbar unter (HTTPS zwingend fuer J.A.R.V.I.S.): ${CYAN}https://$IP_ADDR:8443${NC} (oder https://localhost:8443)"
