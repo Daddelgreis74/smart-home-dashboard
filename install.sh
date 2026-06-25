@@ -132,7 +132,7 @@ User=$USER
 WorkingDirectory=$INSTALL_DIR
 ExecStart=$(command -v node) server.js
 Restart=on-failure
-Environment=PORT=8443 HOST=0.0.0.0
+Environment=PORT=8443 HOST=0.0.0.0 AUTO_SSL=true
 
 [Install]
 WantedBy=multi-user.target
