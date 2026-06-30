@@ -128,12 +128,12 @@
           <div class="setting-section">
             <h3 class="accordion-header"><i class="fas fa-gauge-high"></i> <span data-i18n="sensor_section_title">Temperatur</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
             <div class="accordion-body">
-              <div class="input-group">
-                <label class="setting-sub-label" data-i18n="sensor_ip_label">AM2301 HTTP-Adresse:</label>
-                <div style="display:flex; gap: 8px;">
-                  <input type="text" id="sensorIp" value="192.168.178.40" placeholder="192.168.178.40">
-                  <button class="btn" id="updateSensorIp" data-i18n="sensor_save">Speichern</button>
-                </div>
+              <div id="sensorSettingsList" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+                <!-- Wird dynamisch von renderSensorSettings() befüllt -->
+              </div>
+              <div style="display: flex; gap: 8px; justify-content: space-between;">
+                <button class="btn btn-secondary" id="addSensorRowBtn"><i class="fas fa-plus"></i> <span data-i18n="sensor_add_btn">Sensor hinzufügen</span></button>
+                <button class="btn" id="saveSensorsBtn" data-i18n="sensor_save">Speichern</button>
               </div>
             </div>
             <div class="section-divider"></div>
@@ -431,7 +431,7 @@
           </div>
           <div class="weather-condition" id="weatherCondition">--</div>
           <div class="weather-details">
-            <div class="w-detail"><i class="fas fa-temperature-half"></i><small>Min/Max</small><span id="w-minmax">-- / --</span></div>
+            <div class="w-detail"><i class="fas fa-temperature-half"></i><small>Max/Min</small><span id="w-minmax">-- / --</span></div>
             <div class="w-detail"><i class="fas fa-person-rays"></i><small>Gefühlt</small><span id="w-feels">--°</span></div>
             <div class="w-detail"><i class="fas fa-droplet"></i><small>Feuchte</small><span id="w-humidity">-- %</span></div>
             <div class="w-detail"><i class="fas fa-cloud-rain"></i><small>Regen</small><span id="w-rain">-- %</span></div>
@@ -600,15 +600,7 @@
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body sensor-layout" id="sensorBody">
-          <div class="sensor-gauges">
-            <div class="sensor-gauge temp" id="tempGauge" style="--value:0; --color:#66d9ff;">
-              <div class="gauge-core">
-                <i class="fas fa-temperature-half"></i>
-                <strong id="sensorTemp">--°</strong>
-                <small data-i18n="sensor_unit">Temperatur</small>
-              </div>
-            </div>
-          </div>
+          <!-- Wird dynamisch befüllt -->
         </div>
       </div>
 
