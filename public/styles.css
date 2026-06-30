@@ -1913,11 +1913,12 @@ body::before {
 .sensor-layout {
   display: flex;
   flex-direction: row;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start;
+  align-items: flex-start;
   flex-wrap: wrap;
   gap: 10px;
   width: 100%;
+  padding-top: 8px;
 }
 
 .sensor-card {
