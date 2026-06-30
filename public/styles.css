@@ -1913,10 +1913,10 @@ body::before {
 .sensor-layout {
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
-  align-items: stretch;
+  justify-content: center;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 10px;
   width: 100%;
 }
 
@@ -1924,32 +1924,32 @@ body::before {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 12px;
-  border-radius: 16px;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  flex: 1;
-  min-width: 220px;
-  max-width: 320px;
+  flex: 0 1 auto;
+  min-width: 100px;
+  max-width: 125px;
   box-sizing: border-box;
 }
 
 .sensor-card-title {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   color: rgba(218, 232, 255, 0.85);
   text-align: center;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .sensor-gauges {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
 }
 
 .sensor-gauge {
@@ -1957,24 +1957,24 @@ body::before {
   --sweep: 0%;
   --color: #55f5b1;
   position: relative;
-  width: min(100%, 95px); /* Auf 95px verkleinert für edlere Kompaktheit */
+  width: 72px; /* Auf 72px verkleinert für edlere Kompaktheit */
   aspect-ratio: 1;
   margin: 0 auto;
   border-radius: 50%;
   display: grid;
   place-items: center;
   background:
-    radial-gradient(circle at center, rgba(3,8,20,0.96) 0 76%, transparent 77%), /* Ringstärke filigraner auf 23% verkleinert */
-    conic-gradient(from 225deg, var(--color) 0 var(--sweep), rgba(255,255,255,0.09) 0 75%, transparent 75% 100%);
+    radial-gradient(circle at center, rgba(3,8,20,0.96) 0 74%, transparent 75%), /* Ringstärke filigraner auf 26% verkleinert */
+    conic-gradient(from 225deg, var(--color) 0 var(--sweep), rgba(255, 255, 255, 0.09) 0 75%, transparent 75% 100%);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.12),
-    0 0 20px color-mix(in srgb, var(--color) 20%, transparent); /* Sanfterer Glow */
+    0 0 15px color-mix(in srgb, var(--color) 15%, transparent); /* Sanfterer Glow */
 }
 
 .sensor-gauge::before {
   content: '';
   position: absolute;
-  inset: 5px; /* Inset angepasst an den dünneren Ring */
+  inset: 4px; /* Inset angepasst an den dünneren Ring */
   border-radius: 50%;
   border: 1px solid rgba(255,255,255,0.08);
   background: radial-gradient(circle at 50% 25%, rgba(255,255,255,0.08), rgba(255,255,255,0.02) 54%, rgba(0,0,0,0.18));
@@ -1997,7 +1997,7 @@ body::before {
 }
 
 .gauge-core strong {
-  font-size: clamp(18px, 2vw, 24px); /* Temperaturzahl perfekt eingepasst */
+  font-size: 18px; /* Temperaturzahl perfekt eingepasst */
   line-height: 0.95;
   font-weight: 300;
   letter-spacing: -0.04em;
@@ -2005,7 +2005,7 @@ body::before {
 }
 
 .gauge-core small {
-  font-size: 7.5px; /* Sublabel dezent verkleinert */
+  font-size: 6.5px; /* Sublabel dezent verkleinert */
   line-height: 1;
   color: rgba(218,232,255,0.5);
   text-transform: uppercase;
@@ -2015,13 +2015,13 @@ body::before {
 .sensor-meta {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  padding: 7px 10px;
-  border-radius: 14px;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 10px;
   background: rgba(0,0,0,0.2);
   border: 1px solid rgba(255,255,255,0.07);
   color: rgba(218,232,255,0.62);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -2033,13 +2033,13 @@ body::before {
   .widget[data-type="presence"],
   .widget[data-type="tasmota"] { grid-column: span 3; }
   .sensor-layout { gap: 6px; }
-  .sensor-gauges { gap: 8px; }
-  .sensor-gauge { width: min(100%, 92px); }
-  .sensor-gauge::before { inset: 7px; }
+  .sensor-gauges { gap: 6px; }
+  .sensor-gauge { width: 64px; }
+  .sensor-gauge::before { inset: 3px; }
   .gauge-core i { display: none; }
-  .gauge-core strong { font-size: 20px; }
-  .gauge-core small { font-size: 7px; }
-  .sensor-meta { padding: 5px 8px; font-size: 8px; }
+  .gauge-core strong { font-size: 16px; }
+  .gauge-core small { font-size: 6px; }
+  .sensor-meta { padding: 3px 6px; font-size: 8px; }
 }
 
 @media (max-aspect-ratio: 4/3) {
