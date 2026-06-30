@@ -65,7 +65,7 @@ echo.
 :start_server
 echo [INFO] Oeffne Dashboard im Webbrowser...
 :: Öffnet das Dashboard im Standard-Webbrowser des PCs
-start http://localhost:8443
+start https://localhost:8443
 
 echo [INFO] Starte Server...
 echo.

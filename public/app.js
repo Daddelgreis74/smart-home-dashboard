@@ -1479,13 +1479,6 @@ async function refreshSensorWidget() {
               <small data-i18n="sensor_unit">Temperatur</small>
             </div>
           </div>
-          <div class="sensor-gauge humidity" id="humidityGauge-${index}" style="--value:0; --color:#55f5b1;">
-            <div class="gauge-core">
-              <i class="fas fa-droplet"></i>
-              <strong id="sensorHumidity-${index}">--%</strong>
-              <small>${getLangText('sensor_humidity_unit')}</small>
-            </div>
-          </div>
         </div>
         <div class="sensor-meta" id="sensorStatus-${index}">Offline</div>
       `;
@@ -1496,7 +1489,6 @@ async function refreshSensorWidget() {
   // Abfrage für jeden Sensor durchführen
   const promises = sensorList.map(async (sensor, index) => {
     const tempEl = document.getElementById(`sensorTemp-${index}`);
-    const humidityEl = document.getElementById(`sensorHumidity-${index}`);
     const statusEl = document.getElementById(`sensorStatus-${index}`);
     if (!tempEl) return;
 
@@ -1509,23 +1501,13 @@ async function refreshSensorWidget() {
       tempEl.textContent = Number.isFinite(temp) ? `${temp.toFixed(1)}°` : '--°';
       setGauge(`tempGauge-${index}`, temp, -10, 40);
 
-      const humidity = Number(data.humidity);
-      if (humidityEl) {
-        humidityEl.textContent = Number.isFinite(humidity) ? `${humidity.toFixed(0)}%` : '--%';
-        setGauge(`humidityGauge-${index}`, humidity, 0, 100);
-      }
-
       if (statusEl) {
-        statusEl.textContent = data.time ? `${sensor.ip} • ${data.time.slice(11, 16)}` : sensor.ip;
+        statusEl.textContent = data.time ? data.time.slice(11, 16) : 'Online';
         statusEl.style.color = '';
       }
     } catch (e) {
       tempEl.textContent = '--°';
       setGauge(`tempGauge-${index}`, 0, -10, 40);
-      if (humidityEl) {
-        humidityEl.textContent = '--%';
-        setGauge(`humidityGauge-${index}`, 0, 0, 100);
-      }
       if (statusEl) {
         statusEl.textContent = 'Offline';
         statusEl.style.color = '#ef4444';
