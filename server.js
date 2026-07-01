@@ -38,12 +38,12 @@ app.use('/api/cameras', require('./src/routes/cameras'));
 app.use('/api/search', require('./src/routes/search'));
 app.use('/api/elevenlabs', require('./src/routes/tts'));
 
-// 7. Realtime Sockets & Services initialisieren
-initSockets(io);
-initFritzboxConnections(io);
-
-// 9. Server starten & Presence-Polling initialisieren (nur wenn direkt gestartet)
+// 9. Server starten & Services initialisieren (nur wenn direkt gestartet)
 if (require.main === module) {
+  // Realtime Sockets & Services initialisieren
+  initSockets(io);
+  initFritzboxConnections(io);
+
   // Presence-Polling starten (Fritz!Box-Abfrage)
   setInterval(pollPresence, 30000);
   setTimeout(pollPresence, 5000);
