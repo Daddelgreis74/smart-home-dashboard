@@ -26,6 +26,7 @@ async function getSensorData(ip) {
   if (!sensor) throw new Error('Kein Temperatur-/Feuchte-Sensor gefunden');
 
   return {
+    success: true,
     online: true,
     ip,
     name: sensorName,
