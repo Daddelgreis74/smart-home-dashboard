@@ -92,6 +92,31 @@ function sanitizeAppointments(value) {
   }, []);
 }
 
+function validateConfigStructure(data) {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return false;
+  if (data.widgetLayout && !Array.isArray(data.widgetLayout)) return false;
+  return true;
+}
+
+function validatePresenceStructure(data) {
+  if (!Array.isArray(data)) return false;
+  return data.every(person => {
+    if (!person || typeof person !== 'object') return false;
+    if (typeof person.name !== 'string' || !person.name.trim()) return false;
+    if (person.mac && typeof person.mac !== 'string') return false;
+    return true;
+  });
+}
+
+function validateTasmotaStructure(data) {
+  if (!Array.isArray(data)) return false;
+  return data.every(dev => {
+    if (!dev || typeof dev !== 'object') return false;
+    if (!isPrivateIPv4(String(dev.ip || ''))) return false;
+    return true;
+  });
+}
+
 module.exports = {
   isIPv4,
   isPrivateIPv4,
@@ -101,5 +126,8 @@ module.exports = {
   sanitizeTasmotaList,
   sanitizeStations,
   sanitizeCameras,
-  sanitizeAppointments
+  sanitizeAppointments,
+  validateConfigStructure,
+  validatePresenceStructure,
+  validateTasmotaStructure
 };

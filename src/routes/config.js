@@ -2,6 +2,8 @@ const express = require('express');
 const fs = require('fs');
 const { CONFIG_FILE } = require('../config/env');
 
+const { validateConfigStructure } = require('../utils/validation');
+
 const router = express.Router();
 
 router.get('/', (req, res) => {
@@ -17,6 +19,9 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', (req, res) => {
+  if (!validateConfigStructure(req.body)) {
+    return res.status(400).json({ ok: false, error: 'Ungültiges Konfigurationsformat' });
+  }
   try {
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(req.body, null, 2), 'utf8');
     res.json({ ok: true });

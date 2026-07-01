@@ -20,4 +20,22 @@ describe('API Endpoints Tests', () => {
     expect(response.body.success).toBe(false);
     expect(response.body.error).toContain('Ungültige lokale IPv4-Adresse');
   });
+
+  test('POST /api/config with invalid payload should return 400', async () => {
+    const response = await request(app)
+      .post('/api/config')
+      .send('not-a-json-object')
+      .expect(400);
+
+    expect(response.body.ok).toBe(false);
+  });
+
+  test('POST /api/tasmota with invalid payload should return 400', async () => {
+    const response = await request(app)
+      .post('/api/tasmota')
+      .send({ invalid: 'object' })
+      .expect(400);
+
+    expect(response.body.success).toBe(false);
+  });
 });

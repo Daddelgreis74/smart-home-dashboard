@@ -1,6 +1,6 @@
 const express = require('express');
 const fileStore = require('../utils/fileStore');
-const { isPrivateIPv4, isPrivateBaseIp } = require('../utils/validation');
+const { isPrivateIPv4, isPrivateBaseIp, validateTasmotaStructure } = require('../utils/validation');
 const { 
   getDeviceStatus, 
   getSensorData, 
@@ -16,6 +16,9 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', (req, res) => {
+  if (!validateTasmotaStructure(req.body)) {
+    return res.status(400).json({ success: false, error: 'Ungültiges Tasmota-Geräteformat' });
+  }
   console.log("Speichere Tasmota Data: ", req.body);
   fileStore.saveTasmota(req.body);
   res.json({ success: true, saved: fileStore.tasmotaRAM });

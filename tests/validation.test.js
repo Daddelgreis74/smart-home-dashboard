@@ -55,13 +55,48 @@ describe('Sanitization & Cleanup Helpers', () => {
   test('sanitizeTasmotaList should remove public/invalid IPs and filter duplicates', () => {
     const list = [
       { ip: '192.168.178.50', name: 'Stehlampe' },
-      { ip: '8.8.8.8', name: 'Public DNS' }, // invalid private IP
-      { ip: '192.168.178.50', name: 'Klon' }, // duplicate IP
+      { ip: '8.8.8.8', name: 'Public DNS' },
+      { ip: '192.168.178.50', name: 'Klon' },
       { ip: '10.0.0.5', name: '  Küche ' }
     ];
     const sanitized = sanitizeTasmotaList(list);
     expect(sanitized).toHaveLength(2);
     expect(sanitized[0]).toEqual({ ip: '192.168.178.50', name: 'Stehlampe' });
     expect(sanitized[1]).toEqual({ ip: '10.0.0.5', name: 'Küche' });
+  });
+});
+
+describe('Structure Validation Helpers', () => {
+  const {
+    validateConfigStructure,
+    validatePresenceStructure,
+    validateTasmotaStructure
+  } = require('../src/utils/validation');
+
+  test('validateConfigStructure should check config structure', () => {
+    expect(validateConfigStructure({ widgetLayout: ['weather', 'jarvis'] })).toBe(true);
+    expect(validateConfigStructure(null)).toBe(false);
+    expect(validateConfigStructure([])).toBe(false);
+    expect(validateConfigStructure({ widgetLayout: 'invalid' })).toBe(false);
+  });
+
+  test('validatePresenceStructure should check presence list arrays', () => {
+    expect(validatePresenceStructure([
+      { name: 'Steffen', mac: 'AA:BB:CC:DD:EE:FF' }
+    ])).toBe(true);
+    expect(validatePresenceStructure([
+      { name: '', mac: 'AA:BB:CC:DD:EE:FF' } // empty name is invalid
+    ])).toBe(false);
+    expect(validatePresenceStructure('not-an-array')).toBe(false);
+  });
+
+  test('validateTasmotaStructure should check tasmota list arrays', () => {
+    expect(validateTasmotaStructure([
+      { name: 'Stehlampe', ip: '192.168.178.50' }
+    ])).toBe(true);
+    expect(validateTasmotaStructure([
+      { name: 'Public Device', ip: '8.8.8.8' } // public IP is invalid
+    ])).toBe(false);
+    expect(validateTasmotaStructure('not-an-array')).toBe(false);
   });
 });
