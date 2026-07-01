@@ -14,8 +14,22 @@ import { initJarvis } from './js/modules/jarvis.js';
 // Global Socket.io instance
 const socket = io();
 
-// Lifecycle Handlers
 document.addEventListener('DOMContentLoaded', async () => {
+  // Globaler Audio-Unlock bei der ersten Benutzerinteraktion (verhindert stummen/blockierten AudioContext)
+  const unlockAudio = () => {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) {
+      const ctx = new AudioContext();
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+    }
+    document.removeEventListener('click', unlockAudio);
+    document.removeEventListener('touchstart', unlockAudio);
+  };
+  document.addEventListener('click', unlockAudio);
+  document.addEventListener('touchstart', unlockAudio);
+
   // Config zuerst laden (server-seitig) + einmalige localStorage-Migration
   await Config.load();
   await Config.migrate();

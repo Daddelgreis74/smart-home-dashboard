@@ -2701,6 +2701,29 @@ body.theme-stealth .tasmota-btn.active i { color: #fff !important; }
   }
 }
 
+/* Selectable Avatars in Settings Gallery */
+.selectable-avatar-item {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2.5px solid transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.05);
+  object-fit: cover;
+}
+.selectable-avatar-item:hover {
+  transform: scale(1.1);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+.selectable-avatar-item.selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 12px var(--primary-glow, rgba(0, 229, 255, 0.45));
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.05);
+}
+
+
 /* ==========================================================================
    HEADER WASTE REMINDER SYSTEM STYLING
    ========================================================================== */

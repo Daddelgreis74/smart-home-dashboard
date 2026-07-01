@@ -8,6 +8,46 @@ export async function initPresence(socket) {
   const fileNameSpan = document.getElementById('presenceManAvatarName');
   
   let uploadedAvatarUrl = '';
+  let selectedAvatarUrl = '';
+  let activeStates = {};
+
+  // Hilfsfunktion zur Erkennung von Zustandsübergängen (von offline zu online)
+  function updatePresenceStatesAndPlay(persons) {
+    persons.forEach(p => {
+      const wasOffline = activeStates[p.id] === false;
+      const isOnline = p.active === true;
+      
+      // Zustand im Tracker aktualisieren
+      activeStates[p.id] = p.active;
+      
+      // Nur abspielen, wenn der vorherige Status offline (false) war und jetzt online (true) ist
+      if (wasOffline && isOnline) {
+        playPresencePing();
+      }
+    });
+  }
+
+  // Avatar-Galerie Klick-Handler
+  const selectables = document.querySelectorAll('.selectable-avatar-item');
+  selectables.forEach(item => {
+    item.addEventListener('click', () => {
+      if (item.classList.contains('selected')) {
+        item.classList.remove('selected');
+        selectedAvatarUrl = '';
+      } else {
+        selectables.forEach(s => s.classList.remove('selected'));
+        item.classList.add('selected');
+        selectedAvatarUrl = item.getAttribute('data-avatar');
+        
+        // Hochgeladenes Bild zurücksetzen, da Galerie gewählt wurde
+        if (fileInput) fileInput.value = '';
+        if (fileNameSpan) {
+          fileNameSpan.textContent = (window.translations && window.translations[lang]) ? window.translations[lang].presence_no_avatar : 'Kein Bild gewählt';
+        }
+        uploadedAvatarUrl = '';
+      }
+    });
+  });
 
   // 1. Profilbild Upload Handler
   if(fileInput && fileNameSpan) {
@@ -32,6 +72,9 @@ export async function initPresence(socket) {
         const data = await res.json();
         if(data && data.success) {
           uploadedAvatarUrl = data.url;
+          // Galerie-Auswahl aufheben, da eigenes Bild hochgeladen wurde
+          selectables.forEach(s => s.classList.remove('selected'));
+          selectedAvatarUrl = '';
         } else {
           alert('Fehler beim Hochladen des Bildes: ' + (data.error || 'Unbekannter Fehler'));
         }
@@ -68,7 +111,7 @@ export async function initPresence(socket) {
           body: JSON.stringify({
             name,
             mac,
-            image: uploadedAvatarUrl || '/sabine.png'
+            image: uploadedAvatarUrl || selectedAvatarUrl || '/sabine.png'
           })
         });
         const data = await res.json();
@@ -80,6 +123,8 @@ export async function initPresence(socket) {
             fileNameSpan.textContent = (window.translations && window.translations[lang]) ? window.translations[lang].presence_no_avatar : 'Kein Bild gewählt';
           }
           uploadedAvatarUrl = '';
+          selectedAvatarUrl = '';
+          selectables.forEach(s => s.classList.remove('selected'));
         } else {
           alert('Fehler beim Hinzufügen: ' + (data.error || 'Unbekannter Fehler'));
         }
@@ -92,19 +137,19 @@ export async function initPresence(socket) {
 
   // Socket.IO event handling
   socket.on('presence-list-updated', (persons) => {
+    updatePresenceStatesAndPlay(persons);
     renderPresenceSettings(persons);
     renderPresenceWidget(persons);
   });
 
   socket.on('presence-updated', (persons) => {
+    updatePresenceStatesAndPlay(persons);
     persons.forEach(p => {
       const card = document.getElementById(`usr-${p.id}`);
       if(card) {
         const ring = card.querySelector('.presence-avatar-ring');
         const badge = card.querySelector('.presence-status-badge');
         const status = card.querySelector('.presence-avatar-status');
-        
-        const wasInactive = card.classList.contains('inactive');
         
         if(p.active) {
           card.classList.remove('inactive');
@@ -117,10 +162,6 @@ export async function initPresence(socket) {
           if (status) {
             status.textContent = getLangText('atHome');
             status.style.color = 'var(--green)';
-          }
-          
-          if(wasInactive) {
-            playPresencePing();
           }
         } else {
           card.classList.remove('active');
@@ -144,6 +185,9 @@ export async function initPresence(socket) {
     const res = await fetch('/api/presence');
     const persons = await res.json();
     if(Array.isArray(persons)) {
+      persons.forEach(p => {
+        activeStates[p.id] = p.active;
+      });
       renderPresenceSettings(persons);
       renderPresenceWidget(persons);
     }

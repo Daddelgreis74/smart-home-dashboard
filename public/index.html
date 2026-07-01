@@ -226,9 +226,23 @@
                   <input type="text" id="presenceManName" data-i18n="presence_name_placeholder" placeholder="Name">
                   <input type="text" id="presenceManMac" data-i18n="presence_mac_placeholder" placeholder="MAC-Adresse (z.B. AA:BB:CC:DD:EE:FF)">
                   
+                  <div class="avatar-gallery-container" style="margin-top: 4px;">
+                    <label class="setting-sub-label" style="font-size: 11px; margin-bottom: 6px; display: block;" data-i18n="presence_avatar_gallery">Standard-Avatar wählen:</label>
+                    <div id="selectableAvatarsList" style="display: flex; gap: 6px; flex-wrap: wrap;">
+                      <img src="/steffen.png" class="selectable-avatar-item" data-avatar="/steffen.png" alt="Steffen" title="Steffen">
+                      <img src="/sabine.png" class="selectable-avatar-item" data-avatar="/sabine.png" alt="Sabine" title="Sabine">
+                      <img src="/luca.png" class="selectable-avatar-item" data-avatar="/luca.png" alt="Luca" title="Luca">
+                      <img src="/emma.png" class="selectable-avatar-item" data-avatar="/emma.png" alt="Emma" title="Emma">
+                      <img src="/maria.png" class="selectable-avatar-item" data-avatar="/maria.png" alt="Maria" title="Maria">
+                      <img src="/thomas.png" class="selectable-avatar-item" data-avatar="/thomas.png" alt="Thomas" title="Thomas">
+                      <img src="/max.png" class="selectable-avatar-item" data-avatar="/max.png" alt="Max" title="Max">
+                      <img src="/oma.png" class="selectable-avatar-item" data-avatar="/oma.png" alt="Oma" title="Oma">
+                    </div>
+                  </div>
+
                   <div style="display: flex; align-items: center; gap: 8px; margin-top: 5px;">
                     <label class="btn" style="flex: 1; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; font-size: 13px;">
-                      <i class="fas fa-image"></i> <span data-i18n="presence_avatar_label">Profilbild wählen</span>
+                      <i class="fas fa-image"></i> <span data-i18n="presence_avatar_label">Profilbild hochladen</span>
                       <input type="file" id="presenceManAvatar" accept="image/*" style="display: none;">
                     </label>
                     <span id="presenceManAvatarName" data-i18n="presence_no_avatar" style="font-size: 11px; color: var(--text-muted); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Kein Bild gewählt</span>
