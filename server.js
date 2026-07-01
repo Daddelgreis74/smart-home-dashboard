@@ -42,12 +42,12 @@ app.use('/api/elevenlabs', require('./src/routes/tts'));
 initSockets(io);
 initFritzboxConnections(io);
 
-// 8. Presence-Polling starten (Fritz!Box-Abfrage)
-setInterval(pollPresence, 30000);
-setTimeout(pollPresence, 5000);
-
-// 9. Server starten
+// 9. Server starten & Presence-Polling initialisieren (nur wenn direkt gestartet)
 if (require.main === module) {
+  // Presence-Polling starten (Fritz!Box-Abfrage)
+  setInterval(pollPresence, 30000);
+  setTimeout(pollPresence, 5000);
+
   server.listen(PORT, HOST, () => {
     const protocol = useSSL ? 'https' : 'http';
     console.log(`Server läuft auf ${protocol}://${HOST}:${PORT}`);
