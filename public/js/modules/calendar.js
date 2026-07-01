@@ -139,7 +139,7 @@ export async function loadICS() {
   }
 }
 
-export function initCalendar() {
+export function initCalendar(socket) {
   const addEventBtn = document.getElementById('addEventBtn');
   const closeCalendarModal = document.getElementById('closeCalendarModal');
   const cancelApptBtn = document.getElementById('cancelApptBtn');
@@ -198,6 +198,20 @@ export function initCalendar() {
       }
     });
   }
+
+  // Socket Listener für Echtzeit-Updates
+  if (socket) {
+    socket.on('appointments-updated', (appointments) => {
+      appointmentsList = appointments;
+      renderAppointments(appointments);
+    });
+  }
+
+  // Initial laden
+  fetchAppointments();
+
+  // Erinnerungs-Check alle 30 Sekunden starten
+  setInterval(checkCalendarReminders, 30000);
 }
 
 export async function fetchAppointments() {

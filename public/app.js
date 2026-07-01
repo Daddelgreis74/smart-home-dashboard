@@ -46,7 +46,7 @@ function init() {
   initPresence(socket);
   initCameraWidget(socket);
   initJarvis();
-  initCalendar();
+  initCalendar(socket);
 }
 
 function initSortable() {
