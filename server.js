@@ -47,7 +47,11 @@ setInterval(pollPresence, 30000);
 setTimeout(pollPresence, 5000);
 
 // 9. Server starten
-server.listen(PORT, HOST, () => {
-  const protocol = useSSL ? 'https' : 'http';
-  console.log(`Server läuft auf ${protocol}://${HOST}:${PORT}`);
-});
+if (require.main === module) {
+  server.listen(PORT, HOST, () => {
+    const protocol = useSSL ? 'https' : 'http';
+    console.log(`Server läuft auf ${protocol}://${HOST}:${PORT}`);
+  });
+}
+
+module.exports = app;
