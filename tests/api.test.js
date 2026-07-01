@@ -24,7 +24,7 @@ describe('API Endpoints Tests', () => {
   test('POST /api/config with invalid payload should return 400', async () => {
     const response = await request(app)
       .post('/api/config')
-      .send('not-a-json-object')
+      .send({ widgetLayout: 'not-an-array' })
       .expect(400);
 
     expect(response.body.ok).toBe(false);
