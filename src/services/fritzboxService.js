@@ -333,6 +333,7 @@ async function pollPresence() {
       fileStore.savePresence();
       if (ioInstance) {
         ioInstance.emit('presence-list-updated', presenceRAM);
+        ioInstance.emit('presence-updated', presenceRAM);
       }
     }
   } catch (e) {
