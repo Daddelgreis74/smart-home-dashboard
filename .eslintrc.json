@@ -19,8 +19,20 @@
         "browser": true,
         "node": false
       },
+      "globals": {
+        "io": "readonly",
+        "Sortable": "readonly",
+        "applyTranslations": "writable",
+        "translations": "readonly"
+      },
       "parserOptions": {
         "sourceType": "module"
+      }
+    },
+    {
+      "files": ["tests/**/*.test.js", "tests/**/*.spec.js"],
+      "env": {
+        "jest": true
       }
     }
   ]

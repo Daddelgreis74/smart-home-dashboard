@@ -1,5 +1,5 @@
 import { Config } from './config.js';
-import { getLangText, playJarvisBeep } from './utils.js';
+import { playJarvisBeep } from './utils.js';
 import { tasmotaDevices, fetchTasmotaList, refreshTasmotaStatus, saveTasmotaList } from './tasmota.js';
 
 export let jarvisHistory = [];

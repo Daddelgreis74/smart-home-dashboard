@@ -234,7 +234,7 @@ export function renderAppointments(appointments) {
     const item = document.createElement('div');
     item.className = 'calendar-item';
 
-    const [year, month, day] = appt.date.split('-');
+    const [, month, day] = appt.date.split('-');
     const formattedDate = `${day}.${month}.`;
 
     item.innerHTML = `
