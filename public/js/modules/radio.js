@@ -113,7 +113,7 @@ export function playAudioStream(url, name = '', autoPlay = false) {
 
   let playUrl = url;
   if (window.location.protocol === 'https:' && url.startsWith('http://')) {
-    playUrl = '/api/proxy-stream?url=' + encodeURIComponent(url);
+    playUrl = '/api/radio/proxy-stream?url=' + encodeURIComponent(url);
     console.log('[Radio] Secured HTTP audio stream via proxy:', playUrl);
   }
 
