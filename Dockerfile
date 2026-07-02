@@ -22,6 +22,7 @@ RUN npm install --omit=dev
 
 # Kopiere die Anwendungsdateien (Frontend und Backend)
 COPY public/ ./public/
+COPY src/ ./src/
 COPY server.js ./
 
 # Erstelle das Datenverzeichnis für die persistenten Volumes
