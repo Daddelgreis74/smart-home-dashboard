@@ -56,8 +56,20 @@ router.get('/', async (req, res) => {
   let lon = parseFloat(cfg.weather_lon);
   let cachedLoc = cfg.weather_loc_resolved;
 
-  // 2. Geocoding durchführen bei Open-Meteo, falls Koordinaten fehlen oder Ort geändert wurde
-  if (provider === 'openmeteo' && (!lat || !lon || cachedLoc !== locName)) {
+  // Wenn der konfigurierte Ort sich vom gecachten aufgelösten Ort unterscheidet,
+  // müssen wir den alten Koordinaten-Cache ungültig machen
+  if (cachedLoc !== locName) {
+    lat = null;
+    lon = null;
+    cachedLoc = null;
+    delete cfg.weather_lat;
+    delete cfg.weather_lon;
+    delete cfg.weather_loc_resolved;
+    saveConfig(cfg);
+  }
+
+  // 2. Geocoding durchführen bei Open-Meteo, falls Koordinaten fehlen
+  if (provider === 'openmeteo' && (!lat || !lon)) {
     try {
       console.log(`[Weather] Führe Geocoding für "${locName}" aus...`);
       const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(locName)}&count=1&language=${lang}&format=json`;
@@ -116,6 +128,13 @@ router.get('/', async (req, res) => {
           },
           resolved_location: rawData.location.name
         };
+
+        // Cache Koordinaten und aufgelösten Ort von WeatherAPI ebenfalls
+        cfg.weather_lat = rawData.location.lat;
+        cfg.weather_lon = rawData.location.lon;
+        cfg.weather_loc_resolved = rawData.location.name;
+        saveConfig(cfg);
+
         success = true;
       }
     } catch (e) {
