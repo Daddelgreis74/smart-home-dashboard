@@ -25,14 +25,11 @@ COPY public/ ./public/
 COPY src/ ./src/
 COPY server.js ./
 
-# Erstelle das Datenverzeichnis für die persistenten Volumes und setze Besitzerrechte auf den node-User
-RUN mkdir -p /app/data && chown -R node:node /app
+# Erstelle das Datenverzeichnis für die persistenten Volumes
+RUN mkdir -p /app/data
 
 # Exponiere den Standard-Port des Dashboards
 EXPOSE 8443
-
-# Wechsel zu dem integrierten non-root User für die sichere Ausführung
-USER node
 
 # Starte den Dashboard-Server
 CMD ["node", "server.js"]

@@ -1,7 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const { CONFIG_FILE } = require('../config/env');
-const { safeWriteFileSync } = require('../utils/fileStore');
+const { safeWriteFileSync, getPermissionStatus } = require('../utils/fileStore');
 
 const { validateConfigStructure } = require('../utils/validation');
 
@@ -48,6 +48,9 @@ router.get('/', (req, res) => {
         responseData[key] = '********';
       }
     });
+
+    responseData.server_permission_error = getPermissionStatus();
+
     res.json(responseData);
   } catch (e) {
     console.error('Config lesen fehlgeschlagen:', e.message);

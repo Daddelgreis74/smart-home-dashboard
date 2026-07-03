@@ -1,11 +1,17 @@
 const fs = require('fs');
 
+let hasPermissionError = false;
+
+function getPermissionStatus() {
+  return hasPermissionError;
+}
+
 function safeWriteFileSync(filePath, data, options) {
   try {
     fs.writeFileSync(filePath, data, options);
   } catch (err) {
-    if (err.code === 'EACCES') {
-      console.warn(`[FileStore Warning] Permission denied (EACCES) writing to ${filePath}. Attempting POSIX-unlink recovery...`);
+    if (err.code === 'EACCES' || err.code === 'EPERM') {
+      console.warn(`[FileStore Warning] Permission denied (${err.code}) writing to ${filePath}. Attempting POSIX-unlink recovery...`);
       try {
         if (fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
@@ -13,6 +19,7 @@ function safeWriteFileSync(filePath, data, options) {
         fs.writeFileSync(filePath, data, options);
         console.log(`[FileStore Recovery] POSIX-unlink recovery succeeded! File ${filePath} is now owned by the current process user.`);
       } catch (recoveryErr) {
+        hasPermissionError = true;
         console.error(`[FileStore Error] POSIX-unlink recovery failed for ${filePath}:`, recoveryErr.message);
         throw err;
       }
@@ -21,19 +28,34 @@ function safeWriteFileSync(filePath, data, options) {
     }
   }
 }
+
 const { 
   TASMOTA_FILE, 
   FRITZ_FILE, 
   CALLS_LOG_FILE, 
   PRESENCE_FILE, 
   CAMERAS_FILE, 
-  APPOINTMENTS_FILE 
+  APPOINTMENTS_FILE,
+  DATA_DIR
 } = require('../config/env');
 const { 
   sanitizeTasmotaList, 
   sanitizeCameras, 
   sanitizeAppointments 
 } = require('./validation');
+
+// Prüfe Schreibrechte des Datenverzeichnisses beim Start
+try {
+  fs.accessSync(DATA_DIR, fs.constants.W_OK);
+} catch (e) {
+  hasPermissionError = true;
+  console.error(`\n======================================================================\n` +
+                `[CRITICAL PERMISSION ERROR] Das Datenverzeichnis ${DATA_DIR} ist nicht beschreibbar!\n` +
+                `Fehler: ${e.message}\n` +
+                `Aktueller Prozess-User (UID): ${process.getuid ? process.getuid() : 'N/A'}\n` +
+                `Lösung (TrueNAS SCALE): Ändere den Besitzer (Owner) des Datasets auf 'apps' (ID 568).\n` +
+                `======================================================================\n`);
+}
 
 // RAM Caches
 let tasmotaRAM = [];
@@ -193,6 +215,7 @@ module.exports = {
   set appointmentsRAM(val) { appointmentsRAM = val; },
 
   // Lese-/Schreibmethoden
+  getPermissionStatus,
   safeWriteFileSync,
   getTasmota,
   saveTasmota,

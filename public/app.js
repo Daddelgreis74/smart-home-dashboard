@@ -61,6 +61,22 @@ function init() {
   initCameraWidget(socket);
   initJarvis();
   initCalendar(socket);
+
+  // Schreibrechte-Warnung einblenden falls der Server Berechtigungsfehler hat
+  if (Config.get('server_permission_error')) {
+    const banner = document.createElement('div');
+    banner.className = 'permission-warning-banner';
+    banner.innerHTML = `
+      <div style="background-color: #ff3b30; color: #fff; padding: 12px 20px; font-weight: bold; text-align: center; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; gap: 10px; z-index: 9999; position: relative;">
+        <i class="fas fa-exclamation-triangle" style="font-size: 18px;"></i>
+        <span>
+          <strong>Warnung:</strong> Keine Schreibrechte auf dem Server (/app/data ist schreibgeschützt). 
+          Auf TrueNAS SCALE den Besitzer des Datasets rekursiv auf <strong>apps (ID 568)</strong> setzen.
+        </span>
+      </div>
+    `;
+    document.body.prepend(banner);
+  }
 }
 
 function initSortable() {
