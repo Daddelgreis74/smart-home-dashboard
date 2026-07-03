@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const { CONFIG_FILE } = require('../config/env');
+const { safeWriteFileSync } = require('../utils/fileStore');
 
 const { validateConfigStructure } = require('../utils/validation');
 
@@ -23,7 +24,7 @@ router.post('/', (req, res) => {
     return res.status(400).json({ ok: false, error: 'Ungültiges Konfigurationsformat' });
   }
   try {
-    fs.writeFileSync(CONFIG_FILE, JSON.stringify(req.body, null, 2), 'utf8');
+    safeWriteFileSync(CONFIG_FILE, JSON.stringify(req.body, null, 2), 'utf8');
     res.json({ ok: true });
   } catch (e) {
     console.error('Config schreiben fehlgeschlagen:', e.message);
@@ -37,7 +38,7 @@ router.patch('/:key', (req, res) => {
       ? JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'))
       : {};
     cfg[req.params.key] = req.body.value;
-    fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfg, null, 2), 'utf8');
+    safeWriteFileSync(CONFIG_FILE, JSON.stringify(cfg, null, 2), 'utf8');
     res.json({ ok: true });
   } catch (e) {
     console.error('Config key aktualisieren fehlgeschlagen:', e.message);

@@ -1,4 +1,26 @@
 const fs = require('fs');
+
+function safeWriteFileSync(filePath, data, options) {
+  try {
+    fs.writeFileSync(filePath, data, options);
+  } catch (err) {
+    if (err.code === 'EACCES') {
+      console.warn(`[FileStore Warning] Permission denied (EACCES) writing to ${filePath}. Attempting POSIX-unlink recovery...`);
+      try {
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+        fs.writeFileSync(filePath, data, options);
+        console.log(`[FileStore Recovery] POSIX-unlink recovery succeeded! File ${filePath} is now owned by the current process user.`);
+      } catch (recoveryErr) {
+        console.error(`[FileStore Error] POSIX-unlink recovery failed for ${filePath}:`, recoveryErr.message);
+        throw err;
+      }
+    } else {
+      throw err;
+    }
+  }
+}
 const { 
   TASMOTA_FILE, 
   FRITZ_FILE, 
@@ -35,7 +57,7 @@ function getTasmota() {
 function saveTasmota(data) {
   tasmotaRAM = sanitizeTasmotaList(data);
   try {
-    fs.writeFileSync(TASMOTA_FILE, JSON.stringify(tasmotaRAM, null, 2));
+    safeWriteFileSync(TASMOTA_FILE, JSON.stringify(tasmotaRAM, null, 2));
   } catch(e) {
     console.error("Schreibfehler Tasmota File", e);
   }
@@ -58,7 +80,7 @@ function saveFritzConfig(cfg) {
     pass: String(cfg?.pass || '').trim()
   };
   try {
-    fs.writeFileSync(FRITZ_FILE, JSON.stringify(fritzConfig, null, 2));
+    safeWriteFileSync(FRITZ_FILE, JSON.stringify(fritzConfig, null, 2));
   } catch(e) {
     console.error("Schreibfehler Fritz File", e);
   }
@@ -77,7 +99,7 @@ function loadCallLog() {
 
 function saveCallLog() {
   try {
-    fs.writeFileSync(CALLS_LOG_FILE, JSON.stringify(fritzCalls, null, 2));
+    safeWriteFileSync(CALLS_LOG_FILE, JSON.stringify(fritzCalls, null, 2));
   } catch(e) {
     console.error("Schreibfehler CallLog File", e);
   }
@@ -95,7 +117,7 @@ function loadPresence() {
 
 function savePresence() {
   try {
-    fs.writeFileSync(PRESENCE_FILE, JSON.stringify(presenceRAM, null, 2));
+    safeWriteFileSync(PRESENCE_FILE, JSON.stringify(presenceRAM, null, 2));
   } catch(e) {
     console.error("Schreibfehler Presence File", e);
   }
@@ -113,7 +135,7 @@ function loadCameras() {
 function saveCameras(data) {
   camerasRAM = sanitizeCameras(data);
   try {
-    fs.writeFileSync(CAMERAS_FILE, JSON.stringify(camerasRAM, null, 2));
+    safeWriteFileSync(CAMERAS_FILE, JSON.stringify(camerasRAM, null, 2));
   } catch(e) {
     console.error("Schreibfehler Cameras File", e);
   }
@@ -132,7 +154,7 @@ function loadAppointments() {
 function saveAppointments(data) {
   appointmentsRAM = sanitizeAppointments(data);
   try {
-    fs.writeFileSync(APPOINTMENTS_FILE, JSON.stringify(appointmentsRAM, null, 2));
+    safeWriteFileSync(APPOINTMENTS_FILE, JSON.stringify(appointmentsRAM, null, 2));
   } catch(e) {
     console.error("Schreibfehler Appointments File", e);
   }
@@ -171,6 +193,7 @@ module.exports = {
   set appointmentsRAM(val) { appointmentsRAM = val; },
 
   // Lese-/Schreibmethoden
+  safeWriteFileSync,
   getTasmota,
   saveTasmota,
   loadFritzConfig,
