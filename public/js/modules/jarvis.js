@@ -243,7 +243,7 @@ export async function callJarvisAPI(prompt) {
   }
   
   if (provider === 'gemini') {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${activeModel}:generateContent?key=${apiKey}`;
+    const url = '/api/jarvis/chat';
     
     const contents = [];
     jarvisHistory.forEach(msg => {
@@ -360,12 +360,16 @@ export async function callJarvisAPI(prompt) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: contents,
-          tools: tasmotaTools,
-          systemInstruction: { parts: [{ text: activeSystemPrompt }] },
-          generationConfig: { 
-            maxOutputTokens: 2000,
-            temperature: 0.7 
+          provider: 'gemini',
+          model: activeModel,
+          payload: {
+            contents: contents,
+            tools: tasmotaTools,
+            systemInstruction: { parts: [{ text: activeSystemPrompt }] },
+            generationConfig: { 
+              maxOutputTokens: 2000,
+              temperature: 0.7 
+            }
           }
         })
       });
@@ -704,7 +708,7 @@ export async function callJarvisAPI(prompt) {
   }
   
   if (provider === 'openrouter') {
-    const url = 'https://openrouter.ai/api/v1/chat/completions';
+    const url = '/api/jarvis/chat';
     
     const messages = [{ role: 'system', content: activeSystemPrompt }];
     jarvisHistory.forEach(msg => {
@@ -718,16 +722,17 @@ export async function callJarvisAPI(prompt) {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-        'HTTP-Referer': window.location.origin,
-        'X-Title': 'Neo Deck Smart Home'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
+        provider: 'openrouter',
         model: activeModel,
-        messages: messages,
-        max_tokens: 2000,
-        temperature: 0.7
+        payload: {
+          model: activeModel,
+          messages: messages,
+          max_tokens: 2000,
+          temperature: 0.7
+        }
       })
     });
     

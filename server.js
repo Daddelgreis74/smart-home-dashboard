@@ -37,6 +37,7 @@ app.use('/api/appointments', require('./src/routes/appointments'));
 app.use('/api/cameras', require('./src/routes/cameras'));
 app.use('/api/search', require('./src/routes/search'));
 app.use('/api/elevenlabs', require('./src/routes/tts'));
+app.use('/api/jarvis', require('./src/routes/jarvis'));
 
 // 9. Server starten & Services initialisieren (nur wenn direkt gestartet)
 if (require.main === module) {

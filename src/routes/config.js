@@ -28,12 +28,27 @@ const ALLOWED_CONFIG_KEYS = new Set([
   'jarvis_history'
 ]);
 
+const SENSIBLE_KEYS = [
+  'jarvis_gemini_api_key',
+  'jarvis_openrouter_api_key',
+  'jarvis_brave_api_key',
+  'jarvis_eleven_api_key'
+];
+
 router.get('/', (req, res) => {
   try {
     const data = fs.existsSync(CONFIG_FILE)
       ? JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'))
       : {};
-    res.json(data);
+    
+    // Mask sensitive keys
+    const responseData = { ...data };
+    SENSIBLE_KEYS.forEach(key => {
+      if (responseData[key]) {
+        responseData[key] = '********';
+      }
+    });
+    res.json(responseData);
   } catch (e) {
     console.error('Config lesen fehlgeschlagen:', e.message);
     res.json({});
@@ -53,7 +68,19 @@ router.post('/', (req, res) => {
   }
 
   try {
-    safeWriteFileSync(CONFIG_FILE, JSON.stringify(req.body, null, 2), 'utf8');
+    // Lade die existierende Config, um Maskierungen wiederherzustellen
+    const existing = fs.existsSync(CONFIG_FILE)
+      ? JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'))
+      : {};
+
+    const toSave = { ...req.body };
+    SENSIBLE_KEYS.forEach(key => {
+      if (toSave[key] === '********') {
+        toSave[key] = existing[key] || '';
+      }
+    });
+
+    safeWriteFileSync(CONFIG_FILE, JSON.stringify(toSave, null, 2), 'utf8');
     res.json({ ok: true });
   } catch (e) {
     console.error('Config schreiben fehlgeschlagen:', e.message);
@@ -70,7 +97,14 @@ router.patch('/:key', (req, res) => {
     const cfg = fs.existsSync(CONFIG_FILE)
       ? JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'))
       : {};
-    cfg[key] = req.body.value;
+
+    const value = req.body.value;
+    if (SENSIBLE_KEYS.includes(key) && value === '********') {
+      // Wenn der Wert maskiert gesendet wurde, lassen wir den echten Wert unverändert
+    } else {
+      cfg[key] = value;
+    }
+
     safeWriteFileSync(CONFIG_FILE, JSON.stringify(cfg, null, 2), 'utf8');
     res.json({ ok: true });
   } catch (e) {
