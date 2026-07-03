@@ -84,8 +84,11 @@ router.post('/', (req, res) => {
     return res.status(400).json({ ok: false, error: 'Ungültiges Konfigurationsformat' });
   }
 
+  const toSave = { ...req.body };
+  delete toSave.server_permission_error;
+
   // Whitelist-Validierung der Konfigurationsschlüssel
-  const keys = Object.keys(req.body);
+  const keys = Object.keys(toSave);
   const invalidKey = keys.find(k => !ALLOWED_CONFIG_KEYS.has(k));
   if (invalidKey) {
     return res.status(400).json({ ok: false, error: `Ungültiger Konfigurationsschlüssel: ${invalidKey}` });
@@ -97,7 +100,6 @@ router.post('/', (req, res) => {
       ? JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'))
       : {};
 
-    const toSave = { ...req.body };
     SENSIBLE_KEYS.forEach(key => {
       if (toSave[key] === '********') {
         toSave[key] = existing[key] || '';

@@ -39,14 +39,23 @@ export class Config {
   /** Schreibt mehrere Werte auf einmal zum Server */
   static async setMany(obj) {
     Object.assign(Config._data, obj);
+    
+    // Read-only Keys für das Senden an den Server herausfiltern
+    const toSend = { ...Config._data };
+    delete toSend.server_permission_error;
+
     try {
-      await fetch('/api/config', {
+      const res = await fetch('/api/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(Config._data)
+        body: JSON.stringify(toSend)
       });
+      if (!res.ok) {
+        const err = await res.json();
+        console.error('Config.setMany failed:', err.error || res.statusText);
+      }
     } catch (e) {
-      console.warn('Config.setMany: Server-Fehler, nur im RAM gespeichert');
+      console.warn('Config.setMany: Server-Fehler, nur im RAM gespeichert', e.message);
     }
   }
 
