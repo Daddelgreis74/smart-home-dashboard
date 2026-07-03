@@ -20,13 +20,19 @@ function validateAndStream(streamUrl, req, res) {
       return res.status(403).send('Access to loopback interface is restricted');
     }
 
-    dns.lookup(hostname, (err, address) => {
+    dns.lookup(hostname, { all: true }, (err, addresses) => {
       if (err) {
         return res.status(400).send('DNS Resolution failed');
       }
 
-      if (address === '127.0.0.1' || address === '::1' || address.startsWith('127.')) {
-        console.warn(`[Proxy Blocked] Attempted SSRF to loopback IP: ${address} (${streamUrl})`);
+      const addressesArr = Array.isArray(addresses) ? addresses : [addresses];
+      const hasLoopback = addressesArr.some(addr => {
+        const ip = addr.address;
+        return ip === '127.0.0.1' || ip === '::1' || ip.startsWith('127.');
+      });
+
+      if (hasLoopback) {
+        console.warn(`[Proxy Blocked] Attempted SSRF to loopback IP: ${JSON.stringify(addressesArr)} (${streamUrl})`);
         return res.status(403).send('Access to loopback IP addresses is restricted');
       }
 

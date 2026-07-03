@@ -73,8 +73,8 @@ router.post('/', (req, res) => {
       io.emit('presence-list-updated', presenceRAM);
     }
     
-    // Trigger dynamic state update immediately
-    pollPresence();
+    // Trigger dynamic state update immediately in the next tick of the event loop
+    setImmediate(() => pollPresence());
   } catch (e) {
     res.status(500).json({ success: false, error: e.message });
   }
