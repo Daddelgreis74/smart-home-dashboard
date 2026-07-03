@@ -8,6 +8,15 @@ const { initializeSSL } = require('./src/config/ssl');
 const { initSockets } = require('./src/sockets');
 const { initFritzboxConnections, pollPresence } = require('./src/services/fritzboxService');
 
+// Globales Error-Handling zur Vermeidung von Abstürzen bei unerwarteten Fehlern
+process.on('uncaughtException', (err) => {
+  console.error('[CRITICAL] Uncaught Exception:', err.stack || err.message || err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[CRITICAL] Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
 // 1. Führe eventuelle Migrationen alter Pfade/Dateien durch
 runMigration();
 
