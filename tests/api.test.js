@@ -1,3 +1,10 @@
+const path = require('path');
+const fs = require('fs');
+
+// Set test data directory before loading the server to avoid corrupting live config.json
+const testDataDir = path.join(__dirname, 'temp_test_data');
+process.env.DATA_DIR = testDataDir;
+
 const request = require('supertest');
 const app = require('../server');
 
@@ -30,6 +37,31 @@ describe('API Endpoints Tests', () => {
     expect(response.body.ok).toBe(false);
   });
 
+  test('POST /api/config with non-whitelisted key should return 400', async () => {
+    const response = await request(app)
+      .post('/api/config')
+      .send({ arbitrary_key: 'hacked' })
+      .expect(400);
+
+    expect(response.body.ok).toBe(false);
+    expect(response.body.error).toContain('Ungültiger Konfigurationsschlüssel');
+  });
+
+  test('POST /api/config and GET /api/config should mask sensitive keys', async () => {
+    // 1. Post a configuration with a key
+    await request(app)
+      .post('/api/config')
+      .send({ jarvis_gemini_api_key: 'AIzaSyTestKey123' })
+      .expect(200);
+
+    // 2. Get it and verify it's masked
+    const getRes = await request(app)
+      .get('/api/config')
+      .expect(200);
+
+    expect(getRes.body.jarvis_gemini_api_key).toBe('********');
+  });
+
   test('POST /api/tasmota with invalid payload should return 400', async () => {
     const response = await request(app)
       .post('/api/tasmota')
@@ -37,5 +69,13 @@ describe('API Endpoints Tests', () => {
       .expect(400);
 
     expect(response.body.success).toBe(false);
+  });
+
+  afterAll(() => {
+    try {
+      fs.rmSync(testDataDir, { recursive: true, force: true });
+    } catch (e) {
+      // ignore
+    }
   });
 });
