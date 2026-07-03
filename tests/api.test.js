@@ -48,18 +48,22 @@ describe('API Endpoints Tests', () => {
   });
 
   test('POST /api/config and GET /api/config should mask sensitive keys', async () => {
-    // 1. Post a configuration with a key
+    // 1. Post a configuration with keys
     await request(app)
       .post('/api/config')
-      .send({ jarvis_gemini_api_key: 'AIzaSyTestKey123' })
+      .send({ 
+        jarvis_gemini_api_key: 'AIzaSyTestKey123',
+        weather_api_key: 'wkey123456789'
+      })
       .expect(200);
 
-    // 2. Get it and verify it's masked
+    // 2. Get it and verify they are masked
     const getRes = await request(app)
       .get('/api/config')
       .expect(200);
 
     expect(getRes.body.jarvis_gemini_api_key).toBe('********');
+    expect(getRes.body.weather_api_key).toBe('********');
   });
 
   test('POST /api/tasmota with invalid payload should return 400', async () => {

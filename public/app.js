@@ -115,10 +115,10 @@ function loadSavedSettings() {
     applyTranslations(savedLang);
   }
 
-  const savedLoc = localStorage.getItem('weatherLoc');
-  if (savedLoc) document.getElementById('weatherLoc').value = savedLoc;
+  const savedLoc = Config.get('weather_location') || 'Berlin';
+  if (document.getElementById('weatherLoc')) document.getElementById('weatherLoc').value = savedLoc;
 
-  const savedProvider = localStorage.getItem('weather_provider') || 'openmeteo';
+  const savedProvider = Config.get('weather_provider') || 'openmeteo';
   const providerSelector = document.getElementById('weatherProvider');
   if (providerSelector) {
     providerSelector.value = savedProvider;
@@ -128,7 +128,7 @@ function loadSavedSettings() {
     }
   }
 
-  const savedKey = localStorage.getItem('weather_api_key') || '';
+  const savedKey = Config.get('weather_api_key') || '';
   const apiKeyInput = document.getElementById('weatherApiKey');
   if (apiKeyInput) apiKeyInput.value = savedKey;
   
@@ -238,17 +238,45 @@ function initSettings() {
     });
   }
 
-  document.getElementById('updateWeather').addEventListener('click', () => {
-    const loc = document.getElementById('weatherLoc').value;
+  document.getElementById('updateWeather').addEventListener('click', async () => {
+    const loc = document.getElementById('weatherLoc').value.trim();
     const provider = document.getElementById('weatherProvider')?.value || 'openmeteo';
-    const apiKey = document.getElementById('weatherApiKey')?.value || '';
+    const apiKey = document.getElementById('weatherApiKey')?.value.trim() || '';
     
-    localStorage.setItem('weather_provider', provider);
-    localStorage.setItem('weather_api_key', apiKey);
-    
-    if (loc) {
-      localStorage.setItem('weatherLoc', loc);
+    const updateObj = {
+      weather_location: loc || 'Berlin',
+      weather_provider: provider
+    };
+
+    if (apiKey !== '********') {
+      updateObj.weather_api_key = apiKey;
     }
+
+    await Config.setMany(updateObj);
+    
+    // Clear weather cache on the server
+    try {
+      await fetch('/api/weather/clear-cache', { method: 'POST' });
+    } catch (e) {}
+
+    // Optische Bestätigung auf dem Button
+    const updateWeatherBtn = document.getElementById('updateWeather');
+    if (updateWeatherBtn) {
+      const originalHtml = updateWeatherBtn.innerHTML;
+      const originalStyle = updateWeatherBtn.style.cssText;
+      updateWeatherBtn.disabled = true;
+      updateWeatherBtn.style.backgroundColor = '#22c55e';
+      updateWeatherBtn.style.color = '#fff';
+      updateWeatherBtn.style.borderColor = '#22c55e';
+      updateWeatherBtn.innerHTML = `<i class="fas fa-check"></i> <span>${getLangText('saved') || 'Gespeichert!'}</span>`;
+
+      setTimeout(() => {
+        updateWeatherBtn.disabled = false;
+        updateWeatherBtn.innerHTML = originalHtml;
+        updateWeatherBtn.style.cssText = originalStyle;
+      }, 2000);
+    }
+
     loadWeather();
   });
 

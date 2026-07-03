@@ -62,7 +62,7 @@ export class Config {
       'jarvis_unified_voice', 'jarvis_local_voice_name', 'jarvis_eleven_api_key',
       'jarvis_eleven_voice_id', 'jarvis_eleven_voices_cache',
       'jarvis_search_enabled', 'jarvis_brave_api_key', 'jarvis_chat_history',
-      'sensorIp', 'tasmotaBackup'
+      'sensorIp', 'tasmotaBackup', 'weather_provider', 'weather_api_key'
     ];
     const toMigrate = {};
     for (const key of KEYS) {
@@ -71,6 +71,13 @@ export class Config {
         toMigrate[key] = val;
       }
     }
+
+    // Spezieller Mapping-Fall für weatherLoc -> weather_location
+    const legacyLoc = localStorage.getItem('weatherLoc');
+    if (legacyLoc !== null && Config._data['weather_location'] === undefined) {
+      toMigrate['weather_location'] = legacyLoc;
+    }
+
     if (Object.keys(toMigrate).length > 0) {
       Object.assign(Config._data, toMigrate);
       try {
@@ -81,7 +88,11 @@ export class Config {
         });
         // Lokalen localStorage bereinigen
         for (const key of Object.keys(toMigrate)) {
-          localStorage.removeItem(key);
+          if (key === 'weather_location') {
+            localStorage.removeItem('weatherLoc');
+          } else {
+            localStorage.removeItem(key);
+          }
         }
         console.log(`Config: ${Object.keys(toMigrate).length} Einstellungen aus localStorage migriert`);
       } catch (e) {

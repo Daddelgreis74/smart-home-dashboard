@@ -2,130 +2,34 @@ import { Config } from './config.js';
 import { getLangText } from './utils.js';
 
 export async function loadWeather() {
-  let locName = localStorage.getItem('weatherLoc') || 'Berlin';
-  const provider = localStorage.getItem('weather_provider') || 'openmeteo';
-  const apiKey = localStorage.getItem('weather_api_key') || '';
-
-  let lat = parseFloat(localStorage.getItem('weather_lat'));
-  let lon = parseFloat(localStorage.getItem('weather_lon'));
-  let cachedLoc = localStorage.getItem('weather_loc_resolved');
-
-  const lang = Config.get('dashboard_lang', 'de');
-  // 1. Geocoding nur machen, wenn die Stadt geaendert wurde oder noch keine Koordinaten da sind (fuer Open-Meteo)
-  if (provider === 'openmeteo' && (!lat || !lon || cachedLoc !== locName)) {
-    try {
-      const geoRes = await (await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(locName)}&count=1&language=${lang}&format=json`)).json();
-      if (geoRes.results && geoRes.results.length > 0) {
-        lat = geoRes.results[0].latitude;
-        lon = geoRes.results[0].longitude;
-        locName = geoRes.results[0].name;
-        
-        // In LocalStorage cachen
-        localStorage.setItem('weather_lat', lat);
-        localStorage.setItem('weather_lon', lon);
-        localStorage.setItem('weather_loc_resolved', locName);
-      }
-    } catch(e) {
-      console.warn("Geocoding failed, using fallback", e);
-      if (!lat) { lat = 52.52; lon = 13.41; } // Fallback Berlin
-    }
-  } else if (provider === 'openmeteo') {
-    locName = cachedLoc || locName;
-  }
-
   let d = null;
+  let locName = 'Berlin';
   let success = false;
 
-  // 2. Wetterdaten laden
-  if (provider === 'weatherapi' && apiKey) {
-    try {
-      const query = (lat && lon) ? `${lat},${lon}` : locName;
-      const weatherUrl = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${encodeURIComponent(query)}&days=1&aqi=no&alerts=no&lang=${lang}`;
-      const response = await fetch(weatherUrl);
-      if (response.ok) {
-        const rawData = await response.json();
-        if (rawData && rawData.current) {
-          const forecastday = rawData.forecast?.forecastday?.[0];
-          const precipProb = forecastday?.day?.daily_chance_of_rain ?? 0;
-          
-          d = {
-            current: {
-              temperature_2m: rawData.current.temp_c,
-              relative_humidity_2m: rawData.current.humidity,
-              apparent_temperature: rawData.current.feelslike_c,
-              weather_code: rawData.current.condition.code,
-              wind_speed_10m: rawData.current.wind_kph,
-              precipitation: rawData.current.precip_mm,
-              pressure_msl: rawData.current.pressure_mb,
-              cloud_cover: rawData.current.cloud,
-              is_weather_api: true,
-              condition_text: rawData.current.condition.text
-            },
-            daily: {
-              temperature_2m_max: [forecastday?.day?.maxtemp_c ?? rawData.current.temp_c],
-              temperature_2m_min: [forecastday?.day?.mintemp_c ?? rawData.current.temp_c],
-              uv_index_max: [forecastday?.day?.uv ?? rawData.current.uv],
-              precipitation_probability_max: [precipProb]
-            }
-          };
-          locName = rawData.location.name;
-          success = true;
-          localStorage.setItem('cached_weather_data', JSON.stringify(d));
-          localStorage.setItem('cached_weather_loc', locName);
-          localStorage.setItem('cached_weather_time', new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }));
-        }
+  try {
+    const res = await fetch('/api/weather');
+    if (res.ok) {
+      d = await res.json();
+      if (d && d.current) {
+        success = true;
+        locName = d.resolved_location || 'Berlin';
       }
-    } catch(e) {
-      console.error("Error loading WeatherAPI:", e);
     }
+  } catch (e) {
+    console.error("Error loading weather from proxy:", e);
   }
 
-  // Fallback auf Open-Meteo, falls WeatherAPI fehlgeschlagen ist
   if (!success) {
-    try {
-      if (!lat) { lat = 52.52; lon = 13.41; }
-      const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
-        `&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_gusts_10m,precipitation,rain,pressure_msl,cloud_cover` +
-        `&daily=temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_probability_max,sunrise,sunset` +
-        `&timezone=auto`;
-      const response = await fetch(weatherUrl);
-      if (response.ok) {
-        d = await response.json();
-        if (d && d.current) {
-          success = true;
-          localStorage.setItem('cached_weather_data', JSON.stringify(d));
-          localStorage.setItem('cached_weather_loc', locName);
-          localStorage.setItem('cached_weather_time', new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }));
-        }
-      }
-    } catch(e) {
-      console.error("Error loading Open-Meteo:", e);
-    }
-  }
-
-  // 3. Wenn Laden nicht erfolgreich (z. B. Rate Limit), versuche Cache zu laden!
-  if (!success) {
-    const cachedData = localStorage.getItem('cached_weather_data');
-    const cachedLocName = localStorage.getItem('cached_weather_loc');
-    const cachedTime = localStorage.getItem('cached_weather_time');
-    
-    if (cachedData) {
-      d = JSON.parse(cachedData);
-      locName = cachedLocName || locName;
-      console.log(`Using cached weather data from ${cachedTime}.`);
-    } else {
-      const cityEl = document.getElementById('weatherCity');
-      const condEl = document.getElementById('weatherCondition');
-      if (cityEl) cityEl.textContent = locName;
-      if (condEl) condEl.textContent = getLangText('weatherLimit');
-      return;
-    }
+    const cityEl = document.getElementById('weatherCity');
+    const condEl = document.getElementById('weatherCondition');
+    if (cityEl) cityEl.textContent = 'Wetter offline';
+    if (condEl) condEl.textContent = getLangText('weatherLimit') || 'Nicht erreichbar';
+    return;
   }
 
   // 4. Wetter-UI rendern
   try {
-    const cachedTime = localStorage.getItem('cached_weather_time') || '';
-    const isCachedText = !success ? ` (Stand: ${cachedTime})` : '';
+    const lang = Config.get('dashboard_lang', 'de');
     
     const cityEl = document.getElementById('weatherCity');
     const tempEl = document.querySelector('.weather-temp');
@@ -140,7 +44,7 @@ export async function loadWeather() {
     const condEl = document.getElementById('weatherCondition');
     const iconEl = document.querySelector('.weather-icon');
 
-    if (cityEl) cityEl.textContent = locName + isCachedText;
+    if (cityEl) cityEl.textContent = locName;
     if (tempEl) tempEl.innerHTML = Math.round(d.current.temperature_2m) + '&deg;';
     if (humEl) humEl.textContent = d.current.relative_humidity_2m + ' %';
     if (windEl) windEl.textContent = Math.round(d.current.wind_speed_10m) + ' km/h';
