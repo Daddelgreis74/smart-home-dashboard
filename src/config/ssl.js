@@ -3,11 +3,6 @@ const { execSync } = require('child_process');
 const { sslKeyPath, sslCertPath, autoSSL, SSL_DIR } = require('./env');
 
 function initializeSSL() {
-  if (process.env.DISABLE_SSL === 'true') {
-    console.log('DISABLE_SSL ist auf true gesetzt. SSL wird übersprungen, starte im HTTP-Modus.');
-    return { useSSL: false, sslOptions: null };
-  }
-
   if (autoSSL && (!fs.existsSync(sslKeyPath) || !fs.existsSync(sslCertPath))) {
     console.log('AUTO_SSL ist aktiviert, aber Zertifikate fehlen. Generiere selbstsigniertes Zertifikat...');
     try {
