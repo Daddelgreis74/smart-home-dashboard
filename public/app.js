@@ -180,7 +180,7 @@ socket.on('layout-updated', (layout) => {
 });
 
 function initSettings() {
-  initAccordion();
+  initTabs();
 
   // Farbthema Selector Event Listener
   const themeSelector = document.getElementById('themeSelector');
@@ -206,12 +206,15 @@ function initSettings() {
   }
 
   document.getElementById('settingsBtn').addEventListener('click', () => {
-    // Alle Akkordeons beim Öffnen schließen
-    const headers = document.querySelectorAll('.accordion-header');
-    headers.forEach(h => {
-      h.classList.remove('active');
-      if (h.nextElementSibling) h.nextElementSibling.classList.remove('active-body');
-    });
+    // Reset to general tab when opening
+    document.querySelectorAll('.settings-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.settings-tab-content').forEach(c => c.classList.remove('active'));
+    
+    const defaultTabBtn = document.querySelector('.settings-tab-btn[data-tab="general"]');
+    if (defaultTabBtn) defaultTabBtn.classList.add('active');
+    const defaultTabContent = document.getElementById('tab-general');
+    if (defaultTabContent) defaultTabContent.classList.add('active');
+
     document.getElementById('settingsOverlay').classList.add('open');
   });
 
@@ -359,21 +362,16 @@ function initSettings() {
   });
 }
 
-function initAccordion() {
-  const headers = document.querySelectorAll('.accordion-header');
-  headers.forEach(header => {
-    header.addEventListener('click', () => {
-      const isActive = header.classList.contains('active');
+function initTabs() {
+  document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.settings-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.settings-tab-content').forEach(c => c.classList.remove('active'));
       
-      headers.forEach(h => {
-        h.classList.remove('active');
-        if (h.nextElementSibling) h.nextElementSibling.classList.remove('active-body');
-      });
-
-      if(!isActive) {
-        header.classList.add('active');
-        if (header.nextElementSibling) header.nextElementSibling.classList.add('active-body');
-      }
+      btn.classList.add('active');
+      const tabId = `tab-${btn.dataset.tab}`;
+      const content = document.getElementById(tabId);
+      if (content) content.classList.add('active');
     });
   });
 }

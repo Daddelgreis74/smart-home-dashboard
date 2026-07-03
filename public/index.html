@@ -45,389 +45,398 @@
           </div>
           <button class="close-btn" id="closeSettings"><i class="fas fa-times"></i></button>
         </div>
-        <div class="settings-content">
-          
-          <!-- 0. DASHBOARD DESIGN -->
-          <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-palette"></i> <span data-i18n="design_section_title">Dashboard Design</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
-            <div class="accordion-body">
-              <p data-i18n="design_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Wähle das visuelle Thema deines Dashboards aus.</p>
-              <div class="input-group">
-                <select id="themeSelector" class="radio-select" style="max-width: 100%; width: 100%;">
-                  <option value="theme-aurora">🌌 Neo-Aurora (Glas & Glow)</option>
-                  <option value="theme-cyberpunk">☣️ Cyberpunk HUD (Neon Orange)</option>
-                  <option value="theme-nordic">🍃 Cozy Nordic Dark (Matte Schiefer)</option>
-                  <option value="theme-retrowave">🏄 Retrowave Synth (80s Neon)</option>
-                  <option value="theme-terminal">📟 Terminal Classic (Matrix Grün)</option>
-                  <option value="theme-stealth">🌑 OLED Stealth (Nachtmodus)</option>
-                </select>
-              </div>
-              <div class="input-group" style="margin-top: 15px;">
-                <label class="setting-sub-label" data-i18n="settings_lang_label">Sprache / Language</label>
-                <select id="langSelector" class="radio-select" style="max-width: 100%; width: 100%;">
-                  <option value="de">🇩🇪 Deutsch</option>
-                  <option value="en">🇬🇧 English</option>
-                  <option value="fr">🇫🇷 Français</option>
-                  <option value="es">🇪🇸 Español</option>
-                  <option value="it">🇮🇹 Italiano</option>
-                  <option value="nl">🇳🇱 Nederlands</option>
-                  <option value="pl">🇵🇱 Polski</option>
-                </select>
-              </div>
-            </div>
-            <div class="section-divider"></div>
+        <div class="settings-layout">
+          <!-- Sidebar Navigation -->
+          <div class="settings-sidebar">
+            <button class="settings-tab-btn active" data-tab="general">
+              <i class="fas fa-palette"></i> <span data-i18n="settings_tab_general">Design & Layout</span>
+            </button>
+            <button class="settings-tab-btn" data-tab="smarthome">
+              <i class="fas fa-plug"></i> <span data-i18n="settings_tab_smarthome">Smart Home</span>
+            </button>
+            <button class="settings-tab-btn" data-tab="weather">
+              <i class="fas fa-cloud-sun"></i> <span data-i18n="settings_tab_weather">Wetter & Kalender</span>
+            </button>
+            <button class="settings-tab-btn" data-tab="presence">
+              <i class="fas fa-users"></i> <span data-i18n="settings_tab_presence">Anwesenheit</span>
+            </button>
+            <button class="settings-tab-btn" data-tab="camera">
+              <i class="fas fa-video"></i> <span data-i18n="settings_tab_camera">Kameras</span>
+            </button>
+            <button class="settings-tab-btn" data-tab="jarvis">
+              <i class="fas fa-brain"></i> <span data-i18n="settings_tab_jarvis">J.A.R.V.I.S. KI</span>
+            </button>
+            <button class="settings-tab-btn" data-tab="fritzbox">
+              <i class="fas fa-ethernet"></i> <span data-i18n="settings_tab_fritzbox">Fritz!Box</span>
+            </button>
           </div>
 
-          <!-- 1. DASHBOARD LAYOUT -->
-          <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-layer-group"></i> <span data-i18n="layout_section_title">Dashboard Layout</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
-            <div class="accordion-body">
-              <p data-i18n="layout_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Wähle, welche Widgets auf dem Display angezeigt werden sollen.</p>
-              <div class="toggle-group">
-                <label class="toggle-label"><span data-i18n="toggle_layout_weather">Wetter & Klima</span><input type="checkbox" id="toggle-weather" checked><div class="toggle-switch"></div></label>
-                <label class="toggle-label"><span data-i18n="toggle_layout_waste">Abfallkalender</span><input type="checkbox" id="toggle-waste" checked><div class="toggle-switch"></div></label>
-                <label class="toggle-label"><span data-i18n="toggle_layout_player">Live Radio</span><input type="checkbox" id="toggle-player" checked><div class="toggle-switch"></div></label>
-                <label class="toggle-label"><span data-i18n="toggle_layout_sensor">Temperatur</span><input type="checkbox" id="toggle-sensor" checked><div class="toggle-switch"></div></label>
-                <label class="toggle-label"><span data-i18n="toggle_layout_system">System Status</span><input type="checkbox" id="toggle-system" checked><div class="toggle-switch"></div></label>
-                <label class="toggle-label"><span data-i18n="toggle_layout_tasmota">Tasmota Geräte</span><input type="checkbox" id="toggle-tasmota" checked><div class="toggle-switch"></div></label>
-                <label class="toggle-label"><span data-i18n="toggle_layout_fritzbox">Fritz!Box Monitor</span><input type="checkbox" id="toggle-fritzbox" checked><div class="toggle-switch"></div></label>
-                <label class="toggle-label"><span data-i18n="toggle_layout_presence">Anwesenheitserkennung</span><input type="checkbox" id="toggle-presence" checked><div class="toggle-switch"></div></label>
-                <label class="toggle-label"><span data-i18n="toggle_layout_camera">Kamera-Monitor</span><input type="checkbox" id="toggle-camera" checked><div class="toggle-switch"></div></label>
-                <label class="toggle-label"><span data-i18n="toggle_layout_calendar">Terminkalender</span><input type="checkbox" id="toggle-calendar" checked><div class="toggle-switch"></div></label>
-                <label class="toggle-label"><span data-i18n="toggle_layout_jarvis">J.A.R.V.I.S. KI-Assistent</span><input type="checkbox" id="toggle-jarvis" checked><div class="toggle-switch"></div></label>
-              </div>
-            </div>
-            <div class="section-divider"></div>
-          </div>
-
-          <!-- 2. TASMOTA SMART HOME -->
-          <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-plug"></i> <span data-i18n="tasmota_section_title">Smart Home (Tasmota)</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
-            <div class="accordion-body">
-              <div class="input-group">
-                <label class="setting-sub-label" data-i18n="tasmota_subnet_label">Netzwerk automatisch Scannen:</label>
-                <div style="display:flex; gap: 8px;">
-                  <input type="text" id="tasmotaSubnet" value="192.168.178" placeholder="192.168.178">
-                  <button class="btn" id="scanTasmota" title="Netzwerk Scannen"><i class="fas fa-search"></i></button>
+          <!-- Content Area -->
+          <div class="settings-body">
+            
+            <!-- TAB: DESIGN & LAYOUT -->
+            <div class="settings-tab-content active" id="tab-general">
+              <!-- 0. DASHBOARD DESIGN -->
+              <div class="setting-section">
+                <h3 class="section-title"><i class="fas fa-palette"></i> <span data-i18n="design_section_title">Dashboard Design</span></h3>
+                <p data-i18n="design_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Wähle das visuelle Thema deines Dashboards aus.</p>
+                <div class="input-group">
+                  <select id="themeSelector" class="radio-select" style="max-width: 100%; width: 100%;">
+                    <option value="theme-aurora">🌌 Neo-Aurora (Glas & Glow)</option>
+                    <option value="theme-cyberpunk">☣️ Cyberpunk HUD (Neon Orange)</option>
+                    <option value="theme-nordic">🍃 Cozy Nordic Dark (Matte Schiefer)</option>
+                    <option value="theme-retrowave">🏄 Retrowave Synth (80s Neon)</option>
+                    <option value="theme-terminal">📟 Terminal Classic (Matrix Grün)</option>
+                    <option value="theme-stealth">🌑 OLED Stealth (Nachtmodus)</option>
+                  </select>
                 </div>
-                <label class="setting-sub-label" data-i18n="tasmota_manual_label" style="margin-top: 10px;">Manuell Gerät hinzufügen:</label>
-                <div style="display:flex; gap: 8px;">
-                  <input type="text" id="tasmotaManIp" data-i18n="tasmota_ip_placeholder" placeholder="z.b. 192.168.1.10">
-                  <input type="text" id="tasmotaManName" data-i18n="tasmota_name_placeholder" placeholder="Lampenname">
-                  <button class="btn" id="addTasmota"><i class="fas fa-plus"></i></button>
+                <div class="input-group" style="margin-top: 15px;">
+                  <label class="setting-sub-label" data-i18n="settings_lang_label">Sprache / Language</label>
+                  <select id="langSelector" class="radio-select" style="max-width: 100%; width: 100%;">
+                    <option value="de">🇩🇪 Deutsch</option>
+                    <option value="en">🇬🇧 English</option>
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="it">🇮🇹 Italiano</option>
+                    <option value="nl">🇳🇱 Nederlands</option>
+                    <option value="pl">🇵🇱 Polski</option>
+                  </select>
                 </div>
               </div>
-              <div id="tasmotaList" class="tasmota-list-settings">
-                <!-- Dynamische Liste -->
-              </div>
-            </div>
-            <div class="section-divider"></div>
-          </div>
 
-          <!-- 3. TASMOTA AM2301 SENSOR -->
-          <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-gauge-high"></i> <span data-i18n="sensor_section_title">Temperatur</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
-            <div class="accordion-body">
-              <div id="sensorSettingsList" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
-                <!-- Wird dynamisch von renderSensorSettings() befüllt -->
-              </div>
-              <div style="display: flex; gap: 8px; justify-content: space-between;">
-                <button class="btn btn-secondary" id="addSensorRowBtn"><i class="fas fa-plus"></i> <span data-i18n="sensor_add_btn">Sensor hinzufügen</span></button>
-                <button class="btn" id="saveSensorsBtn" data-i18n="sensor_save">Speichern</button>
-              </div>
-            </div>
-            <div class="section-divider"></div>
-          </div>
-
-          <!-- 4. ABFALLKALENDER -->
-          <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-trash-can"></i> <span data-i18n="waste_section_title">Abfallkalender Sync</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
-            <div class="accordion-body">
-              <div class="input-group">
-                <label class="setting-sub-label" data-i18n="waste_desc">Lade eine aktuelle .ICS Datei deiner Stadt hoch.</label>
-                <div style="display:flex; gap: 8px;">
-                  <input type="file" id="icsFile" accept=".ics">
-                  <button class="btn" id="uploadIcs">Upload</button>
+              <!-- 1. DASHBOARD LAYOUT -->
+              <div class="setting-section" style="margin-top: 30px;">
+                <h3 class="section-title"><i class="fas fa-layer-group"></i> <span data-i18n="layout_section_title">Dashboard Layout</span></h3>
+                <p data-i18n="layout_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Wähle, welche Widgets auf dem Display angezeigt werden sollen.</p>
+                <div class="toggle-group">
+                  <label class="toggle-label"><span data-i18n="toggle_layout_weather">Wetter & Klima</span><input type="checkbox" id="toggle-weather" checked><div class="toggle-switch"></div></label>
+                  <label class="toggle-label"><span data-i18n="toggle_layout_waste">Abfallkalender</span><input type="checkbox" id="toggle-waste" checked><div class="toggle-switch"></div></label>
+                  <label class="toggle-label"><span data-i18n="toggle_layout_player">Live Radio</span><input type="checkbox" id="toggle-player" checked><div class="toggle-switch"></div></label>
+                  <label class="toggle-label"><span data-i18n="toggle_layout_sensor">Temperatur</span><input type="checkbox" id="toggle-sensor" checked><div class="toggle-switch"></div></label>
+                  <label class="toggle-label"><span data-i18n="toggle_layout_system">System Status</span><input type="checkbox" id="toggle-system" checked><div class="toggle-switch"></div></label>
+                  <label class="toggle-label"><span data-i18n="toggle_layout_tasmota">Tasmota Geräte</span><input type="checkbox" id="toggle-tasmota" checked><div class="toggle-switch"></div></label>
+                  <label class="toggle-label"><span data-i18n="toggle_layout_fritzbox">Fritz!Box Monitor</span><input type="checkbox" id="toggle-fritzbox" checked><div class="toggle-switch"></div></label>
+                  <label class="toggle-label"><span data-i18n="toggle_layout_presence">Anwesenheitserkennung</span><input type="checkbox" id="toggle-presence" checked><div class="toggle-switch"></div></label>
+                  <label class="toggle-label"><span data-i18n="toggle_layout_camera">Kamera-Monitor</span><input type="checkbox" id="toggle-camera" checked><div class="toggle-switch"></div></label>
+                  <label class="toggle-label"><span data-i18n="toggle_layout_calendar">Terminkalender</span><input type="checkbox" id="toggle-calendar" checked><div class="toggle-switch"></div></label>
+                  <label class="toggle-label"><span data-i18n="toggle_layout_jarvis">J.A.R.V.I.S. KI-Assistent</span><input type="checkbox" id="toggle-jarvis" checked><div class="toggle-switch"></div></label>
                 </div>
               </div>
             </div>
-            <div class="section-divider"></div>
-          </div>
 
-          <!-- 5. LOKALES WETTER -->
-          <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-cloud-sun"></i> <span data-i18n="weather_section_title">Wetter & Standort</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
-            <div class="accordion-body">
-              <div class="input-group" style="margin-bottom: 12px;">
-                <label class="setting-sub-label" data-i18n="weather_loc_label">Standort:</label>
-                <div style="display:flex; gap: 8px;">
-                  <input type="text" id="weatherLoc" placeholder="z.B. Berlin, Deutschland">
-                  <button class="btn" id="updateWeather">Suchen</button>
+            <!-- TAB: SMART HOME -->
+            <div class="settings-tab-content" id="tab-smarthome">
+              <!-- 2. TASMOTA SMART HOME -->
+              <div class="setting-section">
+                <h3 class="section-title"><i class="fas fa-plug"></i> <span data-i18n="tasmota_section_title">Smart Home (Tasmota)</span></h3>
+                <div class="input-group">
+                  <label class="setting-sub-label" data-i18n="tasmota_subnet_label">Netzwerk automatisch Scannen:</label>
+                  <div style="display:flex; gap: 8px; margin-bottom: 15px;">
+                    <input type="text" id="tasmotaSubnet" value="192.168.178" placeholder="192.168.178">
+                    <button class="btn" id="scanTasmota" title="Netzwerk Scannen"><i class="fas fa-search"></i></button>
+                  </div>
+                  <label class="setting-sub-label" data-i18n="tasmota_manual_label">Manuell Gerät hinzufügen:</label>
+                  <div style="display:flex; gap: 8px;">
+                    <input type="text" id="tasmotaManIp" data-i18n="tasmota_ip_placeholder" placeholder="z.b. 192.168.1.10">
+                    <input type="text" id="tasmotaManName" data-i18n="tasmota_name_placeholder" placeholder="Lampenname">
+                    <button class="btn" id="addTasmota"><i class="fas fa-plus"></i></button>
+                  </div>
+                </div>
+                <div id="tasmotaList" class="tasmota-list-settings" style="margin-top: 15px;">
+                  <!-- Dynamische Liste -->
                 </div>
               </div>
-              <div class="input-group" style="margin-bottom: 12px;">
-                <label class="setting-sub-label" data-i18n="weather_provider_label">Wetter-Provider:</label>
-                <select id="weatherProvider" class="radio-select" style="max-width: 100%; width: 100%;">
-                  <option value="openmeteo">🌤️ Open-Meteo (Schlüssellos / Global)</option>
-                  <option value="weatherapi">🌐 WeatherAPI.com (Genau / API-Key benötigt)</option>
-                </select>
-              </div>
-              <div class="input-group" id="weatherApiKeyGroup" style="display: none; margin-bottom: 12px;">
-                <label class="setting-sub-label" data-i18n="weather_apikey_label">WeatherAPI API-Key:</label>
-                <input type="password" id="weatherApiKey" placeholder="API-Key von weatherapi.com" style="width: 100%;">
-              </div>
-            </div>
-            <div class="section-divider"></div>
-          </div>
 
-
-
-
-          <!-- 8. FRITZ!BOX MONITOR -->
-          <div class="setting-section">
-            <h3 class="accordion-header">
-              <span style="display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-ethernet"></i>
-                <span data-i18n="fritzbox_section_title">Fritz!Box Monitor</span>
-                <span class="led-dot red" id="settingsLedFritz" style="width: 8px; height: 8px;"></span>
-              </span>
-              <i class="fas fa-chevron-down acc-icon"></i>
-            </h3>
-            <div class="accordion-body">
-              <div class="input-group">
-                <label class="setting-sub-label" data-i18n="fritzbox_ip_label">Fritz!Box IP-Adresse / Hostname:</label>
-                <input type="text" id="fritzIp" value="192.168.178.1" placeholder="z.B. 192.168.178.1">
-                
-                <label class="setting-sub-label" data-i18n="fritzbox_user_label" style="margin-top: 10px;">Benutzername (optional):</label>
-                <input type="text" id="fritzUser" placeholder="z.B. admin">
-                
-                <label class="setting-sub-label" data-i18n="fritzbox_pass_label" style="margin-top: 10px;">Passwort:</label>
-                <input type="password" id="fritzPassword" placeholder="Fritz!Box Passwort">
-                
-                <label class="toggle-label" style="margin-top: 15px;">
-                  <span data-i18n="fritzbox_callmonitor_label">Anruf-Monitor (Port 1012)</span>
-                  <input type="checkbox" id="toggleFritzCallMonitor" checked>
-                  <div class="toggle-switch"></div>
-                </label>
-                
-                <button class="btn" id="saveFritzConfig" style="margin-top: 15px; width: 100%;"><i class="fas fa-save"></i> <span data-i18n="fritzbox_connect">Fritz!Box Verbinden</span></button>
+              <!-- 3. TASMOTA AM2301 SENSOR -->
+              <div class="setting-section" style="margin-top: 30px;">
+                <h3 class="section-title"><i class="fas fa-gauge-high"></i> <span data-i18n="sensor_section_title">Temperatur-Sensoren</span></h3>
+                <div id="sensorSettingsList" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+                  <!-- Wird dynamisch von renderSensorSettings() befüllt -->
+                </div>
+                <div style="display: flex; gap: 8px; justify-content: space-between;">
+                  <button class="btn btn-secondary" id="addSensorRowBtn"><i class="fas fa-plus"></i> <span data-i18n="sensor_add_btn">Sensor hinzufügen</span></button>
+                  <button class="btn" id="saveSensorsBtn" data-i18n="sensor_save">Speichern</button>
+                </div>
               </div>
             </div>
-            <div class="section-divider"></div>
-          </div>
 
-          <!-- 9. ANWESENHEITSERKENNUNG -->
-          <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-users"></i> <span data-i18n="presence_section_title">Anwesenheitserkennung</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
-            <div class="accordion-body">
-              <div class="input-group">
-                <label class="setting-sub-label" data-i18n="presence_add_label">Person hinzufügen:</label>
-                <div style="display:flex; flex-direction: column; gap: 8px;">
-                  <input type="text" id="presenceManName" data-i18n="presence_name_placeholder" placeholder="Name">
-                  <input type="text" id="presenceManMac" data-i18n="presence_mac_placeholder" placeholder="MAC-Adresse (z.B. AA:BB:CC:DD:EE:FF)">
-                  
-                  <div class="avatar-gallery-container" style="margin-top: 4px;">
-                    <label class="setting-sub-label" style="font-size: 11px; margin-bottom: 6px; display: block;" data-i18n="presence_avatar_gallery">Standard-Avatar wählen:</label>
-                    <div id="selectableAvatarsList" style="display: flex; gap: 6px; flex-wrap: wrap;">
-                      <img src="/steffen.png" class="selectable-avatar-item" data-avatar="/steffen.png" alt="Steffen" title="Steffen">
-                      <img src="/sabine.png" class="selectable-avatar-item" data-avatar="/sabine.png" alt="Sabine" title="Sabine">
-                      <img src="/luca.png" class="selectable-avatar-item" data-avatar="/luca.png" alt="Luca" title="Luca">
-                      <img src="/emma.png" class="selectable-avatar-item" data-avatar="/emma.png" alt="Emma" title="Emma">
-                      <img src="/maria.png" class="selectable-avatar-item" data-avatar="/maria.png" alt="Maria" title="Maria">
-                      <img src="/thomas.png" class="selectable-avatar-item" data-avatar="/thomas.png" alt="Thomas" title="Thomas">
-                      <img src="/max.png" class="selectable-avatar-item" data-avatar="/max.png" alt="Max" title="Max">
-                      <img src="/oma.png" class="selectable-avatar-item" data-avatar="/oma.png" alt="Oma" title="Oma">
+            <!-- TAB: WETTER & KALENDER -->
+            <div class="settings-tab-content" id="tab-weather">
+              <!-- 5. LOKALES WETTER -->
+              <div class="setting-section">
+                <h3 class="section-title"><i class="fas fa-cloud-sun"></i> <span data-i18n="weather_section_title">Wetter & Standort</span></h3>
+                <div class="input-group" style="margin-bottom: 12px;">
+                  <label class="setting-sub-label" data-i18n="weather_loc_label">Standort:</label>
+                  <div style="display:flex; gap: 8px;">
+                    <input type="text" id="weatherLoc" placeholder="z.B. Berlin, Deutschland">
+                    <button class="btn" id="updateWeather">Suchen</button>
+                  </div>
+                </div>
+                <div class="input-group" style="margin-bottom: 12px;">
+                  <label class="setting-sub-label" data-i18n="weather_provider_label">Wetter-Provider:</label>
+                  <select id="weatherProvider" class="radio-select" style="max-width: 100%; width: 100%;">
+                    <option value="openmeteo">🌤️ Open-Meteo (Schlüssellos / Global)</option>
+                    <option value="weatherapi">🌐 WeatherAPI.com (Genau / API-Key benötigt)</option>
+                  </select>
+                </div>
+                <div class="input-group" id="weatherApiKeyGroup" style="display: none; margin-bottom: 12px;">
+                  <label class="setting-sub-label" data-i18n="weather_apikey_label">WeatherAPI API-Key:</label>
+                  <input type="password" id="weatherApiKey" placeholder="API-Key von weatherapi.com" style="width: 100%;">
+                </div>
+              </div>
+
+              <!-- 4. ABFALLKALENDER -->
+              <div class="setting-section" style="margin-top: 30px;">
+                <h3 class="section-title"><i class="fas fa-trash-can"></i> <span data-i18n="waste_section_title">Abfallkalender Sync</span></h3>
+                <div class="input-group">
+                  <label class="setting-sub-label" data-i18n="waste_desc">Lade eine aktuelle .ICS Datei deiner Stadt hoch.</label>
+                  <div style="display:flex; gap: 8px;">
+                    <input type="file" id="icsFile" accept=".ics">
+                    <button class="btn" id="uploadIcs">Upload</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB: ANWESENHEIT -->
+            <div class="settings-tab-content" id="tab-presence">
+              <!-- 9. ANWESENHEITSERKENNUNG -->
+              <div class="setting-section">
+                <h3 class="section-title"><i class="fas fa-users"></i> <span data-i18n="presence_section_title">Anwesenheitserkennung</span></h3>
+                <div class="input-group">
+                  <label class="setting-sub-label" data-i18n="presence_add_label">Person hinzufügen:</label>
+                  <div style="display:flex; flex-direction: column; gap: 8px;">
+                    <input type="text" id="presenceManName" data-i18n="presence_name_placeholder" placeholder="Name">
+                    <input type="text" id="presenceManMac" data-i18n="presence_mac_placeholder" placeholder="MAC-Adresse (z.B. AA:BB:CC:DD:EE:FF)">
+                    
+                    <div class="avatar-gallery-container" style="margin-top: 4px;">
+                      <label class="setting-sub-label" style="font-size: 11px; margin-bottom: 6px; display: block;" data-i18n="presence_avatar_gallery">Standard-Avatar wählen:</label>
+                      <div id="selectableAvatarsList" style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <img src="/steffen.png" class="selectable-avatar-item" data-avatar="/steffen.png" alt="Steffen" title="Steffen">
+                        <img src="/sabine.png" class="selectable-avatar-item" data-avatar="/sabine.png" alt="Sabine" title="Sabine">
+                        <img src="/luca.png" class="selectable-avatar-item" data-avatar="/luca.png" alt="Luca" title="Luca">
+                        <img src="/emma.png" class="selectable-avatar-item" data-avatar="/emma.png" alt="Emma" title="Emma">
+                        <img src="/maria.png" class="selectable-avatar-item" data-avatar="/maria.png" alt="Maria" title="Maria">
+                        <img src="/thomas.png" class="selectable-avatar-item" data-avatar="/thomas.png" alt="Thomas" title="Thomas">
+                        <img src="/max.png" class="selectable-avatar-item" data-avatar="/max.png" alt="Max" title="Max">
+                        <img src="/oma.png" class="selectable-avatar-item" data-avatar="/oma.png" alt="Oma" title="Oma">
+                      </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px; margin-top: 5px;">
+                      <label class="btn" style="flex: 1; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; font-size: 13px;">
+                        <i class="fas fa-image"></i> <span data-i18n="presence_avatar_label">Profilbild hochladen</span>
+                        <input type="file" id="presenceManAvatar" accept="image/*" style="display: none;">
+                      </label>
+                      <span id="presenceManAvatarName" data-i18n="presence_no_avatar" style="font-size: 11px; color: var(--text-muted); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Kein Bild gewählt</span>
+                    </div>
+                    
+                    <button class="btn" id="addPresenceBtn" style="margin-top: 5px;"><i class="fas fa-plus"></i> <span data-i18n="presence_add_btn">Person hinzufügen</span></button>
+                  </div>
+                </div>
+                
+                <label class="setting-sub-label" data-i18n="presence_active_label" style="margin-top: 15px; display: block;">Aktive Personen:</label>
+                <div id="presenceList" class="tasmota-list-settings" style="margin-top: 5px; display: flex; flex-direction: column; gap: 8px;">
+                  <!-- Dynamische Personen-Liste -->
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB: KAMERAS -->
+            <div class="settings-tab-content" id="tab-camera">
+              <!-- 10. KAMERA-MONITOR -->
+              <div class="setting-section">
+                <h3 class="section-title"><i class="fas fa-video"></i> <span data-i18n="camera_section_title">Kamera-Monitor</span></h3>
+                <div class="input-group">
+                  <label class="setting-sub-label" data-i18n="camera_add_label">Kamera hinzufügen (Max. 4):</label>
+                  <div style="display:flex; flex-direction: column; gap: 8px;">
+                    <input type="text" id="cameraManName" data-i18n="camera_name_placeholder" placeholder="Kameraname (z.B. Haustür)">
+                    <input type="text" id="cameraManUrl" data-i18n="camera_url_placeholder" placeholder="HTTP-Bild- oder Stream-URL (JPEG/MJPEG)">
+                    <select id="cameraManInterval" class="radio-select" style="max-width: 100%; width: 100%;">
+                      <option value="0" data-i18n="camera_mode_live">🎥 Live-Video / MJPEG-Stream</option>
+                      <option value="1" data-i18n="camera_mode_1s">⏱️ Aktualisierung jede Sekunde</option>
+                      <option value="2" data-i18n="camera_mode_2s">⏱️ Aktualisierung alle 2 Sekunden</option>
+                      <option value="5" data-i18n="camera_mode_5s">⏱️ Aktualisierung alle 5 Sekunden</option>
+                    </select>
+                    <button class="btn" id="addCameraBtn" style="margin-top: 5px;"><i class="fas fa-plus"></i> <span data-i18n="camera_add_btn">Kamera hinzufügen</span></button>
+                  </div>
+                </div>
+                
+                <label class="setting-sub-label" data-i18n="camera_active_label" style="margin-top: 15px; display: block;">Aktive Kameras:</label>
+                <div id="cameraSettingsList" class="tasmota-list-settings" style="margin-top: 5px; display: flex; flex-direction: column; gap: 8px;">
+                  <!-- Dynamische Kameras-Liste -->
+                </div>
+
+                <!-- Kamera-Hilfe & Anleitung -->
+                <div class="camera-help-box" style="margin-top: 15px; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px;">
+                  <span style="font-size: 11px; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none;" onclick="document.getElementById('cameraHelpText').toggleAttribute('hidden')">
+                    <i class="fas fa-question-circle"></i> <span data-i18n="camera_guide_title">Anleitung: Kamera einbinden</span> <i class="fas fa-chevron-down" style="font-size: 9px; margin-left: auto;"></i>
+                  </span>
+                  <div id="cameraHelpText" style="margin-top: 8px; font-size: 10px; color: var(--text-muted); line-height: 1.4; display: flex; flex-direction: column; gap: 6px;" hidden>
+                    <p><strong>Unterstützte Formate:</strong> Dieser Monitor benötigt eine Web-Adresse (beginnend mit <code>http://</code> oder <code>https://</code>), die einen <strong>MJPEG-Videostream</strong> oder <strong>JPEG-Schnappschüsse</strong> liefert.</p>
+                    <p><strong>So findest du die richtige URL:</strong></p>
+                    <ul style="padding-left: 12px; margin: 0; display: flex; flex-direction: column; gap: 4px; list-style-type: disc;">
+                      <li><strong>IP-Überwachungskameras:</strong> Binde die Kamera über die Hersteller-App in dein Heim-WLAN (Fritz!Box) ein. Viele Kameras bieten einen direkten MJPEG/JPEG-Pfad (z.B. <code>http://192.168.178.50/snapshot.jpg</code>).</li>
+                      <li><strong>Smartphone als Testkamera:</strong> Lade eine kostenlose App wie <i>IP Webcam</i> (Android) oder <i>Live-Reporter</i> (iOS) herunter. Starte den Server in der App. Du erhältst sofort eine funktionierende MJPEG-URL (z.B. <code>http://192.168.178.60:8080/video</code>) zum direkten Testen!</li>
+                      <li><strong>ESP32-Cam:</strong> Perfekt für Bastler. Nutze die Standard-Webstream-URL (z.B. <code>http://192.168.178.70/stream</code>).</li>
+                      <li><strong>Action-Kameras (wie GoPros / Jadfezy):</strong> Diese senden meistens nur ihr eigenes WLAN-Signal (AP-Modus). Verbinde sie per USB-Kabel mit dem Server und wähle <b>„PC-Kamera / Webcam“</b>. Streame das Bild dann über eine Software wie <i>mjpg-streamer</i> ins Heimnetz.</li>
+                    </ul>
+                    <p style="margin-top: 4px; font-style: italic; border-left: 2px solid var(--accent-blue); padding-left: 6px; margin-bottom: 0;"><b>Hinweis zu RTSP:</b> Reine Sicherheitskameras streamen oft nur in RTSP. Da Webbrowser RTSP nicht nativ anzeigen können, muss dieser Stream auf deinem Server zuvor per Software (z.B. <i>go2rtc</i> oder <i>ffmpeg</i>) in einen MJPEG-Stream umgewandelt werden.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB: JARVIS -->
+            <div class="settings-tab-content" id="tab-jarvis">
+              <!-- 11. J.A.R.V.I.S. KI-ASSISTENT -->
+              <div class="setting-section">
+                <h3 class="section-title"><i class="fas fa-brain"></i> <span data-i18n="jarvis_section_title">J.A.R.V.I.S. KI-Assistent</span></h3>
+                <p data-i18n="jarvis_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Konfiguriere das KI-Modell und die API-Schlüssel für deinen Sprachassistenten.</p>
+                
+                <div class="input-group" style="margin-bottom: 12px;">
+                  <label class="setting-sub-label" data-i18n="jarvis_provider_label">API-Provider:</label>
+                  <select id="jarvisProvider" class="radio-select" style="max-width: 100%; width: 100%;">
+                    <option value="gemini">♊ Google Gemini (Direkt)</option>
+                    <option value="openrouter">📡 OpenRouter (LLaMA, Qwen, etc.)</option>
+                    <option value="simulator">🎮 Simulator-Modus (Lokale Antworten)</option>
+                  </select>
+                </div>
+
+                <div class="input-group" id="jarvisApiKeyGroup" style="margin-bottom: 12px;">
+                  <label class="setting-sub-label" data-i18n="jarvis_apikey_label">API-Schlüssel:</label>
+                  <div style="display: flex; gap: 8px; width: 100%;">
+                    <input type="password" id="jarvisApiKey" placeholder="API Key eintragen" style="flex: 1;">
+                    <button type="button" id="jarvisClearKeyBtn" class="btn" style="padding: 8px 12px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; display: flex; align-items: center; justify-content: center;" title="API-Schlüssel für diesen Provider löschen"><i class="fas fa-trash-alt"></i></button>
+                  </div>
+                </div>
+
+                <div class="input-group" id="jarvisModelGroup" style="margin-bottom: 12px;">
+                  <label class="setting-sub-label" data-i18n="jarvis_model_label">KI-Modell:</label>
+                  <select id="jarvisModel" class="radio-select" style="max-width: 100%; width: 100%;">
+                    <option class="prov-opt gemini-opt" value="gemini-2.5-flash">gemini-2.5-flash (Schnell & Empfohlen)</option>
+                    <option class="prov-opt gemini-opt" value="gemini-2.5-pro">gemini-2.5-pro (Intelligent)</option>
+                    <option class="prov-opt gemini-opt" value="gemini-2.0-flash">gemini-2.0-flash</option>
+                    <option class="prov-opt gemini-opt" value="gemini-1.5-flash">gemini-1.5-flash</option>
+                    <option class="prov-opt openrouter-opt" value="google/gemini-2.5-flash:free">Gemini 2.5 Flash Free</option>
+                    <option class="prov-opt openrouter-opt" value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B Free</option>
+                    <option class="prov-opt openrouter-opt" value="qwen/qwen-2.5-72b-instruct:free">Qwen 2.5 72B Free</option>
+                    <option class="prov-opt openrouter-opt" value="deepseek/deepseek-chat">DeepSeek Chat</option>
+                  </select>
+                  <input type="text" id="jarvisCustomModel" placeholder="Benutzerdefiniertes Modell (optional)" style="width: 100%; margin-top: 8px;">
+                </div>
+
+                <div class="input-group" style="margin-bottom: 12px;">
+                  <label class="setting-sub-label" data-i18n="jarvis_prompt_label">System-Prompt (Charakter):</label>
+                  <textarea id="jarvisSystemPrompt" rows="3" style="width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--panel-border); padding: 10px 15px; border-radius: var(--radius-sm); color: #fff; font-family: inherit; font-size: 13px; outline: none; resize: vertical;" placeholder="Du bist J.A.R.V.I.S., eine hochentwickelte KI. Antworte kurz, präzise und charmant auf Deutsch."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 8px; width: 100%;">
+                  <button class="btn" id="saveJarvisConfig" style="flex: 1;"><i class="fas fa-save"></i> <span data-i18n="jarvis_save">Einstellungen speichern</span></button>
+                  <button type="button" class="btn" id="jarvisClearHistoryBtn" style="padding: 8px 12px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; display: flex; align-items: center; justify-content: center; gap: 6px;" title="Chatverlauf löschen"><i class="fas fa-trash-alt"></i> <span style="font-size: 11px;">Verlauf löschen</span></button>
+                </div>
+              </div>
+
+              <!-- 12. J.A.R.V.I.S. SPRACHAUSGABE (TTS) -->
+              <div class="setting-section" style="margin-top: 30px;">
+                <h3 class="section-title"><i class="fas fa-volume-up"></i> <span data-i18n="jarvis_tts_section_title">J.A.R.V.I.S. Sprachausgabe</span></h3>
+                <p data-i18n="jarvis_tts_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Konfiguriere die Sprachausgabe (Text-to-Speech) deines Assistenten.</p>
+                
+                <div class="toggle-group" style="margin-bottom: 12px;">
+                  <label class="toggle-label">
+                    <span data-i18n="jarvis_tts_label">Sprachausgabe (Text-to-Speech)</span>
+                    <input type="checkbox" id="jarvisTtsEnabled" checked>
+                    <div class="toggle-switch"></div>
+                  </label>
+                </div>
+
+                <div id="jarvisTtsSettingsGroup" style="margin-bottom: 12px; display: none;">
+                  <!-- Unified grouped voice dropdown -->
+                  <div class="input-group" style="margin-bottom: 12px;">
+                    <label class="setting-sub-label" data-i18n="jarvis_voice_label">Stimme auswählen:</label>
+                    <div style="display: flex; gap: 8px; width: 100%;">
+                      <select id="jarvisVoiceSelect" class="radio-select" style="flex: 1;">
+                        <optgroup label="🌐 Browser-Stimmen" id="jarvisLocalVoicesGroup">
+                          <option value="local:auto">Automatisch (Sprach-optimiert)</option>
+                        </optgroup>
+                        <optgroup label="🎙️ ElevenLabs-Stimmen" id="jarvisElevenVoicesGroup">
+                          <option value="eleven:loading" disabled>— API-Key eingeben und laden —</option>
+                        </optgroup>
+                      </select>
+                      <button type="button" class="btn" id="jarvisLoadVoicesBtn" style="padding: 8px 12px; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px;" title="Stimmen aktualisieren"><i class="fas fa-sync-alt"></i></button>
                     </div>
                   </div>
 
-                  <div style="display: flex; align-items: center; gap: 8px; margin-top: 5px;">
-                    <label class="btn" style="flex: 1; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; font-size: 13px;">
-                      <i class="fas fa-image"></i> <span data-i18n="presence_avatar_label">Profilbild hochladen</span>
-                      <input type="file" id="presenceManAvatar" accept="image/*" style="display: none;">
-                    </label>
-                    <span id="presenceManAvatarName" data-i18n="presence_no_avatar" style="font-size: 11px; color: var(--text-muted); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Kein Bild gewählt</span>
+                  <!-- ElevenLabs API key - always visible when TTS enabled -->
+                  <div id="jarvisElevenLabsGroup" style="display: none; margin-bottom: 12px; padding: 10px; border: 1px solid rgba(var(--primary-rgb, 0,150,255), 0.2); border-radius: 8px; background: rgba(var(--primary-rgb, 0,150,255), 0.04);">
+                    <div class="input-group">
+                      <label class="setting-sub-label" data-i18n="jarvis_elevenkey_label" style="display:flex; align-items:center; gap:6px;">
+                        <i class="fas fa-key" style="font-size:10px; opacity:0.6;"></i>
+                        ElevenLabs API-Key <span style="font-size:10px; opacity:0.6; font-weight:400;">(für 🎙️ ElevenLabs-Stimmen)</span>
+                      </label>
+                      <input type="password" id="jarvisElevenApiKey" placeholder="ElevenLabs API Key eintragen" style="width: 100%;">
+                    </div>
                   </div>
+                </div>
+
+                <button class="btn" id="saveJarvisConfigTts" style="width: 100%;"><i class="fas fa-save"></i> <span data-i18n="jarvis_save">Einstellungen speichern</span></button>
+              </div>
+
+              <!-- 13. J.A.R.V.I.S. WEBSUCHE -->
+              <div class="setting-section" style="margin-top: 30px;">
+                <h3 class="section-title"><i class="fas fa-search"></i> <span data-i18n="jarvis_search_section_title">J.A.R.V.I.S. Websuche</span></h3>
+                <p data-i18n="jarvis_search_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Erlaube J.A.R.V.I.S. bei aktuellen Fragen im Internet zu suchen.</p>
+                
+                <div class="toggle-group" id="jarvisSearchToggleGroup" style="margin-bottom: 12px; display: none;">
+                  <label class="toggle-label">
+                    <span data-i18n="jarvis_search_label">Brave-Websuche erlauben</span>
+                    <input type="checkbox" id="jarvisSearchEnabled">
+                    <div class="toggle-switch"></div>
+                  </label>
+                </div>
+
+                <div class="input-group" id="jarvisBraveKeyGroup" style="margin-bottom: 15px; display: none;">
+                  <label class="setting-sub-label" data-i18n="jarvis_bravekey_label">Brave Search API-Key:</label>
+                  <input type="password" id="jarvisBraveApiKey" placeholder="Brave Search API Key eintragen" style="width: 100%;">
+                </div>
+
+                <button class="btn" id="saveJarvisConfigSearch" style="width: 100%;"><i class="fas fa-save"></i> <span data-i18n="jarvis_save">Einstellungen speichern</span></button>
+              </div>
+            </div>
+
+            <!-- TAB: FRITZBOX -->
+            <div class="settings-tab-content" id="tab-fritzbox">
+              <!-- 8. FRITZ!BOX MONITOR -->
+              <div class="setting-section">
+                <h3 class="section-title">
+                  <span style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-ethernet"></i>
+                    <span data-i18n="fritzbox_section_title">Fritz!Box Monitor</span>
+                    <span class="led-dot red" id="settingsLedFritz" style="width: 8px; height: 8px;"></span>
+                  </span>
+                </h3>
+                <div class="input-group">
+                  <label class="setting-sub-label" data-i18n="fritzbox_ip_label">Fritz!Box IP-Adresse / Hostname:</label>
+                  <input type="text" id="fritzIp" value="192.168.178.1" placeholder="z.B. 192.168.178.1">
                   
-                  <button class="btn" id="addPresenceBtn" style="margin-top: 5px;"><i class="fas fa-plus"></i> <span data-i18n="presence_add_btn">Person hinzufügen</span></button>
-                </div>
-              </div>
-              
-              <label class="setting-sub-label" data-i18n="presence_active_label" style="margin-top: 15px; display: block;">Aktive Personen:</label>
-              <div id="presenceList" class="tasmota-list-settings" style="margin-top: 5px; display: flex; flex-direction: column; gap: 8px;">
-                <!-- Dynamische Personen-Liste -->
-              </div>
-            </div>
-            <div class="section-divider"></div>
-          </div>
-
-          <!-- 10. KAMERA-MONITOR -->
-          <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-video"></i> <span data-i18n="camera_section_title">Kamera-Monitor</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
-            <div class="accordion-body">
-              <div class="input-group">
-                <label class="setting-sub-label" data-i18n="camera_add_label">Kamera hinzufügen (Max. 4):</label>
-                <div style="display:flex; flex-direction: column; gap: 8px;">
-                  <input type="text" id="cameraManName" data-i18n="camera_name_placeholder" placeholder="Kameraname (z.B. Haustür)">
-                  <input type="text" id="cameraManUrl" data-i18n="camera_url_placeholder" placeholder="HTTP-Bild- oder Stream-URL (JPEG/MJPEG)">
-                  <select id="cameraManInterval" class="radio-select" style="max-width: 100%; width: 100%;">
-                    <option value="0" data-i18n="camera_mode_live">🎥 Live-Video / MJPEG-Stream</option>
-                    <option value="1" data-i18n="camera_mode_1s">⏱️ Aktualisierung jede Sekunde</option>
-                    <option value="2" data-i18n="camera_mode_2s">⏱️ Aktualisierung alle 2 Sekunden</option>
-                    <option value="5" data-i18n="camera_mode_5s">⏱️ Aktualisierung alle 5 Sekunden</option>
-                  </select>
-                  <button class="btn" id="addCameraBtn" style="margin-top: 5px;"><i class="fas fa-plus"></i> <span data-i18n="camera_add_btn">Kamera hinzufügen</span></button>
-                </div>
-              </div>
-              
-              <label class="setting-sub-label" data-i18n="camera_active_label" style="margin-top: 15px; display: block;">Aktive Kameras:</label>
-              <div id="cameraSettingsList" class="tasmota-list-settings" style="margin-top: 5px; display: flex; flex-direction: column; gap: 8px;">
-                <!-- Dynamische Kameras-Liste -->
-              </div>
-
-              <!-- Kamera-Hilfe & Anleitung -->
-              <div class="camera-help-box" style="margin-top: 15px; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px;">
-                <span style="font-size: 11px; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none;" onclick="document.getElementById('cameraHelpText').toggleAttribute('hidden')">
-                  <i class="fas fa-question-circle"></i> <span data-i18n="camera_guide_title">Anleitung: Kamera einbinden</span> <i class="fas fa-chevron-down" style="font-size: 9px; margin-left: auto;"></i>
-                </span>
-                <div id="cameraHelpText" style="margin-top: 8px; font-size: 10px; color: var(--text-muted); line-height: 1.4; display: flex; flex-direction: column; gap: 6px;" hidden>
-                  <p><strong>Unterstützte Formate:</strong> Dieser Monitor benötigt eine Web-Adresse (beginnend mit <code>http://</code> oder <code>https://</code>), die einen <strong>MJPEG-Videostream</strong> oder <strong>JPEG-Schnappschüsse</strong> liefert.</p>
-                  <p><strong>So findest du die richtige URL:</strong></p>
-                  <ul style="padding-left: 12px; margin: 0; display: flex; flex-direction: column; gap: 4px; list-style-type: disc;">
-                    <li><strong>IP-Überwachungskameras:</strong> Binde die Kamera über die Hersteller-App in dein Heim-WLAN (Fritz!Box) ein. Viele Kameras bieten einen direkten MJPEG/JPEG-Pfad (z.B. <code>http://192.168.178.50/snapshot.jpg</code>).</li>
-                    <li><strong>Smartphone als Testkamera:</strong> Lade eine kostenlose App wie <i>IP Webcam</i> (Android) oder <i>Live-Reporter</i> (iOS) herunter. Starte den Server in der App. Du erhältst sofort eine funktionierende MJPEG-URL (z.B. <code>http://192.168.178.60:8080/video</code>) zum direkten Testen!</li>
-                    <li><strong>ESP32-Cam:</strong> Perfekt für Bastler. Nutze die Standard-Webstream-URL (z.B. <code>http://192.168.178.70/stream</code>).</li>
-                    <li><strong>Action-Kameras (wie GoPros / Jadfezy):</strong> Diese senden meistens nur ihr eigenes WLAN-Signal (AP-Modus). Verbinde sie per USB-Kabel mit dem Server und wähle <b>„PC-Kamera / Webcam“</b>. Streame das Bild dann über eine Software wie <i>mjpg-streamer</i> ins Heimnetz.</li>
-                  </ul>
-                  <p style="margin-top: 4px; font-style: italic; border-left: 2px solid var(--accent-blue); padding-left: 6px; margin-bottom: 0;"><b>Hinweis zu RTSP:</b> Reine Sicherheitskameras streamen oft nur in RTSP. Da Webbrowser RTSP nicht nativ anzeigen können, muss dieser Stream auf deinem Server zuvor per Software (z.B. <i>go2rtc</i> oder <i>ffmpeg</i>) in einen MJPEG-Stream umgewandelt werden.</p>
+                  <label class="setting-sub-label" data-i18n="fritzbox_user_label" style="margin-top: 10px;">Benutzername (optional):</label>
+                  <input type="text" id="fritzUser" placeholder="z.B. admin">
+                  
+                  <label class="setting-sub-label" data-i18n="fritzbox_pass_label" style="margin-top: 10px;">Passwort:</label>
+                  <input type="password" id="fritzPassword" placeholder="Fritz!Box Passwort">
+                  
+                  <label class="toggle-label" style="margin-top: 15px;">
+                    <span data-i18n="fritzbox_callmonitor_label">Anruf-Monitor (Port 1012)</span>
+                    <input type="checkbox" id="toggleFritzCallMonitor" checked>
+                    <div class="toggle-switch"></div>
+                  </label>
+                  
+                  <button class="btn" id="saveFritzConfig" style="margin-top: 15px; width: 100%;"><i class="fas fa-save"></i> <span data-i18n="fritzbox_connect">Fritz!Box Verbinden</span></button>
                 </div>
               </div>
             </div>
-            <div class="section-divider"></div>
+
           </div>
-
-          <!-- 11. J.A.R.V.I.S. KI-ASSISTENT -->
-          <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-brain"></i> <span data-i18n="jarvis_section_title">J.A.R.V.I.S. KI-Assistent</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
-            <div class="accordion-body">
-              <p data-i18n="jarvis_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Konfiguriere das KI-Modell und die API-Schlüssel für deinen Sprachassistenten.</p>
-              
-              <div class="input-group" style="margin-bottom: 12px;">
-                <label class="setting-sub-label" data-i18n="jarvis_provider_label">API-Provider:</label>
-                <select id="jarvisProvider" class="radio-select" style="max-width: 100%; width: 100%;">
-                  <option value="gemini">♊ Google Gemini (Direkt)</option>
-                  <option value="openrouter">📡 OpenRouter (LLaMA, Qwen, etc.)</option>
-                  <option value="simulator">🎮 Simulator-Modus (Lokale Antworten)</option>
-                </select>
-              </div>
-
-              <div class="input-group" id="jarvisApiKeyGroup" style="margin-bottom: 12px;">
-                <label class="setting-sub-label" data-i18n="jarvis_apikey_label">API-Schlüssel:</label>
-                <div style="display: flex; gap: 8px; width: 100%;">
-                  <input type="password" id="jarvisApiKey" placeholder="API Key eintragen" style="flex: 1;">
-                  <button type="button" id="jarvisClearKeyBtn" class="btn" style="padding: 8px 12px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; display: flex; align-items: center; justify-content: center;" title="API-Schlüssel für diesen Provider löschen"><i class="fas fa-trash-alt"></i></button>
-                </div>
-              </div>
-
-              <div class="input-group" id="jarvisModelGroup" style="margin-bottom: 12px;">
-                <label class="setting-sub-label" data-i18n="jarvis_model_label">KI-Modell:</label>
-                <select id="jarvisModel" class="radio-select" style="max-width: 100%; width: 100%;">
-                  <option class="prov-opt gemini-opt" value="gemini-2.5-flash">gemini-2.5-flash (Schnell & Empfohlen)</option>
-                  <option class="prov-opt gemini-opt" value="gemini-2.5-pro">gemini-2.5-pro (Intelligent)</option>
-                  <option class="prov-opt gemini-opt" value="gemini-2.0-flash">gemini-2.0-flash</option>
-                  <option class="prov-opt gemini-opt" value="gemini-1.5-flash">gemini-1.5-flash</option>
-                  <option class="prov-opt openrouter-opt" value="google/gemini-2.5-flash:free">Gemini 2.5 Flash Free</option>
-                  <option class="prov-opt openrouter-opt" value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B Free</option>
-                  <option class="prov-opt openrouter-opt" value="qwen/qwen-2.5-72b-instruct:free">Qwen 2.5 72B Free</option>
-                  <option class="prov-opt openrouter-opt" value="deepseek/deepseek-chat">DeepSeek Chat</option>
-                </select>
-                <input type="text" id="jarvisCustomModel" placeholder="Benutzerdefiniertes Modell (optional)" style="width: 100%; margin-top: 8px;">
-              </div>
-
-              <div class="input-group" style="margin-bottom: 12px;">
-                <label class="setting-sub-label" data-i18n="jarvis_prompt_label">System-Prompt (Charakter):</label>
-                <textarea id="jarvisSystemPrompt" rows="3" style="width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--panel-border); padding: 10px 15px; border-radius: var(--radius-sm); color: #fff; font-family: inherit; font-size: 13px; outline: none; resize: vertical;" placeholder="Du bist J.A.R.V.I.S., eine hochentwickelte KI. Antworte kurz, präzise und charmant auf Deutsch."></textarea>
-              </div>
-
-              <div style="display: flex; gap: 8px; width: 100%;">
-                <button class="btn" id="saveJarvisConfig" style="flex: 1;"><i class="fas fa-save"></i> <span data-i18n="jarvis_save">Einstellungen speichern</span></button>
-                <button type="button" class="btn" id="jarvisClearHistoryBtn" style="padding: 8px 12px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; display: flex; align-items: center; justify-content: center; gap: 6px;" title="Chatverlauf löschen"><i class="fas fa-trash-alt"></i> <span style="font-size: 11px;">Verlauf löschen</span></button>
-              </div>
-            </div>
-            <div class="section-divider"></div>
-          </div>
-
-          <!-- 12. J.A.R.V.I.S. SPRACHAUSGABE (TTS) -->
-          <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-volume-up"></i> <span data-i18n="jarvis_tts_section_title">J.A.R.V.I.S. Sprachausgabe</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
-            <div class="accordion-body">
-              <p data-i18n="jarvis_tts_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Konfiguriere die Sprachausgabe (Text-to-Speech) deines Assistenten.</p>
-              
-              <div class="toggle-group" style="margin-bottom: 12px;">
-                <label class="toggle-label">
-                  <span data-i18n="jarvis_tts_label">Sprachausgabe (Text-to-Speech)</span>
-                  <input type="checkbox" id="jarvisTtsEnabled" checked>
-                  <div class="toggle-switch"></div>
-                </label>
-              </div>
-
-              <div id="jarvisTtsSettingsGroup" style="margin-bottom: 12px; display: none;">
-                <!-- Unified grouped voice dropdown -->
-                <div class="input-group" style="margin-bottom: 12px;">
-                  <label class="setting-sub-label" data-i18n="jarvis_voice_label">Stimme auswählen:</label>
-                  <div style="display: flex; gap: 8px; width: 100%;">
-                    <select id="jarvisVoiceSelect" class="radio-select" style="flex: 1;">
-                      <optgroup label="🌐 Browser-Stimmen" id="jarvisLocalVoicesGroup">
-                        <option value="local:auto">Automatisch (Sprach-optimiert)</option>
-                      </optgroup>
-                      <optgroup label="🎙️ ElevenLabs-Stimmen" id="jarvisElevenVoicesGroup">
-                        <option value="eleven:loading" disabled>— API-Key eingeben und laden —</option>
-                      </optgroup>
-                    </select>
-                    <button type="button" class="btn" id="jarvisLoadVoicesBtn" style="padding: 8px 12px; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px;" title="Stimmen aktualisieren"><i class="fas fa-sync-alt"></i></button>
-                  </div>
-                </div>
-
-                <!-- ElevenLabs API key - always visible when TTS enabled -->
-                <div id="jarvisElevenLabsGroup" style="display: none; margin-bottom: 12px; padding: 10px; border: 1px solid rgba(var(--primary-rgb, 0,150,255), 0.2); border-radius: 8px; background: rgba(var(--primary-rgb, 0,150,255), 0.04);">
-                  <div class="input-group">
-                    <label class="setting-sub-label" data-i18n="jarvis_elevenkey_label" style="display:flex; align-items:center; gap:6px;">
-                      <i class="fas fa-key" style="font-size:10px; opacity:0.6;"></i>
-                      ElevenLabs API-Key <span style="font-size:10px; opacity:0.6; font-weight:400;">(für 🎙️ ElevenLabs-Stimmen)</span>
-                    </label>
-                    <input type="password" id="jarvisElevenApiKey" placeholder="ElevenLabs API Key eintragen" style="width: 100%;">
-                  </div>
-                </div>
-              </div>
-
-              <button class="btn" id="saveJarvisConfigTts" style="width: 100%;"><i class="fas fa-save"></i> <span data-i18n="jarvis_save">Einstellungen speichern</span></button>
-            </div>
-            <div class="section-divider"></div>
-          </div>
-
-          <!-- 13. J.A.R.V.I.S. WEBSUCHE -->
-          <div class="setting-section">
-            <h3 class="accordion-header"><i class="fas fa-search"></i> <span data-i18n="jarvis_search_section_title">J.A.R.V.I.S. Websuche</span> <i class="fas fa-chevron-down acc-icon"></i></h3>
-            <div class="accordion-body">
-              <p data-i18n="jarvis_search_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Erlaube J.A.R.V.I.S. bei aktuellen Fragen im Internet zu suchen.</p>
-              
-              <div class="toggle-group" id="jarvisSearchToggleGroup" style="margin-bottom: 12px; display: none;">
-                <label class="toggle-label">
-                  <span data-i18n="jarvis_search_label">Brave-Websuche erlauben</span>
-                  <input type="checkbox" id="jarvisSearchEnabled">
-                  <div class="toggle-switch"></div>
-                </label>
-              </div>
-
-              <div class="input-group" id="jarvisBraveKeyGroup" style="margin-bottom: 15px; display: none;">
-                <label class="setting-sub-label" data-i18n="jarvis_bravekey_label">Brave Search API-Key:</label>
-                <input type="password" id="jarvisBraveApiKey" placeholder="Brave Search API Key eintragen" style="width: 100%;">
-              </div>
-
-              <button class="btn" id="saveJarvisConfigSearch" style="width: 100%;"><i class="fas fa-save"></i> <span data-i18n="jarvis_save">Einstellungen speichern</span></button>
-            </div>
-            <div class="section-divider"></div>
-          </div>
-
         </div>
       </div>
     </div>
