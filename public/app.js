@@ -297,6 +297,21 @@ function initSettings() {
       await Config.set('sensorList', newList);
       renderSensorSettings();
       await refreshSensorWidget();
+
+      // Premium visuelle Rückmeldung auf dem Button
+      const originalHtml = saveSensorsBtn.innerHTML;
+      const originalStyle = saveSensorsBtn.style.cssText;
+      saveSensorsBtn.disabled = true;
+      saveSensorsBtn.style.backgroundColor = '#22c55e';
+      saveSensorsBtn.style.color = '#fff';
+      saveSensorsBtn.style.borderColor = '#22c55e';
+      saveSensorsBtn.innerHTML = `<i class="fas fa-check"></i> <span>${getLangText('saved') || 'Gespeichert!'}</span>`;
+
+      setTimeout(() => {
+        saveSensorsBtn.disabled = false;
+        saveSensorsBtn.innerHTML = originalHtml;
+        saveSensorsBtn.style.cssText = originalStyle;
+      }, 2000);
     });
   }
 

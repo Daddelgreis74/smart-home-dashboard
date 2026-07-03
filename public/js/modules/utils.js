@@ -231,37 +231,44 @@ export const extraTranslations = {
   de: {
     sensor_name_placeholder: "z.B. Wohnzimmer",
     sensor_humidity_unit: "Feuchte",
-    sensor_add_btn: "Sensor hinzufügen"
+    sensor_add_btn: "Sensor hinzufügen",
+    saved: "Gespeichert!"
   },
   en: {
     sensor_name_placeholder: "e.g. Living Room",
     sensor_humidity_unit: "Humidity",
-    sensor_add_btn: "Add Sensor"
+    sensor_add_btn: "Add Sensor",
+    saved: "Saved!"
   },
   fr: {
     sensor_name_placeholder: "ex. Salon",
     sensor_humidity_unit: "Humidité",
-    sensor_add_btn: "Ajouter"
+    sensor_add_btn: "Ajouter",
+    saved: "Enregistré !"
   },
   es: {
     sensor_name_placeholder: "ej. Sala",
     sensor_humidity_unit: "Humedad",
-    sensor_add_btn: "Añadir"
+    sensor_add_btn: "Añadir",
+    saved: "¡Guardado!"
   },
   it: {
     sensor_name_placeholder: "es. Soggiorno",
     sensor_humidity_unit: "Umidità",
-    sensor_add_btn: "Aggiungi"
+    sensor_add_btn: "Aggiungi",
+    saved: "Salvato!"
   },
   nl: {
     sensor_name_placeholder: "bijv. Woonkamer",
     sensor_humidity_unit: "Vochtigheid",
-    sensor_add_btn: "Toevoegen"
+    sensor_add_btn: "Toevoegen",
+    saved: "Opgeslagen!"
   },
   pl: {
     sensor_name_placeholder: "np. Salon",
     sensor_humidity_unit: "Wilgotność",
-    sensor_add_btn: "Dodaj"
+    sensor_add_btn: "Dodaj",
+    saved: "Zapisano!"
   }
 };
 
