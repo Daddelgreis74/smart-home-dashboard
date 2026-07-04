@@ -345,10 +345,10 @@ body {
 /* Settings Tabbed Layout */
 .settings-layout { display: flex; flex: 1; overflow: hidden; height: calc(100% - 90px); }
 .settings-sidebar { width: 230px; background: rgba(10, 10, 10, 0.4); border-right: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; padding: 20px 10px; gap: 6px; overflow-y: auto; }
-.settings-tab-btn { background: transparent; border: none; color: var(--text-muted); padding: 12px 18px; border-radius: 8px; text-align: left; font-family: inherit; font-size: 13.5px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+.settings-tab-btn { background: transparent; border: none; color: var(--text-muted); padding: 12px 18px; border-radius: 0; text-align: left; font-family: inherit; font-size: 13.5px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
 .settings-tab-btn i { font-size: 15px; width: 20px; text-align: center; display: inline-flex; align-items: center; justify-content: center; }
 .settings-tab-btn:hover { background: rgba(255, 255, 255, 0.04); color: var(--text-main); }
-.settings-tab-btn.active { background: rgba(0, 150, 255, 0.12) !important; color: var(--primary) !important; border-left: 3px solid var(--primary); border-radius: 0 8px 8px 0 !important; padding-left: 15px; }
+.settings-tab-btn.active { background: rgba(0, 150, 255, 0.12) !important; color: var(--primary) !important; border-left: 3px solid var(--primary); border-radius: 0 !important; padding-left: 15px; }
 .settings-body { flex: 1; padding: 30px; overflow-y: auto; background: rgba(0, 0, 0, 0.15); }
 .settings-tab-content { display: none; animation: fadeInSettings 0.35s ease; }
 .settings-tab-content.active { display: block; }
@@ -367,8 +367,8 @@ body {
 @media (max-width: 768px) {
   .settings-layout { flex-direction: column; }
   .settings-sidebar { width: 100%; height: auto; flex-direction: row; padding: 8px; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); overflow-x: auto; overflow-y: hidden; white-space: nowrap; }
-  .settings-tab-btn { padding: 8px 12px; font-size: 12px; border-radius: 6px; }
-  .settings-tab-btn.active { border-left: none; border-bottom: 3px solid var(--primary); border-radius: 6px 6px 0 0 !important; padding-left: 12px; padding-bottom: 5px; }
+  .settings-tab-btn { padding: 8px 12px; font-size: 12px; border-radius: 0; }
+  .settings-tab-btn.active { border-left: none; border-bottom: 3px solid var(--primary); border-radius: 0 !important; padding-left: 12px; padding-bottom: 5px; }
   .settings-body { padding: 20px 15px; }
 }
 .input-group { display: flex; flex-direction: column; gap: 10px; }
