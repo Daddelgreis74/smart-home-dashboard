@@ -580,57 +580,7 @@ body {
   width: 100%;
 }
 
-.setting-section {
-  margin-bottom: 0px !important;
-}
 
-.accordion-header {
-  font-size: 15px; 
-  color: var(--text-main); 
-  font-weight: 500; 
-  margin: 0; 
-  padding: 15px 10px;
-  display: flex; 
-  align-items: center; 
-  gap: 12px; 
-  text-transform: none; 
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  border-radius: var(--radius-sm);
-  transition: background 0.3s;
-}
-.accordion-header:hover {
-  background: rgba(255,255,255,0.02);
-}
-.accordion-header i:first-child {
-  color: var(--primary);
-  width: 20px;
-  text-align: center;
-}
-.accordion-header .acc-icon {
-  margin-left: auto;
-  font-size: 12px;
-  color: var(--text-muted);
-  transition: transform 0.3s ease;
-}
-
-.accordion-header.active {
-  color: var(--primary);
-}
-.accordion-header.active .acc-icon {
-  transform: rotate(180deg);
-}
-
-.accordion-body {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-  padding: 0 10px;
-}
-.accordion-body.active-body {
-  max-height: 800px; /* Beliebig hoch für Inhalt */
-  padding-bottom: 10px;
-}
 
 .setting-sub-label {
   font-size: 12px;
@@ -1169,13 +1119,12 @@ body::before {
 .setting-section {
   position: relative;
   margin-bottom: 12px !important;
-  border-radius: 22px;
+  border-radius: 0;
   background:
     linear-gradient(145deg, rgba(255,255,255,0.058), rgba(255,255,255,0.022)),
     rgba(2, 8, 20, 0.42);
   border: 1px solid rgba(170,214,255,0.11);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 14px 34px rgba(0,0,0,0.18);
-  overflow: hidden;
 }
 .setting-section::before {
   content: '';
@@ -1183,10 +1132,8 @@ body::before {
   inset: 0;
   pointer-events: none;
   background: radial-gradient(circle at 0% 0%, rgba(85,245,177,0.11), transparent 32%);
-  opacity: 0;
-  transition: opacity 0.25s ease;
+  opacity: 1;
 }
-.setting-section:has(.accordion-header.active)::before { opacity: 1; }
 
 .accordion-header {
   position: relative;
@@ -1194,58 +1141,36 @@ body::before {
   min-height: 58px;
   padding: 14px 16px;
   gap: 13px;
-  border-radius: 0;
-  color: rgba(239,247,255,0.84);
+  display: flex;
+  align-items: center;
+  color: #ffffff;
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.04em;
   background: transparent;
+  text-shadow: 0 0 22px rgba(85,245,177,0.18);
 }
-.accordion-header:hover { background: rgba(255,255,255,0.035); }
 .accordion-header i:first-child {
   width: 36px;
   height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 14px;
-  color: #76ffd0;
-  background: rgba(85,245,177,0.09);
-  border: 1px solid rgba(85,245,177,0.16);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
-}
-.accordion-header.active {
-  color: #ffffff;
-  text-shadow: 0 0 22px rgba(85,245,177,0.18);
-}
-.accordion-header.active i:first-child {
+  border-radius: 10px;
   color: #061012;
   background: linear-gradient(145deg, #55f5b1, #66d9ff);
   box-shadow: 0 0 26px rgba(85,245,177,0.22);
-}
-.accordion-header .acc-icon {
-  width: 28px;
-  height: 28px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.045);
 }
 
 .accordion-body {
   position: relative;
   z-index: 1;
-  padding: 0 16px;
-}
-.accordion-body.active-body {
   padding: 0 16px 16px;
-  max-height: 920px;
 }
 .accordion-body p {
   margin: 0 0 14px !important;
   padding: 10px 12px;
-  border-radius: 14px;
+  border-radius: 0;
   background: rgba(102,217,255,0.055);
   border: 1px solid rgba(102,217,255,0.09);
   font-size: 12px !important;
