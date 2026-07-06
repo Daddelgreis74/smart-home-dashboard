@@ -1,5 +1,5 @@
 @echo off
-:: Neo Deck - Smart Home Dashboard Windows Bootstrapper ðŸ ðŸ‘»
+:: Neo Deck - Smart Home Dashboard Windows Bootstrapper
 ::
 
 :: Aktiviert ANSI Escape Codes in CMD
@@ -22,20 +22,20 @@ set "WARNING=%YELLOW%[ WARN ]%NC%"
 set "ERROR=%RED%[ FEHL ]%NC%"
 set "PROMPT=%PURPLE%[ EING ]%NC%"
 
-title Neo Deck Smart Home Dashboard ðŸ ðŸ‘»
+title Neo Deck Smart Home Dashboard
 
 cls
-echo %CYAN%â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”%NC%
-echo %CYAN%â”‚%NC%  %WHITE%%BOLD% _  _ ____ ____    ___  ____ ____ _  _              %NC%%CYAN%â”‚%NC%
-echo %CYAN%â”‚%NC%  %WHITE%%BOLD% ^|\ ^| ^|___ ^|  ^|    ^|  \ ^|___ ^|    ^|_/               %NC%%CYAN%â”‚%NC%
-echo %CYAN%â”‚%NC%  %WHITE%%BOLD% ^| \ ^| ^|___ ^|__^|    ^|__/ ^|___ ^|___ ^| \               %NC%%CYAN%â”‚%NC%
-echo %CYAN%â”‚%NC%                                                        %CYAN%â”‚%NC%
-echo %CYAN%â”‚%NC%        %GREEN%ðŸ  Smart Home Dashboard - Start-Assistent%NC%       %CYAN%â”‚%NC%
-echo %CYAN%â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜%NC%
+echo %CYAN%ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿%NC%
+echo %CYAN%³%NC%  %WHITE%%BOLD% _  _ ____ ____    ___  ____ ____ _  _              %NC%%CYAN%³%NC%
+echo %CYAN%³%NC%  %WHITE%%BOLD% ^|\ ^| ^|___ ^|  ^|    ^|  \ ^|___ ^|    ^|_/               %NC%%CYAN%³%NC%
+echo %CYAN%³%NC%  %WHITE%%BOLD% ^| \ ^| ^|___ ^|__^|    ^|__/ ^|___ ^|___ ^| \               %NC%%CYAN%³%NC%
+echo %CYAN%³%NC%                                                        %CYAN%³%NC%
+echo %CYAN%³%NC%        %GREEN%Smart Home Dashboard - Start-Assistent%NC%          %CYAN%³%NC%
+echo %CYAN%ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ%NC%
 echo.
 
-:: Phase 1: Node.js & npm PrÃ¼fung
-echo %BLUE%%BOLD%=== Phase 1: System-PrÃ¼fung ===%NC%
+:: Phase 1: Node.js & npm Prfung
+echo %BLUE%%BOLD%=== Phase 1: System-Prfung ===%NC%
 echo %INFO% Analysiere Systemkomponenten...
 
 where node >nul 2>nul
@@ -47,11 +47,11 @@ if exist "%LOCALAPPDATA%\Programs\node\nodejs\node.exe" goto node_local_programs
 if exist "%LOCALAPPDATA%\nodejs\node.exe" goto node_local
 
 :: Node.js nicht gefunden - Install-Angebot per winget
-echo   âžœ  Node.js:  %YELLOW%Fehlt [!]%NC%
+echo   ^>  Node.js:  %YELLOW%Fehlt [!]%NC%
 echo.
 echo %WARNING% Node.js konnte auf diesem PC nicht gefunden werden!
 echo.
-echo %PROMPT% MÃ¶chtest du Node.js automatisch Ã¼ber den Windows Package Manager (winget) installieren?
+echo %PROMPT% M”chtest du Node.js automatisch ber den Windows Package Manager (winget) installieren?
 set /p install_choice="      Installieren? (J/N, Standard: J): "
 if /i "%install_choice%"=="n" goto no_node
 
@@ -64,16 +64,16 @@ if %errorlevel% neq 0 (
     goto no_node
 )
 echo %SUCCESS% Node.js wurde erfolgreich installiert!
-echo %INFO% Aktualisiere System-Pfade fÃ¼r diese Sitzung...
+echo %INFO% Aktualisiere System-Pfade fr diese Sitzung...
 
-:: Pfade neu laden (fÃ¼r die aktuelle Session)
+:: Pfade neu laden (fr die aktuelle Session)
 set "PATH=%PATH%;C:\Program Files\nodejs;%LOCALAPPDATA%\Programs\node\nodejs"
 where node >nul 2>nul
 if %errorlevel% equ 0 goto node_ok
 
 :no_node
 echo.
-echo %ERROR% Node.js ist zwingend erforderlich, um das Dashboard auszufÃ¼hren!
+echo %ERROR% Node.js ist zwingend erforderlich, um das Dashboard auszufhren!
 echo         Bitte installiere Node.js manuell von: https://nodejs.org/
 echo.
 pause
@@ -100,9 +100,9 @@ set "PATH=%PATH%;%LOCALAPPDATA%\nodejs"
 goto node_ok
 
 :node_ok
-echo   âžœ  Node.js:  %GREEN%Installiert [âœ”]%NC%
+echo   ^>  Node.js:  %GREEN%Installiert [OK]%NC%
 
-:: 2. PrÃ¼fen, ob npm erreichbar ist
+:: 2. Prfen, ob npm erreichbar ist
 where npm >nul 2>nul
 if %errorlevel% neq 0 (
     echo.
@@ -112,15 +112,15 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-echo   âžœ  npm:      %GREEN%Installiert [âœ”]%NC%
+echo   ^>  npm:      %GREEN%Installiert [OK]%NC%
 echo.
 
-:: Phase 2: AbhÃ¤ngigkeiten prÃ¼fen (npm install)
-echo %BLUE%%BOLD%=== Phase 2: AbhÃ¤ngigkeiten ===%NC%
+:: Phase 2: Abh„ngigkeiten prfen (npm install)
+echo %BLUE%%BOLD%=== Phase 2: Abh„ngigkeiten ===%NC%
 if exist node_modules goto start_server
 
 echo %INFO% "node_modules" wurde nicht gefunden.
-echo %INFO% Installiere benÃ¶tigte JavaScript-Bibliotheken (npm install)...
+echo %INFO% Installiere ben”tigte JavaScript-Bibliotheken (npm install)...
 echo.
 call npm install
 if %errorlevel% neq 0 (
@@ -137,10 +137,10 @@ echo.
 :start_server
 echo %BLUE%%BOLD%=== Phase 3: Start ===%NC%
 echo %INFO% Starte Webserver auf Port 8443...
-echo %INFO% Ã–ffne Browser: %CYAN%https://localhost:8443%NC%
+echo %INFO% ™ffne Browser: %CYAN%https://localhost:8443%NC%
 echo.
 
-:: Startet den Webbrowser verzÃ¶gert (um dem Server Zeit zum Booten zu geben)
+:: Startet den Webbrowser verz”gert (um dem Server Zeit zum Booten zu geben)
 start "" cmd /c "timeout /t 2 >nul && start https://localhost:8443"
 
 set PORT=8443
@@ -150,4 +150,4 @@ if %errorlevel% neq 0 (
     echo.
     echo %ERROR% Server konnte nicht gestartet werden!
     pause
-)
+)\n
