@@ -144,6 +144,7 @@ echo.
 start "" cmd /c "timeout /t 2 >nul && start https://localhost:8443"
 
 set PORT=8443
+set AUTO_SSL=true
 call npm start
 
 if %errorlevel% neq 0 (
