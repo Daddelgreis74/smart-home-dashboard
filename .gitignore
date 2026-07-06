@@ -13,4 +13,6 @@ cameras.json
 www/
 appointments.json
 data/
+backup.ps1
+backup.bat
 
