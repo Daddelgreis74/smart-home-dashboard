@@ -139,7 +139,33 @@ router.patch('/:key', (req, res) => {
   }
 });
 
+let activeResetToken = null;
+let resetTokenExpiry = 0;
+
+router.get('/factory-reset-token', (req, res) => {
+  try {
+    const crypto = require('crypto');
+    const token = crypto.randomBytes(32).toString('hex');
+    activeResetToken = token;
+    resetTokenExpiry = Date.now() + 60 * 1000; // 60 Sekunden Gültigkeit
+    res.json({ token });
+  } catch (e) {
+    console.error('Factory Reset Token Generierung fehlgeschlagen:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 router.post('/factory-reset', (req, res) => {
+  const { token } = req.body;
+  if (!token || token !== activeResetToken || Date.now() > resetTokenExpiry) {
+    console.warn('[Security Warning] Ungültiger, abgelaufener oder fehlender Reset-Token!');
+    return res.status(403).json({ ok: false, error: 'Sicherheits-Token ungültig oder abgelaufen' });
+  }
+
+  // Einweg-Token entwerten
+  activeResetToken = null;
+  resetTokenExpiry = 0;
+
   try {
     const path = require('path');
     const { 

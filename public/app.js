@@ -373,7 +373,7 @@ function initSettings() {
 
   if (resetTriggerBtn && resetModal) {
     // Offnen
-    resetTriggerBtn.addEventListener('click', (e) => {
+    resetTriggerBtn.addEventListener('click', async (e) => {
       e.preventDefault();
       // Reset state of modal controls
       resetConfirmCheckbox.checked = false;
@@ -384,6 +384,17 @@ function initSettings() {
         clearInterval(countdownInterval);
         countdownInterval = null;
       }
+
+      // Sicherheits-Token vorab laden
+      try {
+        const tokenRes = await fetch('/api/config/factory-reset-token');
+        const tokenData = await tokenRes.json();
+        window.activeResetToken = tokenData.token;
+      } catch (tokenErr) {
+        console.error('Sicherheits-Token konnte nicht geladen werden:', tokenErr);
+        window.activeResetToken = null;
+      }
+
       resetModal.removeAttribute('hidden');
     });
 
@@ -442,7 +453,8 @@ function initSettings() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
-          }
+          },
+          body: JSON.stringify({ token: window.activeResetToken || '' })
         });
 
         const result = await response.json();
