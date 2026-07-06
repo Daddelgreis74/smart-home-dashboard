@@ -28,8 +28,8 @@ COPY server.js ./
 # Erstelle das Datenverzeichnis für die persistenten Volumes
 RUN mkdir -p /app/data
 
-# Exponiere den Standard-Port des Dashboards
-EXPOSE 8443
+# Exponiere den Standard-Port des Dashboards und den HTTP-Redirect-Port
+EXPOSE 8443 8080
 
 # Starte den Dashboard-Server
 CMD ["node", "server.js"]

@@ -63,6 +63,20 @@ if (require.main === module) {
     const protocol = useSSL ? 'https' : 'http';
     console.log(`Server läuft auf ${protocol}://${HOST}:${PORT}`);
   });
+
+  // Secondary HTTP-to-HTTPS Redirect Server
+  const REDIRECT_PORT = process.env.REDIRECT_PORT || (useSSL && PORT === 8443 ? 8080 : null);
+  if (useSSL && REDIRECT_PORT) {
+    http.createServer((req, res) => {
+      const hostHeader = req.headers.host || '';
+      const host = hostHeader.split(':')[0];
+      const redirectUrl = `https://${host}:${PORT}${req.url}`;
+      res.writeHead(301, { Location: redirectUrl });
+      res.end();
+    }).listen(REDIRECT_PORT, HOST, () => {
+      console.log(`HTTP-Redirect-Server läuft auf http://${HOST}:${REDIRECT_PORT} -> https://${HOST}:${PORT}`);
+    });
+  }
 }
 
 module.exports = app;
