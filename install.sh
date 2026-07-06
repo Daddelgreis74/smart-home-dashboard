@@ -209,5 +209,6 @@ fi
 echo ""
 echo -e " ${BOLD}Web-Oberfläche:${NC}"
 echo -e "   ➜  Adresse:       ${CYAN}https://$IP_ADDR:8443${NC} (HTTPS ist für J.A.R.V.I.S. zwingend!)"
+echo -e "   ➜  Redirect:      ${CYAN}http://$IP_ADDR:8080${NC} (leitet automatisch auf HTTPS weiter)"
 echo ""
 echo -e "${GREEN}==========================================================${NC}"
