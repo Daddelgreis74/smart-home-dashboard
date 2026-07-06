@@ -113,6 +113,19 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 echo   ^>  npm:      %GREEN%Installiert [OK]%NC%
+:: 3. Falls openssl nicht im PATH ist, nach Git-openssl suchen und hinzufÅgen
+where openssl >nul 2>nul
+if %errorlevel% neq 0 (
+    if exist "C:\Program Files\Git\usr\bin\openssl.exe" (
+        set "PATH=%PATH%;C:\Program Files\Git\usr\bin"
+    ) else if exist "C:\Program Files\Git\mingw64\bin\openssl.exe" (
+        set "PATH=%PATH%;C:\Program Files\Git\mingw64\bin"
+    ) else if exist "C:\Program Files (x86)\Git\usr\bin\openssl.exe" (
+        set "PATH=%PATH%;C:\Program Files (x86)\Git\usr\bin"
+    ) else if exist "C:\Program Files (x86)\Git\mingw64\bin\openssl.exe" (
+        set "PATH=%PATH%;C:\Program Files (x86)\Git\mingw64\bin"
+    )
+)
 echo.
 
 :: Phase 2: AbhÑngigkeiten prÅfen (npm install)
