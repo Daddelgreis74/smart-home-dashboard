@@ -113,7 +113,7 @@ if ($createShortcut -match "^[jJ]") {
         $shortcut = $wshShell.CreateShortcut((Join-Path $desktopPath "Neo Deck Dashboard.lnk"))
         $shortcut.TargetPath = Join-Path $installPath "start-dashboard.bat"
         $shortcut.WorkingDirectory = $installPath
-        $shortcut.IconLocation = Join-Path $installPath "dashboard.ico"
+        $shortcut.IconLocation = "$(Join-Path $installPath 'dashboard.ico'),0"
         $shortcut.Save()
         Write-Host "[OK] Desktop-Verknüpfung wurde erstellt!" -ForegroundColor Green
     } catch {
