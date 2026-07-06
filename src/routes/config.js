@@ -139,4 +139,72 @@ router.patch('/:key', (req, res) => {
   }
 });
 
+router.post('/factory-reset', (req, res) => {
+  try {
+    const path = require('path');
+    const { 
+      TASMOTA_FILE, 
+      FRITZ_FILE, 
+      CALLS_LOG_FILE, 
+      PRESENCE_FILE, 
+      CAMERAS_FILE, 
+      APPOINTMENTS_FILE,
+      RADIO_FILE,
+      CONFIG_FILE,
+      UPLOAD_DIR
+    } = require('../config/env');
+    
+    // Alle Konfigurationsdateien löschen
+    const filesToDelete = [
+      TASMOTA_FILE, 
+      FRITZ_FILE, 
+      CALLS_LOG_FILE, 
+      PRESENCE_FILE, 
+      CAMERAS_FILE, 
+      APPOINTMENTS_FILE,
+      RADIO_FILE,
+      CONFIG_FILE
+    ];
+    
+    filesToDelete.forEach(file => {
+      if (fs.existsSync(file)) {
+        fs.unlinkSync(file);
+        console.log(`[Factory Reset] Gelöscht: ${file}`);
+      }
+    });
+
+    // Upload-Verzeichnis bereinigen
+    if (fs.existsSync(UPLOAD_DIR)) {
+      const uploadFiles = fs.readdirSync(UPLOAD_DIR);
+      uploadFiles.forEach(file => {
+        const filePath = path.join(UPLOAD_DIR, file);
+        if (fs.statSync(filePath).isFile()) {
+          fs.unlinkSync(filePath);
+        }
+      });
+      console.log('[Factory Reset] Uploads-Ordner geleert');
+    }
+
+    // Cache-Referenzen im Dateispeicher zurücksetzen
+    try {
+      const fileStore = require('../utils/fileStore');
+      fileStore.tasmotaRAM = [];
+      fileStore.fritzConfig = {};
+      fileStore.fritzCalls = [];
+      fileStore.activeCalls = {};
+      fileStore.presenceRAM = [];
+      fileStore.camerasRAM = [];
+      fileStore.appointmentsRAM = [];
+    } catch (cacheErr) {
+      console.warn('[Factory Reset] RAM-Cache Zurücksetzen übersprungen:', cacheErr.message);
+    }
+
+    console.log('[Factory Reset] Dashboard erfolgreich auf Werkseinstellungen zurückgesetzt!');
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('Factory Reset fehlgeschlagen:', e.message);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
 module.exports = router;

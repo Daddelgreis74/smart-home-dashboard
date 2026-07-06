@@ -4038,3 +4038,65 @@ select#jarvisModel option {
 
 
 
+
+
+/* --- GEFAHRENBEREICH / DANGER ZONE --- */
+.danger-zone-section {
+  border: 1px solid #ff4d4d !important;
+  background: rgba(255, 77, 77, 0.03) !important;
+}
+
+.danger-zone-btn {
+  background: rgba(255, 77, 77, 0.15);
+  color: #ff4d4d;
+  border: 1px solid rgba(255, 77, 77, 0.3);
+  padding: 12px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.danger-zone-btn:hover {
+  background: rgba(255, 77, 77, 0.25);
+  border-color: #ff4d4d;
+  box-shadow: 0 0 10px rgba(255, 77, 77, 0.2);
+}
+
+.danger-zone-btn:active {
+  transform: scale(0.98);
+}
+
+/* Modal Checkbox */
+.setting-checkbox-label {
+  user-select: none;
+}
+
+.setting-checkbox-label input[type="checkbox"] {
+  accent-color: #ff4d4d;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Confirm Button states */
+.danger-confirm-btn:not([disabled]) {
+  background: #ff4d4d !important;
+  color: #fff !important;
+  border-color: #ff4d4d !important;
+  cursor: pointer !important;
+  box-shadow: 0 0 15px rgba(255, 77, 77, 0.4);
+}
+
+.danger-confirm-btn:not([disabled]):hover {
+  background: #ff3333 !important;
+  box-shadow: 0 0 20px rgba(255, 77, 77, 0.6);
+}
+
+.danger-confirm-btn:not([disabled]):active {
+  transform: scale(0.98);
+}

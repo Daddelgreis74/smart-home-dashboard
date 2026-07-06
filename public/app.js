@@ -360,6 +360,110 @@ function initSettings() {
       });
     }
   });
+
+  // Factory Reset Dialog Event Listeners
+  const resetTriggerBtn = document.getElementById('factoryResetTriggerBtn');
+  const resetModal = document.getElementById('factoryResetModal');
+  const closeResetBtn = document.getElementById('closeResetModal');
+  const cancelResetBtn = document.getElementById('cancelResetBtn');
+  const confirmResetBtn = document.getElementById('confirmResetBtn');
+  const resetConfirmCheckbox = document.getElementById('resetConfirmCheckbox');
+
+  let countdownInterval = null;
+
+  if (resetTriggerBtn && resetModal) {
+    // Offnen
+    resetTriggerBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      // Reset state of modal controls
+      resetConfirmCheckbox.checked = false;
+      confirmResetBtn.disabled = true;
+      confirmResetBtn.style.cursor = 'not-allowed';
+      confirmResetBtn.innerText = 'Zurücksetzen (10s)';
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+      }
+      resetModal.removeAttribute('hidden');
+    });
+
+    // Schließen / Abbrechen
+    const closeModal = () => {
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+      }
+      resetModal.setAttribute('hidden', '');
+    };
+
+    if (closeResetBtn) closeResetBtn.addEventListener('click', closeModal);
+    if (cancelResetBtn) cancelResetBtn.addEventListener('click', closeModal);
+
+    // Checkbox Listener
+    resetConfirmCheckbox.addEventListener('change', () => {
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+      }
+
+      if (resetConfirmCheckbox.checked) {
+        let secondsLeft = 10;
+        confirmResetBtn.innerText = `Zurücksetzen (${secondsLeft}s)`;
+        confirmResetBtn.disabled = true;
+        confirmResetBtn.style.cursor = 'not-allowed';
+
+        countdownInterval = setInterval(() => {
+          secondsLeft--;
+          if (secondsLeft > 0) {
+            confirmResetBtn.innerText = `Zurücksetzen (${secondsLeft}s)`;
+          } else {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+            confirmResetBtn.innerText = 'Jetzt zurücksetzen';
+            confirmResetBtn.disabled = false;
+            confirmResetBtn.style.cursor = 'pointer';
+          }
+        }, 1000);
+      } else {
+        confirmResetBtn.innerText = 'Zurücksetzen (10s)';
+        confirmResetBtn.disabled = true;
+        confirmResetBtn.style.cursor = 'not-allowed';
+      }
+    });
+
+    // Reset ausführen
+    confirmResetBtn.addEventListener('click', async () => {
+      if (confirmResetBtn.disabled) return;
+      try {
+        confirmResetBtn.disabled = true;
+        confirmResetBtn.innerText = 'Wird zurückgesetzt...';
+        
+        const response = await fetch('/api/config/factory-reset', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const result = await response.json();
+        if (result.ok) {
+          // Clear localStorage so local settings (theme, layout, etc.) are also wiped!
+          localStorage.clear();
+          
+          alert('Das Dashboard wurde erfolgreich auf Werkseinstellungen zurückgesetzt! Die Seite lädt jetzt neu.');
+          window.location.reload();
+        } else {
+          alert('Fehler beim Zurücksetzen: ' + (result.error || 'Unbekannter Fehler'));
+          confirmResetBtn.disabled = false;
+          confirmResetBtn.innerText = 'Jetzt zurücksetzen';
+        }
+      } catch (err) {
+        alert('Netzwerkfehler beim Zurücksetzen: ' + err.message);
+        confirmResetBtn.disabled = false;
+        confirmResetBtn.innerText = 'Jetzt zurücksetzen';
+      }
+    });
+  }
 }
 
 function initTabs() {
