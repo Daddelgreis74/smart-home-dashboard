@@ -1119,6 +1119,7 @@ body::before {
 .setting-section {
   position: relative;
   margin-bottom: 12px !important;
+  padding: 20px;
   border-radius: 0;
   background:
     linear-gradient(145deg, rgba(255,255,255,0.058), rgba(255,255,255,0.022)),
