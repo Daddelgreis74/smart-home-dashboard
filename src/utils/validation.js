@@ -86,8 +86,9 @@ function sanitizeAppointments(value) {
     }
     
     const description = String(appt?.description || '').replace(/[\r\n\t]/g, ' ').trim().slice(0, 500);
+    const remind = Boolean(appt?.remind);
     
-    acc.push({ id, title, date, time, description });
+    acc.push({ id, title, date, time, description, remind });
     return acc;
   }, []);
 }

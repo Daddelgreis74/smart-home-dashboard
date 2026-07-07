@@ -4,6 +4,11 @@ import { speakJarvisReply } from './jarvis.js';
 
 export let appointmentsList = [];
 export let checkedCalendarReminders = new Set();
+export let disabledAppointmentReminders = new Set(JSON.parse(localStorage.getItem('disabled_reminders') || '[]'));
+
+export function saveDisabledReminders() {
+  localStorage.setItem('disabled_reminders', JSON.stringify([...disabledAppointmentReminders]));
+}
 
 export async function loadICS() {
   const lang = Config.get('dashboard_lang', 'de');
@@ -155,9 +160,11 @@ export function initCalendar(socket) {
       const titleInput = document.getElementById('apptTitle');
       const descInput = document.getElementById('apptDesc');
       const timeInput = document.getElementById('apptTime');
+      const remindInput = document.getElementById('apptRemind');
       if (titleInput) titleInput.value = '';
       if (descInput) descInput.value = '';
       if (timeInput) timeInput.value = '12:00';
+      if (remindInput) remindInput.checked = false;
 
       if (calendarAddModal) calendarAddModal.removeAttribute('hidden');
     });
@@ -177,6 +184,7 @@ export function initCalendar(socket) {
       const date = document.getElementById('apptDate')?.value;
       const time = document.getElementById('apptTime')?.value;
       const description = document.getElementById('apptDesc')?.value.trim();
+      const remind = document.getElementById('apptRemind')?.checked || false;
 
       if (!title || !date || !time) return;
 
@@ -184,7 +192,7 @@ export function initCalendar(socket) {
         const response = await fetch('/api/appointments', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, date, time, description })
+          body: JSON.stringify({ title, date, time, description, remind })
         });
         const data = await response.json();
         if (data.success) {
@@ -292,62 +300,95 @@ export async function deleteAppointment(id) {
 // Global verfügbar machen für inline onclick
 window.deleteAppointment = deleteAppointment;
 
+export function playGong() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    
+    const freqs = [220, 275];
+    freqs.forEach(freq => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.8, ctx.currentTime + 2.0);
+      
+      gain.gain.setValueAtTime(0.5, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.0);
+      
+      osc.start();
+      osc.stop(ctx.currentTime + 2.0);
+    });
+  } catch (err) {
+    console.error("Fehler beim Abspielen des Gongs:", err);
+  }
+}
+
 export function checkCalendarReminders() {
   const now = new Date();
   const todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
-  const currentTimeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
 
   appointmentsList.forEach(appt => {
-    const key = appt.id + '_' + appt.date + '_' + appt.time;
-    if (appt.date === todayStr && appt.time === currentTimeStr && !checkedCalendarReminders.has(key)) {
-      checkedCalendarReminders.add(key);
-      triggerCalendarReminder(appt);
-    }
+    if (!appt.remind || disabledAppointmentReminders.has(appt.id)) return;
+
+    // Erstelle ein Date-Objekt für den Termin
+    const apptDateTime = new Date(`${appt.date}T${appt.time}`);
+    const offsets = [60, 45, 30, 15, 0];
+
+    offsets.forEach(offset => {
+      const triggerTime = new Date(apptDateTime.getTime() - offset * 60000);
+      const diffMs = now - triggerTime;
+
+      // Wenn wir uns innerhalb eines 30-Sekunden-Fensters befinden
+      if (diffMs >= 0 && diffMs < 30000) {
+        const key = `${appt.id}_${offset}`;
+        if (!checkedCalendarReminders.has(key)) {
+          checkedCalendarReminders.add(key);
+          triggerCalendarReminder(appt, offset);
+        }
+      }
+    });
   });
 }
 
-export function triggerCalendarReminder(appt) {
-  showReminderToast(appt);
+export function triggerCalendarReminder(appt, offset) {
+  playGong();
 
-  playJarvisBeep(660, 0.15, 0.2);
-  setTimeout(() => playJarvisBeep(660, 0.15, 0.2), 250);
+  const modal = document.getElementById('reminderModal');
+  const countdownEl = document.getElementById('reminderModalCountdown');
+  const titleEl = document.getElementById('reminderModalApptTitle');
+  const descEl = document.getElementById('reminderModalDesc');
+  const closeBtn = document.getElementById('reminderCloseBtn');
+  const disableAllBtn = document.getElementById('reminderDisableAllBtn');
 
-  const lang = Config.get('dashboard_lang', 'de');
-  let speakText = `Sir, ich erinnere Sie an Ihren Termin: ${appt.title}`;
-  if (appt.description) speakText += `. Details: ${appt.description}`;
-  if (lang !== 'de') {
-    speakText = `Sir, reminding you of your appointment: ${appt.title}`;
-    if (appt.description) speakText += `. Details: ${appt.description}`;
+  if (!modal || !countdownEl || !titleEl || !descEl) return;
+
+  if (offset === 0) {
+    countdownEl.textContent = getLangText('reminder_now') || 'Findet jetzt statt:';
+  } else {
+    const textPattern = getLangText('reminder_in_minutes') || 'In {mins} Minuten:';
+    countdownEl.textContent = textPattern.replace('{mins}', offset);
   }
 
-  const ttsEnabled = Config.get('jarvis_tts_enabled', 'true') !== 'false';
-  if (ttsEnabled) {
-    speakJarvisReply(speakText);
-  }
-}
+  titleEl.textContent = appt.title;
+  descEl.textContent = appt.description || '';
 
-export function showReminderToast(appt) {
-  const existing = document.getElementById('reminderToast');
-  if (existing) existing.remove();
+  const closeModal = () => {
+    modal.setAttribute('hidden', '');
+  };
 
-  const toast = document.createElement('div');
-  toast.id = 'reminderToast';
-  toast.className = 'calendar-reminder-toast';
-  
-  toast.innerHTML = `
-    <div class="calendar-reminder-icon"><i class="fas fa-bell"></i></div>
-    <div class="calendar-reminder-info">
-      <h4>${appt.title}</h4>
-      <p>${appt.time} ${appt.description ? ` - ${appt.description}` : ''}</p>
-    </div>
-  `;
+  closeBtn.onclick = closeModal;
 
-  document.body.appendChild(toast);
+  disableAllBtn.onclick = () => {
+    disabledAppointmentReminders.add(appt.id);
+    saveDisabledReminders();
+    closeModal();
+  };
 
-  setTimeout(() => toast.classList.add('show'), 100);
-
-  setTimeout(() => {
-    toast.classList.remove('show');
-    setTimeout(() => toast.remove(), 400);
-  }, 10000);
+  modal.removeAttribute('hidden');
 }

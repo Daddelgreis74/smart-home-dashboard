@@ -28,7 +28,7 @@ router.get('/', (req, res) => {
 
 router.post('/', (req, res) => {
   try {
-    const { id, title, date, time, description } = req.body;
+    const { id, title, date, time, description, remind } = req.body;
     const cleanId = String(id || Date.now());
     const cleanT = cleanName(title, 'Termin');
     const cleanD = String(date || '').trim();
@@ -50,7 +50,8 @@ router.post('/', (req, res) => {
       title: cleanT,
       date: cleanD,
       time: cleanTime,
-      description: cleanDesc
+      description: cleanDesc,
+      remind: Boolean(remind)
     };
 
     if (index >= 0) {

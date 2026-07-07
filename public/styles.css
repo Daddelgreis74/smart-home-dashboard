@@ -4100,3 +4100,15 @@ select#jarvisModel option {
 .danger-confirm-btn:not([disabled]):active {
   transform: scale(0.98);
 }
+
+/* Keyframes and wave animations for calendar reminder modal */
+@keyframes pulseWave {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}

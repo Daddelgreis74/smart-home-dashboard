@@ -843,6 +843,12 @@
           <label class="setting-sub-label" for="apptDesc" data-i18n="calendar_label_desc">Beschreibung (optional)</label>
           <input type="text" id="apptDesc" placeholder="Details zum Termin..." style="width: 100%; padding: 10px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); color: #fff;">
         </div>
+        <div class="input-group" style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+          <input type="checkbox" id="apptRemind" style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer;">
+          <label for="apptRemind" style="color: var(--text-main); cursor: pointer; font-size: 0.9rem; user-select: none;">
+            🔔 <span data-i18n="calendar_label_remind">Erinnerung aktivieren (60, 45, 30, 15, 0 Min vor Beginn)</span>
+          </label>
+        </div>
         <div style="display: flex; gap: 10px; margin-top: 10px; justify-content: flex-end;">
           <button type="button" class="btn" id="cancelApptBtn" style="background: rgba(255,255,255,0.05); border: 1px solid var(--panel-border); color: var(--text-main);" data-i18n="calendar_btn_cancel">Abbrechen</button>
           <button type="submit" class="btn" style="background: var(--primary); color: #000; font-weight: 500;" data-i18n="calendar_btn_save">Speichern</button>
@@ -851,8 +857,32 @@
     </div>
   </div>
 
+  <!-- REMINDER MODAL -->
+  <div id="reminderModal" class="radio-fullscreen-overlay" style="z-index: 10000;" hidden>
+    <div id="reminderModalOverlay" class="fullscreen-content" style="max-width: 450px; width: 90%; padding: 30px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: var(--radius-lg); box-shadow: 0 20px 40px rgba(0,0,0,0.5); text-align: center; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+      <div id="reminderBellContainer" style="position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 5px;">
+        <i class="fas fa-bell" style="font-size: 3.5rem; color: #f97316; filter: drop-shadow(0 0 15px rgba(249, 115, 22, 0.6));"></i>
+        <div class="bell-wave" style="position: absolute; width: 80px; height: 80px; border: 2px solid #f97316; border-radius: 50%; opacity: 0; animation: pulseWave 2s infinite;"></div>
+      </div>
+      <h2 style="font-size: 1.4rem; font-weight: 600; margin: 0; color: #fff; display: flex; align-items: center; gap: 8px;">
+        ⏰ <span data-i18n="reminder_modal_title">Terminerinnerung</span>
+      </h2>
+      <p id="reminderModalCountdown" style="font-size: 0.95rem; color: var(--text-muted); margin: 0; background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);"></p>
+      <h3 id="reminderModalApptTitle" style="font-size: 1.8rem; font-weight: 700; margin: 5px 0; color: #fff; line-height: 1.2;"></h3>
+      <p id="reminderModalDesc" style="font-size: 0.95rem; color: var(--text-muted); margin: 0; line-height: 1.4; max-height: 120px; overflow-y: auto; width: 100%;"></p>
+      <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 10px;">
+        <button id="reminderDisableAllBtn" class="btn" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; font-weight: 500; padding: 12px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.3)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.2)'">
+          <i class="fas fa-times-circle"></i> <span data-i18n="reminder_btn_disable_all">Alle Erinnerungen deaktivieren</span>
+        </button>
+        <button id="reminderCloseBtn" class="btn" style="background: rgba(255,255,255,0.08); border: 1px solid var(--panel-border); color: var(--text-main); font-weight: 500; padding: 12px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'" data-i18n="reminder_btn_close">
+          Schließen
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script type="module" src="app.js?v=3.13.1"></script>
+  <script type="module" src="app.js?v=3.14.0"></script>
 </body>
 </html>

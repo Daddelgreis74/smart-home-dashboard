@@ -141,7 +141,13 @@ const translations = {
     "calendar_label_time": "Uhrzeit",
     "calendar_label_desc": "Beschreibung (optional)",
     "calendar_btn_cancel": "Abbrechen",
-    "calendar_btn_save": "Speichern"
+    "calendar_btn_save": "Speichern",
+    "calendar_label_remind": "Erinnerung aktivieren (60, 45, 30, 15, 0 Min vor Beginn)",
+    "reminder_modal_title": "Terminerinnerung",
+    "reminder_now": "Findet jetzt statt:",
+    "reminder_in_minutes": "In {mins} Minuten:",
+    "reminder_btn_disable_all": "Alle Erinnerungen deaktivieren",
+    "reminder_btn_close": "Schließen"
   },
   en: {
     // Header
@@ -285,7 +291,13 @@ const translations = {
     "calendar_label_time": "Time",
     "calendar_label_desc": "Description (optional)",
     "calendar_btn_cancel": "Cancel",
-    "calendar_btn_save": "Save"
+    "calendar_btn_save": "Save",
+    "calendar_label_remind": "Enable reminder (60, 45, 30, 15, 0 mins before start)",
+    "reminder_modal_title": "Appointment Reminder",
+    "reminder_now": "Happening now:",
+    "reminder_in_minutes": "In {mins} minutes:",
+    "reminder_btn_disable_all": "Disable all reminders",
+    "reminder_btn_close": "Close"
   },
   fr: {
     // Header
