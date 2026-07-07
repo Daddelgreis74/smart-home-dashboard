@@ -147,7 +147,10 @@ const translations = {
     "reminder_now": "Findet jetzt statt:",
     "reminder_in_minutes": "In {mins} Minuten:",
     "reminder_btn_disable_all": "Alle Erinnerungen deaktivieren",
-    "reminder_btn_close": "Schließen"
+    "reminder_btn_close": "Schließen",
+    "reminder_section_title": "Terminerinnerungen",
+    "reminder_sound_label": "Alarm-Ton:",
+    "reminder_loop_label": "Wiederholung:"
   },
   en: {
     // Header
@@ -297,7 +300,10 @@ const translations = {
     "reminder_now": "Happening now:",
     "reminder_in_minutes": "In {mins} minutes:",
     "reminder_btn_disable_all": "Disable all reminders",
-    "reminder_btn_close": "Close"
+    "reminder_btn_close": "Close",
+    "reminder_section_title": "Appointment Reminders",
+    "reminder_sound_label": "Alarm Sound:",
+    "reminder_loop_label": "Repeat Mode:"
   },
   fr: {
     // Header

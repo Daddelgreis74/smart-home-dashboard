@@ -215,6 +215,32 @@ export function initCalendar(socket) {
     });
   }
 
+  // Sound & Loop Settings Felder initialisieren
+  const reminderSoundSelector = document.getElementById('reminderSound');
+  const reminderLoopSelector = document.getElementById('reminderLoop');
+  const testSoundBtn = document.getElementById('testReminderSound');
+
+  if (reminderSoundSelector) {
+    reminderSoundSelector.value = Config.get('reminder_sound', 'sound-gong');
+    reminderSoundSelector.addEventListener('change', async (e) => {
+      await Config.set('reminder_sound', e.target.value);
+    });
+  }
+
+  if (reminderLoopSelector) {
+    reminderLoopSelector.value = Config.get('reminder_loop', 'loop-once');
+    reminderLoopSelector.addEventListener('change', async (e) => {
+      await Config.set('reminder_loop', e.target.value);
+    });
+  }
+
+  if (testSoundBtn) {
+    testSoundBtn.addEventListener('click', () => {
+      const selectedSound = reminderSoundSelector ? reminderSoundSelector.value : 'sound-gong';
+      playSound(selectedSound);
+    });
+  }
+
   // Initial laden
   fetchAppointments();
 
@@ -300,32 +326,113 @@ export async function deleteAppointment(id) {
 // Global verfügbar machen für inline onclick
 window.deleteAppointment = deleteAppointment;
 
-export function playGong() {
+export let reminderInterval = null;
+
+export function stopReminderSound() {
+  if (reminderInterval) {
+    clearInterval(reminderInterval);
+    reminderInterval = null;
+  }
+}
+
+export function playSound(soundType) {
   try {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (!AudioContext) return;
     const ctx = new AudioContext();
-    
-    const freqs = [220, 275];
-    freqs.forEach(freq => {
+
+    if (soundType === 'sound-gong') {
+      const freqs = [220, 275];
+      freqs.forEach(freq => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.8, ctx.currentTime + 2.0);
+        gain.gain.setValueAtTime(0.5, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.0);
+        osc.start();
+        osc.stop(ctx.currentTime + 2.0);
+      });
+    } else if (soundType === 'sound-beep') {
+      const times = [0, 0.25];
+      times.forEach(t => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime + t);
+        gain.gain.setValueAtTime(0, ctx.currentTime + t);
+        gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + t + 0.02);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime + t + 0.12);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.18);
+        osc.start(ctx.currentTime + t);
+        osc.stop(ctx.currentTime + t + 0.2);
+      });
+    } else if (soundType === 'sound-chime') {
+      const notes = [440, 554.37, 659.25];
+      notes.forEach((freq, i) => {
+        const t = i * 0.15;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + t);
+        gain.gain.setValueAtTime(0, ctx.currentTime + t);
+        gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + t + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 1.2);
+        osc.start(ctx.currentTime + t);
+        osc.stop(ctx.currentTime + t + 1.2);
+      });
+    } else if (soundType === 'sound-flute') {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
+      const lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
       
       osc.connect(gain);
       gain.connect(ctx.destination);
+      lfo.connect(lfoGain);
+      lfoGain.connect(osc.frequency);
       
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(freq * 0.8, ctx.currentTime + 2.0);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
       
-      gain.gain.setValueAtTime(0.5, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.0);
+      lfo.frequency.setValueAtTime(5, ctx.currentTime);
+      lfoGain.gain.setValueAtTime(10, ctx.currentTime);
+      
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + 1.2);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.8);
+      
+      lfo.start();
+      osc.start();
+      lfo.stop(ctx.currentTime + 1.8);
+      osc.stop(ctx.currentTime + 1.8);
+    } else if (soundType === 'sound-radar') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(600, ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(300, ctx.currentTime + 0.8);
+      
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.05);
+      gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.4);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
       
       osc.start();
-      osc.stop(ctx.currentTime + 2.0);
-    });
+      osc.stop(ctx.currentTime + 0.8);
+    }
   } catch (err) {
-    console.error("Fehler beim Abspielen des Gongs:", err);
+    console.error("Fehler bei playSound:", err);
   }
 }
 
@@ -336,7 +443,6 @@ export function checkCalendarReminders() {
   appointmentsList.forEach(appt => {
     if (!appt.remind || disabledAppointmentReminders.has(appt.id)) return;
 
-    // Erstelle ein Date-Objekt für den Termin
     const apptDateTime = new Date(`${appt.date}T${appt.time}`);
     const offsets = [60, 45, 30, 15, 0];
 
@@ -344,7 +450,6 @@ export function checkCalendarReminders() {
       const triggerTime = new Date(apptDateTime.getTime() - offset * 60000);
       const diffMs = now - triggerTime;
 
-      // Wenn wir uns innerhalb eines 30-Sekunden-Fensters befinden
       if (diffMs >= 0 && diffMs < 30000) {
         const key = `${appt.id}_${offset}`;
         if (!checkedCalendarReminders.has(key)) {
@@ -357,7 +462,18 @@ export function checkCalendarReminders() {
 }
 
 export function triggerCalendarReminder(appt, offset) {
-  playGong();
+  stopReminderSound();
+
+  const soundType = Config.get('reminder_sound', 'sound-gong');
+  const loopType = Config.get('reminder_loop', 'loop-once');
+
+  playSound(soundType);
+
+  if (loopType === 'loop-repeat') {
+    reminderInterval = setInterval(() => {
+      playSound(soundType);
+    }, 5000);
+  }
 
   const modal = document.getElementById('reminderModal');
   const countdownEl = document.getElementById('reminderModalCountdown');
@@ -380,6 +496,7 @@ export function triggerCalendarReminder(appt, offset) {
 
   const closeModal = () => {
     modal.setAttribute('hidden', '');
+    stopReminderSound();
   };
 
   closeBtn.onclick = closeModal;

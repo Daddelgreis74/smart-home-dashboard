@@ -205,6 +205,31 @@
                   </div>
                 </div>
               </div>
+
+              <!-- 6. TERMINKALENDER ERINNERUNGEN -->
+              <div class="setting-section" style="margin-top: 30px;">
+                <h3 class="section-title"><i class="fas fa-bell"></i> <span data-i18n="reminder_section_title">Terminerinnerungen</span></h3>
+                <div class="input-group" style="margin-bottom: 12px;">
+                  <label class="setting-sub-label" data-i18n="reminder_sound_label">Alarm-Ton:</label>
+                  <div style="display:flex; gap: 8px; width: 100%;">
+                    <select id="reminderSound" class="radio-select" style="flex: 1; padding: 10px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); color: #fff;">
+                      <option value="sound-gong">🔔 Deep Gong (Klassisch)</option>
+                      <option value="sound-beep">⏰ Digital Beep-Beep (Auffällig)</option>
+                      <option value="sound-chime">🎶 Glockenspiel (Modern)</option>
+                      <option value="sound-flute">🌾 Soft Flute (Sanft)</option>
+                      <option value="sound-radar">🚨 Radar Pulse (Laut / Warnung)</option>
+                    </select>
+                    <button class="btn" id="testReminderSound" style="min-width: 110px;">Testen</button>
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label class="setting-sub-label" data-i18n="reminder_loop_label">Wiederholung:</label>
+                  <select id="reminderLoop" class="radio-select" style="max-width: 100%; width: 100%; padding: 10px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); color: #fff;">
+                    <option value="loop-once">▶️ Einmalig abspielen</option>
+                    <option value="loop-repeat">🔁 Endlos wiederholen (alle 5 Sek. bis Klick)</option>
+                  </select>
+                </div>
+              </div>
             </div>
 
             <!-- TAB: ANWESENHEIT -->
@@ -883,6 +908,6 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script type="module" src="app.js?v=3.14.0"></script>
+  <script type="module" src="app.js?v=3.14.1"></script>
 </body>
 </html>
