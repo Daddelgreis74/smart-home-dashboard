@@ -4113,3 +4113,94 @@ select#jarvisModel option {
     opacity: 0;
   }
 }
+
+/* --- 7. ORBITAL HOLO-DECK (THEME 7) --- */
+body.theme-orbital {
+  --bg-color: #050810;
+  --panel-bg: rgba(10, 16, 28, 0.55);
+  --panel-border: rgba(79, 216, 255, 0.22);
+  --text-main: #eaf6ff;
+  --text-muted: rgba(234, 246, 255, 0.5);
+  --primary: #4fd8ff;
+  --primary-glow: rgba(79, 216, 255, 0.3);
+  --accent-blue: #4fd8ff;
+  --accent-violet: #ff6b4a;
+  --radius-lg: 6px;
+  --radius-md: 4px;
+  --radius-sm: 3px;
+  --blur: blur(8px);
+}
+
+body.theme-orbital {
+  background:
+    radial-gradient(circle at 30% 20%, rgba(79, 216, 255, 0.08), transparent 45%),
+    radial-gradient(circle at 80% 80%, rgba(255, 107, 74, 0.05), transparent 40%),
+    linear-gradient(160deg, #030509 0%, #0a1120 55%, #050810 100%) !important;
+}
+
+body.theme-orbital::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 25% 60%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1.5px 1.5px at 45% 30%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 65% 75%, rgba(255,255,255,0.35), transparent),
+    radial-gradient(1.5px 1.5px at 85% 20%, rgba(255,255,255,0.55), transparent),
+    radial-gradient(1px 1px at 92% 65%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 15% 85%, rgba(255,255,255,0.3), transparent),
+    radial-gradient(1.5px 1.5px at 55% 90%, rgba(255,255,255,0.45), transparent);
+  opacity: 0.85;
+  display: block;
+}
+
+body.theme-orbital .widget {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+body.theme-orbital .widget::before,
+body.theme-orbital .widget::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--primary);
+  opacity: 0.8;
+  pointer-events: none;
+}
+body.theme-orbital .widget::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+body.theme-orbital .widget::after  { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+body.theme-orbital .bg-orbs { display: block; opacity: 0.4; }
+body.theme-orbital .orb-1 { background: #4fd8ff; }
+body.theme-orbital .orb-2 { background: #7c3aed; }
+body.theme-orbital .orb-3 { background: #ff6b4a; }
+
+/* Font Styles for theme-orbital */
+body.theme-orbital .widget-header h3,
+body.theme-orbital .deck-title {
+  font-family: 'Michroma', sans-serif;
+  letter-spacing: 1px;
+}
+
+body.theme-orbital .header-time,
+body.theme-orbital .header-date,
+body.theme-orbital .weather-temp,
+body.theme-orbital .w-detail span,
+body.theme-orbital .sensor-gauge strong,
+body.theme-orbital .sensor-meta span,
+body.theme-orbital .bar-val,
+body.theme-orbital .calendar-item-time,
+body.theme-orbital .calendar-item-date,
+body.theme-orbital .call-time,
+body.theme-orbital .call-duration,
+body.theme-orbital .value-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+}
