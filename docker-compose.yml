@@ -1,11 +1,12 @@
 services:
   smart-home-dashboard:
     container_name: smart-home-dashboard
-    build: .
+    image: daddelgreis74/smart-home-dashboard:latest
     restart: unless-stopped
     # network_mode: "host"
     ports:
       - "8443:8443"
+      - "8080:8080"
     volumes:
       # Mountet alle Konfigurationen, Kalender-Uploads (calendar.ics) und SSL-Zertifikate in einen lokalen Ordner
       - ./data:/app/data

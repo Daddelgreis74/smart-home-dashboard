@@ -8,6 +8,7 @@ const translations = {
 
     // Settings General
     "settings_title": "Einstellungen",
+    "settings_search_placeholder": "Einstellungen durchsuchen...",
     "settings_lang_label": "Sprache",
     "settings_subtitle": "Dashboard, Geräte, Radio und Datenquellen",
     "design_section_title": "Dashboard Design",
@@ -161,6 +162,7 @@ const translations = {
 
     // Settings General
     "settings_title": "Settings",
+    "settings_search_placeholder": "Search settings...",
     "settings_lang_label": "Language",
     "settings_subtitle": "Dashboard, Devices, Radio and Data Sources",
     "design_section_title": "Dashboard Design",
@@ -314,6 +316,7 @@ const translations = {
 
     // Settings General
     "settings_title": "Configuration",
+    "settings_search_placeholder": "Rechercher dans les paramètres...",
     "settings_lang_label": "Langue",
     "settings_subtitle": "Tableau de bord, Appareils, Radio et Données",
     "design_section_title": "Design du Tableau de Bord",
@@ -446,6 +449,7 @@ const translations = {
 
     // Settings General
     "settings_title": "Configuración",
+    "settings_search_placeholder": "Buscar en configuraciones...",
     "settings_lang_label": "Idioma",
     "settings_subtitle": "Panel de control, Dispositivos, Radio y Datos",
     "design_section_title": "Diseño del Panel",
@@ -578,6 +582,7 @@ const translations = {
 
     // Settings General
     "settings_title": "Impostazioni",
+    "settings_search_placeholder": "Cerca nelle impostazioni...",
     "settings_lang_label": "Lingua",
     "settings_subtitle": "Dashboard, Dispositivi, Radio e Dati",
     "design_section_title": "Design del Pannello",
@@ -710,6 +715,7 @@ const translations = {
 
     // Settings General
     "settings_title": "Instellingen",
+    "settings_search_placeholder": "Instellingen zoeken...",
     "settings_lang_label": "Taal",
     "settings_subtitle": "Dashboard, Apparaten, Radio en Gegevensbronnen",
     "design_section_title": "Dashboard Ontwerp",
@@ -842,6 +848,7 @@ const translations = {
 
     // Settings General
     "settings_title": "Ustawienia",
+    "settings_search_placeholder": "Wyszukaj ustawienia...",
     "settings_lang_label": "Język",
     "settings_subtitle": "Pulpit, Urządzenia, Radio i Źródła Danych",
     "design_section_title": "Wygląd Pulpitu",

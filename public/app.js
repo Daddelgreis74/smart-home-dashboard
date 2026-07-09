@@ -162,6 +162,7 @@ function loadSavedSettings() {
       else { widget.classList.add('hidden'); widget.style.display = 'none'; }
     }
   });
+  updateSettingsSidebarVisibility();
 }
 
 function saveLayout() {
@@ -357,9 +358,17 @@ function initSettings() {
           if(isVisible){ widget.classList.remove('hidden'); widget.style.display = ''; }
           else { widget.classList.add('hidden'); widget.style.display = 'none'; }
         }
+        updateSettingsSidebarVisibility();
       });
     }
   });
+
+  const settingsSearch = document.getElementById('settingsSearch');
+  if (settingsSearch) {
+    settingsSearch.addEventListener('input', () => {
+      updateSettingsSidebarVisibility();
+    });
+  }
 
   // Factory Reset Dialog Event Listeners
   const resetTriggerBtn = document.getElementById('factoryResetTriggerBtn');
@@ -490,4 +499,60 @@ function initTabs() {
       if (content) content.classList.add('active');
     });
   });
+}
+
+function updateSettingsSidebarVisibility() {
+  const showTasmota = localStorage.getItem('show_tasmota') !== 'false';
+  const showSensor = localStorage.getItem('show_sensor') !== 'false';
+  const showWeather = localStorage.getItem('show_weather') !== 'false';
+  const showWaste = localStorage.getItem('show_waste') !== 'false';
+  const showCalendar = localStorage.getItem('show_calendar') !== 'false';
+  const showPresence = localStorage.getItem('show_presence') !== 'false';
+  const showCamera = localStorage.getItem('show_camera') !== 'false';
+  const showJarvis = localStorage.getItem('show_jarvis') !== 'false';
+  const showFritzbox = localStorage.getItem('show_fritzbox') !== 'false';
+
+  const tabVisibility = {
+    general: true,
+    smarthome: showTasmota || showSensor,
+    weather: showWeather || showWaste || showCalendar,
+    presence: showPresence,
+    camera: showCamera,
+    jarvis: showJarvis,
+    fritzbox: showFritzbox
+  };
+
+  const searchQuery = document.getElementById('settingsSearch')?.value.toLowerCase().trim() || '';
+
+  const activeTabBtn = document.querySelector('.settings-tab-btn.active');
+  let activeTabStillVisible = true;
+
+  document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+    const tabName = btn.dataset.tab;
+    const isActive = tabVisibility[tabName] !== false;
+    
+    let matchesSearch = true;
+    if (searchQuery) {
+      const tabText = btn.textContent.toLowerCase();
+      matchesSearch = tabText.includes(searchQuery);
+    }
+
+    const isVisible = (tabName === 'general') ? (searchQuery ? matchesSearch : true) : (isActive && matchesSearch);
+
+    if (isVisible) {
+      btn.style.display = '';
+    } else {
+      btn.style.display = 'none';
+      if (activeTabBtn === btn) {
+        activeTabStillVisible = false;
+      }
+    }
+  });
+
+  if (!activeTabStillVisible) {
+    const generalTabBtn = document.querySelector('.settings-tab-btn[data-tab="general"]');
+    if (generalTabBtn) {
+      generalTabBtn.click();
+    }
+  }
 }
