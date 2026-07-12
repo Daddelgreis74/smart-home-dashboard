@@ -421,6 +421,26 @@ export function playSound(soundType) {
         osc.start(ctx.currentTime + t);
         osc.stop(ctx.currentTime + t + 0.2);
       });
+    } else if (soundType === 'sound-bell') {
+      const strikeCount = 12;
+      const strikeSpacing = 0.08;
+      const frequencies = [987.77, 1318.51, 1567.98];
+      for (let i = 0; i < strikeCount; i++) {
+        const t = i * strikeSpacing;
+        frequencies.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, ctx.currentTime + t);
+          gain.gain.setValueAtTime(0, ctx.currentTime + t);
+          gain.gain.linearRampToValueAtTime(0.15 / (idx + 1), ctx.currentTime + t + 0.005);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.07);
+          osc.start(ctx.currentTime + t);
+          osc.stop(ctx.currentTime + t + 0.08);
+        });
+      }
     } else if (soundType === 'sound-chime') {
       const notes = [440, 554.37, 659.25];
       notes.forEach((freq, i) => {

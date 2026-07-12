@@ -69,6 +69,9 @@
             <button class="settings-tab-btn" data-tab="fritzbox">
               <i class="fas fa-ethernet"></i> <span data-i18n="settings_tab_fritzbox">Fritz!Box</span>
             </button>
+            <button class="settings-tab-btn" data-tab="timer">
+              <i class="fas fa-hourglass-half"></i> <span data-i18n="settings_tab_timer">Timer</span>
+            </button>
             <!-- Suchleiste -->
             <div class="sidebar-search" style="margin-top: auto; padding: 10px 5px 0 5px; border-top: 1px solid rgba(255,255,255,0.06);">
               <input type="text" id="settingsSearch" data-i18n="settings_search_placeholder" placeholder="Suchen..." style="width: 100%; padding: 8px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); border-radius: 100px; color: #fff; font-size: 11px; outline: none;" />
@@ -129,23 +132,6 @@
                 </div>
               </div>
 
-              <!-- 1b. TIMER-EINSTELLUNGEN -->
-              <div class="setting-section" style="margin-top: 30px;">
-                <h3 class="section-title"><i class="fas fa-hourglass-half"></i> <span data-i18n="timer_settings_title">Timer-Einstellungen</span></h3>
-                <div class="input-group">
-                  <label class="setting-sub-label" data-i18n="timer_sound_label">Alarm-Ton:</label>
-                  <div style="display:flex; gap: 8px; width: 100%;">
-                    <select id="timerSound" class="radio-select" style="flex: 1; padding: 10px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); color: #fff;">
-                      <option value="sound-gong">🔔 Deep Gong (Klassisch)</option>
-                      <option value="sound-beep">⏰ Digital Beep-Beep (Auffällig)</option>
-                      <option value="sound-chime">🎶 Glockenspiel (Modern)</option>
-                      <option value="sound-flute">🌾 Soft Flute (Sanft)</option>
-                      <option value="sound-radar">🚨 Radar Pulse (Laut / Warnung)</option>
-                    </select>
-                    <button class="btn" id="testTimerSound" style="min-width: 110px;">Testen</button>
-                  </div>
-                </div>
-              </div>
 
               <!-- 2. DANGER ZONE -->
               <div class="setting-section danger-zone-section" style="margin-top: 30px; border: 1px solid var(--danger-color, #ff4d4d); border-radius: 0; padding: 15px; background: rgba(255, 77, 77, 0.03);">
@@ -490,6 +476,28 @@
                   </label>
                   
                   <button class="btn" id="saveFritzConfig" style="margin-top: 15px; width: 100%;"><i class="fas fa-save"></i> <span data-i18n="fritzbox_connect">Fritz!Box Verbinden</span></button>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-tab-content" id="tab-timer">
+              <!-- 9. TIMER-EINSTELLUNGEN -->
+              <div class="setting-section">
+                <h3 class="section-title"><i class="fas fa-hourglass-half"></i> <span data-i18n="timer_settings_title">Timer-Einstellungen</span></h3>
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Konfiguriere den Standard-Alarmton für das Timer-Widget.</p>
+                <div class="input-group">
+                  <label class="setting-sub-label" data-i18n="timer_sound_label">Alarm-Ton:</label>
+                  <div style="display:flex; gap: 8px; width: 100%;">
+                    <select id="timerSound" class="radio-select" style="flex: 1; padding: 10px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); color: #fff;">
+                      <option value="sound-gong">🔔 Deep Gong (Klassisch)</option>
+                      <option value="sound-beep">⏰ Digital Beep-Beep (Auffällig)</option>
+                      <option value="sound-bell">🔔 Klingel / Wecker (Klassisch)</option>
+                      <option value="sound-chime">🎶 Glockenspiel (Modern)</option>
+                      <option value="sound-flute">🌾 Soft Flute (Sanft)</option>
+                      <option value="sound-radar">🚨 Radar Pulse (Laut / Warnung)</option>
+                    </select>
+                    <button class="btn" id="testTimerSound" style="min-width: 110px;">Testen</button>
+                  </div>
                 </div>
               </div>
             </div>
