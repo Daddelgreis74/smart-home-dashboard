@@ -812,21 +812,21 @@
               <button class="btn timer-preset-btn" data-time="900"><i class="fas fa-pizza-slice"></i> <span data-i18n="timer_preset_pizza">Pizza (15m)</span></button>
             </div>
             
-            <!-- Custom Time Inputs -->
-            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(0,0,0,0.15); padding: 6px; border-radius: var(--radius-sm); border: 1px solid var(--panel-border);">
-              <div style="display: flex; flex-direction: column; align-items: center; width: 45px;">
-                <input type="number" id="timerInputHH" min="0" max="99" value="0" style="width: 100%; text-align: center; background: none; border: none; color: #fff; font-size: 16px; font-weight: 700; outline: none;" />
-                <span style="font-size: 8px; color: var(--text-muted);">Std</span>
+            <!-- Custom Time Drum Pickers -->
+            <div class="timer-drum-picker">
+              <div class="timer-drum-column" data-unit="hours">
+                <div class="timer-drum-label">Std</div>
+                <div class="timer-drum-viewport" id="timerDrumHH"></div>
               </div>
-              <span style="font-weight: 700; color: var(--primary);">:</span>
-              <div style="display: flex; flex-direction: column; align-items: center; width: 45px;">
-                <input type="number" id="timerInputMM" min="0" max="59" value="10" style="width: 100%; text-align: center; background: none; border: none; color: #fff; font-size: 16px; font-weight: 700; outline: none;" />
-                <span style="font-size: 8px; color: var(--text-muted);">Min</span>
+              <span class="timer-drum-colon">:</span>
+              <div class="timer-drum-column" data-unit="minutes">
+                <div class="timer-drum-label">Min</div>
+                <div class="timer-drum-viewport" id="timerDrumMM"></div>
               </div>
-              <span style="font-weight: 700; color: var(--primary);">:</span>
-              <div style="display: flex; flex-direction: column; align-items: center; width: 45px;">
-                <input type="number" id="timerInputSS" min="0" max="59" value="0" style="width: 100%; text-align: center; background: none; border: none; color: #fff; font-size: 16px; font-weight: 700; outline: none;" />
-                <span style="font-size: 8px; color: var(--text-muted);">Sek</span>
+              <span class="timer-drum-colon">:</span>
+              <div class="timer-drum-column" data-unit="seconds">
+                <div class="timer-drum-label">Sek</div>
+                <div class="timer-drum-viewport" id="timerDrumSS"></div>
               </div>
             </div>
             

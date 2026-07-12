@@ -4278,3 +4278,147 @@ body.theme-orbital #timerCountdownText,
 body.theme-orbital .widget[data-type="timer"] input[type="number"] {
   font-family: 'JetBrains Mono', monospace;
 }
+
+/* --- Drum Picker (Scroll-Snap Trommelwähler) --- */
+.timer-drum-picker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  padding: 10px 15px;
+  height: 130px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+/* 3D gradient fading overlay to cover top and bottom lines */
+.timer-drum-picker::before,
+.timer-drum-picker::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 40px;
+  pointer-events: none;
+  z-index: 10;
+}
+.timer-drum-picker::before {
+  top: 0;
+  background: linear-gradient(to bottom, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0) 100%);
+}
+.timer-drum-picker::after {
+  bottom: 0;
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0) 100%);
+}
+
+/* Theme overrides for gradient masks */
+body.theme-nordic .timer-drum-picker::before {
+  background: linear-gradient(to bottom, rgba(46, 52, 64, 0.95) 0%, rgba(46, 52, 64, 0) 100%);
+}
+body.theme-nordic .timer-drum-picker::after {
+  background: linear-gradient(to top, rgba(46, 52, 64, 0.95) 0%, rgba(46, 52, 64, 0) 100%);
+}
+body.theme-stealth .timer-drum-picker::before {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0) 100%);
+}
+body.theme-stealth .timer-drum-picker::after {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0) 100%);
+}
+
+/* Center selection indicator bar */
+.timer-drum-picker::after {
+  /* Note: Double after is not valid, we merge indicator into selection lines */
+}
+
+/* Let's define indicator lines */
+.timer-drum-picker-indicator {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 34px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.timer-drum-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  width: 50px;
+  height: 110px;
+}
+
+.timer-drum-label {
+  font-size: 8px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  z-index: 5;
+}
+
+.timer-drum-viewport {
+  width: 100%;
+  height: 90px;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+  perspective: 1000px;
+}
+
+.timer-drum-viewport::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.timer-drum-item {
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  font-size: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  color: var(--text-muted);
+  scroll-snap-align: center;
+  transition: transform 0.15s ease-out, opacity 0.15s ease-out, color 0.15s ease-out;
+  transform-style: preserve-3d;
+  opacity: 0.25;
+}
+
+/* Dynamic active state class */
+.timer-drum-item.active {
+  color: var(--primary);
+  opacity: 1;
+  transform: scale(1.15) translateZ(10px);
+  text-shadow: 0 0 10px var(--primary-glow);
+}
+
+.timer-drum-colon {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-top: 12px;
+  opacity: 0.8;
+  animation: pulse-colon 1.5s infinite;
+}
+
+@keyframes pulse-colon {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* Empty spacer element for alignment at top/bottom */
+.timer-drum-spacer {
+  height: 30px;
+}
+
