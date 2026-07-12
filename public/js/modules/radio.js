@@ -80,6 +80,10 @@ export function stopRadioPlayback(removeSource = true) {
     }
   }
 
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.playbackState = 'none';
+  }
+
   updateRadioUi(false);
 }
 
@@ -148,10 +152,55 @@ export function playAudioStream(url, name = '', autoPlay = false) {
   if (playPromise !== undefined) {
       playPromise.then(() => {
         updateRadioUi(true);
+        setupMediaSession(name);
       }).catch(e => {
           console.error("Radio Start", e);
           stopRadioPlayback(true);
       });
+  }
+}
+
+function setupMediaSession(name) {
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: name || 'Live Radio',
+      artist: 'Smart Home Dashboard',
+      album: 'Radio Stream',
+      artwork: [
+        { src: '/favicon.ico', sizes: '64x64', type: 'image/x-icon' }
+      ]
+    });
+
+    navigator.mediaSession.playbackState = 'playing';
+
+    navigator.mediaSession.setActionHandler('play', () => {
+      if (activeAudioElement) {
+        activeAudioElement.play()
+          .then(() => {
+            navigator.mediaSession.playbackState = 'playing';
+            updateRadioUi(true);
+          })
+          .catch(err => console.error('[Radio] MediaSession Play failed:', err));
+      } else {
+        const savedUrl = localStorage.getItem('streamUrl');
+        const savedName = localStorage.getItem('streamName');
+        if (savedUrl) {
+          playAudioStream(savedUrl, savedName, true);
+        }
+      }
+    });
+
+    navigator.mediaSession.setActionHandler('pause', () => {
+      if (activeAudioElement) {
+        activeAudioElement.pause();
+        navigator.mediaSession.playbackState = 'paused';
+        updateRadioUi(false);
+      }
+    });
+
+    navigator.mediaSession.setActionHandler('stop', () => {
+      stopRadioPlayback(true);
+    });
   }
 }
 
@@ -165,6 +214,17 @@ export function initRadioWidget() {
   
   if (stationLabel) {
     stationLabel.textContent = savedName;
+  }
+
+  // Register initial Media Session play handler for Bluetooth controllers
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.setActionHandler('play', () => {
+      const savedUrl = localStorage.getItem('streamUrl');
+      const savedName = localStorage.getItem('streamName');
+      if (savedUrl) {
+        playAudioStream(savedUrl, savedName, true);
+      }
+    });
   }
 
   const widgetVolume = document.getElementById('widgetVolumeSlider');
