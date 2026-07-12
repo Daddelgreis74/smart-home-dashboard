@@ -130,6 +130,21 @@ export function playAudioStream(url, name = '', autoPlay = false) {
   
   const savedVol = localStorage.getItem('radioVolume') || '50';
   activeAudioElement.volume = savedVol / 100;
+
+  // Native event listeners to keep UI and Media Session in sync on Bluetooth actions
+  activeAudioElement.addEventListener('play', () => {
+    updateRadioUi(true);
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = 'playing';
+    }
+  });
+
+  activeAudioElement.addEventListener('pause', () => {
+    updateRadioUi(false);
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = 'paused';
+    }
+  });
   
   container.replaceChildren(activeAudioElement);
 
@@ -151,7 +166,6 @@ export function playAudioStream(url, name = '', autoPlay = false) {
   const playPromise = activeAudioElement.play();
   if (playPromise !== undefined) {
       playPromise.then(() => {
-        updateRadioUi(true);
         setupMediaSession(name);
       }).catch(e => {
           console.error("Radio Start", e);
@@ -162,45 +176,43 @@ export function playAudioStream(url, name = '', autoPlay = false) {
 
 function setupMediaSession(name) {
   if ('mediaSession' in navigator) {
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: name || 'Live Radio',
-      artist: 'Smart Home Dashboard',
-      album: 'Radio Stream',
-      artwork: [
-        { src: '/favicon.ico', sizes: '64x64', type: 'image/x-icon' }
-      ]
-    });
+    try {
+      const origin = window.location.origin;
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: name || 'Live Radio',
+        artist: 'Smart Home Dashboard',
+        album: 'Radio Stream',
+        artwork: [
+          { src: origin + '/favicon.ico', sizes: '64x64', type: 'image/x-icon' }
+        ]
+      });
 
-    navigator.mediaSession.playbackState = 'playing';
+      navigator.mediaSession.playbackState = 'playing';
 
-    navigator.mediaSession.setActionHandler('play', () => {
-      if (activeAudioElement) {
-        activeAudioElement.play()
-          .then(() => {
-            navigator.mediaSession.playbackState = 'playing';
-            updateRadioUi(true);
-          })
-          .catch(err => console.error('[Radio] MediaSession Play failed:', err));
-      } else {
-        const savedUrl = localStorage.getItem('streamUrl');
-        const savedName = localStorage.getItem('streamName');
-        if (savedUrl) {
-          playAudioStream(savedUrl, savedName, true);
+      navigator.mediaSession.setActionHandler('play', () => {
+        if (activeAudioElement) {
+          activeAudioElement.play().catch(err => console.error('[Radio] MediaSession Play failed:', err));
+        } else {
+          const savedUrl = localStorage.getItem('streamUrl');
+          const savedName = localStorage.getItem('streamName');
+          if (savedUrl) {
+            playAudioStream(savedUrl, savedName, true);
+          }
         }
-      }
-    });
+      });
 
-    navigator.mediaSession.setActionHandler('pause', () => {
-      if (activeAudioElement) {
-        activeAudioElement.pause();
-        navigator.mediaSession.playbackState = 'paused';
-        updateRadioUi(false);
-      }
-    });
+      navigator.mediaSession.setActionHandler('pause', () => {
+        if (activeAudioElement) {
+          activeAudioElement.pause();
+        }
+      });
 
-    navigator.mediaSession.setActionHandler('stop', () => {
-      stopRadioPlayback(true);
-    });
+      navigator.mediaSession.setActionHandler('stop', () => {
+        stopRadioPlayback(true);
+      });
+    } catch (err) {
+      console.warn('[Radio] MediaSession API failed to initialize:', err);
+    }
   }
 }
 
