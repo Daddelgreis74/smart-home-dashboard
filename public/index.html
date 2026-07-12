@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Michroma&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=3.15.9">
+  <link rel="stylesheet" href="styles.css?v=3.16.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
   <script src="translations.js"></script>
@@ -348,7 +348,7 @@
                 </div>
 
                 <div class="input-group" id="jarvisApiKeyGroup" style="margin-bottom: 12px;">
-                  <label class="setting-sub-label" data-i18n="jarvis_apikey_label">API-Schlüssel:</label>
+                  <label class="setting-sub-label" data-i18n="jarvis_apikey_label" style="display: flex; align-items: center; gap: 8px;">API-Schlüssel: <span id="jarvisKeyStatusDot" title="Kein API-Key gespeichert" style="display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 4px rgba(239,68,68,0.6); flex-shrink: 0; transition: background 0.3s, box-shadow 0.3s;"></span></label>
                   <div style="display: flex; gap: 8px; width: 100%;">
                     <input type="password" id="jarvisApiKey" placeholder="API Key eintragen" style="flex: 1;">
                     <button type="button" id="jarvisClearKeyBtn" class="btn" style="padding: 8px 12px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; display: flex; align-items: center; justify-content: center;" title="API-Schlüssel für diesen Provider löschen"><i class="fas fa-trash-alt"></i></button>
@@ -417,8 +417,12 @@
                       <label class="setting-sub-label" data-i18n="jarvis_elevenkey_label" style="display:flex; align-items:center; gap:6px;">
                         <i class="fas fa-key" style="font-size:10px; opacity:0.6;"></i>
                         ElevenLabs API-Key <span style="font-size:10px; opacity:0.6; font-weight:400;">(für 🎙️ ElevenLabs-Stimmen)</span>
+                        <span id="jarvisElevenKeyStatusDot" title="Kein ElevenLabs-Key gespeichert" style="display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 4px rgba(239,68,68,0.6); flex-shrink: 0; transition: background 0.3s, box-shadow 0.3s;"></span>
                       </label>
-                      <input type="password" id="jarvisElevenApiKey" placeholder="ElevenLabs API Key eintragen" style="width: 100%;">
+                      <div style="display: flex; gap: 8px; width: 100%;">
+                        <input type="password" id="jarvisElevenApiKey" placeholder="ElevenLabs API Key eintragen" style="flex: 1;">
+                        <button type="button" id="jarvisClearElevenKeyBtn" class="btn" style="padding: 8px 12px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; display: flex; align-items: center; justify-content: center;" title="ElevenLabs API-Schlüssel löschen"><i class="fas fa-trash-alt"></i></button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -440,8 +444,11 @@
                 </div>
 
                 <div class="input-group" id="jarvisBraveKeyGroup" style="margin-bottom: 15px; display: none;">
-                  <label class="setting-sub-label" data-i18n="jarvis_bravekey_label">Brave Search API-Key:</label>
-                  <input type="password" id="jarvisBraveApiKey" placeholder="Brave Search API Key eintragen" style="width: 100%;">
+                  <label class="setting-sub-label" data-i18n="jarvis_bravekey_label" style="display: flex; align-items: center; gap: 8px;">Brave Search API-Key: <span id="jarvisBraveKeyStatusDot" title="Kein Brave-Key gespeichert" style="display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 4px rgba(239,68,68,0.6); flex-shrink: 0; transition: background 0.3s, box-shadow 0.3s;"></span></label>
+                  <div style="display: flex; gap: 8px; width: 100%;">
+                    <input type="password" id="jarvisBraveApiKey" placeholder="Brave Search API Key eintragen" style="flex: 1;">
+                    <button type="button" id="jarvisClearBraveKeyBtn" class="btn" style="padding: 8px 12px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; display: flex; align-items: center; justify-content: center;" title="Brave Search API-Schlüssel löschen"><i class="fas fa-trash-alt"></i></button>
+                  </div>
                 </div>
 
                 <button class="btn" id="saveJarvisConfigSearch" style="width: 100%;"><i class="fas fa-save"></i> <span data-i18n="jarvis_save">Einstellungen speichern</span></button>
@@ -1007,6 +1014,6 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script type="module" src="app.js?v=3.15.9"></script>
+  <script type="module" src="app.js?v=3.16.0"></script>
 </body>
 </html>

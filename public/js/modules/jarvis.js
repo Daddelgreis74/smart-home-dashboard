@@ -1045,6 +1045,29 @@ export function updateJarvisSettingsUI() {
   if (elevenLabsGroup) {
     elevenLabsGroup.style.display = ttsEnabled ? 'block' : 'none';
   }
+
+  // --- Key-Status-Indikatoren aktualisieren ---
+  const _setDot = (dotId, hasKey) => {
+    const dot = document.getElementById(dotId);
+    if (!dot) return;
+    if (hasKey) {
+      dot.style.background = '#22c55e';
+      dot.style.boxShadow = '0 0 5px rgba(34,197,94,0.7)';
+      dot.title = 'API-Key gespeichert ✓';
+    } else {
+      dot.style.background = '#ef4444';
+      dot.style.boxShadow = '0 0 4px rgba(239,68,68,0.6)';
+      dot.title = 'Kein API-Key gespeichert';
+    }
+  };
+
+  const curProvider = document.getElementById('jarvisProvider')?.value || 'simulator';
+  const gemKeySet  = !!(Config.get('jarvis_gemini_api_key', ''));
+  const orKeySet   = !!(Config.get('jarvis_openrouter_api_key', ''));
+  const mainKeySet = curProvider === 'gemini' ? gemKeySet : curProvider === 'openrouter' ? orKeySet : false;
+  _setDot('jarvisKeyStatusDot',        mainKeySet);
+  _setDot('jarvisElevenKeyStatusDot',  !!(Config.get('jarvis_eleven_api_key', '')));
+  _setDot('jarvisBraveKeyStatusDot',   !!(Config.get('jarvis_brave_api_key', '')));
 }
 
 export function appendJarvisMessage(sender, text, type = 'assistant') {
@@ -1434,6 +1457,28 @@ export function initJarvis() {
         Config.set('jarvis_openrouter_api_key', '');
       }
       alert("API-Schlüssel für diesen Provider erfolgreich gelöscht.");
+      updateJarvisSettingsUI();
+    });
+  }
+
+  const clearElevenKeyBtn = document.getElementById('jarvisClearElevenKeyBtn');
+  if (clearElevenKeyBtn) {
+    clearElevenKeyBtn.addEventListener('click', () => {
+      const inp = document.getElementById('jarvisElevenApiKey');
+      if (inp) inp.value = '';
+      Config.set('jarvis_eleven_api_key', '');
+      alert('ElevenLabs API-Schlüssel erfolgreich gelöscht.');
+      updateJarvisSettingsUI();
+    });
+  }
+
+  const clearBraveKeyBtn = document.getElementById('jarvisClearBraveKeyBtn');
+  if (clearBraveKeyBtn) {
+    clearBraveKeyBtn.addEventListener('click', () => {
+      const inp = document.getElementById('jarvisBraveApiKey');
+      if (inp) inp.value = '';
+      Config.set('jarvis_brave_api_key', '');
+      alert('Brave Search API-Schlüssel erfolgreich gelöscht.');
       updateJarvisSettingsUI();
     });
   }
