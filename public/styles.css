@@ -885,6 +885,7 @@ body::before {
 .widget[data-type="tasmota"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="player"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="presence"] { grid-column: span 2; grid-row: span 1; }
+.widget[data-type="timer"] { grid-column: span 2; grid-row: span 1; }
 
 .widget[data-type="tasmota"]::before {
   background:
@@ -1424,6 +1425,7 @@ body::before {
 .widget[data-type="tasmota"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="player"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="presence"] { grid-column: span 2; grid-row: span 1; }
+.widget[data-type="timer"] { grid-column: span 2; grid-row: span 1; }
 
 /* Weather details stay rich, but no longer dominate the whole dashboard. */
 .weather-details {
@@ -1450,6 +1452,7 @@ body::before {
   .widget[data-type="tasmota"] { grid-column: span 3; }
   .widget[data-type="player"] { grid-column: span 3; }
   .widget[data-type="presence"] { grid-column: span 3; }
+  .widget[data-type="timer"] { grid-column: span 3; }
 }
 
 /* If Fully Kiosk reports a squatter viewport, compress contents but keep two rows. */
@@ -1463,6 +1466,7 @@ body::before {
   .widget[data-type="system"],
   .widget[data-type="player"],
   .widget[data-type="presence"],
+  .widget[data-type="timer"],
   .widget[data-type="tasmota"] { grid-column: span 2; }
   .weather-details {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1796,6 +1800,7 @@ body::before {
 .widget[data-type="tasmota"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="player"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="presence"] { grid-column: span 3; grid-row: span 1; }
+.widget[data-type="timer"] { grid-column: span 3; grid-row: span 1; }
 
 @media (min-aspect-ratio: 17/9) {
   .dashboard { grid-template-columns: repeat(12, minmax(0, 1fr)); }
@@ -1804,6 +1809,7 @@ body::before {
   .widget[data-type="system"] { grid-column: span 5; }
   .widget[data-type="player"],
   .widget[data-type="presence"],
+  .widget[data-type="timer"],
   .widget[data-type="tasmota"] { grid-column: span 3; }
 }
 
@@ -1819,6 +1825,7 @@ body::before {
   .widget[data-type="system"] { grid-column: span 4; }
   .widget[data-type="player"],
   .widget[data-type="presence"],
+  .widget[data-type="timer"],
   .widget[data-type="tasmota"] { grid-column: span 3; }
 }
 
@@ -1831,7 +1838,8 @@ body::before {
   .widget[data-type="waste"], .widget[data-type="calendar"],
   .widget[data-type="system"],
   .widget[data-type="player"],
-  .widget[data-type="presence"] { grid-column: span 1; }
+  .widget[data-type="presence"],
+  .widget[data-type="timer"] { grid-column: span 1; }
   .widget[data-type="tasmota"] { grid-column: span 2; }
 }
 
@@ -1985,7 +1993,8 @@ body::before {
   .widget[data-type="player"],
   .widget[data-type="sensor"],
   .widget[data-type="presence"],
-  .widget[data-type="tasmota"] { grid-column: span 3; }
+  .widget[data-type="tasmota"],
+  .widget[data-type="timer"] { grid-column: span 3; }
   .sensor-layout { gap: 6px; }
   .sensor-gauges { gap: 6px; }
   .sensor-gauge { width: 64px; }
@@ -2005,7 +2014,8 @@ body::before {
   .widget[data-type="fritzbox"],
   .widget[data-type="presence"],
   .widget[data-type="camera"],
-  .widget[data-type="jarvis"] { grid-column: span 1; }
+  .widget[data-type="jarvis"],
+  .widget[data-type="timer"] { grid-column: span 1; }
   .widget[data-type="tasmota"] { grid-column: span 2; }
 }
 
@@ -4203,4 +4213,68 @@ body.theme-orbital .call-duration,
 body.theme-orbital .value-mono {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 500;
+}
+
+/* ==========================================
+   TIMER WIDGET STYLES
+   ========================================== */
+.widget[data-type="timer"] input[type="number"]::-webkit-inner-spin-button,
+.widget[data-type="timer"] input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.widget[data-type="timer"] input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.timer-preset-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--panel-border);
+  color: var(--text-main);
+  padding: 8px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: var(--radius-sm);
+}
+
+.timer-preset-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 10px var(--primary-glow);
+  transform: translateY(-1px);
+}
+
+.timer-preset-btn i {
+  color: var(--primary);
+  font-size: 12px;
+}
+
+/* Urgency pulse animation when timer is low */
+@keyframes timer-pulse-low {
+  0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 107, 74, 0.2)); }
+  50% { transform: scale(1.03); filter: drop-shadow(0 0 8px rgba(255, 107, 74, 0.6)); }
+  100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 107, 74, 0.2)); }
+}
+
+.timer-active-container.low-time {
+  animation: timer-pulse-low 1s infinite ease-in-out;
+}
+
+.timer-active-container.low-time #timerCountdownText {
+  color: #ff6b4a !important;
+  text-shadow: 0 0 10px rgba(255, 107, 74, 0.5);
+}
+
+/* Ensure Outfit/Michroma fonts apply correctly to timer header and numbers */
+body.theme-orbital .widget[data-type="timer"] .widget-header h3 {
+  font-family: 'Michroma', sans-serif;
+}
+body.theme-orbital #timerCountdownText,
+body.theme-orbital .widget[data-type="timer"] input[type="number"] {
+  font-family: 'JetBrains Mono', monospace;
 }

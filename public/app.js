@@ -1,5 +1,5 @@
 import { Config } from './js/modules/config.js';
-import { applyTheme, updateDateTime, getLangText } from './js/modules/utils.js';
+import { applyTheme, updateDateTime, getLangText, playSound } from './js/modules/utils.js';
 import { loadWeather } from './js/modules/weather.js';
 import { loadICS, initCalendar } from './js/modules/calendar.js';
 import { initRadioWidget, initFritzRadioPopup, initRadioWakeGuards, isPlaying, updateRadioUi } from './js/modules/radio.js';
@@ -10,7 +10,7 @@ import { initFritzbox } from './js/modules/fritzbox.js';
 import { initPresence } from './js/modules/presence.js';
 import { initCameraWidget } from './js/modules/cameras.js';
 import { initJarvis } from './js/modules/jarvis.js';
-
+import { initTimer } from './js/modules/timer.js';
 // Global Socket.io instance
 const socket = io();
 
@@ -103,6 +103,11 @@ function loadSavedSettings() {
   const themeSelector = document.getElementById('themeSelector');
   if (themeSelector) themeSelector.value = savedTheme;
 
+  // Timer-Sound laden und anwenden
+  const savedTimerSound = localStorage.getItem('timer_alarm_sound') || 'sound-gong';
+  const timerSoundSelector = document.getElementById('timerSound');
+  if (timerSoundSelector) timerSoundSelector.value = savedTimerSound;
+
   // Sprache laden und anwenden
   let savedLang = Config.get('dashboard_lang');
   if (!savedLang) {
@@ -151,7 +156,7 @@ function loadSavedSettings() {
   // Initiiere Sensor-Einstellungen
   renderSensorSettings();
 
-  ['weather', 'waste', 'calendar', 'player', 'sensor', 'system', 'tasmota', 'fritzbox', 'presence', 'camera', 'jarvis'].forEach(type => {
+  ['weather', 'waste', 'calendar', 'player', 'sensor', 'system', 'tasmota', 'fritzbox', 'presence', 'camera', 'jarvis', 'timer'].forEach(type => {
     const isVisible = localStorage.getItem('show_' + type) !== 'false';
     const widget = document.querySelector(`.widget[data-type="${type}"]`);
     const toggle = document.getElementById('toggle-' + type);
@@ -182,6 +187,25 @@ socket.on('layout-updated', (layout) => {
 
 function initSettings() {
   initTabs();
+
+  // Initialize Timer
+  initTimer(socket);
+
+  // Timer Sound Event Listeners
+  const timerSoundSelector = document.getElementById('timerSound');
+  if (timerSoundSelector) {
+    timerSoundSelector.addEventListener('change', (e) => {
+      localStorage.setItem('timer_alarm_sound', e.target.value);
+    });
+  }
+
+  const testTimerSoundBtn = document.getElementById('testTimerSound');
+  if (testTimerSoundBtn) {
+    testTimerSoundBtn.addEventListener('click', () => {
+      const selectedSound = timerSoundSelector ? timerSoundSelector.value : 'sound-gong';
+      playSound(selectedSound);
+    });
+  }
 
   // Farbthema Selector Event Listener
   const themeSelector = document.getElementById('themeSelector');
@@ -347,7 +371,7 @@ function initSettings() {
     });
   }
 
-  ['weather', 'waste', 'calendar', 'player', 'sensor', 'system', 'tasmota', 'fritzbox', 'presence', 'camera', 'jarvis'].forEach(type => {
+  ['weather', 'waste', 'calendar', 'player', 'sensor', 'system', 'tasmota', 'fritzbox', 'presence', 'camera', 'jarvis', 'timer'].forEach(type => {
     const toggle = document.getElementById('toggle-' + type);
     if(toggle) {
       toggle.addEventListener('change', (e) => {

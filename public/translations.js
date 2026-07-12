@@ -151,7 +151,20 @@ const translations = {
     "reminder_btn_close": "Schließen",
     "reminder_section_title": "Terminerinnerungen",
     "reminder_sound_label": "Alarm-Ton:",
-    "reminder_loop_label": "Wiederholung:"
+    "reminder_loop_label": "Wiederholung:",
+    "widget_title_timer": "Timer",
+    "toggle_layout_timer": "Timer",
+    "timer_settings_title": "Timer-Einstellungen",
+    "timer_sound_label": "Alarm-Ton:",
+    "timer_btn_start": "Starten",
+    "timer_btn_pause": "Pause",
+    "timer_btn_resume": "Fortsetzen",
+    "timer_btn_cancel": "Abbrechen",
+    "timer_btn_stop": "Stop",
+    "timer_preset_tea": "🫖 Tee (3m)",
+    "timer_preset_egg": "🥚 Ei (5m)",
+    "timer_preset_pasta": "🍝 Pasta (10m)",
+    "timer_preset_pizza": "🍕 Pizza (15m)"
   },
   en: {
     // Header
@@ -305,7 +318,20 @@ const translations = {
     "reminder_btn_close": "Close",
     "reminder_section_title": "Appointment Reminders",
     "reminder_sound_label": "Alarm Sound:",
-    "reminder_loop_label": "Repeat Mode:"
+    "reminder_loop_label": "Repeat Mode:",
+    "widget_title_timer": "Timer",
+    "toggle_layout_timer": "Timer",
+    "timer_settings_title": "Timer Settings",
+    "timer_sound_label": "Alarm Sound:",
+    "timer_btn_start": "Start",
+    "timer_btn_pause": "Pause",
+    "timer_btn_resume": "Resume",
+    "timer_btn_cancel": "Cancel",
+    "timer_btn_stop": "Stop",
+    "timer_preset_tea": "🫖 Tea (3m)",
+    "timer_preset_egg": "🥚 Egg (5m)",
+    "timer_preset_pasta": "🍝 Pasta (10m)",
+    "timer_preset_pizza": "🍕 Pizza (15m)"
   },
   fr: {
     // Header
@@ -439,6 +465,19 @@ const translations = {
     "jarvis_tts_section_desc": "Configurez les paramètres de synthèse vocale pour votre assistant.",
     "jarvis_search_section_title": "Recherche Web J.A.R.V.I.S.",
     "jarvis_search_section_desc": "Autorisez J.A.R.V.I.S. à effectuer des recherches sur le Web pour les questions d'actualité.",
+    "widget_title_timer": "Minuteur",
+    "toggle_layout_timer": "Minuteur",
+    "timer_settings_title": "Réglages du Minuteur",
+    "timer_sound_label": "Son d'alarme:",
+    "timer_btn_start": "Démarrer",
+    "timer_btn_pause": "Pause",
+    "timer_btn_resume": "Reprendre",
+    "timer_btn_cancel": "Annuler",
+    "timer_btn_stop": "Arrêter",
+    "timer_preset_tea": "🫖 Thé (3m)",
+    "timer_preset_egg": "🥚 Œuf (5m)",
+    "timer_preset_pasta": "🍝 Pâtes (10m)",
+    "timer_preset_pizza": "🍕 Pizza (15m)"
   },
   es: {
     // Header
@@ -572,6 +611,19 @@ const translations = {
     "jarvis_tts_section_desc": "Configura los ajustes de texto a voz para tu asistente.",
     "jarvis_search_section_title": "Búsqueda web J.A.R.V.I.S.",
     "jarvis_search_section_desc": "Permite que J.A.R.V.I.S. busque en la web preguntas actuales.",
+    "widget_title_timer": "Temporizador",
+    "toggle_layout_timer": "Temporizador",
+    "timer_settings_title": "Ajustes del Temporizador",
+    "timer_sound_label": "Sonido de alarma:",
+    "timer_btn_start": "Iniciar",
+    "timer_btn_pause": "Pausa",
+    "timer_btn_resume": "Reanudar",
+    "timer_btn_cancel": "Cancelar",
+    "timer_btn_stop": "Detener",
+    "timer_preset_tea": "🫖 Té (3m)",
+    "timer_preset_egg": "🥚 Huevo (5m)",
+    "timer_preset_pasta": "🍝 Pasta (10m)",
+    "timer_preset_pizza": "🍕 Pizza (15m)"
   },
   it: {
     // Header
@@ -705,6 +757,19 @@ const translations = {
     "jarvis_tts_section_desc": "Configura le impostazioni di sintesi vocale per il tuo assistente.",
     "jarvis_search_section_title": "Ricerca web J.A.R.V.I.S.",
     "jarvis_search_section_desc": "Consenti a J.A.R.V.I.S. di cercare nel web per domande attuali.",
+    "widget_title_timer": "Timer",
+    "toggle_layout_timer": "Timer",
+    "timer_settings_title": "Impostazioni Timer",
+    "timer_sound_label": "Suono sveglia:",
+    "timer_btn_start": "Avvia",
+    "timer_btn_pause": "Pausa",
+    "timer_btn_resume": "Riprendi",
+    "timer_btn_cancel": "Annulla",
+    "timer_btn_stop": "Ferma",
+    "timer_preset_tea": "🫖 Tè (3m)",
+    "timer_preset_egg": "🥚 Uovo (5m)",
+    "timer_preset_pasta": "🍝 Pasta (10m)",
+    "timer_preset_pizza": "🍕 Pizza (15m)"
   },
   nl: {
     // Header
@@ -838,6 +903,19 @@ const translations = {
     "jarvis_tts_section_desc": "Configureer de Text-to-Speech-instellingen voor uw assistent.",
     "jarvis_search_section_title": "J.A.R.V.I.S. Webzoekopdracht",
     "jarvis_search_section_desc": "Sta J.A.R.V.I.S. toe op het web te zoeken naar actuele vragen.",
+    "widget_title_timer": "Timer",
+    "toggle_layout_timer": "Timer",
+    "timer_settings_title": "Timerinstellingen",
+    "timer_sound_label": "Alarmgeluid:",
+    "timer_btn_start": "Starten",
+    "timer_btn_pause": "Pauze",
+    "timer_btn_resume": "Hervatten",
+    "timer_btn_cancel": "Annuleren",
+    "timer_btn_stop": "Stoppen",
+    "timer_preset_tea": "🫖 Thee (3m)",
+    "timer_preset_egg": "🥚 Eier (5m)",
+    "timer_preset_pasta": "🍝 Pasta (10m)",
+    "timer_preset_pizza": "🍕 Pizza (15m)"
   },
   pl: {
     // Header
@@ -970,7 +1048,20 @@ const translations = {
     "jarvis_tts_section_title": "Synteza mowy J.A.R.V.I.S.",
     "jarvis_tts_section_desc": "Skonfiguruj ustawienia lektora (Text-to-Speech) dla swojego asystenta.",
     "jarvis_search_section_title": "Wyszukiwanie w sieci J.A.R.V.I.S.",
-    "jarvis_search_section_desc": "Zezwól J.A.R.V.I.S. na wyszukiwanie w sieci aktualnych pytań."
+    "jarvis_search_section_desc": "Zezwól J.A.R.V.I.S. na wyszukiwanie w sieci aktualnych pytań.",
+    "widget_title_timer": "Minutnik",
+    "toggle_layout_timer": "Minutnik",
+    "timer_settings_title": "Ustawienia Minutnika",
+    "timer_sound_label": "Dźwięk alarmu:",
+    "timer_btn_start": "Uruchom",
+    "timer_btn_pause": "Pauza",
+    "timer_btn_resume": "Wznów",
+    "timer_btn_cancel": "Anuluj",
+    "timer_btn_stop": "Zatrzymaj",
+    "timer_preset_tea": "🫖 Herbata (3m)",
+    "timer_preset_egg": "🥚 Jajko (5m)",
+    "timer_preset_pasta": "🍝 Makaron (10m)",
+    "timer_preset_pizza": "🍕 Pizza (15m)"
   }
 };
 

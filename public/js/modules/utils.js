@@ -383,3 +383,104 @@ export function getTimestampedUrl(url) {
     return cleanUrl + separator + 't=' + Date.now();
   }
 }
+
+export function playSound(soundType) {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+
+    if (soundType === 'sound-gong') {
+      const freqs = [220, 275];
+      freqs.forEach(freq => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.8, ctx.currentTime + 2.0);
+        gain.gain.setValueAtTime(0.5, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.0);
+        osc.start();
+        osc.stop(ctx.currentTime + 2.0);
+      });
+    } else if (soundType === 'sound-beep') {
+      const times = [0, 0.25];
+      times.forEach(t => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime + t);
+        gain.gain.setValueAtTime(0, ctx.currentTime + t);
+        gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + t + 0.02);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime + t + 0.12);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.18);
+        osc.start(ctx.currentTime + t);
+        osc.stop(ctx.currentTime + t + 0.2);
+      });
+    } else if (soundType === 'sound-chime') {
+      const notes = [440, 554.37, 659.25];
+      notes.forEach((freq, i) => {
+        const t = i * 0.15;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + t);
+        gain.gain.setValueAtTime(0, ctx.currentTime + t);
+        gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + t + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 1.2);
+        osc.start(ctx.currentTime + t);
+        osc.stop(ctx.currentTime + t + 1.2);
+      });
+    } else if (soundType === 'sound-flute') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      lfo.connect(lfoGain);
+      lfoGain.connect(osc.frequency);
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+      
+      lfo.frequency.setValueAtTime(5, ctx.currentTime);
+      lfoGain.gain.setValueAtTime(10, ctx.currentTime);
+      
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + 1.2);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.8);
+      
+      lfo.start();
+      osc.start();
+      lfo.stop(ctx.currentTime + 1.8);
+      osc.stop(ctx.currentTime + 1.8);
+    } else if (soundType === 'sound-radar') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(600, ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(300, ctx.currentTime + 0.8);
+      
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.05);
+      gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.4);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+      
+      osc.start();
+      osc.stop(ctx.currentTime + 0.8);
+    }
+  } catch (err) {
+    console.error("Fehler bei playSound:", err);
+  }
+}

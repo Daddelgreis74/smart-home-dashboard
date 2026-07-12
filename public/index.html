@@ -125,6 +125,25 @@
                   <label class="toggle-label"><span data-i18n="toggle_layout_camera">Kamera-Monitor</span><input type="checkbox" id="toggle-camera" checked><div class="toggle-switch"></div></label>
                   <label class="toggle-label"><span data-i18n="toggle_layout_calendar">Terminkalender</span><input type="checkbox" id="toggle-calendar" checked><div class="toggle-switch"></div></label>
                   <label class="toggle-label"><span data-i18n="toggle_layout_jarvis">J.A.R.V.I.S. KI-Assistent</span><input type="checkbox" id="toggle-jarvis" checked><div class="toggle-switch"></div></label>
+                  <label class="toggle-label"><span data-i18n="toggle_layout_timer">Timer</span><input type="checkbox" id="toggle-timer" checked><div class="toggle-switch"></div></label>
+                </div>
+              </div>
+
+              <!-- 1b. TIMER-EINSTELLUNGEN -->
+              <div class="setting-section" style="margin-top: 30px;">
+                <h3 class="section-title"><i class="fas fa-hourglass-half"></i> <span data-i18n="timer_settings_title">Timer-Einstellungen</span></h3>
+                <div class="input-group">
+                  <label class="setting-sub-label" data-i18n="timer_sound_label">Alarm-Ton:</label>
+                  <div style="display:flex; gap: 8px; width: 100%;">
+                    <select id="timerSound" class="radio-select" style="flex: 1; padding: 10px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); color: #fff;">
+                      <option value="sound-gong">🔔 Deep Gong (Klassisch)</option>
+                      <option value="sound-beep">⏰ Digital Beep-Beep (Auffällig)</option>
+                      <option value="sound-chime">🎶 Glockenspiel (Modern)</option>
+                      <option value="sound-flute">🌾 Soft Flute (Sanft)</option>
+                      <option value="sound-radar">🚨 Radar Pulse (Laut / Warnung)</option>
+                    </select>
+                    <button class="btn" id="testTimerSound" style="min-width: 110px;">Testen</button>
+                  </div>
                 </div>
               </div>
 
@@ -764,7 +783,74 @@
             <button id="jarvisMicBtn" class="btn" style="padding: 8px 12px; font-size: 12px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border: 1px solid var(--panel-border); color: var(--text-main); flex-shrink: 0;" title="Spracheingabe starten"><i class="fas fa-microphone"></i></button>
             <button id="jarvisSendBtn" class="btn" style="padding: 8px 16px; font-size: 12px; display: flex; align-items: center; justify-content: center; background: var(--primary); color: #000; flex-shrink: 0;"><i class="fas fa-paper-plane"></i></button>
           </div>
+        </div>
+      </div>
 
+      <!-- 11. TIMER-WIDGET -->
+      <div class="widget" data-type="timer">
+        <div class="widget-header">
+          <h3><i class="fas fa-hourglass-half" style="color:var(--primary)"></i> <span data-i18n="widget_title_timer">Timer</span></h3>
+          <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
+        </div>
+        <div class="widget-body" id="timerBody" style="height: calc(100% - 30px); padding: 5px; display: flex; flex-direction: column; justify-content: center; position: relative;">
+          
+          <!-- Setup-Ansicht -->
+          <div class="timer-setup-container" style="display: flex; flex-direction: column; gap: 8px; height: 100%; justify-content: space-between;">
+            <!-- Preset Grid -->
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;">
+              <button class="btn timer-preset-btn" data-time="180"><i class="fas fa-mug-hot"></i> <span data-i18n="timer_preset_tea">Tee (3m)</span></button>
+              <button class="btn timer-preset-btn" data-time="300"><i class="fas fa-egg"></i> <span data-i18n="timer_preset_egg">Ei (5m)</span></button>
+              <button class="btn timer-preset-btn" data-time="600"><i class="fas fa-stroopwafel"></i> <span data-i18n="timer_preset_pasta">Pasta (10m)</span></button>
+              <button class="btn timer-preset-btn" data-time="900"><i class="fas fa-pizza-slice"></i> <span data-i18n="timer_preset_pizza">Pizza (15m)</span></button>
+            </div>
+            
+            <!-- Custom Time Inputs -->
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(0,0,0,0.15); padding: 6px; border-radius: var(--radius-sm); border: 1px solid var(--panel-border);">
+              <div style="display: flex; flex-direction: column; align-items: center; width: 45px;">
+                <input type="number" id="timerInputHH" min="0" max="99" value="0" style="width: 100%; text-align: center; background: none; border: none; color: #fff; font-size: 16px; font-weight: 700; outline: none;" />
+                <span style="font-size: 8px; color: var(--text-muted);">Std</span>
+              </div>
+              <span style="font-weight: 700; color: var(--primary);">:</span>
+              <div style="display: flex; flex-direction: column; align-items: center; width: 45px;">
+                <input type="number" id="timerInputMM" min="0" max="59" value="10" style="width: 100%; text-align: center; background: none; border: none; color: #fff; font-size: 16px; font-weight: 700; outline: none;" />
+                <span style="font-size: 8px; color: var(--text-muted);">Min</span>
+              </div>
+              <span style="font-weight: 700; color: var(--primary);">:</span>
+              <div style="display: flex; flex-direction: column; align-items: center; width: 45px;">
+                <input type="number" id="timerInputSS" min="0" max="59" value="0" style="width: 100%; text-align: center; background: none; border: none; color: #fff; font-size: 16px; font-weight: 700; outline: none;" />
+                <span style="font-size: 8px; color: var(--text-muted);">Sek</span>
+              </div>
+            </div>
+            
+            <!-- Action Button -->
+            <button class="btn" id="timerStartBtn" style="background: var(--primary); color: #000; font-weight: 700; padding: 8px;"><i class="fas fa-play"></i> <span data-i18n="timer_btn_start">Starten</span></button>
+          </div>
+          
+          <!-- Countdown-Ansicht (Standardmäßig versteckt) -->
+          <div class="timer-active-container" style="display: none; flex-direction: column; align-items: center; justify-content: space-between; height: 100%;">
+            <!-- Progress Ring -->
+            <div style="position: relative; width: 110px; height: 110px; margin: auto; display: flex; align-items: center; justify-content: center;">
+              <svg width="110" height="110" viewBox="0 0 110 110">
+                <circle cx="55" cy="55" r="48" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="6" />
+                <circle id="timerRingCircle" cx="55" cy="55" r="48" fill="none" stroke="url(#timerGradient)" stroke-width="6" stroke-dasharray="301.6" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 55 55)" style="transition: stroke-dashoffset 0.1s linear;" />
+                <defs>
+                  <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#4fd8ff" />
+                    <stop offset="100%" stop-color="#ff6b4a" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <!-- Countdown Text inside -->
+              <div id="timerCountdownText" style="position: absolute; font-size: 20px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: #fff;">00:00</div>
+            </div>
+            
+            <!-- Active Controls -->
+            <div style="display: flex; gap: 8px; width: 100%;">
+              <button class="btn" id="timerCancelBtn" style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--panel-border); font-size: 11px;"><i class="fas fa-times"></i> <span data-i18n="timer_btn_cancel">Abbrechen</span></button>
+              <button class="btn" id="timerPauseBtn" style="flex: 1; background: var(--primary); color: #000; font-size: 11px; font-weight: 700;"><i class="fas fa-pause"></i> <span data-i18n="timer_btn_pause">Pause</span></button>
+            </div>
+          </div>
+          
         </div>
       </div>
 
