@@ -535,6 +535,7 @@ function updateSettingsSidebarVisibility() {
   const showCamera = localStorage.getItem('show_camera') !== 'false';
   const showJarvis = localStorage.getItem('show_jarvis') !== 'false';
   const showFritzbox = localStorage.getItem('show_fritzbox') !== 'false';
+  const showTimer = localStorage.getItem('show_timer') !== 'false';
 
   const tabVisibility = {
     general: true,
@@ -543,7 +544,8 @@ function updateSettingsSidebarVisibility() {
     presence: showPresence,
     camera: showCamera,
     jarvis: showJarvis,
-    fritzbox: showFritzbox
+    fritzbox: showFritzbox,
+    timer: showTimer
   };
 
   const searchQuery = document.getElementById('settingsSearch')?.value.toLowerCase().trim() || '';
