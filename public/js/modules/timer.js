@@ -206,7 +206,7 @@ function setDrumValue(container, value, smooth = true) {
   });
 }
 
-function startTimer(seconds) {
+export function startTimer(seconds) {
   stopAlarm();
   timerDuration = seconds;
   timerRemaining = seconds;
@@ -287,7 +287,7 @@ function updateActiveUI() {
   }
 }
 
-function pauseTimer() {
+export function pauseTimer() {
   if (timerInterval) {
     clearInterval(timerInterval);
     timerInterval = null;
@@ -315,7 +315,7 @@ function syncPauseTimer() {
   }
 }
 
-function resumeTimer() {
+export function resumeTimer() {
   isPaused = false;
   if (pauseBtn) {
     pauseBtn.innerHTML = `<i class="fas fa-pause"></i> <span data-i18n="timer_btn_pause">Pause</span>`;
@@ -339,7 +339,7 @@ function syncResumeTimer() {
   timerInterval = setInterval(tick, 1000);
 }
 
-function cancelTimer() {
+export function cancelTimer() {
   if (timerInterval) {
     clearInterval(timerInterval);
     timerInterval = null;
@@ -423,4 +423,14 @@ function stopAlarm() {
     clearInterval(alarmInterval);
     alarmInterval = null;
   }
+}
+
+export function getTimerStatus() {
+  return {
+    active: timerInterval !== null || alarmInterval !== null,
+    remaining: timerRemaining,
+    duration: timerDuration,
+    isPaused: isPaused,
+    isAlarm: alarmInterval !== null
+  };
 }

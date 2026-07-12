@@ -1,6 +1,8 @@
 import { Config } from './config.js';
 import { playJarvisBeep } from './utils.js';
 import { tasmotaDevices, fetchTasmotaList, refreshTasmotaStatus, saveTasmotaList } from './tasmota.js';
+import { playAudioStream, stopRadioPlayback } from './radio.js';
+import { startTimer, cancelTimer, pauseTimer, resumeTimer, getTimerStatus } from './timer.js';
 
 export let jarvisHistory = [];
 export let jarvisRecognition = null;
@@ -213,6 +215,7 @@ export async function callJarvisAPI(prompt) {
   let activeSystemPrompt = systemPrompt;
   activeSystemPrompt += `\nDu bist ein vollfunktionsfähiger, intelligenter Assistent. Du kannst allgemeine Fragen beantworten, Smalltalk führen, und hast zusätzlich Zugriff auf Smart-Home-Funktionen. Begrenze dich nicht selbst auf Smart-Home-Befehle.`;
   activeSystemPrompt += `\nAktuelle Zeit: ${dateStr}, ${timeStr} Uhr. Nutze diese Information, wenn der Benutzer nach Datum oder Uhrzeit fragt.`;
+  activeSystemPrompt += `\nDu hast außerdem vollen Zugriff auf das Live-Radio und den Smart-Home-Timer des Dashboards. Nutze das Tool 'radio_control' für alle Radio-Befehle und 'timer_control' für Timer-Befehle (starten, stoppen, pausieren, fortsetzen oder Status abfragen).`;
   
   if (searchEnabled && braveKey) {
     activeSystemPrompt += `\nDu hast Zugriff auf eine Echtzeit-Websuche. Nutze das Tool 'web_search', um aktuelle Informationen, Wetter, News oder Wissensfragen zu recherchieren, wenn deine internen Daten nicht ausreichen oder veraltet sein könnten.`;
@@ -260,6 +263,46 @@ export async function callJarvisAPI(prompt) {
     const tasmotaTools = [
       {
         functionDeclarations: [
+          {
+            name: "radio_control",
+            description: "Steuert das Live-Radio-Streaming im Smart-Home-Dashboard. Kann die Wiedergabe starten, stoppen, umschalten oder den Sender wechseln.",
+            parameters: {
+              type: "OBJECT",
+              properties: {
+                action: {
+                  type: "STRING",
+                  description: "Die auszuführende Aktion: 'play' (startet bestimmten oder letzten Sender) | 'stop' (stoppt Radio) | 'toggle' (Wiedergabe umschalten) | 'change_station' (wechselt Sender)"
+                },
+                station_name: {
+                  type: "STRING",
+                  description: "Optionaler Name des gewünschten Radiosenders (z.B. 'MDR JUMP', 'Antenne Thüringen', '80s80s Radio')"
+                }
+              },
+              required: ["action"]
+            }
+          },
+          {
+            name: "timer_control",
+            description: "Steuert den eingebauten Smart-Home-Timer/Wecker im Dashboard. Kann Timer stellen, stoppen, pausieren, fortsetzen oder den Restzeit-Status abfragen.",
+            parameters: {
+              type: "OBJECT",
+              properties: {
+                action: {
+                  type: "STRING",
+                  description: "Die auszuführende Aktion: 'start' (stellt neuen Timer) | 'stop' (bricht ab/stoppt Alarm) | 'pause' (pausiert aktuellen Timer) | 'resume' (setzt pausierten Timer fort) | 'status' (fragt Restlaufzeit ab)"
+                },
+                duration_seconds: {
+                  type: "INTEGER",
+                  description: "Optionale Dauer des Timers in Sekunden. Wird benötigt bei der Aktion 'start'."
+                },
+                label: {
+                  type: "STRING",
+                  description: "Optionale Bezeichnung des Timers (z.B. 'Pizza', 'Nudeln', 'Tee')."
+                }
+              },
+              required: ["action"]
+            }
+          },
           {
             name: "tasmota_control",
             description: "Steuert Tasmota-Smart-Home-Geräte im lokalen Netzwerk via HTTP (Ein-/Ausschalten, umschalten oder Status abfragen).",
@@ -639,6 +682,192 @@ export async function callJarvisAPI(prompt) {
                   error: responseData.error || "Fehler beim Erstellen des Termins."
                 };
               }
+            }
+          } else if (functionName === 'radio_control') {
+            const action = String(args.action || 'toggle').trim().toLowerCase();
+            const stationName = String(args.station_name || '').trim();
+
+            if (action === 'stop') {
+              stopRadioPlayback(true);
+              functionResult = {
+                success: true,
+                action: action,
+                message: "Radio-Wiedergabe wurde gestoppt."
+              };
+            } else {
+              const audioEl = document.getElementById('audioPlayer');
+              const isCurrentlyPlaying = audioEl && !audioEl.paused;
+
+              if (action === 'toggle' && isCurrentlyPlaying) {
+                stopRadioPlayback(true);
+                functionResult = {
+                  success: true,
+                  action: action,
+                  message: "Radio-Wiedergabe wurde gestoppt (getoggelt)."
+                };
+              } else {
+                let stations = [];
+                try {
+                  const res = await fetch('/api/fritzbox/radio');
+                  const data = await res.json();
+                  stations = data.stations || [];
+                } catch (e) {
+                  console.warn("Fritzbox Radio API error, using demo stations:", e);
+                }
+
+                if (stations.length === 0) {
+                  stations = [
+                    { name: "MDR JUMP (Live)", url: "http://mdr-284320-0.cast.mdr.de/mdr/284320/0/mp3/high/stream.mp3" },
+                    { name: "Antenne Thüringen", url: "https://top.antennethueringen.de/live/mp3-192/" },
+                    { name: "80s80s Radio", url: "http://stream.80s80s.de/80s80s/mp3-192/" },
+                    { name: "WDR 2 (Köln)", url: "http://wdr-wdr2-koeln.cast.addradio.de/wdr/wdr2/koeln/mp3/128/stream.mp3" }
+                  ];
+                }
+
+                let matchedStation = null;
+                if (stationName) {
+                  const searchLower = stationName.toLowerCase();
+                  matchedStation = stations.find(s => 
+                    s.name.toLowerCase().includes(searchLower) || 
+                    searchLower.includes(s.name.toLowerCase())
+                  );
+                }
+
+                const savedUrl = localStorage.getItem('streamUrl');
+                const savedName = localStorage.getItem('streamName');
+
+                if (matchedStation) {
+                  playAudioStream(matchedStation.url, matchedStation.name, true);
+                  functionResult = {
+                    success: true,
+                    action: action,
+                    stationName: matchedStation.name,
+                    message: `Radiosender '${matchedStation.name}' wurde gestartet.`
+                  };
+                } else if (!stationName && savedUrl) {
+                  playAudioStream(savedUrl, savedName || 'Letzter Sender', true);
+                  functionResult = {
+                    success: true,
+                    action: action,
+                    stationName: savedName || 'Letzter Sender',
+                    message: `Letzter Radiosender '${savedName || 'Radio'}' wurde gestartet.`
+                  };
+                } else {
+                  const fallback = stations[0];
+                  if (fallback) {
+                    playAudioStream(fallback.url, fallback.name, true);
+                    functionResult = {
+                      success: true,
+                      action: action,
+                      stationName: fallback.name,
+                      message: `Sender '${stationName}' nicht gefunden. Starte Fallback-Sender '${fallback.name}'.`
+                    };
+                  } else {
+                    functionResult = {
+                      success: false,
+                      error: "Keine Radiosender in der Senderliste verfügbar."
+                    };
+                  }
+                }
+              }
+            }
+          } else if (functionName === 'timer_control') {
+            const action = String(args.action || 'status').trim().toLowerCase();
+            const duration = Number(args.duration_seconds || 0);
+            const label = String(args.label || '').trim();
+
+            const status = getTimerStatus();
+
+            if (action === 'start') {
+              let replacedInfo = null;
+              if (status.active) {
+                replacedInfo = {
+                  duration: status.duration,
+                  remaining: status.remaining
+                };
+              }
+
+              if (duration <= 0) {
+                functionResult = {
+                  success: false,
+                  error: "Für den Start eines Timers wird eine gültige Dauer (in Sekunden) benötigt."
+                };
+              } else {
+                startTimer(duration);
+
+                let widgetToggled = false;
+                if (localStorage.getItem('show_timer') === 'false') {
+                  localStorage.setItem('show_timer', 'true');
+                  const widget = document.querySelector('.widget[data-type="timer"]');
+                  if (widget) {
+                    widget.classList.remove('hidden');
+                    widget.style.display = '';
+                  }
+                  const toggle = document.getElementById('toggle-timer');
+                  if (toggle) {
+                    toggle.checked = true;
+                  }
+                  const tabBtn = document.querySelector('.settings-tab-btn[data-tab="timer"]');
+                  if (tabBtn) {
+                    tabBtn.style.display = '';
+                  }
+                  widgetToggled = true;
+                }
+
+                functionResult = {
+                  success: true,
+                  action: action,
+                  durationSeconds: duration,
+                  label: label || undefined,
+                  replacedActiveTimer: status.active,
+                  replacedRemainingSeconds: replacedInfo ? replacedInfo.remaining : undefined,
+                  widgetToggledOn: widgetToggled,
+                  message: `Timer über ${duration} Sekunden erfolgreich gestartet.`
+                };
+              }
+            } else if (action === 'stop') {
+              cancelTimer();
+              functionResult = {
+                success: true,
+                action: action,
+                message: "Timer gestoppt und zurückgesetzt."
+              };
+            } else if (action === 'pause') {
+              pauseTimer();
+              functionResult = {
+                success: true,
+                action: action,
+                message: "Timer pausiert."
+              };
+            } else if (action === 'resume') {
+              resumeTimer();
+              functionResult = {
+                success: true,
+                action: action,
+                message: "Timer fortgesetzt."
+              };
+            } else if (action === 'status') {
+              const remMin = Math.floor(status.remaining / 60);
+              const remSec = status.remaining % 60;
+              functionResult = {
+                success: true,
+                action: action,
+                active: status.active,
+                isPaused: status.isPaused,
+                remainingSeconds: status.remaining,
+                remainingMinutes: remMin,
+                remainingSecondsOnly: remSec,
+                durationSeconds: status.duration,
+                isAlarm: status.isAlarm,
+                message: status.active 
+                  ? `Der Timer läuft noch. Restzeit: ${remMin} Minuten und ${remSec} Sekunden.`
+                  : "Es läuft aktuell kein Timer."
+              };
+            } else {
+              functionResult = {
+                success: false,
+                error: `Aktion '${action}' wird von timer_control nicht unterstützt.`
+              };
             }
           } else if (functionName === 'web_search') {
             const query = String(args.query || '').trim();
