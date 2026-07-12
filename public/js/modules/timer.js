@@ -348,9 +348,9 @@ export function cancelTimer() {
   timerRemaining = 0;
   isPaused = false;
 
-  activeContainer.classList.remove('low-time');
-  setupContainer.style.display = 'flex';
-  activeContainer.style.display = 'none';
+  if (activeContainer) activeContainer.classList.remove('low-time');
+  if (setupContainer) setupContainer.style.display = 'flex';
+  if (activeContainer) activeContainer.style.display = 'none';
 
   if (pauseBtn) {
     pauseBtn.innerHTML = `<i class="fas fa-pause"></i> <span data-i18n="timer_btn_pause">Pause</span>`;
@@ -358,9 +358,11 @@ export function cancelTimer() {
   }
 
   // Restore wheel values to the selected targets
-  setDrumValue(drumHH, targetHH, false);
-  setDrumValue(drumMM, targetMM, false);
-  setDrumValue(drumSS, targetSS, false);
+  if (drumHH && drumMM && drumSS) {
+    setDrumValue(drumHH, targetHH, false);
+    setDrumValue(drumMM, targetMM, false);
+    setDrumValue(drumSS, targetSS, false);
+  }
 
   if (window.socket) {
     window.socket.emit('timer-cancel');
@@ -376,9 +378,9 @@ function syncCancelTimer() {
   timerRemaining = 0;
   isPaused = false;
 
-  activeContainer.classList.remove('low-time');
-  setupContainer.style.display = 'flex';
-  activeContainer.style.display = 'none';
+  if (activeContainer) activeContainer.classList.remove('low-time');
+  if (setupContainer) setupContainer.style.display = 'flex';
+  if (activeContainer) activeContainer.style.display = 'none';
 
   if (pauseBtn) {
     pauseBtn.innerHTML = `<i class="fas fa-pause"></i> <span data-i18n="timer_btn_pause">Pause</span>`;
@@ -386,9 +388,11 @@ function syncCancelTimer() {
   }
 
   // Restore wheel values to the selected targets
-  setDrumValue(drumHH, targetHH, false);
-  setDrumValue(drumMM, targetMM, false);
-  setDrumValue(drumSS, targetSS, false);
+  if (drumHH && drumMM && drumSS) {
+    setDrumValue(drumHH, targetHH, false);
+    setDrumValue(drumMM, targetMM, false);
+    setDrumValue(drumSS, targetSS, false);
+  }
 }
 
 function triggerAlarm() {

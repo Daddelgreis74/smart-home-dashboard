@@ -5,6 +5,10 @@ const { getSystemStatus } = require('../services/systemService');
 function initSockets(io) {
   io.on('connection', (socket) => {
     socket.on('update-layout', (layout) => socket.broadcast.emit('layout-updated', layout));
+    socket.on('timer-start', (data) => socket.broadcast.emit('timer-started', data));
+    socket.on('timer-pause', () => socket.broadcast.emit('timer-paused'));
+    socket.on('timer-resume', () => socket.broadcast.emit('timer-resumed'));
+    socket.on('timer-cancel', () => socket.broadcast.emit('timer-cancelled'));
     socket.emit('fritz-calls', getMergedCalls());
     socket.emit('presence-list-updated', fileStore.presenceRAM);
     socket.emit('cameras-updated', fileStore.camerasRAM);
