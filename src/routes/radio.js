@@ -38,4 +38,20 @@ router.get('/proxy-stream', (req, res) => {
   validateAndStream(streamUrl, req, res);
 });
 
+// External control endpoint for webhooks (e.g., Tasker/MacroDroid)
+router.all('/control', (req, res) => {
+  const action = req.query.action || req.body.action || 'toggle';
+  const allowedActions = ['play', 'pause', 'toggle', 'stop'];
+  if (!allowedActions.includes(action)) {
+    return res.status(400).json({ error: 'Invalid action. Use play, pause, stop, or toggle.' });
+  }
+
+  const io = req.app.get('io');
+  if (io) {
+    io.emit('radio-control', { action });
+  }
+
+  res.json({ success: true, action });
+});
+
 module.exports = router;

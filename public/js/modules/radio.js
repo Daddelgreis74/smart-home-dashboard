@@ -216,7 +216,7 @@ function setupMediaSession(name) {
   }
 }
 
-export function initRadioWidget() {
+export function initRadioWidget(socket) {
   let savedName = localStorage.getItem('streamName');
   const stationLabel = document.getElementById('widgetRadioStation');
   
@@ -268,6 +268,35 @@ export function initRadioWidget() {
         } else {
           const chooseBtn = document.getElementById('chooseStationBtn');
           if (chooseBtn) chooseBtn.click();
+        }
+      }
+    });
+  }
+
+  // Listen for socket commands from external REST API triggers (Tasker/MacroDroid Webhooks)
+  const ioSocket = socket || window.socket;
+  if (ioSocket) {
+    ioSocket.on('radio-control', (data) => {
+      console.log('[Radio] Received external socket command:', data.action);
+      if (data.action === 'play') {
+        const url = localStorage.getItem('streamUrl');
+        const name = localStorage.getItem('streamName') || 'FRITZ!Box Radio';
+        if (url) {
+          playAudioStream(url, name, true);
+        }
+      } else if (data.action === 'pause' || data.action === 'stop') {
+        stopRadioPlayback(true);
+      } else if (data.action === 'toggle') {
+        const audioEl = document.getElementById('audioPlayer');
+        const isCurrentlyPlaying = audioEl && !audioEl.paused;
+        if (isCurrentlyPlaying) {
+          stopRadioPlayback(true);
+        } else {
+          const url = localStorage.getItem('streamUrl');
+          const name = localStorage.getItem('streamName') || 'FRITZ!Box Radio';
+          if (url) {
+            playAudioStream(url, name, true);
+          }
         }
       }
     });

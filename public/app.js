@@ -13,6 +13,7 @@ import { initJarvis } from './js/modules/jarvis.js';
 import { initTimer } from './js/modules/timer.js';
 // Global Socket.io instance
 const socket = io();
+window.socket = socket;
 
 document.addEventListener('DOMContentLoaded', async () => {
   // Globaler Audio-Unlock bei der ersten Benutzerinteraktion (verhindert stummen/blockierten AudioContext)
@@ -50,7 +51,7 @@ function init() {
   loadICS();
   setInterval(loadICS, 60 * 60 * 1000); // Automatisches Hintergrund-Abfallkalender-Update jede Stunde
   
-  initRadioWidget();
+  initRadioWidget(socket);
   initFritzRadioPopup();
   initRadioWakeGuards();
   initSensorWidget();
