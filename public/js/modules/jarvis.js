@@ -202,7 +202,7 @@ export async function callJarvisAPI(prompt) {
   } else if (provider === 'openrouter') {
     apiKey = Config.get('jarvis_openrouter_api_key', '');
   }
-  const model = Config.get('jarvis_model', 'gemini-2.5-flash');
+  const model = Config.get('jarvis_model', 'gemini-3.5-flash');
   const customModel = Config.get('jarvis_custom_model', '');
   const systemPrompt = Config.get('jarvis_system_prompt', 'Du bist J.A.R.V.I.S., eine hochentwickelte KI. Antworte kurz, präzise und charmant auf Deutsch.');
   
@@ -1266,7 +1266,7 @@ export function initJarvis() {
   } else if (savedProvider === 'openrouter') {
     savedKey = Config.get('jarvis_openrouter_api_key', '');
   }
-  const savedModel = Config.get('jarvis_model', 'gemini-2.5-flash');
+  const savedModel = Config.get('jarvis_model', 'gemini-3.5-flash');
   const savedCustom = Config.get('jarvis_custom_model', '');
   let savedPrompt = Config.get('jarvis_system_prompt');
   const newPrompt = 'Du bist J.A.R.V.I.S., eine hochentwickelte KI. Antworte kurz, präzise und charmant auf Deutsch.';
@@ -1370,7 +1370,7 @@ export function initJarvis() {
   const saveJarvisSettings = () => {
     const provider = providerSelect.value;
     const apiKey = document.getElementById('jarvisApiKey')?.value.trim() || '';
-    const model = document.getElementById('jarvisModel')?.value || 'gemini-2.5-flash';
+    const model = document.getElementById('jarvisModel')?.value || 'gemini-3.5-flash';
     const customModel = document.getElementById('jarvisCustomModel')?.value.trim() || '';
     const systemPrompt = document.getElementById('jarvisSystemPrompt')?.value.trim() || '';
     const ttsEnabled = document.getElementById('jarvisTtsEnabled')?.checked;
