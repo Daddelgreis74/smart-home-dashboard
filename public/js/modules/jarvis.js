@@ -419,7 +419,10 @@ export async function callJarvisAPI(prompt) {
       
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error?.message || `HTTP Fehler ${response.status}`);
+        const errMsg = errData.error 
+          ? (typeof errData.error === 'object' ? errData.error.message : errData.error)
+          : `HTTP Fehler ${response.status}`;
+        throw new Error(errMsg);
       }
       
       const data = await response.json();
@@ -967,7 +970,10 @@ export async function callJarvisAPI(prompt) {
     
     if (!response.ok) {
       const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.error?.message || `HTTP Fehler ${response.status}`);
+      const errMsg = errData.error 
+        ? (typeof errData.error === 'object' ? errData.error.message : errData.error)
+        : `HTTP Fehler ${response.status}`;
+      throw new Error(errMsg);
     }
     
     const data = await response.json();
