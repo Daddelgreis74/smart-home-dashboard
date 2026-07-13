@@ -243,6 +243,22 @@ function syncStartTimer(duration, remaining, paused) {
   if (!isPaused) {
     timerInterval = setInterval(tick, 1000);
   }
+
+  // Widget-Sichtbarkeit erzwingen auf synchronisierten Clients
+  const widget = document.querySelector('.widget[data-type="timer"]');
+  if (widget) {
+    widget.classList.remove('hidden');
+    widget.style.display = '';
+  }
+  const toggle = document.getElementById('toggle-timer');
+  if (toggle) {
+    toggle.checked = true;
+  }
+  const tabBtn = document.querySelector('.settings-tab-btn[data-tab="timer"]');
+  if (tabBtn) {
+    tabBtn.style.display = '';
+  }
+  localStorage.setItem('show_timer', 'true');
 }
 
 function tick() {
@@ -340,6 +356,7 @@ function syncResumeTimer() {
 }
 
 export function cancelTimer() {
+  stopAlarm();
   if (timerInterval) {
     clearInterval(timerInterval);
     timerInterval = null;
@@ -370,6 +387,7 @@ export function cancelTimer() {
 }
 
 function syncCancelTimer() {
+  stopAlarm();
   if (timerInterval) {
     clearInterval(timerInterval);
     timerInterval = null;
