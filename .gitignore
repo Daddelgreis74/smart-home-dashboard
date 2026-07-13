@@ -10,6 +10,7 @@ fritzbox.json
 fritzbox_calls.json
 presence.json
 cameras.json
+www/
 appointments.json
 data/
 backup.ps1

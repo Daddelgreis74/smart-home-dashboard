@@ -23,7 +23,6 @@ RUN npm ci --omit=dev
 # Kopiere die Anwendungsdateien (Frontend und Backend)
 COPY public/ ./public/
 COPY src/ ./src/
-COPY www/ ./www/
 COPY server.js ./
 
 # Erstelle das Datenverzeichnis für die persistenten Volumes

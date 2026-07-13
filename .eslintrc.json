@@ -12,9 +12,10 @@
     "no-console": "off",
     "no-empty": "warn"
   },
+  "ignorePatterns": ["www/"],
   "overrides": [
     {
-      "files": ["public/**/*.js", "www/**/*.js"],
+      "files": ["public/**/*.js"],
       "env": {
         "browser": true,
         "node": false

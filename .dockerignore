@@ -7,6 +7,7 @@ ssl/*
 *.bat
 *.md
 # Ignore local config files so we don't bake credentials into the Docker image
+www
 tasmota.json
 radio.json
 cameras.json
