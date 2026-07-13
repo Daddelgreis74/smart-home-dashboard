@@ -14,7 +14,7 @@
   },
   "overrides": [
     {
-      "files": ["public/**/*.js"],
+      "files": ["public/**/*.js", "www/**/*.js"],
       "env": {
         "browser": true,
         "node": false

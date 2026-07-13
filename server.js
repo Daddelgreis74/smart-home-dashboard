@@ -26,6 +26,8 @@ const { useSSL, sslOptions } = initializeSSL();
 // 3. Express App Setup
 const app = express();
 app.use(express.static('public'));
+app.use('/www', express.static('www'));
+app.use('/info', express.static('www'));
 app.use('/uploads', express.static(UPLOAD_DIR));
 app.use(express.json({ limit: '256kb' }));
 
