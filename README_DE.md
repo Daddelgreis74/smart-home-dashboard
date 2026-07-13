@@ -36,12 +36,15 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Daddelgreis74/smart-home-das
 - **Smart Home / Tasmota:** Lokale Geräteverwaltung, automatischer Netzwerk-Scan und Toggle-Buttons mit Statusanzeige sowie Offline-Dimmung.
 - **AM2301 Klima-Sensor:** Eigenes Tasmota-Sensor-Widget mit Temperatur-/Feuchtigkeits-Gauges und Taupunkt.
 - **Abfallkalender:** `.ics` Upload, kommende Leerungen, farbige Tonnen-Icons und kalendertagsgenaue Heute/Morgen-Anzeige.
-- **Interaktiver Terminkalender:** Manuelle Termineingabe direkt über ein Modal-Formular, Live-Updates per WebSockets, automatische clientseitige Erinnerungen (Visuelle Popups, Audio-Beeps, Sprachausgabe) und vollständige J.A.R.V.I.S.-Integration (Sprachbefehle zum Eintragen und Abfragen).
-- **J.A.R.V.I.S. KI-Assistent:** Integriertes Sprach- und Text-Eingabewidget mit animiertem Arc-Reaktor / Orbital-Visualisierer (Visualisierung der TTS- und Listening-Zustände), lokalem Chat-Verlauf, flexibler Provider-Konfiguration (Gemini, OpenRouter oder benutzerdefiniert) und anpassbarem System-Prompt.
+- **Interaktiver Terminkalender:** Manuelle Termineingabe direkt über ein Modal-Formular, Live-Updates per WebSockets, automatische clientseitige Erinnerungen (Visuelle Popups, Audio-Beeps, Sprachausgabe) und J.A.R.V.I.S.-Integration.
+- **J.A.R.V.I.S. KI-Assistent:** Integriertes Sprach-/Text-Eingabewidget mit animiertem Arc-Reaktor / Orbital-Visualisierer, lokalem Chat-Verlauf, Provider-Konfiguration (Gemini 3.5 Flash standardmäßig, OpenRouter) und anpassbarem System-Prompt.
+- **Smart-Home-Timer:** Kreisförmiger 3D-Timer (Stunden, Minuten, Sekunden über Walzen-Picker einstellbar) mit Presets, Loop-Alarmton (Gong, Glocke, etc.), Multi-Client-Synchronisation über WebSockets und Server-seitiger Zustandshaltung (für zuverlässige Synchronisierung nach dem Standby).
+- **Key-Status-Indikatoren:** Farbige Leuchtpunkte (🟢/🔴) in den Einstellungen für schnelles Feedback über gespeicherte API-Keys sowie dedizierte Buttons zum Löschen von API-Schlüsseln.
 - **Live Radio:** Preset-Tasten, integrierte Senderverwaltung in den Einstellungen und HLS/MP3/AAC-Unterstützung mit Autostart-Schutz beim Aufwecken des Tablets.
 - **System Status:** Live CPU, RAM, Temperatur und Netzwerk-Statistiken per Socket.IO.
 - **Fritz!Box Monitor:** Live-Latenz und Online-Zustand (LEDs) sowie ein Echtzeit-Anruf-Monitor (Port 1012) mit vollflächigem Pop-up-Overlay bei Anruf und historischer Anrufliste.
 - **Mehrsprachigkeit (i18n):** Vollständige Übersetzungen für 🇩🇪 Deutsch, 🇬🇧 Englisch, 🇫🇷 Französisch, 🇪🇸 Spanisch, 🇮🇹 Italienisch, 🇳🇱 Niederländisch und 🇵🇱 Polnisch.
+
 
 ---
 
