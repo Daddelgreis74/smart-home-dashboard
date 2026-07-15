@@ -284,7 +284,7 @@ export function getLangText(key) {
 }
 
 export function applyTheme(themeClass) {
-  document.body.classList.remove('theme-aurora', 'theme-cyberpunk', 'theme-nordic', 'theme-retrowave', 'theme-terminal', 'theme-stealth');
+  document.body.classList.remove('theme-aurora', 'theme-cyberpunk', 'theme-nordic', 'theme-retrowave', 'theme-terminal', 'theme-stealth', 'theme-orbital');
   document.body.classList.add(themeClass);
   localStorage.setItem('dashboard_theme', themeClass);
 }
