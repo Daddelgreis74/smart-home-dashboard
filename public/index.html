@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Michroma&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=3.16.9">
+  <link rel="stylesheet" href="styles.css?v=3.16.10">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
   <script src="translations.js"></script>
@@ -526,7 +526,10 @@
     <main class="dashboard" id="dashboard">
       
       <div class="widget" data-type="weather">
-        <div class="widget-header"><span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span></div>
+        <div class="widget-header">
+          <h3><i class="fas fa-cloud-sun" style="color:var(--primary)"></i> <span data-i18n="widget_title_weather">Wetter</span></h3>
+          <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
+        </div>
         <div class="widget-body weather-layout" id="weatherBody">
           <div class="weather-desc" id="weatherCity">Laden...</div>
           <div class="weather-main">
@@ -549,7 +552,7 @@
 
       <div class="widget" data-type="waste">
         <div class="widget-header">
-          <h3 data-i18n="widget_title_waste">Abfallkalender</h3>
+          <h3><i class="fas fa-trash-can" style="color:var(--primary)"></i> <span data-i18n="widget_title_waste">Abfallkalender</span></h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body" id="wasteBody"></div>
@@ -632,7 +635,7 @@
       
       <div class="widget" data-type="system">
         <div class="widget-header">
-          <h3 data-i18n="widget_title_system">System Status</h3>
+          <h3><i class="fas fa-microchip" style="color:var(--primary)"></i> <span data-i18n="widget_title_system">System Status</span></h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body system-layout-circular" id="systemBody">
@@ -1022,6 +1025,6 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script type="module" src="app.js?v=3.16.9"></script>
+  <script type="module" src="app.js?v=3.16.10"></script>
 </body>
 </html>

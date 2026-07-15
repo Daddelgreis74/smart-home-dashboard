@@ -57,6 +57,7 @@ const translations = {
     "camera_guide_title": "Anleitung: Kamera einbinden",
 
     // Widgets titles & status
+    "widget_title_weather": "Wetter",
     "widget_title_waste": "Abfallkalender",
     "widget_title_radio": "Live Radio",
     "widget_title_system": "System Status",
@@ -225,6 +226,7 @@ const translations = {
     "camera_guide_title": "Guide: Add Camera",
 
     // Widgets titles & status
+    "widget_title_weather": "Weather",
     "widget_title_waste": "Waste Calendar",
     "widget_title_radio": "Live Radio",
     "widget_title_system": "System Status",
@@ -392,6 +394,7 @@ const translations = {
     "camera_guide_title": "Guide: Intégrer une caméra",
 
     // Widgets titles & status
+    "widget_title_weather": "Météo",
     "widget_title_waste": "Calendrier des Déchets",
     "widget_title_radio": "Radio en Direct",
     "widget_title_system": "Statut Système",
@@ -539,6 +542,7 @@ const translations = {
     "camera_guide_title": "Guía: Integrar cámara",
 
     // Widgets titles & status
+    "widget_title_weather": "Tiempo",
     "widget_title_waste": "Calendario de Residuos",
     "widget_title_radio": "Radio en Vivo",
     "widget_title_system": "Estado del Sistema",
@@ -686,6 +690,7 @@ const translations = {
     "camera_guide_title": "Guida: Integrare telecamera",
 
     // Widgets titles & status
+    "widget_title_weather": "Meteo",
     "widget_title_waste": "Calendario Rifiuti",
     "widget_title_radio": "Radio dal Vivo",
     "widget_title_system": "Stato del Sistema",
@@ -833,6 +838,7 @@ const translations = {
     "camera_guide_title": "Handleiding: Camera integreren",
 
     // Widgets titles & status
+    "widget_title_weather": "Weer",
     "widget_title_waste": "Afvalkalender",
     "widget_title_radio": "Live Radio",
     "widget_title_system": "Systeemstatus",
@@ -980,6 +986,7 @@ const translations = {
     "camera_guide_title": "Instrukcja: Integracja kamery",
 
     // Widgets titles & status
+    "widget_title_weather": "Pogoda",
     "widget_title_waste": "Terminarz Wywozu",
     "widget_title_radio": "Radio na Żywo",
     "widget_title_system": "Status Systemu",
