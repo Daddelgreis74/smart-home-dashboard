@@ -1886,7 +1886,7 @@ body::before {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
   padding: 8px 10px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.03);
@@ -1894,6 +1894,7 @@ body::before {
   flex: 0 1 auto;
   min-width: 100px;
   max-width: 125px;
+  height: 170px;
   box-sizing: border-box;
   backdrop-filter: blur(10px);
 }
@@ -1924,13 +1925,17 @@ body::before {
 }
 
 .sensor-card-title {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: rgba(218, 232, 255, 0.85);
   text-align: center;
   margin-bottom: 2px;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sensor-gauges {
