@@ -94,16 +94,9 @@ export async function refreshSensorWidget() {
               <small data-i18n="system_temp">Temp</small>
             </div>
           </div>
-          <div class="sensor-gauge hum" id="humGauge-${index}" style="--value:0; --color:#06b6d4;">
-            <div class="gauge-core">
-              <i class="fas fa-droplet"></i>
-              <strong id="sensorHum-${index}">--%</strong>
-              <small data-i18n="weather_humidity">Feuchte</small>
-            </div>
-          </div>
         </div>
         <div class="sensor-extra-info">
-          <div class="sensor-dewpoint" id="sensorDew-${index}">Taupunkt: --°</div>
+          <div class="sensor-humidity" id="sensorHum-${index}">Feuchte: --%</div>
           <div class="sensor-battery" id="sensorBat-${index}" style="display: none;"></div>
         </div>
         <div class="sensor-meta" id="sensorStatus-${index}">Offline</div>
@@ -115,7 +108,6 @@ export async function refreshSensorWidget() {
   const promises = sensorList.map(async (sensor, index) => {
     const tempEl = document.getElementById(`sensorTemp-${index}`);
     const humEl = document.getElementById(`sensorHum-${index}`);
-    const dewEl = document.getElementById(`sensorDew-${index}`);
     const batEl = document.getElementById(`sensorBat-${index}`);
     const statusEl = document.getElementById(`sensorStatus-${index}`);
     if (!tempEl) return;
@@ -127,18 +119,12 @@ export async function refreshSensorWidget() {
 
       const temp = Number(data.temperature);
       const hum = Number(data.humidity);
-      const dew = Number(data.dewPoint);
 
       tempEl.textContent = Number.isFinite(temp) ? `${temp.toFixed(1)}°` : '--°';
       setGauge(`tempGauge-${index}`, temp, -15, 45);
 
       if (humEl) {
-        humEl.textContent = Number.isFinite(hum) ? `${hum.toFixed(0)}%` : '--%';
-        setGauge(`humGauge-${index}`, hum, 0, 100);
-      }
-
-      if (dewEl) {
-        dewEl.textContent = Number.isFinite(dew) ? `Taupunkt: ${dew.toFixed(1)}°C` : 'Taupunkt: --°';
+        humEl.textContent = Number.isFinite(hum) ? `Feuchte: ${hum.toFixed(0)}%` : 'Feuchte: --%';
       }
 
       if (batEl) {
@@ -182,11 +168,7 @@ export async function refreshSensorWidget() {
       tempEl.textContent = '--°';
       setGauge(`tempGauge-${index}`, 0, -15, 45);
       if (humEl) {
-        humEl.textContent = '--%';
-        setGauge(`humGauge-${index}`, 0, 0, 100);
-      }
-      if (dewEl) {
-        dewEl.textContent = 'Taupunkt: --°';
+        humEl.textContent = 'Feuchte: --%';
       }
       if (batEl) {
         batEl.style.display = 'none';

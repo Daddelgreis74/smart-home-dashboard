@@ -1886,14 +1886,14 @@ body::before {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  border-radius: 16px;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
   flex: 0 1 auto;
-  min-width: 180px;
-  max-width: 220px;
+  min-width: 100px;
+  max-width: 125px;
   box-sizing: border-box;
   backdrop-filter: blur(10px);
 }
@@ -1907,10 +1907,10 @@ body::before {
   margin-top: 2px;
 }
 
-.sensor-dewpoint {
+.sensor-humidity {
   font-size: 9.5px;
-  color: rgba(218, 232, 255, 0.55);
-  font-weight: 500;
+  color: rgba(218, 232, 255, 0.65);
+  font-weight: 600;
   letter-spacing: 0.02em;
 }
 
