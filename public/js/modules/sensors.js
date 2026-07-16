@@ -87,13 +87,24 @@ export async function refreshSensorWidget() {
       card.innerHTML = `
         <div class="sensor-card-title">${sensor.name || 'Sensor'}</div>
         <div class="sensor-gauges">
-          <div class="sensor-gauge temp" id="tempGauge-${index}" style="--value:0; --color:#66d9ff;">
+          <div class="sensor-gauge temp" id="tempGauge-${index}" style="--value:0; --color:#38bdf8;">
             <div class="gauge-core">
               <i class="fas fa-temperature-half"></i>
               <strong id="sensorTemp-${index}">--°</strong>
-              <small data-i18n="sensor_unit">Temperatur</small>
+              <small data-i18n="system_temp">Temp</small>
             </div>
           </div>
+          <div class="sensor-gauge hum" id="humGauge-${index}" style="--value:0; --color:#06b6d4;">
+            <div class="gauge-core">
+              <i class="fas fa-droplet"></i>
+              <strong id="sensorHum-${index}">--%</strong>
+              <small data-i18n="weather_humidity">Feuchte</small>
+            </div>
+          </div>
+        </div>
+        <div class="sensor-extra-info">
+          <div class="sensor-dewpoint" id="sensorDew-${index}">Taupunkt: --°</div>
+          <div class="sensor-battery" id="sensorBat-${index}" style="display: none;"></div>
         </div>
         <div class="sensor-meta" id="sensorStatus-${index}">Offline</div>
       `;
@@ -103,6 +114,9 @@ export async function refreshSensorWidget() {
 
   const promises = sensorList.map(async (sensor, index) => {
     const tempEl = document.getElementById(`sensorTemp-${index}`);
+    const humEl = document.getElementById(`sensorHum-${index}`);
+    const dewEl = document.getElementById(`sensorDew-${index}`);
+    const batEl = document.getElementById(`sensorBat-${index}`);
     const statusEl = document.getElementById(`sensorStatus-${index}`);
     if (!tempEl) return;
 
@@ -112,8 +126,53 @@ export async function refreshSensorWidget() {
       if (!data.success) throw new Error(data.error || 'Sensor nicht erreichbar');
 
       const temp = Number(data.temperature);
+      const hum = Number(data.humidity);
+      const dew = Number(data.dewPoint);
+
       tempEl.textContent = Number.isFinite(temp) ? `${temp.toFixed(1)}°` : '--°';
-      setGauge(`tempGauge-${index}`, temp, -10, 40);
+      setGauge(`tempGauge-${index}`, temp, -15, 45);
+
+      if (humEl) {
+        humEl.textContent = Number.isFinite(hum) ? `${hum.toFixed(0)}%` : '--%';
+        setGauge(`humGauge-${index}`, hum, 0, 100);
+      }
+
+      if (dewEl) {
+        dewEl.textContent = Number.isFinite(dew) ? `Taupunkt: ${dew.toFixed(1)}°C` : 'Taupunkt: --°';
+      }
+
+      if (batEl) {
+        if (data.batteryPercent !== null && data.batteryPercent !== undefined) {
+          batEl.style.display = 'flex';
+          const pct = Number(data.batteryPercent);
+          const volt = data.batteryVoltage !== null ? Number(data.batteryVoltage) : null;
+          
+          let batIcon = 'fa-battery-full';
+          let batColor = '#22c55e'; // green
+          
+          if (pct < 20) {
+            batIcon = 'fa-battery-empty';
+            batColor = '#ef4444'; // red
+          } else if (pct < 50) {
+            batIcon = 'fa-battery-quarter';
+            batColor = '#f97316'; // orange
+          } else if (pct < 75) {
+            batIcon = 'fa-battery-half';
+          } else if (pct < 90) {
+            batIcon = 'fa-battery-three-quarters';
+          }
+
+          batEl.style.color = batColor;
+          
+          let batText = `<i class="fas ${batIcon}"></i> <span>${pct}%</span>`;
+          if (volt !== null) {
+            batText += ` <span style="opacity: 0.7; font-size: 8.5px; margin-left: 2px;">(${volt.toFixed(2)}V)</span>`;
+          }
+          batEl.innerHTML = batText;
+        } else {
+          batEl.style.display = 'none';
+        }
+      }
 
       if (statusEl) {
         statusEl.textContent = data.time ? data.time.slice(11, 16) : 'Online';
@@ -121,7 +180,17 @@ export async function refreshSensorWidget() {
       }
     } catch (e) {
       tempEl.textContent = '--°';
-      setGauge(`tempGauge-${index}`, 0, -10, 40);
+      setGauge(`tempGauge-${index}`, 0, -15, 45);
+      if (humEl) {
+        humEl.textContent = '--%';
+        setGauge(`humGauge-${index}`, 0, 0, 100);
+      }
+      if (dewEl) {
+        dewEl.textContent = 'Taupunkt: --°';
+      }
+      if (batEl) {
+        batEl.style.display = 'none';
+      }
       if (statusEl) {
         statusEl.textContent = 'Offline';
         statusEl.style.color = '#ef4444';

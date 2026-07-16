@@ -1886,15 +1886,41 @@ body::before {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 8px 10px;
-  border-radius: 12px;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
   flex: 0 1 auto;
-  min-width: 100px;
-  max-width: 125px;
+  min-width: 180px;
+  max-width: 220px;
   box-sizing: border-box;
+  backdrop-filter: blur(10px);
+}
+
+.sensor-extra-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  margin-top: 2px;
+}
+
+.sensor-dewpoint {
+  font-size: 9.5px;
+  color: rgba(218, 232, 255, 0.55);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.sensor-battery {
+  font-size: 9.5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .sensor-card-title {

@@ -25,6 +25,19 @@ async function getSensorData(ip) {
   const sensor = sensorName ? sensors[sensorName] : null;
   if (!sensor) throw new Error('Kein Temperatur-/Feuchte-Sensor gefunden');
 
+  let batteryPercent = null;
+  let batteryVoltage = null;
+
+  if (sensor) {
+    if (sensor.Battery !== undefined) batteryPercent = Number(sensor.Battery);
+    if (sensor.BatteryPercent !== undefined) batteryPercent = Number(sensor.BatteryPercent);
+    if (sensor.BatteryVoltage !== undefined) batteryVoltage = Number(sensor.BatteryVoltage);
+  }
+  if (sensors.Battery !== undefined && batteryPercent === null) batteryPercent = Number(sensors.Battery);
+  if (sensors.BatteryPercent !== undefined && batteryPercent === null) batteryPercent = Number(sensors.BatteryPercent);
+  if (sensors.BatteryVoltage !== undefined && batteryVoltage === null) batteryVoltage = Number(sensors.BatteryVoltage);
+  if (sensors.Analog && sensors.Analog.A0 !== undefined) batteryVoltage = Number(sensors.Analog.A0);
+
   return {
     success: true,
     online: true,
@@ -34,7 +47,9 @@ async function getSensorData(ip) {
     temperature: Number(sensor.Temperature),
     humidity: Number(sensor.Humidity),
     dewPoint: Number(sensor.DewPoint),
-    tempUnit: sensors.TempUnit || 'C'
+    tempUnit: sensors.TempUnit || 'C',
+    batteryPercent,
+    batteryVoltage
   };
 }
 
