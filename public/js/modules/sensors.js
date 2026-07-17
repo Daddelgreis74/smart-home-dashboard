@@ -128,31 +128,55 @@ export async function refreshSensorWidget() {
       }
 
       if (batEl) {
-        if (data.batteryPercent !== null && data.batteryPercent !== undefined) {
+        const pct = data.batteryPercent !== null && data.batteryPercent !== undefined ? Number(data.batteryPercent) : null;
+        const volt = data.batteryVoltage !== null && data.batteryVoltage !== undefined ? Number(data.batteryVoltage) : null;
+        
+        if (pct !== null || volt !== null) {
           batEl.style.display = 'flex';
-          const pct = Number(data.batteryPercent);
-          const volt = data.batteryVoltage !== null ? Number(data.batteryVoltage) : null;
-          
-          let batIcon = 'fa-battery-full';
+          let batIcon = 'fa-battery-half';
           let batColor = '#22c55e'; // green
           
-          if (pct < 20) {
-            batIcon = 'fa-battery-empty';
-            batColor = '#ef4444'; // red
-          } else if (pct < 50) {
-            batIcon = 'fa-battery-quarter';
-            batColor = '#f97316'; // orange
-          } else if (pct < 75) {
-            batIcon = 'fa-battery-half';
-          } else if (pct < 90) {
-            batIcon = 'fa-battery-three-quarters';
+          if (pct !== null) {
+            if (pct < 20) {
+              batIcon = 'fa-battery-empty';
+              batColor = '#ef4444'; // red
+            } else if (pct < 50) {
+              batIcon = 'fa-battery-quarter';
+              batColor = '#f97316'; // orange
+            } else if (pct < 75) {
+              batIcon = 'fa-battery-half';
+            } else if (pct < 90) {
+              batIcon = 'fa-battery-three-quarters';
+            } else {
+              batIcon = 'fa-battery-full';
+            }
+          } else {
+            // Wenn wir nur Volt haben (z. B. 18650 Akku von 3.0V bis 4.2V)
+            if (volt < 3.4) {
+              batIcon = 'fa-battery-empty';
+              batColor = '#ef4444';
+            } else if (volt < 3.7) {
+              batIcon = 'fa-battery-quarter';
+              batColor = '#f97316';
+            } else if (volt < 4.0) {
+              batIcon = 'fa-battery-half';
+            } else {
+              batIcon = 'fa-battery-full';
+            }
           }
 
           batEl.style.color = batColor;
           
-          let batText = `<i class="fas ${batIcon}"></i> <span>${pct}%</span>`;
+          let batText = `<i class="fas ${batIcon}"></i>`;
+          if (pct !== null) {
+            batText += ` <span>${pct}%</span>`;
+          }
           if (volt !== null) {
-            batText += ` <span style="opacity: 0.7; font-size: 8.5px; margin-left: 2px;">(${volt.toFixed(2)}V)</span>`;
+            if (pct !== null) {
+              batText += ` <span style="opacity: 0.7; font-size: 8.5px; margin-left: 2px;">(${volt.toFixed(2)}V)</span>`;
+            } else {
+              batText += ` <span>${volt.toFixed(2)}V</span>`;
+            }
           }
           batEl.innerHTML = batText;
         } else {

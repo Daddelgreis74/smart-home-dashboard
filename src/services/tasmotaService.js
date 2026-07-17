@@ -36,7 +36,13 @@ async function getSensorData(ip) {
   if (sensors.Battery !== undefined && batteryPercent === null) batteryPercent = Number(sensors.Battery);
   if (sensors.BatteryPercent !== undefined && batteryPercent === null) batteryPercent = Number(sensors.BatteryPercent);
   if (sensors.BatteryVoltage !== undefined && batteryVoltage === null) batteryVoltage = Number(sensors.BatteryVoltage);
-  if (sensors.Analog && sensors.Analog.A0 !== undefined) batteryVoltage = Number(sensors.Analog.A0);
+  
+  const analog = sensors.ANALOG || sensors.Analog;
+  if (analog && batteryVoltage === null) {
+    if (analog.Voltage !== undefined) batteryVoltage = Number(analog.Voltage);
+    else if (analog.A0 !== undefined) batteryVoltage = Number(analog.A0);
+    else if (analog.A0_Volts !== undefined) batteryVoltage = Number(analog.A0_Volts);
+  }
 
   return {
     success: true,
