@@ -78,32 +78,83 @@ export async function refreshSensorWidget() {
   }
 
   const currentKey = sensorList.map(s => `${s.name || ''}_${s.ip}`).join('|');
-  if (sensorBody.dataset.currentKey !== currentKey) {
-    sensorBody.dataset.currentKey = currentKey;
-    sensorBody.innerHTML = '';
-    sensorList.forEach((sensor, index) => {
-      const card = document.createElement('div');
-      card.className = 'sensor-card';
-      card.innerHTML = `
-        <div class="sensor-card-title">${sensor.name || 'Sensor'}</div>
-        <div class="sensor-gauges">
-          <div class="sensor-gauge temp" id="tempGauge-${index}" style="--value:0; --color:#38bdf8;">
-            <div class="gauge-core">
-              <i class="fas fa-temperature-half"></i>
-              <strong id="sensorTemp-${index}">--°</strong>
-              <small data-i18n="system_temp">Temp</small>
+  
+  if (sensorList.length === 2) {
+    // Spezial-Layout: Kombiniertes LCD-Display für 2 Sensoren (z.B. Innen & Außen)
+    if (sensorBody.dataset.currentKey !== currentKey || !sensorBody.querySelector('.lcd-panel')) {
+      sensorBody.dataset.currentKey = currentKey;
+      sensorBody.innerHTML = `
+        <div class="lcd-panel">
+          <div class="lcd-screen">
+            <!-- Links: Innen -->
+            <div class="lcd-section lcd-indoor">
+              <div class="lcd-label">${sensorList[0].name || 'INNEN'}</div>
+              <div class="lcd-digits">
+                <span class="lcd-value" id="sensorTemp-0">--.-</span>
+                <span class="lcd-unit">°C</span>
+              </div>
+              <div class="lcd-sub">
+                <i class="fas fa-droplet"></i> <span id="sensorHum-0">--%</span>
+              </div>
+            </div>
+            
+            <div class="lcd-divider"></div>
+            
+            <!-- Rechts: Aussen -->
+            <div class="lcd-section lcd-outdoor">
+              <div class="lcd-label">${sensorList[1].name || 'AUSSEN'}</div>
+              <div class="lcd-digits">
+                <span class="lcd-value" id="sensorTemp-1">--.-</span>
+                <span class="lcd-unit">°C</span>
+              </div>
+              <div class="lcd-sub">
+                <span class="lcd-hum-wrap">
+                  <i class="fas fa-droplet"></i> <span id="sensorHum-1">--%</span>
+                </span>
+                <span class="lcd-bat-wrap" id="sensorBat-1" style="display: none;"></span>
+              </div>
             </div>
           </div>
+          <div class="lcd-footer">
+            <span class="lcd-status-dot" id="lcdStatusDot"></span>
+            <span class="lcd-meta" id="sensorStatus-combined">Lade...</span>
+          </div>
         </div>
-        <div class="sensor-extra-info">
-          <div class="sensor-humidity" id="sensorHum-${index}">Feuchte: --%</div>
-          <div class="sensor-battery" id="sensorBat-${index}" style="display: none;"></div>
-        </div>
-        <div class="sensor-meta" id="sensorStatus-${index}">Offline</div>
       `;
-      sensorBody.appendChild(card);
-    });
+    }
+  } else {
+    // Standard-Layout: Einzelne Kärtchen pro Sensor
+    if (sensorBody.dataset.currentKey !== currentKey || sensorBody.querySelector('.lcd-panel')) {
+      sensorBody.dataset.currentKey = currentKey;
+      sensorBody.innerHTML = '';
+      sensorList.forEach((sensor, index) => {
+        const card = document.createElement('div');
+        card.className = 'sensor-card';
+        card.innerHTML = `
+          <div class="sensor-card-title">${sensor.name || 'Sensor'}</div>
+          <div class="sensor-gauges">
+            <div class="sensor-gauge temp" id="tempGauge-${index}" style="--value:0; --color:#38bdf8;">
+              <div class="gauge-core">
+                <i class="fas fa-temperature-half"></i>
+                <strong id="sensorTemp-${index}">--°</strong>
+                <small data-i18n="system_temp">Temp</small>
+              </div>
+            </div>
+          </div>
+          <div class="sensor-extra-info">
+            <div class="sensor-humidity" id="sensorHum-${index}">Feuchte: --%</div>
+            <div class="sensor-battery" id="sensorBat-${index}" style="display: none;"></div>
+          </div>
+          <div class="sensor-meta" id="sensorStatus-${index}">Offline</div>
+        `;
+        sensorBody.appendChild(card);
+      });
+    }
   }
+
+  let indoorOffline = false;
+  let outdoorOffline = false;
+  let lastUpdateTime = null;
 
   const promises = sensorList.map(async (sensor, index) => {
     const tempEl = document.getElementById(`sensorTemp-${index}`);
@@ -120,11 +171,15 @@ export async function refreshSensorWidget() {
       const temp = Number(data.temperature);
       const hum = Number(data.humidity);
 
-      tempEl.textContent = Number.isFinite(temp) ? `${temp.toFixed(1)}°` : '--°';
-      setGauge(`tempGauge-${index}`, temp, -15, 45);
-
-      if (humEl) {
-        humEl.textContent = Number.isFinite(hum) ? `Feuchte: ${hum.toFixed(0)}%` : 'Feuchte: --%';
+      if (sensorList.length === 2) {
+        tempEl.textContent = Number.isFinite(temp) ? temp.toFixed(1) : '--.-';
+        humEl.textContent = Number.isFinite(hum) ? `${hum.toFixed(0)}%` : '--%';
+      } else {
+        tempEl.textContent = Number.isFinite(temp) ? `${temp.toFixed(1)}°` : '--°';
+        setGauge(`tempGauge-${index}`, temp, -15, 45);
+        if (humEl) {
+          humEl.textContent = Number.isFinite(hum) ? `Feuchte: ${hum.toFixed(0)}%` : 'Feuchte: --%';
+        }
       }
 
       if (batEl) {
@@ -151,7 +206,6 @@ export async function refreshSensorWidget() {
               batIcon = 'fa-battery-full';
             }
           } else {
-            // Wenn wir nur Volt haben (z. B. 18650 Akku von 3.0V bis 4.2V)
             if (volt < 3.4) {
               batIcon = 'fa-battery-empty';
               batColor = '#ef4444';
@@ -173,7 +227,7 @@ export async function refreshSensorWidget() {
           }
           if (volt !== null) {
             if (pct !== null) {
-              batText += ` <span style="opacity: 0.7; font-size: 8.5px; margin-left: 2px;">(${volt.toFixed(2)}V)</span>`;
+              batText += ` <span style="opacity: 0.6; font-size: 8px; margin-left: 2px;">(${volt.toFixed(2)}V)</span>`;
             } else {
               batText += ` <span>${volt.toFixed(2)}V</span>`;
             }
@@ -188,23 +242,56 @@ export async function refreshSensorWidget() {
         statusEl.textContent = data.time ? data.time.slice(11, 16) : 'Online';
         statusEl.style.color = '';
       }
-    } catch (e) {
-      tempEl.textContent = '--°';
-      setGauge(`tempGauge-${index}`, 0, -15, 45);
-      if (humEl) {
-        humEl.textContent = 'Feuchte: --%';
+      
+      if (data.time) {
+        lastUpdateTime = data.time.slice(11, 16);
       }
+    } catch (e) {
+      if (sensorList.length === 2) {
+        tempEl.textContent = '--.-';
+        humEl.textContent = '--%';
+      } else {
+        tempEl.textContent = '--°';
+        setGauge(`tempGauge-${index}`, 0, -15, 45);
+        if (humEl) humEl.textContent = 'Feuchte: --%';
+      }
+      
       if (batEl) {
         batEl.style.display = 'none';
       }
+      
       if (statusEl) {
         statusEl.textContent = 'Offline';
         statusEl.style.color = '#ef4444';
       }
+      
+      if (index === 0) indoorOffline = true;
+      if (index === 1) outdoorOffline = true;
     }
   });
 
   await Promise.allSettled(promises);
+
+  // Kombinierten Status aktualisieren bei 2 Sensoren
+  if (sensorList.length === 2) {
+    const combinedStatusEl = document.getElementById('sensorStatus-combined');
+    const statusDotEl = document.getElementById('lcdStatusDot');
+    if (combinedStatusEl) {
+      if (indoorOffline && outdoorOffline) {
+        combinedStatusEl.textContent = 'Beide Offline';
+        if (statusDotEl) statusDotEl.className = 'lcd-status-dot offline';
+      } else if (indoorOffline) {
+        combinedStatusEl.textContent = `Innen Offline | Außen: ${lastUpdateTime || 'Aktiv'}`;
+        if (statusDotEl) statusDotEl.className = 'lcd-status-dot';
+      } else if (outdoorOffline) {
+        combinedStatusEl.textContent = `Außen Offline | Innen: ${lastUpdateTime || 'Aktiv'}`;
+        if (statusDotEl) statusDotEl.className = 'lcd-status-dot';
+      } else {
+        combinedStatusEl.textContent = `Zuletzt aktualisiert: ${lastUpdateTime || 'Aktiv'}`;
+        if (statusDotEl) statusDotEl.className = 'lcd-status-dot';
+      }
+    }
+  }
 }
 
 export function initSensorWidget() {
