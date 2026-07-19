@@ -8,10 +8,29 @@ const {
   setDevicePower, 
   scanSubnet 
 } = require('../services/tasmotaService');
+const fs = require('fs');
+const path = require('path');
 
 const router = express.Router();
 
+// Lade Push-Cache für Deep-Sleep Sensoren von Festplatte
+const PUSH_CACHE_FILE = path.join(__dirname, '../../data/pushed-sensors.json');
+let pushedSensorCache = {};
+if (fs.existsSync(PUSH_CACHE_FILE)) {
+  try {
+    pushedSensorCache = JSON.parse(fs.readFileSync(PUSH_CACHE_FILE, 'utf8'));
+  } catch (e) {
+    console.error('[Tasmota Push] Fehler beim Laden des Push-Caches:', e.message);
+  }
+}
 
+function savePushCache() {
+  try {
+    fs.writeFileSync(PUSH_CACHE_FILE, JSON.stringify(pushedSensorCache, null, 2), 'utf8');
+  } catch (e) {
+    console.error('[Tasmota Push] Fehler beim Speichern des Push-Caches:', e.message);
+  }
+}
 
 router.get('/', (req, res) => {
   res.json(fileStore.tasmotaRAM);
@@ -26,6 +45,33 @@ router.post('/', (req, res) => {
   res.json({ success: true, saved: fileStore.tasmotaRAM });
 });
 
+// Neuer Endpoint für den Push-Empfang vom solarbetriebenen ESP32-C3
+router.post('/sensor-push', (req, res) => {
+  const ip = req.ip.replace(/^::ffff:/, ''); // IPv4 extrahieren falls dual-stack
+  const data = req.body;
+  
+  console.log(`[Tasmota Push] Empfangen von ${ip}:`, data);
+  
+  pushedSensorCache[ip] = {
+    temperature: data.temperature,
+    humidity: data.humidity,
+    dewPoint: data.dewPoint,
+    batteryVoltage: data.batteryVoltage,
+    batteryPercent: data.batteryPercent,
+    time: new Date().toISOString()
+  };
+  
+  savePushCache();
+  
+  // Realtime Broadcast an Web-HUD (falls Sockets aktiv)
+  const io = req.app.get('io');
+  if (io) {
+    io.emit('sensor-update', { ip, data: pushedSensorCache[ip] });
+  }
+  
+  res.json({ success: true, tempOffset: 0.0 });
+});
+
 router.get('/status', async (req, res) => {
   const devices = fileStore.tasmotaRAM;
   const results = await getDeviceStatus(devices);
@@ -35,6 +81,24 @@ router.get('/status', async (req, res) => {
 router.get('/sensor', async (req, res) => {
   const ip = String(req.query?.ip || '192.168.178.40').trim();
   if (!isPrivateIPv4(ip)) return res.status(400).json({ success: false, error: 'Ungültige lokale IPv4-Adresse' });
+
+  // Falls wir gespeicherte Push-Daten für diesen Sensor besitzen, liefere diese direkt aus dem Cache
+  if (pushedSensorCache[ip]) {
+    const cached = pushedSensorCache[ip];
+    return res.json({
+      success: true,
+      online: true,
+      ip,
+      name: 'Solar-Sensor',
+      time: cached.time,
+      temperature: cached.temperature,
+      humidity: cached.humidity,
+      dewPoint: cached.dewPoint,
+      tempUnit: 'C',
+      batteryPercent: cached.batteryPercent,
+      batteryVoltage: cached.batteryVoltage
+    });
+  }
 
   try {
     const data = await getSensorData(ip);
