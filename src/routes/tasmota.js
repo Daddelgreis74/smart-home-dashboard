@@ -52,13 +52,16 @@ router.post('/sensor-push', (req, res) => {
   
   console.log(`[Tasmota Push] Empfangen von ${ip}:`, data);
   
+  const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+  const localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+
   pushedSensorCache[ip] = {
     temperature: data.temperature,
     humidity: data.humidity,
     dewPoint: data.dewPoint,
     batteryVoltage: data.batteryVoltage,
     batteryPercent: data.batteryPercent,
-    time: new Date().toISOString()
+    time: localISOTime
   };
   
   savePushCache();
