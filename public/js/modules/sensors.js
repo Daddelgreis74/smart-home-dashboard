@@ -81,44 +81,42 @@ export async function refreshSensorWidget() {
   
   if (sensorList.length === 2) {
     // Spezial-Layout: Kombiniertes LCD-Display für 2 Sensoren (z.B. Innen & Außen)
-    if (sensorBody.dataset.currentKey !== currentKey || !sensorBody.querySelector('.lcd-panel')) {
+    if (sensorBody.dataset.currentKey !== currentKey || !sensorBody.querySelector('.lcd-container')) {
       sensorBody.dataset.currentKey = currentKey;
       sensorBody.innerHTML = `
-        <div class="lcd-panel">
-          <div class="lcd-screen">
-            <!-- Links: Innen -->
-            <div class="lcd-section lcd-indoor">
-              <div class="lcd-label">${sensorList[0].name || 'INNEN'}</div>
-              <div class="lcd-digits">
-                <span class="lcd-value" id="sensorTemp-0">--.-</span>
-                <span class="lcd-unit">°C</span>
-              </div>
-              <div class="lcd-sub">
-                <i class="fas fa-droplet"></i> <span id="sensorHum-0">--%</span>
-              </div>
+        <div class="lcd-container">
+          <!-- Links: Innen -->
+          <div class="lcd-col lcd-indoor">
+            <div class="lcd-label">${sensorList[0].name || 'INNEN'}</div>
+            <div class="lcd-digits">
+              <span class="lcd-value" id="sensorTemp-0">--.-</span>
+              <span class="lcd-unit">°C</span>
             </div>
-            
-            <div class="lcd-divider"></div>
-            
-            <!-- Rechts: Aussen -->
-            <div class="lcd-section lcd-outdoor">
-              <div class="lcd-label">${sensorList[1].name || 'AUSSEN'}</div>
-              <div class="lcd-digits">
-                <span class="lcd-value" id="sensorTemp-1">--.-</span>
-                <span class="lcd-unit">°C</span>
-              </div>
-              <div class="lcd-sub">
-                <span class="lcd-hum-wrap">
-                  <i class="fas fa-droplet"></i> <span id="sensorHum-1">--%</span>
-                </span>
-                <span class="lcd-bat-wrap" id="sensorBat-1" style="display: none;"></span>
-              </div>
+            <div class="lcd-sub">
+              <i class="fas fa-droplet"></i> <span id="sensorHum-0">--%</span>
             </div>
           </div>
-          <div class="lcd-footer">
-            <span class="lcd-status-dot" id="lcdStatusDot"></span>
-            <span class="lcd-meta" id="sensorStatus-combined">Lade...</span>
+          
+          <div class="lcd-divider"></div>
+          
+          <!-- Rechts: Aussen -->
+          <div class="lcd-col lcd-outdoor">
+            <div class="lcd-label">${sensorList[1].name || 'AUSSEN'}</div>
+            <div class="lcd-digits">
+              <span class="lcd-value" id="sensorTemp-1">--.-</span>
+              <span class="lcd-unit">°C</span>
+            </div>
+            <div class="lcd-sub">
+              <span class="lcd-hum-wrap">
+                <i class="fas fa-droplet"></i> <span id="sensorHum-1">--%</span>
+              </span>
+              <span class="lcd-bat-wrap" id="sensorBat-1" style="display: none;"></span>
+            </div>
           </div>
+        </div>
+        <div class="lcd-footer">
+          <span class="lcd-status-dot" id="lcdStatusDot"></span>
+          <span class="lcd-meta" id="sensorStatus-combined">Lade...</span>
         </div>
       `;
     }

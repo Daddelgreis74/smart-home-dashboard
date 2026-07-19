@@ -4454,90 +4454,49 @@ body.theme-stealth .timer-drum-picker::after {
 }
 
 /* --- Premium Glassmorphic LCD Weather Station Widget --- */
-.lcd-panel {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-  min-height: 120px;
-  box-sizing: border-box;
-  backdrop-filter: blur(10px);
-}
-
-.lcd-screen {
-  background: rgba(0, 0, 0, 0.25); /* dark semi-transparent screen */
-  border: 1px solid rgba(255, 255, 255, 0.03);
-  border-radius: 8px;
-  padding: 8px 12px;
+.lcd-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: relative;
-  box-shadow: inset 0 2px 6px rgba(0,0,0,0.5);
+  width: 100%;
   flex: 1;
-  overflow: hidden;
+  padding: 10px 0;
   box-sizing: border-box;
 }
 
-/* Glass glare reflection */
-.lcd-screen::after {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 60%);
-  pointer-events: none;
-  border-radius: 7px;
-  z-index: 2;
-}
-
-/* Scanline / Pixel Grid effect */
-.lcd-screen::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
-  background-size: 100% 3px;
-  opacity: 0.15;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.lcd-section {
+.lcd-col {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   flex: 1;
   z-index: 1;
 }
 
-.lcd-section.lcd-indoor {
+.lcd-col.lcd-indoor {
   align-items: flex-start;
+  padding-left: 10px;
 }
 
-.lcd-section.lcd-outdoor {
+.lcd-col.lcd-outdoor {
   align-items: flex-end;
+  padding-right: 10px;
 }
 
 .lcd-divider {
   width: 1px;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0) 100%);
-  align-self: stretch;
-  margin: 4px 0;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0 15px;
+  align-self: center;
   z-index: 1;
 }
 
 .lcd-label {
   font-family: 'Outfit', sans-serif;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.05em;
-  opacity: 0.6;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .lcd-indoor .lcd-label {
@@ -4551,12 +4510,12 @@ body.theme-stealth .timer-drum-picker::after {
 .lcd-digits {
   display: flex;
   align-items: baseline;
-  margin: 2px 0;
+  margin-bottom: 4px;
 }
 
 .lcd-value {
   font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
-  font-size: 26px;
+  font-size: 32px;
   font-weight: bold;
   line-height: 1;
   letter-spacing: -0.01em;
@@ -4564,17 +4523,17 @@ body.theme-stealth .timer-drum-picker::after {
 
 .lcd-indoor .lcd-value {
   color: #ffa500;
-  text-shadow: 0 0 8px rgba(255, 165, 0, 0.35);
+  text-shadow: 0 0 10px rgba(255, 165, 0, 0.4);
 }
 
 .lcd-outdoor .lcd-value {
   color: #10b981;
-  text-shadow: 0 0 8px rgba(16, 185, 129, 0.35);
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
 }
 
 .lcd-unit {
-  font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
-  font-size: 13px;
+  font-family: 'Share Tech Mono', 'Outfit', sans-serif;
+  font-size: 16px;
   font-weight: 500;
   margin-left: 2px;
   opacity: 0.8;
@@ -4590,13 +4549,12 @@ body.theme-stealth .timer-drum-picker::after {
 
 .lcd-sub {
   font-family: 'Outfit', sans-serif;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 500;
   display: flex;
   align-items: center;
   gap: 5px;
   opacity: 0.8;
-  margin-top: 2px;
 }
 
 .lcd-indoor .lcd-sub {
@@ -4608,7 +4566,7 @@ body.theme-stealth .timer-drum-picker::after {
 }
 
 .lcd-sub i {
-  font-size: 8px;
+  font-size: 9px;
 }
 
 .lcd-bat-wrap {
@@ -4620,13 +4578,14 @@ body.theme-stealth .timer-drum-picker::after {
 
 /* Lower bar for timestamps */
 .lcd-footer {
-  margin-top: 4px;
-  padding: 0 4px;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-family: 'Outfit', sans-serif;
-  font-size: 8px;
+  font-size: 9px;
   color: rgba(218, 232, 255, 0.25);
   font-weight: 500;
 }
@@ -4636,8 +4595,8 @@ body.theme-stealth .timer-drum-picker::after {
 }
 
 .lcd-status-dot {
-  width: 4px;
-  height: 4px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background-color: #10b981;
   box-shadow: 0 0 3px #10b981;
