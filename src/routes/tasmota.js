@@ -56,9 +56,9 @@ router.post('/sensor-push', (req, res) => {
   const localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
 
   pushedSensorCache[ip] = {
-    temperature: data.temperature,
-    humidity: data.humidity,
-    dewPoint: data.dewPoint,
+    temperature: data.temperature !== null ? data.temperature : undefined,
+    humidity: data.humidity !== null ? data.humidity : undefined,
+    dewPoint: data.dewPoint !== null ? data.dewPoint : undefined,
     batteryVoltage: data.batteryVoltage,
     batteryPercent: data.batteryPercent,
     time: localISOTime
