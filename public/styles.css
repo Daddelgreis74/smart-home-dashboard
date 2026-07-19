@@ -4472,13 +4472,13 @@ body.theme-stealth .timer-drum-picker::after {
 }
 
 .lcd-col.lcd-indoor {
-  align-items: flex-start;
-  padding-left: 10px;
+  align-items: center;
+  padding-left: 0;
 }
 
 .lcd-col.lcd-outdoor {
-  align-items: flex-end;
-  padding-right: 10px;
+  align-items: center;
+  padding-right: 0;
 }
 
 .lcd-divider {
