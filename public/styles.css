@@ -4453,37 +4453,31 @@ body.theme-stealth .timer-drum-picker::after {
   height: 30px;
 }
 
-/* --- Premium LCD Weather Station Widget --- */
+/* --- Premium Glassmorphic LCD Weather Station Widget --- */
 .lcd-panel {
-  background: linear-gradient(135deg, #2d3035 0%, #1c1d22 50%, #0f1013 100%);
-  border: 1px solid rgba(0, 0, 0, 0.4);
-  border-radius: 16px;
-  padding: 10px;
-  box-shadow: 
-    inset 0 1px 1px rgba(255, 255, 255, 0.08),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.4),
-    0 8px 16px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
-  min-height: 155px;
+  min-height: 120px;
   box-sizing: border-box;
+  backdrop-filter: blur(10px);
 }
 
 .lcd-screen {
-  background: radial-gradient(circle at center, #171d18 0%, #0a0d0a 100%); /* classic dark grey-green tint */
-  border: 3px solid #0f0f10;
-  border-radius: 10px;
-  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.25); /* dark semi-transparent screen */
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 8px 12px;
   display: flex;
   justify-content: space-between;
-  align-items: stretch;
+  align-items: center;
   position: relative;
-  box-shadow: 
-    inset 0 0 8px rgba(0, 0, 0, 0.85),
-    0 1px 0 rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.5);
   flex: 1;
   overflow: hidden;
   box-sizing: border-box;
@@ -4494,7 +4488,7 @@ body.theme-stealth .timer-drum-picker::after {
   content: "";
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 50%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 60%);
   pointer-events: none;
   border-radius: 7px;
   z-index: 2;
@@ -4505,9 +4499,9 @@ body.theme-stealth .timer-drum-picker::after {
   content: "";
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 255, 0, 0.02));
-  background-size: 100% 3px, 6px 100%;
-  opacity: 0.25;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+  background-size: 100% 3px;
+  opacity: 0.15;
   pointer-events: none;
   z-index: 1;
 }
@@ -4515,113 +4509,106 @@ body.theme-stealth .timer-drum-picker::after {
 .lcd-section {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   flex: 1;
   z-index: 1;
 }
 
 .lcd-section.lcd-indoor {
   align-items: flex-start;
-  padding-right: 8px;
 }
 
 .lcd-section.lcd-outdoor {
   align-items: flex-end;
-  padding-left: 8px;
 }
 
 .lcd-divider {
   width: 1px;
-  background: linear-gradient(to bottom, rgba(57, 255, 20, 0.01) 0%, rgba(57, 255, 20, 0.15) 50%, rgba(57, 255, 20, 0.01) 100%);
-  box-shadow: 
-    0 0 3px rgba(57, 255, 20, 0.05),
-    0 0 6px rgba(57, 255, 20, 0.02);
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0) 100%);
   align-self: stretch;
+  margin: 4px 0;
   z-index: 1;
 }
 
 .lcd-label {
   font-family: 'Outfit', sans-serif;
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  opacity: 0.5;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  opacity: 0.6;
   text-transform: uppercase;
+  margin-bottom: 2px;
 }
 
 .lcd-indoor .lcd-label {
-  color: #ff9f1c;
-  text-shadow: 0 0 4px rgba(255, 159, 28, 0.3);
+  color: #ff9f1c; /* warm amber */
 }
 
 .lcd-outdoor .lcd-label {
-  color: #10b981;
-  text-shadow: 0 0 4px rgba(16, 185, 129, 0.3);
+  color: #10b981; /* emerald */
 }
 
 .lcd-digits {
   display: flex;
   align-items: baseline;
-  margin: 6px 0;
+  margin: 2px 0;
 }
 
 .lcd-value {
   font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: bold;
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
 .lcd-indoor .lcd-value {
   color: #ffa500;
-  text-shadow: 
-    0 0 6px rgba(255, 165, 0, 0.45),
-    0 0 12px rgba(255, 165, 0, 0.2);
+  text-shadow: 0 0 8px rgba(255, 165, 0, 0.35);
 }
 
 .lcd-outdoor .lcd-value {
   color: #10b981;
-  text-shadow: 
-    0 0 6px rgba(16, 185, 129, 0.45),
-    0 0 12px rgba(16, 185, 129, 0.2);
+  text-shadow: 0 0 8px rgba(16, 185, 129, 0.35);
 }
 
 .lcd-unit {
   font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   margin-left: 2px;
+  opacity: 0.8;
 }
 
 .lcd-indoor .lcd-unit {
-  color: rgba(255, 165, 0, 0.7);
+  color: #ffa500;
 }
 
 .lcd-outdoor .lcd-unit {
-  color: rgba(16, 185, 129, 0.7);
+  color: #10b981;
 }
 
 .lcd-sub {
   font-family: 'Outfit', sans-serif;
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 6px;
-  opacity: 0.75;
+  gap: 5px;
+  opacity: 0.8;
+  margin-top: 2px;
 }
 
 .lcd-indoor .lcd-sub {
-  color: rgba(255, 165, 0, 0.85);
+  color: rgba(255, 165, 0, 0.8);
 }
 
 .lcd-outdoor .lcd-sub {
-  color: rgba(16, 185, 129, 0.85);
+  color: rgba(16, 185, 129, 0.8);
 }
 
 .lcd-sub i {
-  font-size: 8.5px;
+  font-size: 8px;
 }
 
 .lcd-bat-wrap {
@@ -4633,19 +4620,19 @@ body.theme-stealth .timer-drum-picker::after {
 
 /* Lower bar for timestamps */
 .lcd-footer {
-  margin-top: 6px;
+  margin-top: 4px;
   padding: 0 4px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-family: 'Outfit', sans-serif;
-  font-size: 8.5px;
-  color: rgba(218, 232, 255, 0.35);
+  font-size: 8px;
+  color: rgba(218, 232, 255, 0.25);
   font-weight: 500;
 }
 
 .lcd-meta {
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
 }
 
 .lcd-status-dot {
@@ -4653,12 +4640,12 @@ body.theme-stealth .timer-drum-picker::after {
   height: 4px;
   border-radius: 50%;
   background-color: #10b981;
-  box-shadow: 0 0 4px #10b981;
+  box-shadow: 0 0 3px #10b981;
   display: inline-block;
 }
 
 .lcd-status-dot.offline {
   background-color: #ef4444;
-  box-shadow: 0 0 4px #ef4444;
+  box-shadow: 0 0 3px #ef4444;
 }
 
