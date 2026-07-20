@@ -4454,36 +4454,40 @@ body.theme-stealth .timer-drum-picker::after {
 }
 
 /* --- Premium Glassmorphic LCD Weather Station Widget --- */
+.sensor-layout:has(.lcd-container) {
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  flex-wrap: nowrap;
+  gap: 0;
+  align-items: stretch;
+  padding-top: 0;
+  flex: 1;
+}
+
 .lcd-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
   flex: 1;
-  padding: 10px 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
 .lcd-col {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   flex: 1;
   z-index: 1;
-}
-
-.lcd-col.lcd-indoor {
-  align-items: center;
-  padding-left: 0;
-}
-
-.lcd-col.lcd-outdoor {
-  align-items: center;
-  padding-right: 0;
+  height: 100%;
 }
 
 .lcd-divider {
   width: 1px;
-  height: 60px;
+  height: 70px;
   background: rgba(255, 255, 255, 0.08);
   margin: 0 15px;
   align-self: center;
@@ -4492,11 +4496,11 @@ body.theme-stealth .timer-drum-picker::after {
 
 .lcd-label {
   font-family: 'Outfit', sans-serif;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .lcd-indoor .lcd-label {
@@ -4515,7 +4519,7 @@ body.theme-stealth .timer-drum-picker::after {
 
 .lcd-value {
   font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
-  font-size: 32px;
+  font-size: 42px;
   font-weight: bold;
   line-height: 1;
   letter-spacing: -0.01em;
@@ -4533,7 +4537,7 @@ body.theme-stealth .timer-drum-picker::after {
 
 .lcd-unit {
   font-family: 'Share Tech Mono', 'Outfit', sans-serif;
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 500;
   margin-left: 2px;
   opacity: 0.8;
@@ -4549,12 +4553,13 @@ body.theme-stealth .timer-drum-picker::after {
 
 .lcd-sub {
   font-family: 'Outfit', sans-serif;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
   display: flex;
   align-items: center;
   gap: 5px;
   opacity: 0.8;
+  margin-top: 6px;
 }
 
 .lcd-indoor .lcd-sub {
