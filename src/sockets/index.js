@@ -2,36 +2,38 @@ const fileStore = require('../utils/fileStore');
 const { getMergedCalls, pingTcp } = require('../services/fritzboxService');
 const { getSystemStatus } = require('../services/systemService');
 
-let serverTimer = {
-  duration: 0,
-  remaining: 0,
-  isPaused: false,
-  lastUpdated: 0,
-  active: false
+let serverTimers = {
+  1: { duration: 0, remaining: 0, isPaused: false, lastUpdated: 0, active: false },
+  2: { duration: 0, remaining: 0, isPaused: false, lastUpdated: 0, active: false }
 };
 
 function initSockets(io) {
   io.on('connection', (socket) => {
     // Aktuellen Timer-Status an neu verbundene/wiederverbundene Clients senden
-    if (serverTimer.active) {
-      let currentRemaining = serverTimer.remaining;
-      if (!serverTimer.isPaused) {
-        const elapsed = Math.floor((Date.now() - serverTimer.lastUpdated) / 1000);
-        currentRemaining = Math.max(0, serverTimer.remaining - elapsed);
+    [1, 2].forEach(id => {
+      const timer = serverTimers[id];
+      if (timer.active) {
+        let currentRemaining = timer.remaining;
+        if (!timer.isPaused) {
+          const elapsed = Math.floor((Date.now() - timer.lastUpdated) / 1000);
+          currentRemaining = Math.max(0, timer.remaining - elapsed);
+        }
+        socket.emit('timer-started', {
+          id: id,
+          duration: timer.duration,
+          remaining: currentRemaining,
+          isPaused: timer.isPaused
+        });
+      } else {
+        socket.emit('timer-cancelled', { id });
       }
-      socket.emit('timer-started', {
-        duration: serverTimer.duration,
-        remaining: currentRemaining,
-        isPaused: serverTimer.isPaused
-      });
-    } else {
-      socket.emit('timer-cancelled');
-    }
+    });
 
     socket.on('update-layout', (layout) => socket.broadcast.emit('layout-updated', layout));
     
     socket.on('timer-start', (data) => {
-      serverTimer = {
+      const id = data.id || 1;
+      serverTimers[id] = {
         duration: data.duration,
         remaining: data.remaining,
         isPaused: data.isPaused,
@@ -41,33 +43,38 @@ function initSockets(io) {
       socket.broadcast.emit('timer-started', data);
     });
 
-    socket.on('timer-pause', () => {
-      if (serverTimer.active && !serverTimer.isPaused) {
-        const elapsed = Math.floor((Date.now() - serverTimer.lastUpdated) / 1000);
-        serverTimer.remaining = Math.max(0, serverTimer.remaining - elapsed);
-        serverTimer.isPaused = true;
-        serverTimer.lastUpdated = Date.now();
+    socket.on('timer-pause', (data) => {
+      const id = data?.id || 1;
+      const timer = serverTimers[id];
+      if (timer.active && !timer.isPaused) {
+        const elapsed = Math.floor((Date.now() - timer.lastUpdated) / 1000);
+        timer.remaining = Math.max(0, timer.remaining - elapsed);
+        timer.isPaused = true;
+        timer.lastUpdated = Date.now();
       }
-      socket.broadcast.emit('timer-paused');
+      socket.broadcast.emit('timer-paused', { id });
     });
 
-    socket.on('timer-resume', () => {
-      if (serverTimer.active && serverTimer.isPaused) {
-        serverTimer.isPaused = false;
-        serverTimer.lastUpdated = Date.now();
+    socket.on('timer-resume', (data) => {
+      const id = data?.id || 1;
+      const timer = serverTimers[id];
+      if (timer.active && timer.isPaused) {
+        timer.isPaused = false;
+        timer.lastUpdated = Date.now();
       }
-      socket.broadcast.emit('timer-resumed');
+      socket.broadcast.emit('timer-resumed', { id });
     });
 
-    socket.on('timer-cancel', () => {
-      serverTimer = {
+    socket.on('timer-cancel', (data) => {
+      const id = data?.id || 1;
+      serverTimers[id] = {
         duration: 0,
         remaining: 0,
         isPaused: false,
         lastUpdated: 0,
         active: false
       };
-      socket.broadcast.emit('timer-cancelled');
+      socket.broadcast.emit('timer-cancelled', { id });
     });
 
     socket.emit('fritz-calls', getMergedCalls());

@@ -1,11 +1,17 @@
 import { playSound } from './utils.js';
 
-let timerDuration = 0; // Gesamtzeit in Sekunden
-let timerRemaining = 0; // Verbleibende Sekunden
-let timerInterval = null;
-let isPaused = false;
+// Dictionary zur Verwaltung beider Timer
+let timers = {
+  1: { duration: 0, remaining: 0, interval: null, isPaused: false, alarmInterval: null, targetHH: 0, targetMM: 10, targetSS: 0 },
+  2: { duration: 0, remaining: 0, interval: null, isPaused: false, alarmInterval: null, targetHH: 0, targetMM: 10, targetSS: 0 }
+};
 
-let alarmInterval = null;
+let currentTimerId = 1; // Aktuell sichtbarer Timer-Tab
+
+// Hilfsvariablen für die aktuelle Auswahl im Wähler (Trommel)
+let targetHH = 0;
+let targetMM = 10;
+let targetSS = 0;
 
 // DOM Elemente
 let setupContainer = null;
@@ -21,12 +27,7 @@ let drumHH = null;
 let drumMM = null;
 let drumSS = null;
 
-// Target values
-let targetHH = 0;
-let targetMM = 10;
-let targetSS = 0;
-
-const ITEM_HEIGHT = 30; // Matches CSS line-height
+const ITEM_HEIGHT = 30; // Entspricht der CSS Zeilenhöhe
 
 export function initTimer(socket) {
   setupContainer = document.querySelector('.timer-setup-container');
@@ -65,7 +66,7 @@ export function initTimer(socket) {
     btn.addEventListener('click', () => {
       const seconds = parseInt(btn.getAttribute('data-time'), 10);
       if (seconds > 0) {
-        // Smoothly scroll the wheels first, then start
+        // Räder flüssig einstellen und danach starten
         const hh = Math.floor(seconds / 3600);
         const mm = Math.floor((seconds % 3600) / 60);
         const ss = seconds % 60;
@@ -76,7 +77,7 @@ export function initTimer(socket) {
         
         setTimeout(() => {
           startTimer(seconds);
-        }, 500); // 500ms delay to finish scrolling animation
+        }, 500); // 500ms Verzögerung für die Animation
       }
     });
   });
@@ -94,7 +95,6 @@ export function initTimer(socket) {
   // Event Listener für Cancel Button
   if (cancelBtn) {
     cancelBtn.addEventListener('click', () => {
-      stopAlarm();
       cancelTimer();
     });
   }
@@ -102,12 +102,12 @@ export function initTimer(socket) {
   // Event Listener für Pause Button
   if (pauseBtn) {
     pauseBtn.addEventListener('click', () => {
-      if (alarmInterval) {
-        stopAlarm();
+      const t = timers[currentTimerId];
+      if (t.alarmInterval) {
         cancelTimer();
         return;
       }
-      if (isPaused) {
+      if (t.isPaused) {
         resumeTimer();
       } else {
         pauseTimer();
@@ -115,19 +115,27 @@ export function initTimer(socket) {
     });
   }
 
+  // Event Listeners für Tab-Umschaltung
+  document.querySelectorAll('.timer-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const id = parseInt(tab.getAttribute('data-timer-id'), 10);
+      switchTimerTab(id);
+    });
+  });
+
   // Socket Sync Event Listeners
   if (socket) {
     socket.on('timer-started', (data) => {
-      syncStartTimer(data.duration, data.remaining, data.isPaused);
+      syncStartTimer(data.id || 1, data.duration, data.remaining, data.isPaused);
     });
-    socket.on('timer-paused', () => {
-      syncPauseTimer();
+    socket.on('timer-paused', (data) => {
+      syncPauseTimer(data.id || 1);
     });
-    socket.on('timer-resumed', () => {
-      syncResumeTimer();
+    socket.on('timer-resumed', (data) => {
+      syncResumeTimer(data.id || 1);
     });
-    socket.on('timer-cancelled', () => {
-      syncCancelTimer();
+    socket.on('timer-cancelled', (data) => {
+      syncCancelTimer(data.id || 1);
     });
   }
 }
@@ -169,7 +177,6 @@ function setupScrollListener(container, onSelect) {
       const itemCenter = itemTop + ITEM_HEIGHT / 2;
       const diff = Math.abs(center - itemCenter);
 
-      // Apply 3D perspective distortion based on distance from center
       const relativeDist = (itemCenter - center) / viewHeight; // -0.5 to 0.5
       const angle = relativeDist * 60; // Max 30 deg tilt
       const scale = 1 - Math.abs(relativeDist) * 0.4;
@@ -194,7 +201,6 @@ function setupScrollListener(container, onSelect) {
   };
 
   container.addEventListener('scroll', handleScroll);
-  // Trigger initial frame calculation
   setTimeout(handleScroll, 150);
 }
 
@@ -206,45 +212,115 @@ function setDrumValue(container, value, smooth = true) {
   });
 }
 
+function switchTimerTab(newId) {
+  if (newId === currentTimerId) return;
+
+  // 1. Sichere aktuelle Wähler-Werte des alten Timers
+  timers[currentTimerId].targetHH = targetHH;
+  timers[currentTimerId].targetMM = targetMM;
+  timers[currentTimerId].targetSS = targetSS;
+
+  // Tab Header umschalten
+  document.querySelectorAll('.timer-tab').forEach(tab => {
+    const tabId = parseInt(tab.getAttribute('data-timer-id'), 10);
+    if (tabId === newId) {
+      tab.classList.add('active');
+    } else {
+      tab.classList.remove('active');
+    }
+  });
+
+  // 2. Lade Werte des neuen Timers
+  currentTimerId = newId;
+  const t = timers[currentTimerId];
+  targetHH = t.targetHH;
+  targetMM = t.targetMM;
+  targetSS = t.targetSS;
+
+  // Räder positionieren
+  if (drumHH && drumMM && drumSS) {
+    setDrumValue(drumHH, targetHH, false);
+    setDrumValue(drumMM, targetMM, false);
+    setDrumValue(drumSS, targetSS, false);
+  }
+
+  // 3. Sichtbarkeit anpassen
+  if (t.duration > 0 || t.alarmInterval !== null) {
+    setupContainer.style.display = 'none';
+    activeContainer.style.display = 'flex';
+    updateActiveUI();
+    updatePauseButtonUI();
+    
+    if (t.remaining < 30) {
+      activeContainer.classList.add('low-time');
+    } else {
+      activeContainer.classList.remove('low-time');
+    }
+  } else {
+    setupContainer.style.display = 'flex';
+    activeContainer.style.display = 'none';
+    activeContainer.classList.remove('low-time');
+  }
+}
+
 export function startTimer(seconds) {
-  stopAlarm();
-  timerDuration = seconds;
-  timerRemaining = seconds;
-  isPaused = false;
+  const id = currentTimerId;
+  const t = timers[id];
+  stopAlarm(id);
+  t.duration = seconds;
+  t.remaining = seconds;
+  t.isPaused = false;
 
-  updateActiveUI();
-  setupContainer.style.display = 'none';
-  activeContainer.style.display = 'flex';
+  if (id === currentTimerId) {
+    updateActiveUI();
+    setupContainer.style.display = 'none';
+    activeContainer.style.display = 'flex';
+    updatePauseButtonUI();
+  }
 
-  if (timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(tick, 1000);
+  if (t.interval) clearInterval(t.interval);
+  t.interval = setInterval(() => tick(id), 1000);
 
-  // Send socket broadcast
+  updateTabIndicators();
+
   if (window.socket) {
     window.socket.emit('timer-start', {
-      duration: timerDuration,
-      remaining: timerRemaining,
-      isPaused: isPaused
+      id: id,
+      duration: t.duration,
+      remaining: t.remaining,
+      isPaused: t.isPaused
     });
   }
 }
 
-function syncStartTimer(duration, remaining, paused) {
-  stopAlarm();
-  timerDuration = duration;
-  timerRemaining = remaining;
-  isPaused = paused;
+function syncStartTimer(id, duration, remaining, paused) {
+  const t = timers[id];
+  stopAlarm(id);
+  t.duration = duration;
+  t.remaining = remaining;
+  t.isPaused = paused;
 
-  updateActiveUI();
-  setupContainer.style.display = 'none';
-  activeContainer.style.display = 'flex';
-
-  if (timerInterval) clearInterval(timerInterval);
-  if (!isPaused) {
-    timerInterval = setInterval(tick, 1000);
+  if (t.interval) clearInterval(t.interval);
+  if (!t.isPaused) {
+    t.interval = setInterval(() => tick(id), 1000);
   }
 
-  // Widget-Sichtbarkeit erzwingen auf synchronisierten Clients
+  if (id === currentTimerId) {
+    updateActiveUI();
+    setupContainer.style.display = 'none';
+    activeContainer.style.display = 'flex';
+    updatePauseButtonUI();
+    
+    if (t.remaining < 30) {
+      activeContainer.classList.add('low-time');
+    } else {
+      activeContainer.classList.remove('low-time');
+    }
+  }
+
+  updateTabIndicators();
+
+  // Widget-Sichtbarkeit erzwingen
   const widget = document.querySelector('.widget[data-type="timer"]');
   if (widget) {
     widget.classList.remove('hidden');
@@ -261,27 +337,29 @@ function syncStartTimer(duration, remaining, paused) {
   localStorage.setItem('show_timer', 'true');
 }
 
-function tick() {
-  if (timerRemaining <= 0) {
-    triggerAlarm();
+function tick(id) {
+  const t = timers[id];
+  if (t.remaining <= 0) {
+    triggerAlarm(id);
     return;
   }
-  timerRemaining--;
-  updateActiveUI();
+  t.remaining--;
 
-  // Urgency indicator under 30s
-  if (timerRemaining < 30) {
-    activeContainer.classList.add('low-time');
-  } else {
-    activeContainer.classList.remove('low-time');
+  if (id === currentTimerId) {
+    updateActiveUI();
+    if (t.remaining < 30) {
+      activeContainer.classList.add('low-time');
+    } else {
+      activeContainer.classList.remove('low-time');
+    }
   }
 }
 
 function updateActiveUI() {
-  // Format Zeit
-  const hh = Math.floor(timerRemaining / 3600);
-  const mm = Math.floor((timerRemaining % 3600) / 60);
-  const ss = timerRemaining % 60;
+  const t = timers[currentTimerId];
+  const hh = Math.floor(t.remaining / 3600);
+  const mm = Math.floor((t.remaining % 3600) / 60);
+  const ss = t.remaining % 60;
 
   let displayStr = "";
   if (hh > 0) {
@@ -294,165 +372,211 @@ function updateActiveUI() {
     countdownText.textContent = displayStr;
   }
 
-  // Update SVG Ring
-  if (ringCircle && timerDuration > 0) {
+  if (ringCircle && t.duration > 0) {
     const totalCircumference = 301.6; // 2 * Math.PI * 48
-    const progress = timerRemaining / timerDuration;
+    const progress = t.remaining / t.duration;
     const offset = totalCircumference * (1 - progress);
     ringCircle.setAttribute('stroke-dashoffset', offset.toFixed(1));
   }
 }
 
-export function pauseTimer() {
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
-  isPaused = true;
-  if (pauseBtn) {
+function updatePauseButtonUI() {
+  const t = timers[currentTimerId];
+  if (!pauseBtn) return;
+
+  if (t.alarmInterval) {
+    pauseBtn.innerHTML = `<i class="fas fa-stop-circle"></i> <span data-i18n="timer_btn_stop">Stop</span>`;
+    pauseBtn.style.background = '#ef4444';
+    pauseBtn.style.color = '#fff';
+  } else if (t.isPaused) {
     pauseBtn.innerHTML = `<i class="fas fa-play"></i> <span data-i18n="timer_btn_resume">Fortsetzen</span>`;
     pauseBtn.style.background = '#4fd8ff';
-  }
-
-  if (window.socket) {
-    window.socket.emit('timer-pause');
+    pauseBtn.style.color = '#000';
+  } else {
+    pauseBtn.innerHTML = `<i class="fas fa-pause"></i> <span data-i18n="timer_btn_pause">Pause</span>`;
+    pauseBtn.style.background = 'var(--primary)';
+    pauseBtn.style.color = '#000';
   }
 }
 
-function syncPauseTimer() {
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
+export function pauseTimer() {
+  const id = currentTimerId;
+  const t = timers[id];
+  if (t.interval) {
+    clearInterval(t.interval);
+    t.interval = null;
   }
-  isPaused = true;
-  if (pauseBtn) {
-    pauseBtn.innerHTML = `<i class="fas fa-play"></i> <span data-i18n="timer_btn_resume">Fortsetzen</span>`;
-    pauseBtn.style.background = '#4fd8ff';
+  t.isPaused = true;
+
+  if (id === currentTimerId) {
+    updatePauseButtonUI();
+  }
+
+  if (window.socket) {
+    window.socket.emit('timer-pause', { id });
+  }
+}
+
+function syncPauseTimer(id) {
+  const t = timers[id];
+  if (t.interval) {
+    clearInterval(t.interval);
+    t.interval = null;
+  }
+  t.isPaused = true;
+
+  if (id === currentTimerId) {
+    updatePauseButtonUI();
   }
 }
 
 export function resumeTimer() {
-  isPaused = false;
-  if (pauseBtn) {
-    pauseBtn.innerHTML = `<i class="fas fa-pause"></i> <span data-i18n="timer_btn_pause">Pause</span>`;
-    pauseBtn.style.background = 'var(--primary)';
+  const id = currentTimerId;
+  const t = timers[id];
+  t.isPaused = false;
+
+  if (id === currentTimerId) {
+    updatePauseButtonUI();
   }
-  if (timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(tick, 1000);
+
+  if (t.interval) clearInterval(t.interval);
+  t.interval = setInterval(() => tick(id), 1000);
 
   if (window.socket) {
-    window.socket.emit('timer-resume');
+    window.socket.emit('timer-resume', { id });
   }
 }
 
-function syncResumeTimer() {
-  isPaused = false;
-  if (pauseBtn) {
-    pauseBtn.innerHTML = `<i class="fas fa-pause"></i> <span data-i18n="timer_btn_pause">Pause</span>`;
-    pauseBtn.style.background = 'var(--primary)';
+function syncResumeTimer(id) {
+  const t = timers[id];
+  t.isPaused = false;
+
+  if (id === currentTimerId) {
+    updatePauseButtonUI();
   }
-  if (timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(tick, 1000);
+
+  if (t.interval) clearInterval(t.interval);
+  t.interval = setInterval(() => tick(id), 1000);
 }
 
 export function cancelTimer() {
-  stopAlarm();
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
-  timerDuration = 0;
-  timerRemaining = 0;
-  isPaused = false;
+  const id = currentTimerId;
+  const t = timers[id];
+  stopAlarm(id);
 
-  if (activeContainer) activeContainer.classList.remove('low-time');
-  if (setupContainer) setupContainer.style.display = 'flex';
-  if (activeContainer) activeContainer.style.display = 'none';
+  if (t.interval) {
+    clearInterval(t.interval);
+    t.interval = null;
+  }
+  t.duration = 0;
+  t.remaining = 0;
+  t.isPaused = false;
 
-  if (pauseBtn) {
-    pauseBtn.innerHTML = `<i class="fas fa-pause"></i> <span data-i18n="timer_btn_pause">Pause</span>`;
-    pauseBtn.style.background = 'var(--primary)';
+  if (id === currentTimerId) {
+    activeContainer.classList.remove('low-time');
+    setupContainer.style.display = 'flex';
+    activeContainer.style.display = 'none';
+    updatePauseButtonUI();
+
+    // Räder zurückstellen
+    if (drumHH && drumMM && drumSS) {
+      setDrumValue(drumHH, targetHH, false);
+      setDrumValue(drumMM, targetMM, false);
+      setDrumValue(drumSS, targetSS, false);
+    }
   }
 
-  // Restore wheel values to the selected targets
-  if (drumHH && drumMM && drumSS) {
-    setDrumValue(drumHH, targetHH, false);
-    setDrumValue(drumMM, targetMM, false);
-    setDrumValue(drumSS, targetSS, false);
-  }
+  updateTabIndicators();
 
   if (window.socket) {
-    window.socket.emit('timer-cancel');
+    window.socket.emit('timer-cancel', { id });
   }
 }
 
-function syncCancelTimer() {
-  stopAlarm();
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
-  timerDuration = 0;
-  timerRemaining = 0;
-  isPaused = false;
+function syncCancelTimer(id) {
+  const t = timers[id];
+  stopAlarm(id);
 
-  if (activeContainer) activeContainer.classList.remove('low-time');
-  if (setupContainer) setupContainer.style.display = 'flex';
-  if (activeContainer) activeContainer.style.display = 'none';
+  if (t.interval) {
+    clearInterval(t.interval);
+    t.interval = null;
+  }
+  t.duration = 0;
+  t.remaining = 0;
+  t.isPaused = false;
 
-  if (pauseBtn) {
-    pauseBtn.innerHTML = `<i class="fas fa-pause"></i> <span data-i18n="timer_btn_pause">Pause</span>`;
-    pauseBtn.style.background = 'var(--primary)';
+  if (id === currentTimerId) {
+    activeContainer.classList.remove('low-time');
+    setupContainer.style.display = 'flex';
+    activeContainer.style.display = 'none';
+    updatePauseButtonUI();
+
+    if (drumHH && drumMM && drumSS) {
+      setDrumValue(drumHH, targetHH, false);
+      setDrumValue(drumMM, targetMM, false);
+      setDrumValue(drumSS, targetSS, false);
+    }
   }
 
-  // Restore wheel values to the selected targets
-  if (drumHH && drumMM && drumSS) {
-    setDrumValue(drumHH, targetHH, false);
-    setDrumValue(drumMM, targetMM, false);
-    setDrumValue(drumSS, targetSS, false);
-  }
+  updateTabIndicators();
 }
 
-function triggerAlarm() {
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
+function triggerAlarm(id) {
+  const t = timers[id];
+  if (t.interval) {
+    clearInterval(t.interval);
+    t.interval = null;
   }
-  
+
+  // Bei Alarm automatisch auf den ablaufenden Timer umschalten!
+  if (id !== currentTimerId) {
+    switchTimerTab(id);
+  }
+
   if (countdownText) {
     countdownText.textContent = "ALARM!";
   }
   activeContainer.classList.add('low-time');
+  updatePauseButtonUI();
 
-  // Change pause button to Stop
-  if (pauseBtn) {
-    pauseBtn.innerHTML = `<i class="fas fa-stop-circle"></i> <span data-i18n="timer_btn_stop">Stop</span>`;
-    pauseBtn.style.background = '#ef4444';
-  }
-
-  // Play Sound in Loop
   const soundType = localStorage.getItem('timer_alarm_sound') || 'sound-gong';
   playSound(soundType);
-  
-  if (alarmInterval) clearInterval(alarmInterval);
-  alarmInterval = setInterval(() => {
+
+  if (t.alarmInterval) clearInterval(t.alarmInterval);
+  t.alarmInterval = setInterval(() => {
     playSound(soundType);
   }, 2500);
 }
 
-function stopAlarm() {
-  if (alarmInterval) {
-    clearInterval(alarmInterval);
-    alarmInterval = null;
+function stopAlarm(id) {
+  const t = timers[id];
+  if (t.alarmInterval) {
+    clearInterval(t.alarmInterval);
+    t.alarmInterval = null;
   }
 }
 
+function updateTabIndicators() {
+  [1, 2].forEach(id => {
+    const t = timers[id];
+    const dot = document.getElementById(`timerTabIndicator${id}`);
+    if (dot) {
+      if (t.duration > 0 || t.alarmInterval !== null) {
+        dot.style.display = 'inline-block';
+      } else {
+        dot.style.display = 'none';
+      }
+    }
+  });
+}
+
 export function getTimerStatus() {
+  const t = timers[currentTimerId];
   return {
-    active: timerInterval !== null || alarmInterval !== null,
-    remaining: timerRemaining,
-    duration: timerDuration,
-    isPaused: isPaused,
-    isAlarm: alarmInterval !== null
+    active: t.interval !== null || t.alarmInterval !== null,
+    remaining: t.remaining,
+    duration: t.duration,
+    isPaused: t.isPaused,
+    isAlarm: t.alarmInterval !== null
   };
 }
