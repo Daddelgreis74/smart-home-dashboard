@@ -108,6 +108,7 @@ export async function refreshSensorWidget() {
             <div class="lcd-retro-left">
               <span class="lcd-retro-tag">OUT</span>
               <div class="lcd-retro-icon"><i class="fas fa-house-chimney-window"></i></div>
+              <div class="lcd-retro-battery" id="sensorBat-1" style="display: none;"></div>
             </div>
             <div class="lcd-retro-right">
               <div class="lcd-retro-temp-box">
@@ -116,7 +117,6 @@ export async function refreshSensorWidget() {
               <div class="lcd-retro-hum-box">
                 <span class="lcd-retro-hum" id="sensorHum-1">--%</span>
               </div>
-              <div class="lcd-retro-battery" id="sensorBat-1" style="display: none;"></div>
             </div>
           </div>
         </div>

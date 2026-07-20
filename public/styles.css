@@ -4489,7 +4489,7 @@ body.theme-stealth .timer-drum-picker::after {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 50px;
+  width: 65px;
 }
 
 .lcd-retro-tag {
@@ -4596,15 +4596,17 @@ body.theme-stealth .timer-drum-picker::after {
 }
 
 .lcd-retro-battery {
-  position: absolute;
-  top: 4px;
-  right: 10px;
+  position: static;
   font-family: 'Outfit', sans-serif;
-  font-size: 10px;
+  font-size: 9px;
   display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  gap: 3px;
   font-weight: 600;
+  margin-top: 6px;
+  width: 100%;
+  white-space: nowrap;
 }
 
 /* Lower bar for timestamps */
