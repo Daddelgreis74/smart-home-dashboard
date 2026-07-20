@@ -81,36 +81,42 @@ export async function refreshSensorWidget() {
   
   if (sensorList.length === 2) {
     // Spezial-Layout: Kombiniertes LCD-Display für 2 Sensoren (z.B. Innen & Außen)
-    if (sensorBody.dataset.currentKey !== currentKey || !sensorBody.querySelector('.lcd-container')) {
+    if (sensorBody.dataset.currentKey !== currentKey || !sensorBody.querySelector('.lcd-retro-container')) {
       sensorBody.dataset.currentKey = currentKey;
       sensorBody.innerHTML = `
-        <div class="lcd-container">
-          <!-- Links: Innen -->
-          <div class="lcd-col lcd-indoor">
-            <div class="lcd-label">${sensorList[0].name || 'INNEN'}</div>
-            <div class="lcd-digits">
-              <span class="lcd-value" id="sensorTemp-0">--.-</span>
-              <span class="lcd-unit">°C</span>
+        <div class="lcd-retro-container">
+          <!-- IN Zeile -->
+          <div class="lcd-retro-row lcd-indoor">
+            <div class="lcd-retro-left">
+              <span class="lcd-retro-tag">IN</span>
+              <div class="lcd-retro-icon"><i class="fas fa-home"></i></div>
             </div>
-            <div class="lcd-sub">
-              <i class="fas fa-droplet"></i> <span id="sensorHum-0">--%</span>
+            <div class="lcd-retro-right">
+              <div class="lcd-retro-temp-box">
+                <span class="lcd-retro-value" id="sensorTemp-0">--.-</span><span class="lcd-retro-unit">°C</span>
+              </div>
+              <div class="lcd-retro-hum-box">
+                <span class="lcd-retro-hum" id="sensorHum-0">--%</span>
+              </div>
             </div>
           </div>
           
-          <div class="lcd-divider"></div>
+          <div class="lcd-retro-divider"></div>
           
-          <!-- Rechts: Aussen -->
-          <div class="lcd-col lcd-outdoor">
-            <div class="lcd-label">${sensorList[1].name || 'AUSSEN'}</div>
-            <div class="lcd-digits">
-              <span class="lcd-value" id="sensorTemp-1">--.-</span>
-              <span class="lcd-unit">°C</span>
+          <!-- OUT Zeile -->
+          <div class="lcd-retro-row lcd-outdoor">
+            <div class="lcd-retro-left">
+              <span class="lcd-retro-tag">OUT</span>
+              <div class="lcd-retro-icon"><i class="fas fa-house-chimney-window"></i></div>
             </div>
-            <div class="lcd-sub">
-              <span class="lcd-hum-wrap">
-                <i class="fas fa-droplet"></i> <span id="sensorHum-1">--%</span>
-              </span>
-              <span class="lcd-bat-wrap" id="sensorBat-1" style="display: none;"></span>
+            <div class="lcd-retro-right">
+              <div class="lcd-retro-temp-box">
+                <span class="lcd-retro-value" id="sensorTemp-1">--.-</span><span class="lcd-retro-unit">°C</span>
+              </div>
+              <div class="lcd-retro-hum-box">
+                <span class="lcd-retro-hum" id="sensorHum-1">--%</span>
+              </div>
+              <div class="lcd-retro-battery" id="sensorBat-1" style="display: none;"></div>
             </div>
           </div>
         </div>
@@ -122,7 +128,7 @@ export async function refreshSensorWidget() {
     }
   } else {
     // Standard-Layout: Einzelne Kärtchen pro Sensor
-    if (sensorBody.dataset.currentKey !== currentKey || sensorBody.querySelector('.lcd-panel')) {
+    if (sensorBody.dataset.currentKey !== currentKey || sensorBody.querySelector('.lcd-retro-container')) {
       sensorBody.dataset.currentKey = currentKey;
       sensorBody.innerHTML = '';
       sensorList.forEach((sensor, index) => {

@@ -4453,8 +4453,8 @@ body.theme-stealth .timer-drum-picker::after {
   height: 30px;
 }
 
-/* --- Premium Glassmorphic LCD Weather Station Widget --- */
-.sensor-layout:has(.lcd-container) {
+/* --- Premium Glassmorphic Retro LCD Weather Station Widget --- */
+.sensor-layout:has(.lcd-retro-container) {
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
@@ -4465,119 +4465,145 @@ body.theme-stealth .timer-drum-picker::after {
   flex: 1;
 }
 
-.lcd-container {
+.lcd-retro-container {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  justify-content: space-around;
   width: 100%;
   flex: 1;
-  padding: 0;
+  padding: 6px 0;
   box-sizing: border-box;
 }
 
-.lcd-col {
+.lcd-retro-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  padding: 8px 5px;
+  box-sizing: border-box;
+}
+
+.lcd-retro-left {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  flex: 1;
-  z-index: 1;
-  height: 100%;
+  justify-content: center;
+  width: 50px;
 }
 
-.lcd-divider {
-  width: 1px;
-  height: 70px;
-  background: rgba(255, 255, 255, 0.08);
-  margin: 0 15px;
-  align-self: center;
-  z-index: 1;
-}
-
-.lcd-label {
+.lcd-retro-tag {
   font-family: 'Outfit', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
 }
 
-.lcd-indoor .lcd-label {
-  color: #ff9f1c; /* warm amber */
+.lcd-indoor .lcd-retro-tag {
+  color: #ff9f1c; /* amber */
 }
 
-.lcd-outdoor .lcd-label {
-  color: #10b981; /* emerald */
+.lcd-outdoor .lcd-retro-tag {
+  color: #e2e8f0; /* white/light gray */
+  opacity: 0.8;
 }
 
-.lcd-digits {
+.lcd-retro-icon {
+  font-size: 26px;
+}
+
+.lcd-indoor .lcd-retro-icon {
+  color: #ff9f1c;
+  text-shadow: 0 0 10px rgba(255, 159, 28, 0.3);
+}
+
+.lcd-outdoor .lcd-retro-icon {
+  color: #e2e8f0;
+  text-shadow: 0 0 10px rgba(226, 232, 240, 0.2);
+}
+
+.lcd-retro-right {
   display: flex;
   align-items: baseline;
-  margin-bottom: 4px;
+  justify-content: flex-end;
+  gap: 20px;
+  flex: 1;
+  padding-right: 10px;
 }
 
-.lcd-value {
+.lcd-retro-temp-box {
+  display: flex;
+  align-items: baseline;
+}
+
+.lcd-retro-value {
   font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
-  font-size: 42px;
+  font-size: 38px;
   font-weight: bold;
   line-height: 1;
   letter-spacing: -0.01em;
 }
 
-.lcd-indoor .lcd-value {
+.lcd-indoor .lcd-retro-value {
   color: #ffa500;
-  text-shadow: 0 0 10px rgba(255, 165, 0, 0.4);
+  text-shadow: 0 0 12px rgba(255, 165, 0, 0.45);
 }
 
-.lcd-outdoor .lcd-value {
-  color: #10b981;
-  text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+.lcd-outdoor .lcd-retro-value {
+  color: #e2e8f0;
+  text-shadow: 0 0 12px rgba(226, 232, 240, 0.25);
 }
 
-.lcd-unit {
+.lcd-retro-unit {
   font-family: 'Share Tech Mono', 'Outfit', sans-serif;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 500;
   margin-left: 2px;
-  opacity: 0.8;
 }
 
-.lcd-indoor .lcd-unit {
+.lcd-indoor .lcd-retro-unit {
   color: #ffa500;
 }
 
-.lcd-outdoor .lcd-unit {
-  color: #10b981;
+.lcd-outdoor .lcd-retro-unit {
+  color: #e2e8f0;
 }
 
-.lcd-sub {
+.lcd-retro-hum {
+  font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
+  font-size: 38px;
+  font-weight: bold;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.lcd-indoor .lcd-retro-hum {
+  color: #ffa500;
+  text-shadow: 0 0 12px rgba(255, 165, 0, 0.45);
+}
+
+.lcd-outdoor .lcd-retro-hum {
+  color: #e2e8f0;
+  text-shadow: 0 0 12px rgba(226, 232, 240, 0.25);
+}
+
+.lcd-retro-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  width: 100%;
+  margin: 2px 0;
+}
+
+.lcd-retro-battery {
+  position: absolute;
+  top: 4px;
+  right: 10px;
   font-family: 'Outfit', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 10px;
   display: flex;
   align-items: center;
-  gap: 5px;
-  opacity: 0.8;
-  margin-top: 6px;
-}
-
-.lcd-indoor .lcd-sub {
-  color: rgba(255, 165, 0, 0.8);
-}
-
-.lcd-outdoor .lcd-sub {
-  color: rgba(16, 185, 129, 0.8);
-}
-
-.lcd-sub i {
-  font-size: 9px;
-}
-
-.lcd-bat-wrap {
-  display: flex;
-  align-items: center;
-  gap: 3px;
+  gap: 4px;
   font-weight: 600;
 }
 
