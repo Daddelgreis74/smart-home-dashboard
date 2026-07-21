@@ -158,7 +158,8 @@ export async function refreshSensorWidget() {
 
   let indoorOffline = false;
   let outdoorOffline = false;
-  let lastUpdateTime = null;
+  let indoorTime = null;
+  let outdoorTime = null;
 
   const promises = sensorList.map(async (sensor, index) => {
     const tempEl = document.getElementById(`sensorTemp-${index}`);
@@ -248,7 +249,8 @@ export async function refreshSensorWidget() {
       }
       
       if (data.time) {
-        lastUpdateTime = data.time.slice(11, 16);
+        if (index === 0) indoorTime = data.time.slice(11, 16);
+        if (index === 1) outdoorTime = data.time.slice(11, 16);
       }
     } catch (e) {
       if (sensorList.length === 2) {
@@ -285,13 +287,15 @@ export async function refreshSensorWidget() {
         combinedStatusEl.textContent = 'Beide Offline';
         if (statusDotEl) statusDotEl.className = 'lcd-status-dot offline';
       } else if (indoorOffline) {
-        combinedStatusEl.textContent = `Innen Offline | Außen: ${lastUpdateTime || 'Aktiv'}`;
+        combinedStatusEl.textContent = `Innen: Offline | Außen: ${outdoorTime || 'Aktiv'}`;
         if (statusDotEl) statusDotEl.className = 'lcd-status-dot';
       } else if (outdoorOffline) {
-        combinedStatusEl.textContent = `Außen Offline | Innen: ${lastUpdateTime || 'Aktiv'}`;
+        combinedStatusEl.textContent = `Innen: ${indoorTime || 'Aktiv'} | Außen: Offline`;
         if (statusDotEl) statusDotEl.className = 'lcd-status-dot';
       } else {
-        combinedStatusEl.textContent = `Zuletzt aktualisiert: ${lastUpdateTime || 'Aktiv'}`;
+        const inStr = indoorTime || 'Aktiv';
+        const outStr = outdoorTime || 'Aktiv';
+        combinedStatusEl.textContent = `Innen: ${inStr} | Außen: ${outStr}`;
         if (statusDotEl) statusDotEl.className = 'lcd-status-dot';
       }
     }
