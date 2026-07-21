@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Michroma&family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=3.19.1">
+  <link rel="stylesheet" href="styles.css?v=3.19.2">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
   <script src="translations.js"></script>
@@ -831,9 +831,9 @@
           </div>
 
           <!-- Setup-Ansicht -->
-          <div class="timer-setup-container" style="display: flex; flex-direction: column; gap: 8px; flex-grow: 1; justify-content: space-between;">
+          <div class="timer-setup-container" style="display: flex; flex-direction: column; gap: 4px; flex-grow: 1; justify-content: space-between;">
             <!-- Preset Grid -->
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;">
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px;">
               <button class="btn timer-preset-btn" data-time="180"><i class="fas fa-mug-hot"></i> <span data-i18n="timer_preset_tea">Tee (3m)</span></button>
               <button class="btn timer-preset-btn" data-time="300"><i class="fas fa-egg"></i> <span data-i18n="timer_preset_egg">Ei (5m)</span></button>
               <button class="btn timer-preset-btn" data-time="600"><i class="fas fa-stroopwafel"></i> <span data-i18n="timer_preset_pasta">Pasta (10m)</span></button>
@@ -859,7 +859,7 @@
             </div>
             
             <!-- Action Button -->
-            <button class="btn" id="timerStartBtn" style="background: var(--primary); color: #000; font-weight: 700; padding: 8px;"><i class="fas fa-play"></i> <span data-i18n="timer_btn_start">Starten</span></button>
+            <button class="btn" id="timerStartBtn" style="background: var(--primary); color: #000; font-weight: 700; padding: 6px;"><i class="fas fa-play"></i> <span data-i18n="timer_btn_start">Starten</span></button>
           </div>
           
           <!-- Countdown-Ansicht (Standardmäßig versteckt) -->
@@ -1035,6 +1035,6 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script type="module" src="app.js?v=3.19.1"></script>
+  <script type="module" src="app.js?v=3.19.2"></script>
 </body>
 </html>
