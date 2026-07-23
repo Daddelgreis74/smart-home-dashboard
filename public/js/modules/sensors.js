@@ -66,6 +66,8 @@ export function removeSensor(index) {
   renderSensorSettings();
 }
 
+let prevTemps = {};
+
 export async function refreshSensorWidget() {
   const sensorBody = document.getElementById('sensorBody');
   if (!sensorBody) return;
@@ -80,23 +82,29 @@ export async function refreshSensorWidget() {
   const currentKey = sensorList.map(s => `${s.name || ''}_${s.ip}`).join('|');
   
   if (sensorList.length === 2) {
-    // Spezial-Layout: Kombiniertes LCD-Display für 2 Sensoren (z.B. Innen & Außen)
+    // Spezial-Layout: Kombiniertes Wetterstation LCD 2.0 Display für 2 Sensoren (z.B. Innen & Außen)
     if (sensorBody.dataset.currentKey !== currentKey || !sensorBody.querySelector('.lcd-retro-container')) {
       sensorBody.dataset.currentKey = currentKey;
       sensorBody.innerHTML = `
-        <div class="lcd-retro-container">
+        <div class="lcd-retro-container lcd-v2">
           <!-- IN Zeile -->
           <div class="lcd-retro-row lcd-indoor">
             <div class="lcd-retro-left">
               <span class="lcd-retro-tag">IN</span>
               <div class="lcd-retro-icon"><i class="fas fa-home"></i></div>
+              <div class="lcd-retro-battery" id="sensorBat-0" style="display: none;"></div>
+            </div>
+            <div class="lcd-retro-center">
+              <div class="lcd-retro-temp-box">
+                <span class="lcd-retro-value" id="sensorTemp-0">--.-</span>
+                <span class="lcd-retro-unit">°C</span>
+                <span class="lcd-trend-arrow" id="sensorTrend-0"></span>
+              </div>
             </div>
             <div class="lcd-retro-right">
-              <div class="lcd-retro-temp-box">
-                <span class="lcd-retro-value" id="sensorTemp-0">--.-</span><span class="lcd-retro-unit">°C</span>
-              </div>
               <div class="lcd-retro-hum-box">
                 <span class="lcd-retro-hum" id="sensorHum-0">--%</span>
+                <span class="lcd-comfort-badge" id="sensorComfort-0"></span>
               </div>
             </div>
           </div>
@@ -110,12 +118,17 @@ export async function refreshSensorWidget() {
               <div class="lcd-retro-icon"><i class="fas fa-house-chimney-window"></i></div>
               <div class="lcd-retro-battery" id="sensorBat-1" style="display: none;"></div>
             </div>
-            <div class="lcd-retro-right">
+            <div class="lcd-retro-center">
               <div class="lcd-retro-temp-box">
-                <span class="lcd-retro-value" id="sensorTemp-1">--.-</span><span class="lcd-retro-unit">°C</span>
+                <span class="lcd-retro-value" id="sensorTemp-1">--.-</span>
+                <span class="lcd-retro-unit">°C</span>
+                <span class="lcd-trend-arrow" id="sensorTrend-1"></span>
               </div>
+            </div>
+            <div class="lcd-retro-right">
               <div class="lcd-retro-hum-box">
                 <span class="lcd-retro-hum" id="sensorHum-1">--%</span>
+                <span class="lcd-comfort-badge" id="sensorComfort-1"></span>
               </div>
             </div>
           </div>
@@ -184,6 +197,40 @@ export async function refreshSensorWidget() {
         setGauge(`tempGauge-${index}`, temp, -15, 45);
         if (humEl) {
           humEl.textContent = Number.isFinite(hum) ? `Feuchte: ${hum.toFixed(0)}%` : 'Feuchte: --%';
+        }
+      }
+
+      // Trend & Komfort-Indikatoren aktualisieren
+      if (Number.isFinite(temp)) {
+        const trendEl = document.getElementById(`sensorTrend-${index}`);
+        if (trendEl) {
+          const prev = prevTemps[index];
+          if (prev !== undefined && prev !== null) {
+            const diff = temp - prev;
+            if (diff > 0.1) {
+              trendEl.innerHTML = '<i class="fas fa-arrow-up-long lcd-trend-up" title="Steigend"></i>';
+            } else if (diff < -0.1) {
+              trendEl.innerHTML = '<i class="fas fa-arrow-down-long lcd-trend-down" title="Fallend"></i>';
+            } else {
+              trendEl.innerHTML = '<i class="fas fa-arrow-right-long lcd-trend-stable" title="Stabil"></i>';
+            }
+          } else {
+            trendEl.innerHTML = '<i class="fas fa-arrow-right-long lcd-trend-stable" title="Stabil"></i>';
+          }
+        }
+        prevTemps[index] = temp;
+      }
+
+      if (Number.isFinite(hum)) {
+        const comfortEl = document.getElementById(`sensorComfort-${index}`);
+        if (comfortEl) {
+          if (hum >= 40 && hum <= 60) {
+            comfortEl.innerHTML = '<i class="fas fa-face-smile lcd-comfort-ok" title="Komfortbereich"></i>';
+          } else if (hum > 60) {
+            comfortEl.innerHTML = '<i class="fas fa-droplet lcd-comfort-wet" title="Feucht"></i>';
+          } else {
+            comfortEl.innerHTML = '<i class="fas fa-sun lcd-comfort-dry" title="Trocken"></i>';
+          }
         }
       }
 

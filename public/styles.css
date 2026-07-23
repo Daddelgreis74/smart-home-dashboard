@@ -4523,18 +4523,77 @@ body.theme-stealth .timer-drum-picker::after {
   text-shadow: 0 0 10px rgba(226, 232, 240, 0.2);
 }
 
+.lcd-retro-center {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  flex: 1;
+}
+
 .lcd-retro-right {
   display: flex;
   align-items: baseline;
   justify-content: flex-end;
-  gap: 20px;
-  flex: 1;
+  gap: 12px;
+  width: 95px;
   padding-right: 10px;
 }
 
 .lcd-retro-temp-box {
   display: flex;
   align-items: baseline;
+  position: relative;
+}
+
+.lcd-trend-arrow {
+  font-size: 13px;
+  margin-left: 6px;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.lcd-trend-up {
+  color: #ef4444;
+  filter: drop-shadow(0 0 5px rgba(239, 68, 68, 0.6));
+}
+
+.lcd-trend-down {
+  color: #38bdf8;
+  filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.6));
+}
+
+.lcd-trend-stable {
+  color: var(--text-muted);
+  opacity: 0.35;
+}
+
+.lcd-retro-hum-box {
+  display: flex;
+  align-items: baseline;
+  position: relative;
+}
+
+.lcd-comfort-badge {
+  font-size: 13px;
+  margin-left: 5px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.lcd-comfort-ok {
+  color: #4ade80;
+  filter: drop-shadow(0 0 5px rgba(74, 222, 128, 0.6));
+}
+
+.lcd-comfort-wet {
+  color: #38bdf8;
+  filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.6));
+}
+
+.lcd-comfort-dry {
+  color: #fbbf24;
+  filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.6));
 }
 
 .lcd-retro-value {
