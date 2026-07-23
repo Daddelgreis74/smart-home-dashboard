@@ -67,6 +67,7 @@ export function removeSensor(index) {
 }
 
 let prevTemps = {};
+let smoothedHums = {};
 
 export async function refreshSensorWidget() {
   const sensorBody = document.getElementById('sensorBody');
@@ -187,16 +188,26 @@ export async function refreshSensorWidget() {
       if (!data.success) throw new Error(data.error || 'Sensor nicht erreichbar');
 
       const temp = Number(data.temperature);
-      const hum = Number(data.humidity);
+      const rawHum = Number(data.humidity);
+
+      let hum = rawHum;
+      if (Number.isFinite(rawHum)) {
+        if (smoothedHums[index] === undefined || smoothedHums[index] === null) {
+          smoothedHums[index] = rawHum;
+        } else {
+          smoothedHums[index] = smoothedHums[index] * 0.7 + rawHum * 0.3;
+        }
+        hum = smoothedHums[index];
+      }
 
       if (sensorList.length === 2) {
         tempEl.textContent = Number.isFinite(temp) ? temp.toFixed(1) : '--.-';
-        humEl.textContent = Number.isFinite(hum) ? `${hum.toFixed(0)}%` : '--%';
+        humEl.textContent = Number.isFinite(hum) ? `${Math.round(hum)}%` : '--%';
       } else {
         tempEl.textContent = Number.isFinite(temp) ? `${temp.toFixed(1)}°` : '--°';
         setGauge(`tempGauge-${index}`, temp, -15, 45);
         if (humEl) {
-          humEl.textContent = Number.isFinite(hum) ? `Feuchte: ${hum.toFixed(0)}%` : 'Feuchte: --%';
+          humEl.textContent = Number.isFinite(hum) ? `Feuchte: ${Math.round(hum)}%` : 'Feuchte: --%';
         }
       }
 
