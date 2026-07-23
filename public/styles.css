@@ -1862,6 +1862,7 @@ body::before {
 .widget[data-type="player"],
 .widget[data-type="sensor"],
 .widget[data-type="presence"],
+.widget[data-type="timer"],
 .widget[data-type="tasmota"] { grid-column: span 3; grid-row: span 1; }
 
 .widget[data-type="sensor"]::before {
