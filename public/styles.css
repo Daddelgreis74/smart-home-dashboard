@@ -1841,8 +1841,8 @@ body::before {
   grid-template-rows: repeat(2, minmax(320px, 1fr));
   grid-auto-rows: minmax(320px, 1fr);
 }
-.widget[data-type="weather"] { grid-column: span 5; grid-row: span 1; }
-.widget[data-type="waste"], .widget[data-type="calendar"] { grid-column: span 4; grid-row: span 1; }
+.widget[data-type="weather"] { grid-column: span 6; grid-row: span 1; }
+.widget[data-type="waste"], .widget[data-type="calendar"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="system"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="tasmota"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="player"] { grid-column: span 3; grid-row: span 1; }
@@ -1851,9 +1851,9 @@ body::before {
 
 @media (min-aspect-ratio: 17/9) {
   .dashboard { grid-template-columns: repeat(12, minmax(0, 1fr)); }
-  .widget[data-type="weather"] { grid-column: span 5; }
+  .widget[data-type="weather"] { grid-column: span 6; }
   .widget[data-type="waste"], .widget[data-type="calendar"] { grid-column: span 3; }
-  .widget[data-type="system"] { grid-column: span 4; }
+  .widget[data-type="system"] { grid-column: span 3; }
   .widget[data-type="player"],
   .widget[data-type="presence"],
   .widget[data-type="timer"],
@@ -1867,8 +1867,8 @@ body::before {
     grid-template-rows: repeat(2, minmax(270px, 1fr));
     grid-auto-rows: minmax(270px, 1fr);
   }
-  .widget[data-type="weather"] { grid-column: span 5; }
-  .widget[data-type="waste"], .widget[data-type="calendar"] { grid-column: span 4; }
+  .widget[data-type="weather"] { grid-column: span 6; }
+  .widget[data-type="waste"], .widget[data-type="calendar"] { grid-column: span 3; }
   .widget[data-type="system"] { grid-column: span 3; }
   .widget[data-type="player"],
   .widget[data-type="presence"],
@@ -1881,7 +1881,7 @@ body::before {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: none;
   }
-  .widget[data-type="weather"],
+  .widget[data-type="weather"] { grid-column: span 2; }
   .widget[data-type="waste"], .widget[data-type="calendar"],
   .widget[data-type="system"],
   .widget[data-type="player"],
@@ -4982,5 +4982,40 @@ body.theme-stealth .timer-drum-picker::after {
 .lcd-comfort-dry {
   color: #ffa726 !important;
 }
+
+/* Tablet Responsive Optimization for Combined Weather & Sensors */
+@media (max-width: 1280px) {
+  .combined-weather-sensors-layout {
+    gap: 10px;
+  }
+  .weather-side {
+    padding-right: 6px;
+  }
+  .modern-sensor-row {
+    padding: 8px 10px;
+  }
+  .sensor-icon-circle {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  .sensor-info-left {
+    gap: 8px;
+  }
+  .sensor-location-name {
+    font-size: 12px;
+  }
+  .sensor-temp-val {
+    font-size: 26px;
+  }
+  .sensor-temp-unit {
+    font-size: 13px;
+  }
+  .sensor-sub-details {
+    font-size: 9px;
+    gap: 6px;
+  }
+}
+
 
 
