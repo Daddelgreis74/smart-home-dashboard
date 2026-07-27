@@ -84,59 +84,57 @@ export async function refreshSensorWidget() {
   
   if (sensorList.length === 2) {
     // Spezial-Layout: Kombiniertes Wetterstation LCD 2.0 Display für 2 Sensoren (z.B. Innen & Außen)
-    if (sensorBody.dataset.currentKey !== currentKey || !sensorBody.querySelector('.lcd-retro-container')) {
+    if (sensorBody.dataset.currentKey !== currentKey || !sensorBody.querySelector('.modern-sensors-container')) {
       sensorBody.dataset.currentKey = currentKey;
       sensorBody.innerHTML = `
-        <div class="lcd-retro-container lcd-v2">
+        <div class="modern-sensors-container">
           <!-- IN Zeile -->
-          <div class="lcd-retro-row lcd-indoor">
-            <div class="lcd-retro-left">
-              <span class="lcd-retro-tag">IN</span>
-              <div class="lcd-retro-icon"><i class="fas fa-home"></i></div>
-              <div class="lcd-retro-battery" id="sensorBat-0" style="display: none;"></div>
-            </div>
-            <div class="lcd-retro-center">
-              <div class="lcd-retro-temp-box">
-                <span class="lcd-retro-value" id="sensorTemp-0">--.-</span>
-                <span class="lcd-retro-unit">°C</span>
-                <span class="lcd-trend-arrow" id="sensorTrend-0"></span>
+          <div class="modern-sensor-row sensor-indoor">
+            <div class="sensor-info-left">
+              <div class="sensor-icon-circle"><i class="fas fa-home"></i></div>
+              <div class="sensor-name-group">
+                <span class="sensor-tag">IN</span>
+                <span class="sensor-location-name">${sensorList[0].name || 'Innen'}</span>
               </div>
             </div>
-            <div class="lcd-retro-right">
-              <div class="lcd-retro-hum-box">
-                <span class="lcd-retro-hum" id="sensorHum-0">--%</span>
-                <span class="lcd-comfort-badge" id="sensorComfort-0"></span>
+            <div class="sensor-values-right">
+              <div class="sensor-temp-display">
+                <span class="sensor-temp-val" id="sensorTemp-0">--.-</span><span class="sensor-temp-unit">°C</span>
+                <span class="sensor-trend-arrow" id="sensorTrend-0"></span>
+              </div>
+              <div class="sensor-sub-details">
+                <span class="sensor-hum-val"><i class="fas fa-droplet"></i> <span id="sensorHum-0">--%</span></span>
+                <span class="sensor-comfort-badge" id="sensorComfort-0"></span>
+                <div class="sensor-battery-val" id="sensorBat-0" style="display: none;"></div>
               </div>
             </div>
           </div>
           
-          <div class="lcd-retro-divider"></div>
-          
           <!-- OUT Zeile -->
-          <div class="lcd-retro-row lcd-outdoor">
-            <div class="lcd-retro-left">
-              <span class="lcd-retro-tag">OUT</span>
-              <div class="lcd-retro-icon"><i class="fas fa-house-chimney-window"></i></div>
-              <div class="lcd-retro-battery" id="sensorBat-1" style="display: none;"></div>
-            </div>
-            <div class="lcd-retro-center">
-              <div class="lcd-retro-temp-box">
-                <span class="lcd-retro-value" id="sensorTemp-1">--.-</span>
-                <span class="lcd-retro-unit">°C</span>
-                <span class="lcd-trend-arrow" id="sensorTrend-1"></span>
+          <div class="modern-sensor-row sensor-outdoor">
+            <div class="sensor-info-left">
+              <div class="sensor-icon-circle"><i class="fas fa-house-chimney-window"></i></div>
+              <div class="sensor-name-group">
+                <span class="sensor-tag">OUT</span>
+                <span class="sensor-location-name">${sensorList[1].name || 'Außen'}</span>
               </div>
             </div>
-            <div class="lcd-retro-right">
-              <div class="lcd-retro-hum-box">
-                <span class="lcd-retro-hum" id="sensorHum-1">--%</span>
-                <span class="lcd-comfort-badge" id="sensorComfort-1"></span>
+            <div class="sensor-values-right">
+              <div class="sensor-temp-display">
+                <span class="sensor-temp-val" id="sensorTemp-1">--.-</span><span class="sensor-temp-unit">°C</span>
+                <span class="sensor-trend-arrow" id="sensorTrend-1"></span>
+              </div>
+              <div class="sensor-sub-details">
+                <span class="sensor-hum-val"><i class="fas fa-droplet"></i> <span id="sensorHum-1">--%</span></span>
+                <span class="sensor-comfort-badge" id="sensorComfort-1"></span>
+                <div class="sensor-battery-val" id="sensorBat-1" style="display: none;"></div>
               </div>
             </div>
           </div>
         </div>
-        <div class="lcd-footer">
+        <div class="modern-sensor-footer">
           <span class="lcd-status-dot" id="lcdStatusDot"></span>
-          <span class="lcd-meta" id="sensorStatus-combined">Lade...</span>
+          <span class="modern-meta-text" id="sensorStatus-combined">Lade...</span>
         </div>
       `;
     }

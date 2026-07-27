@@ -55,7 +55,13 @@
               <i class="fas fa-plug"></i> <span data-i18n="settings_tab_smarthome">Smart Home</span>
             </button>
             <button class="settings-tab-btn" data-tab="weather">
-              <i class="fas fa-cloud-sun"></i> <span data-i18n="settings_tab_weather">Wetter & Kalender</span>
+              <i class="fas fa-cloud-sun"></i> <span data-i18n="settings_tab_weather">Wetter & Standort</span>
+            </button>
+            <button class="settings-tab-btn" data-tab="waste">
+              <i class="fas fa-trash-can"></i> <span data-i18n="settings_tab_waste">Abfallkalender Sync</span>
+            </button>
+            <button class="settings-tab-btn" data-tab="reminder">
+              <i class="fas fa-bell"></i> <span data-i18n="settings_tab_reminder">Terminerinnerungen</span>
             </button>
             <button class="settings-tab-btn" data-tab="presence">
               <i class="fas fa-users"></i> <span data-i18n="settings_tab_presence">Anwesenheit</span>
@@ -117,10 +123,9 @@
                 <h3 class="section-title"><i class="fas fa-layer-group"></i> <span data-i18n="layout_section_title">Dashboard Layout</span></h3>
                 <p data-i18n="layout_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Wähle, welche Widgets auf dem Display angezeigt werden sollen.</p>
                 <div class="toggle-group">
-                  <label class="toggle-label"><span data-i18n="toggle_layout_weather">Wetter & Klima</span><input type="checkbox" id="toggle-weather" checked><div class="toggle-switch"></div></label>
+                  <label class="toggle-label"><span data-i18n="toggle_layout_weather">Wetter & Raumklima</span><input type="checkbox" id="toggle-weather" checked><div class="toggle-switch"></div></label>
                   <label class="toggle-label"><span data-i18n="toggle_layout_waste">Abfallkalender</span><input type="checkbox" id="toggle-waste" checked><div class="toggle-switch"></div></label>
                   <label class="toggle-label"><span data-i18n="toggle_layout_player">Live Radio</span><input type="checkbox" id="toggle-player" checked><div class="toggle-switch"></div></label>
-                  <label class="toggle-label"><span data-i18n="toggle_layout_sensor">Temperatur</span><input type="checkbox" id="toggle-sensor" checked><div class="toggle-switch"></div></label>
                   <label class="toggle-label"><span data-i18n="toggle_layout_system">System Status</span><input type="checkbox" id="toggle-system" checked><div class="toggle-switch"></div></label>
                   <label class="toggle-label"><span data-i18n="toggle_layout_tasmota">Tasmota Geräte</span><input type="checkbox" id="toggle-tasmota" checked><div class="toggle-switch"></div></label>
                   <label class="toggle-label"><span data-i18n="toggle_layout_fritzbox">Fritz!Box Monitor</span><input type="checkbox" id="toggle-fritzbox" checked><div class="toggle-switch"></div></label>
@@ -165,21 +170,9 @@
                   <!-- Dynamische Liste -->
                 </div>
               </div>
-
-              <!-- 3. TASMOTA AM2301 SENSOR -->
-              <div class="setting-section" style="margin-top: 30px;">
-                <h3 class="section-title"><i class="fas fa-gauge-high"></i> <span data-i18n="sensor_section_title">Temperatur-Sensoren</span></h3>
-                <div id="sensorSettingsList" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
-                  <!-- Wird dynamisch von renderSensorSettings() befüllt -->
-                </div>
-                <div style="display: flex; gap: 8px; justify-content: space-between;">
-                  <button class="btn btn-secondary" id="addSensorRowBtn"><i class="fas fa-plus"></i> <span data-i18n="sensor_add_btn">Sensor hinzufügen</span></button>
-                  <button class="btn" id="saveSensorsBtn" data-i18n="sensor_save">Speichern</button>
-                </div>
-              </div>
             </div>
 
-            <!-- TAB: WETTER & KALENDER -->
+            <!-- TAB: WETTER & STANDORT -->
             <div class="settings-tab-content" id="tab-weather">
               <!-- 5. LOKALES WETTER -->
               <div class="setting-section">
@@ -204,8 +197,23 @@
                 </div>
               </div>
 
-              <!-- 4. ABFALLKALENDER -->
+              <!-- 3. TASMOTA AM2301 SENSOR -->
               <div class="setting-section" style="margin-top: 30px;">
+                <h3 class="section-title"><i class="fas fa-gauge-high"></i> <span data-i18n="sensor_section_title">Temperatur-Sensoren</span></h3>
+                <div id="sensorSettingsList" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+                  <!-- Wird dynamisch von renderSensorSettings() befüllt -->
+                </div>
+                <div style="display: flex; gap: 8px; justify-content: space-between;">
+                  <button class="btn btn-secondary" id="addSensorRowBtn"><i class="fas fa-plus"></i> <span data-i18n="sensor_add_btn">Sensor hinzufügen</span></button>
+                  <button class="btn" id="saveSensorsBtn" data-i18n="sensor_save">Speichern</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB: ABFALLKALENDER SYNC -->
+            <div class="settings-tab-content" id="tab-waste">
+              <!-- 4. ABFALLKALENDER -->
+              <div class="setting-section">
                 <h3 class="section-title"><i class="fas fa-trash-can"></i> <span data-i18n="waste_section_title">Abfallkalender Sync</span></h3>
                 <div class="input-group">
                   <label class="setting-sub-label" data-i18n="waste_desc">Lade eine aktuelle .ICS Datei deiner Stadt hoch.</label>
@@ -215,9 +223,12 @@
                   </div>
                 </div>
               </div>
+            </div>
 
+            <!-- TAB: TERMINERINNERUNGEN -->
+            <div class="settings-tab-content" id="tab-reminder">
               <!-- 6. TERMINKALENDER ERINNERUNGEN -->
-              <div class="setting-section" style="margin-top: 30px;">
+              <div class="setting-section">
                 <h3 class="section-title"><i class="fas fa-bell"></i> <span data-i18n="reminder_section_title">Terminerinnerungen</span></h3>
                 <div class="input-group" style="margin-bottom: 12px;">
                   <label class="setting-sub-label" data-i18n="reminder_sound_label">Alarm-Ton:</label>
@@ -527,25 +538,28 @@
       
       <div class="widget" data-type="weather">
         <div class="widget-header">
-          <h3><i class="fas fa-cloud-sun" style="color:var(--primary)"></i> <span data-i18n="widget_title_weather">Wetter</span></h3>
+          <h3><i class="fas fa-cloud-sun" style="color:var(--primary)"></i> <span data-i18n="widget_title_weather">Wetter & Raumklima</span></h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
-        <div class="widget-body weather-layout" id="weatherBody">
-          <div class="weather-desc" id="weatherCity">Laden...</div>
-          <div class="weather-main">
-            <div class="weather-icon"><i class="fas fa-cloud"></i></div>
-            <div class="weather-temp">--°</div>
+        <div class="widget-body combined-weather-sensors-layout" id="weatherBody">
+          <!-- Links: Lokales Wetter -->
+          <div class="weather-side" id="localWeatherSide">
+            <div class="weather-desc" id="weatherCity">Laden...</div>
+            <div class="weather-main">
+              <div class="weather-icon"><i class="fas fa-cloud"></i></div>
+              <div class="weather-temp">--°</div>
+            </div>
+            <div class="weather-condition" id="weatherCondition">--</div>
+            <div class="weather-details combined-weather-details">
+              <div class="w-detail"><i class="fas fa-temperature-half"></i><small>Max/Min</small><span id="w-minmax">-- / --</span></div>
+              <div class="w-detail"><i class="fas fa-person-rays"></i><small>Gefühlt</small><span id="w-feels">--°</span></div>
+              <div class="w-detail"><i class="fas fa-droplet"></i><small>Feuchte</small><span id="w-humidity">-- %</span></div>
+              <div class="w-detail"><i class="fas fa-cloud-rain"></i><small>Regen</small><span id="w-rain">-- %</span></div>
+            </div>
           </div>
-          <div class="weather-condition" id="weatherCondition">--</div>
-          <div class="weather-details">
-            <div class="w-detail"><i class="fas fa-temperature-half"></i><small>Max/Min</small><span id="w-minmax">-- / --</span></div>
-            <div class="w-detail"><i class="fas fa-person-rays"></i><small>Gefühlt</small><span id="w-feels">--°</span></div>
-            <div class="w-detail"><i class="fas fa-droplet"></i><small>Feuchte</small><span id="w-humidity">-- %</span></div>
-            <div class="w-detail"><i class="fas fa-cloud-rain"></i><small>Regen</small><span id="w-rain">-- %</span></div>
-            <div class="w-detail"><i class="fas fa-wind"></i><small>Wind</small><span id="w-wind">-- km/h</span></div>
-            <div class="w-detail"><i class="fas fa-gauge-high"></i><small>Druck</small><span id="w-pressure">-- hPa</span></div>
-            <div class="w-detail"><i class="fas fa-cloud"></i><small>Wolken</small><span id="w-clouds">-- %</span></div>
-            <div class="w-detail"><i class="fas fa-sun"></i><small>UV</small><span id="w-uv">--</span></div>
+          <!-- Rechts: Sensoren (Wetterstation LCD 2.0) -->
+          <div class="sensors-side sensor-layout" id="sensorBody">
+            <!-- Wird dynamisch von sensors.js befüllt -->
           </div>
         </div>
       </div>
@@ -701,15 +715,7 @@
         </div>
       </div>
 
-      <div class="widget" data-type="sensor">
-        <div class="widget-header">
-          <h3><i class="fas fa-temperature-half" style="color:var(--primary)"></i> <span data-i18n="widget_title_temp">Temperatur</span></h3>
-          <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
-        </div>
-        <div class="widget-body sensor-layout" id="sensorBody">
-          <!-- Wird dynamisch befüllt -->
-        </div>
-      </div>
+
 
       <div class="widget" data-type="tasmota">
         <div class="widget-header">

@@ -157,7 +157,7 @@ function loadSavedSettings() {
   // Initiiere Sensor-Einstellungen
   renderSensorSettings();
 
-  ['weather', 'waste', 'calendar', 'player', 'sensor', 'system', 'tasmota', 'fritzbox', 'presence', 'camera', 'jarvis', 'timer'].forEach(type => {
+  ['weather', 'waste', 'calendar', 'player', 'system', 'tasmota', 'fritzbox', 'presence', 'camera', 'jarvis', 'timer'].forEach(type => {
     const isVisible = localStorage.getItem('show_' + type) !== 'false';
     const widget = document.querySelector(`.widget[data-type="${type}"]`);
     const toggle = document.getElementById('toggle-' + type);
@@ -372,7 +372,7 @@ function initSettings() {
     });
   }
 
-  ['weather', 'waste', 'calendar', 'player', 'sensor', 'system', 'tasmota', 'fritzbox', 'presence', 'camera', 'jarvis', 'timer'].forEach(type => {
+  ['weather', 'waste', 'calendar', 'player', 'system', 'tasmota', 'fritzbox', 'presence', 'camera', 'jarvis', 'timer'].forEach(type => {
     const toggle = document.getElementById('toggle-' + type);
     if(toggle) {
       toggle.addEventListener('change', (e) => {
@@ -540,8 +540,10 @@ function updateSettingsSidebarVisibility() {
 
   const tabVisibility = {
     general: true,
-    smarthome: showTasmota || showSensor,
-    weather: showWeather || showWaste || showCalendar,
+    smarthome: showTasmota,
+    weather: showWeather || showSensor,
+    waste: showWaste,
+    reminder: showCalendar,
     presence: showPresence,
     camera: showCamera,
     jarvis: showJarvis,
