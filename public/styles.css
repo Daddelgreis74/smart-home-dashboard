@@ -4822,7 +4822,7 @@ body.theme-stealth .timer-drum-picker::after {
 .modern-sensors-container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
   flex: 1;
   justify-content: center;
@@ -4832,7 +4832,7 @@ body.theme-stealth .timer-drum-picker::after {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 7px 12px;
+  padding: 9px 14px;
   border-radius: var(--radius-md);
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -4848,18 +4848,18 @@ body.theme-stealth .timer-drum-picker::after {
 .sensor-info-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .sensor-icon-circle {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.04);
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-muted);
   flex-shrink: 0;
 }
@@ -4907,7 +4907,7 @@ body.theme-stealth .timer-drum-picker::after {
 }
 
 .sensor-temp-val {
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 300;
   letter-spacing: -0.5px;
 }
@@ -4923,21 +4923,21 @@ body.theme-stealth .timer-drum-picker::after {
 }
 
 .sensor-temp-unit {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--text-muted);
 }
 
 .sensor-trend-arrow {
-  margin-left: 3px;
-  font-size: 11px;
+  margin-left: 4px;
+  font-size: 13px;
 }
 
 .sensor-sub-details {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 10px;
+  gap: 8px;
+  font-size: 11px;
   color: var(--text-muted);
 }
 
@@ -5002,34 +5002,34 @@ body.theme-stealth .timer-drum-picker::after {
 /* Tablet Responsive Optimization for Combined Weather & Sensors */
 @media (max-width: 1280px) {
   .combined-weather-sensors-layout {
-    gap: 10px;
+    gap: 12px;
   }
   .weather-side {
     padding-right: 6px;
   }
   .modern-sensor-row {
-    padding: 6px 10px;
+    padding: 8px 12px;
   }
   .sensor-icon-circle {
-    width: 28px;
-    height: 28px;
-    font-size: 11px;
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
   }
   .sensor-info-left {
-    gap: 6px;
+    gap: 8px;
   }
   .sensor-location-name {
-    font-size: 11px;
+    font-size: 12.5px;
   }
   .sensor-temp-val {
-    font-size: 18px;
+    font-size: 24px;
   }
   .sensor-temp-unit {
-    font-size: 10px;
+    font-size: 12px;
   }
   .sensor-sub-details {
-    font-size: 9px;
-    gap: 4px;
+    font-size: 10px;
+    gap: 6px;
   }
 }
 
