@@ -63,6 +63,15 @@ function init() {
   initJarvis();
   initCalendar(socket);
 
+  // Version Badge – lädt die aktuelle Version vom Server und zeigt sie im Header an
+  fetch('/api/version')
+    .then(r => r.json())
+    .then(({ version }) => {
+      const badge = document.getElementById('headerVersionBadge');
+      if (badge) badge.textContent = `v${version}`;
+    })
+    .catch(() => { /* Badge bleibt leer wenn nicht erreichbar */ });
+
   // Schreibrechte-Warnung einblenden falls der Server Berechtigungsfehler hat
   if (Config.get('server_permission_error')) {
     const banner = document.createElement('div');

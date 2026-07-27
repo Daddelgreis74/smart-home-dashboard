@@ -71,6 +71,28 @@ body {
 .settings-btn { background: transparent; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; transition: color 0.3s; }
 .settings-btn:hover { color: var(--primary); }
 
+/* --- VERSION BADGE: subtle developer watermark in header --- */
+.header-version-badge {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: rgba(85, 245, 177, 0.38);
+  background: rgba(85, 245, 177, 0.05);
+  border: 1px solid rgba(85, 245, 177, 0.12);
+  padding: 3px 8px;
+  border-radius: 100px;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: default;
+  user-select: none;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+.header-version-badge:hover {
+  color: rgba(85, 245, 177, 0.70);
+  border-color: rgba(85, 245, 177, 0.28);
+}
+
 /* Dashboard Grid - Fixiert auf 3x3 Raster */
 .dashboard {
   flex: 1; 

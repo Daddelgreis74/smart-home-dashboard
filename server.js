@@ -49,6 +49,12 @@ app.use('/api/search', require('./src/routes/search'));
 app.use('/api/elevenlabs', require('./src/routes/tts'));
 app.use('/api/jarvis', require('./src/routes/jarvis'));
 
+// Version endpoint – serves current app version from package.json
+app.get('/api/version', (req, res) => {
+  const { version } = require('./package.json');
+  res.json({ version });
+});
+
 // 9. Server starten & Services initialisieren (nur wenn direkt gestartet)
 if (require.main === module) {
   // Realtime Sockets & Services initialisieren
