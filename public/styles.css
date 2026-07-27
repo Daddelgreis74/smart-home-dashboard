@@ -1902,15 +1902,8 @@ body::before {
 }
 
 /* --- AM2301 TASMOTA SENSOR GAUGES --- */
-.widget[data-type="weather"],
-.widget[data-type="waste"], .widget[data-type="calendar"],
-.widget[data-type="system"],
 .widget[data-type="fritzbox"],
-.widget[data-type="player"],
-.widget[data-type="sensor"],
-.widget[data-type="presence"],
-.widget[data-type="timer"],
-.widget[data-type="tasmota"] { grid-column: span 3; grid-row: span 1; }
+.widget[data-type="sensor"] { grid-column: span 3; grid-row: span 1; }
 
 .widget[data-type="sensor"]::before {
   background:
@@ -2085,7 +2078,7 @@ body::before {
 }
 
 @media (max-aspect-ratio: 4/3) {
-  .widget[data-type="weather"],
+  .widget[data-type="weather"] { grid-column: span 2; }
   .widget[data-type="waste"], .widget[data-type="calendar"],
   .widget[data-type="system"],
   .widget[data-type="sensor"],
