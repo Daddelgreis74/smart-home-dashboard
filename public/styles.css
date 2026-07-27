@@ -1841,9 +1841,9 @@ body::before {
   grid-template-rows: repeat(2, minmax(320px, 1fr));
   grid-auto-rows: minmax(320px, 1fr);
 }
-.widget[data-type="weather"] { grid-column: span 4; grid-row: span 1; }
+.widget[data-type="weather"] { grid-column: span 5; grid-row: span 1; }
 .widget[data-type="waste"], .widget[data-type="calendar"] { grid-column: span 4; grid-row: span 1; }
-.widget[data-type="system"] { grid-column: span 4; grid-row: span 1; }
+.widget[data-type="system"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="tasmota"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="player"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="presence"] { grid-column: span 3; grid-row: span 1; }
@@ -1851,9 +1851,9 @@ body::before {
 
 @media (min-aspect-ratio: 17/9) {
   .dashboard { grid-template-columns: repeat(12, minmax(0, 1fr)); }
-  .widget[data-type="weather"] { grid-column: span 4; }
+  .widget[data-type="weather"] { grid-column: span 5; }
   .widget[data-type="waste"], .widget[data-type="calendar"] { grid-column: span 3; }
-  .widget[data-type="system"] { grid-column: span 5; }
+  .widget[data-type="system"] { grid-column: span 4; }
   .widget[data-type="player"],
   .widget[data-type="presence"],
   .widget[data-type="timer"],
@@ -1867,9 +1867,9 @@ body::before {
     grid-template-rows: repeat(2, minmax(270px, 1fr));
     grid-auto-rows: minmax(270px, 1fr);
   }
-  .widget[data-type="weather"],
-  .widget[data-type="waste"], .widget[data-type="calendar"],
-  .widget[data-type="system"] { grid-column: span 4; }
+  .widget[data-type="weather"] { grid-column: span 5; }
+  .widget[data-type="waste"], .widget[data-type="calendar"] { grid-column: span 4; }
+  .widget[data-type="system"] { grid-column: span 3; }
   .widget[data-type="player"],
   .widget[data-type="presence"],
   .widget[data-type="timer"],
