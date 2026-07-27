@@ -1,6 +1,6 @@
 {
   "name": "smart-home-dashboard",
-  "version": "3.21.6",
+  "version": "3.21.7",
   "description": "Modern Smart Home Dashboard - Neo Deck",
   "main": "server.js",
   "scripts": {
