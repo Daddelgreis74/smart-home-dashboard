@@ -4528,6 +4528,17 @@ body.theme-stealth .timer-drum-picker::after {
   flex: 1;
 }
 
+.sensor-layout:has(.modern-sensors-container) {
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  flex-wrap: nowrap;
+  gap: 0;
+  align-items: stretch;
+  padding-top: 0;
+  flex: 1;
+}
+
 .lcd-retro-container {
   display: flex;
   flex-direction: column;
@@ -4908,7 +4919,7 @@ body.theme-stealth .timer-drum-picker::after {
 }
 
 .sensor-temp-val {
-  font-size: 34px;
+  font-size: 38px;
   font-weight: 300;
   letter-spacing: -0.5px;
 }
@@ -4924,7 +4935,7 @@ body.theme-stealth .timer-drum-picker::after {
 }
 
 .sensor-temp-unit {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 500;
   color: var(--text-muted);
 }
