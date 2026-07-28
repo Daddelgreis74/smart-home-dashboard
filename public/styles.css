@@ -4822,22 +4822,23 @@ body.theme-stealth .timer-drum-picker::after {
 .modern-sensors-container {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   width: 100%;
   flex: 1;
-  justify-content: center;
+  justify-content: stretch;
 }
 
 .modern-sensor-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 13px 16px;
+  padding: 14px 18px;
   border-radius: var(--radius-md);
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   transition: transform 0.2s ease, border-color 0.2s ease;
+  flex: 1;
 }
 
 .modern-sensor-row:hover {
@@ -4907,7 +4908,7 @@ body.theme-stealth .timer-drum-picker::after {
 }
 
 .sensor-temp-val {
-  font-size: 32px;
+  font-size: 34px;
   font-weight: 300;
   letter-spacing: -0.5px;
 }
@@ -5022,7 +5023,7 @@ body.theme-stealth .timer-drum-picker::after {
     font-size: 13px;
   }
   .sensor-temp-val {
-    font-size: 26px;
+    font-size: 28px;
   }
   .sensor-temp-unit {
     font-size: 13px;
@@ -5032,6 +5033,3 @@ body.theme-stealth .timer-drum-picker::after {
     gap: 8px;
   }
 }
-
-
-
