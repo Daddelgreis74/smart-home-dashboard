@@ -34,7 +34,7 @@ router.get('/voices', async (req, res) => {
 router.post('/tts', async (req, res) => {
   const apiKey = String(req.headers['x-elevenlabs-key'] || '').trim();
   const text = String(req.body.text || '').trim();
-  const voiceId = String(req.body.voiceId || '21m00Tcm4TlvDq8ikWAM').trim(); // Rachel default
+  const voiceId = String(req.body.voiceId || 'nPczCjzI2devNBz1zQrb').trim(); // Brian default
 
   if (!apiKey) {
     return res.status(400).json({ success: false, error: 'ElevenLabs API key is missing' });

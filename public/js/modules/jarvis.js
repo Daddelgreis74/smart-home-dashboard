@@ -107,7 +107,7 @@ export function speakJarvisReply(text) {
   
   if (provider === 'elevenlabs') {
     const apiKey = Config.get('jarvis_eleven_api_key', '');
-    const voiceId = Config.get('jarvis_eleven_voice_id', '21m00Tcm4TlvDq8ikWAM');
+    const voiceId = Config.get('jarvis_eleven_voice_id', 'nPczCjzI2devNBz1zQrb');
     
     if (!apiKey) {
       console.warn("ElevenLabs API Key fehlt, nutze lokale Sprachausgabe.");
