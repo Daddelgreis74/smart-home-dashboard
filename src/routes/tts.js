@@ -1,12 +1,29 @@
 const express = require('express');
+const fs = require('fs');
+const { CONFIG_FILE } = require('../config/env');
 
 const router = express.Router();
 
-router.get('/voices', async (req, res) => {
-  const apiKey = String(req.headers['x-elevenlabs-key'] || '').trim();
+function getElevenLabsApiKey(headerKey) {
+  let key = String(headerKey || '').trim();
+  if (key === '********') {
+    try {
+      if (fs.existsSync(CONFIG_FILE)) {
+        const config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+        key = String(config.jarvis_eleven_api_key || '').trim();
+      }
+    } catch (e) {
+      console.error('[TTS] Failed to read ElevenLabs key from config:', e.message);
+    }
+  }
+  return key;
+}
 
-  if (!apiKey) {
-    return res.status(400).json({ success: false, error: 'ElevenLabs API key is missing' });
+router.get('/voices', async (req, res) => {
+  const apiKey = getElevenLabsApiKey(req.headers['x-elevenlabs-key']);
+
+  if (!apiKey || apiKey === '********') {
+    return res.status(400).json({ success: false, error: 'ElevenLabs API key is missing or invalid' });
   }
 
   try {
@@ -32,12 +49,12 @@ router.get('/voices', async (req, res) => {
 });
 
 router.post('/tts', async (req, res) => {
-  const apiKey = String(req.headers['x-elevenlabs-key'] || '').trim();
+  const apiKey = getElevenLabsApiKey(req.headers['x-elevenlabs-key']);
   const text = String(req.body.text || '').trim();
   const voiceId = String(req.body.voiceId || 'nPczCjzI2devNBz1zQrb').trim(); // Brian default
 
-  if (!apiKey) {
-    return res.status(400).json({ success: false, error: 'ElevenLabs API key is missing' });
+  if (!apiKey || apiKey === '********') {
+    return res.status(400).json({ success: false, error: 'ElevenLabs API key is missing or invalid' });
   }
   if (!text) {
     return res.status(400).json({ success: false, error: 'Text parameter is required' });

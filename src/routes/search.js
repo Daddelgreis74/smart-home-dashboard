@@ -1,16 +1,33 @@
 const express = require('express');
+const fs = require('fs');
+const { CONFIG_FILE } = require('../config/env');
 
 const router = express.Router();
 
+function getBraveApiKey(headerKey) {
+  let key = String(headerKey || '').trim();
+  if (key === '********') {
+    try {
+      if (fs.existsSync(CONFIG_FILE)) {
+        const config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+        key = String(config.jarvis_brave_api_key || '').trim();
+      }
+    } catch (e) {
+      console.error('[Search] Failed to read Brave key from config:', e.message);
+    }
+  }
+  return key;
+}
+
 router.get('/', async (req, res) => {
   const query = String(req.query.q || '').trim();
-  const apiKey = String(req.headers['x-brave-key'] || '').trim();
+  const apiKey = getBraveApiKey(req.headers['x-brave-key']);
 
   if (!query) {
     return res.status(400).json({ success: false, error: 'Query parameter q is required' });
   }
-  if (!apiKey) {
-    return res.status(400).json({ success: false, error: 'Brave Search API key is missing' });
+  if (!apiKey || apiKey === '********') {
+    return res.status(400).json({ success: false, error: 'Brave Search API key is missing or invalid' });
   }
 
   try {
