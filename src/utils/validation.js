@@ -7,7 +7,7 @@ function isIPv4(value) {
 function isPrivateIPv4(value) {
   if (!isIPv4(value)) return false;
   const [a, b] = value.split('.').map(Number);
-  return a === 10 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168);
+  return a === 10 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || a === 127;
 }
 
 function isPrivateBaseIp(value) {

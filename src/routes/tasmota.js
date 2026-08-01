@@ -11,10 +11,12 @@ const {
 const fs = require('fs');
 const path = require('path');
 
+const { DATA_DIR } = require('../config/env');
+
 const router = express.Router();
 
 // Lade Push-Cache für Deep-Sleep Sensoren von Festplatte
-const PUSH_CACHE_FILE = path.join(__dirname, '../../data/pushed-sensors.json');
+const PUSH_CACHE_FILE = path.join(DATA_DIR, 'pushed-sensors.json');
 let pushedSensorCache = {};
 if (fs.existsSync(PUSH_CACHE_FILE)) {
   try {
@@ -48,19 +50,25 @@ router.post('/', (req, res) => {
 // Neuer Endpoint für den Push-Empfang vom solarbetriebenen ESP32-C3
 router.post('/sensor-push', (req, res) => {
   const ip = req.ip.replace(/^::ffff:/, ''); // IPv4 extrahieren falls dual-stack
-  const data = req.body;
+  const data = req.body || {};
   
   console.log(`[Tasmota Push] Empfangen von ${ip}:`, data);
   
   const tzoffset = (new Date()).getTimezoneOffset() * 60000;
   const localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
 
+  const temperature = (typeof data.temperature === 'number' && !isNaN(data.temperature)) ? data.temperature : undefined;
+  const humidity = (typeof data.humidity === 'number' && !isNaN(data.humidity)) ? data.humidity : undefined;
+  const dewPoint = (typeof data.dewPoint === 'number' && !isNaN(data.dewPoint)) ? data.dewPoint : undefined;
+  const batteryVoltage = (typeof data.batteryVoltage === 'number' && !isNaN(data.batteryVoltage)) ? data.batteryVoltage : undefined;
+  const batteryPercent = (typeof data.batteryPercent === 'number' && !isNaN(data.batteryPercent)) ? data.batteryPercent : undefined;
+
   pushedSensorCache[ip] = {
-    temperature: data.temperature !== null ? data.temperature : undefined,
-    humidity: data.humidity !== null ? data.humidity : undefined,
-    dewPoint: data.dewPoint !== null ? data.dewPoint : undefined,
-    batteryVoltage: data.batteryVoltage,
-    batteryPercent: data.batteryPercent,
+    temperature,
+    humidity,
+    dewPoint,
+    batteryVoltage,
+    batteryPercent,
     time: localISOTime
   };
   

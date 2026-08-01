@@ -1,6 +1,8 @@
 const express = require('express');
 const http = require('http');
 const https = require('https');
+const fs = require('fs');
+const path = require('path');
 const { Server } = require('socket.io');
 const { PORT, HOST, UPLOAD_DIR } = require('./src/config/env');
 const { runMigration } = require('./src/config/migration');
@@ -25,6 +27,25 @@ const { useSSL, sslOptions } = initializeSSL();
 
 // 3. Express App Setup
 const app = express();
+
+// Custom route to dynamically serve index.html with automatic version cache busting
+app.get(['/', '/index.html'], (req, res) => {
+  const indexPath = path.join(__dirname, 'public', 'index.html');
+  if (fs.existsSync(indexPath)) {
+    try {
+      let html = fs.readFileSync(indexPath, 'utf8');
+      const { version } = require('./package.json');
+      html = html.replace(/\?v=[0-9.]+/g, `?v=${version}`);
+      res.send(html);
+    } catch (err) {
+      console.error('[Server] Fehler beim dynamischen Rendern von index.html:', err.message);
+      res.sendFile(indexPath);
+    }
+  } else {
+    res.status(404).send('Not Found');
+  }
+});
+
 app.use(express.static('public'));
 app.use('/uploads', express.static(UPLOAD_DIR));
 app.use(express.json({ limit: '256kb' }));
