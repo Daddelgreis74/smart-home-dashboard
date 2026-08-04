@@ -9,6 +9,12 @@ export async function initCameraWidget(socket) {
   const addBtn = document.getElementById('addCameraBtn');
   if(!addBtn) return;
 
+  // Dynamic go2rtc web interface URL resolving to the current page host on port 1984
+  const go2rtcLink = document.getElementById('go2rtcWebUiLink');
+  if (go2rtcLink) {
+    go2rtcLink.href = `http://${window.location.hostname}:1984`;
+  }
+
   // 1. Kamera hinzufügen Handler
   addBtn.addEventListener('click', async () => {
     const nameInput = document.getElementById('cameraManName');
@@ -101,7 +107,7 @@ export async function initCameraWidget(socket) {
         const activeFullscreenCameraId = fsImg.dataset.cameraId;
         const activeCam = currentCameras.find(c => c.id === activeFullscreenCameraId);
         if (activeCam) {
-          fsImg.src = getTimestampedUrl(activeCam.url);
+          fsImg.src = getTimestampedUrl(`/api/cameras/stream/${activeCam.id}`);
         }
       }
     }
@@ -186,13 +192,12 @@ export function renderCameraWidget(cameras) {
   cameras.forEach(c => {
     const card = document.createElement('div');
     card.className = 'camera-card';
-    card.style.cssText = 'position: relative; border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.4); aspect-ratio: 16/9; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all var(--transition); border: 1px solid rgba(255,255,255,0.06);';
-    
-    const img = document.createElement('img');
+    card.style.cssText = 'position: relative; border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.4); aspect-ratio: 16/9; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all var(--transition); border: 1px solid rgba(255,255,255,0.06);';    const img = document.createElement('img');
     img.className = 'camera-feed-img';
     img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; transition: filter var(--transition);';
     img.alt = c.name;
-    img.src = c.url;
+    const streamProxyUrl = `/api/cameras/stream/${c.id}`;
+    img.src = streamProxyUrl;
 
     const liveDot = document.createElement('div');
     liveDot.className = 'camera-live-dot';
@@ -217,20 +222,20 @@ export function renderCameraWidget(cameras) {
         }
 
         fsImg.dataset.cameraId = c.id;
-        fsImg.src = getTimestampedUrl(c.url);
+        fsImg.src = getTimestampedUrl(streamProxyUrl);
         if(fsTitle) fsTitle.textContent = c.name;
         overlay.removeAttribute('hidden');
 
         const refreshMs = c.interval > 0 ? (c.interval * 1000) : (240 * 1000);
         fullscreenInterval = setInterval(() => {
-          fsImg.src = getTimestampedUrl(c.url);
+          fsImg.src = getTimestampedUrl(streamProxyUrl);
         }, refreshMs);
 
         fsImg.onerror = () => {
           console.warn(`[Camera Fullscreen Error] Failed to load fullscreen for '${c.name}'.`);
           setTimeout(() => {
             if (!overlay.hasAttribute('hidden')) {
-              fsImg.src = getTimestampedUrl(c.url);
+              fsImg.src = getTimestampedUrl(streamProxyUrl);
             }
           }, 3000);
         };
@@ -241,7 +246,7 @@ export function renderCameraWidget(cameras) {
       console.warn(`[Camera Error] Failed to load feed for '${c.name}'. Reconnecting...`);
       setTimeout(() => {
         if (img.isConnected) {
-          img.src = getTimestampedUrl(c.url);
+          img.src = getTimestampedUrl(streamProxyUrl);
         }
       }, 3000);
     };
@@ -249,12 +254,12 @@ export function renderCameraWidget(cameras) {
     if(c.interval > 0) {
       const intervalMs = c.interval * 1000;
       activeCameraIntervals[c.id] = setInterval(() => {
-        img.src = getTimestampedUrl(c.url);
+        img.src = getTimestampedUrl(streamProxyUrl);
       }, intervalMs);
     } else {
       activeCameraIntervals[c.id] = setInterval(() => {
         console.log(`[Camera Watchdog] Periodic auto-refresh for live camera '${c.name}'`);
-        img.src = getTimestampedUrl(c.url);
+        img.src = getTimestampedUrl(streamProxyUrl);
       }, 270000);
     }
 

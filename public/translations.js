@@ -53,6 +53,7 @@ const translations = {
     "camera_mode_2s": "Aktualisierung alle 2 Sekunden",
     "camera_mode_5s": "Aktualisierung alle 5 Sekunden",
     "camera_add_btn": "Kamera hinzufügen",
+    "camera_go2rtc_ui": "go2rtc Webinterface",
     "camera_active_label": "Aktive Kameras:",
     "camera_guide_title": "Anleitung: Kamera einbinden",
 
@@ -225,6 +226,7 @@ const translations = {
     "camera_mode_2s": "Update every 2 seconds",
     "camera_mode_5s": "Update every 5 seconds",
     "camera_add_btn": "Add Camera",
+    "camera_go2rtc_ui": "go2rtc Web Interface",
     "camera_active_label": "Active Cameras:",
     "camera_guide_title": "Guide: Add Camera",
 
@@ -396,6 +398,7 @@ const translations = {
     "camera_mode_2s": "Mise à jour toutes les 2 secondes",
     "camera_mode_5s": "Mise à jour toutes les 5 secondes",
     "camera_add_btn": "Ajouter une caméra",
+    "camera_go2rtc_ui": "Interface Web go2rtc",
     "camera_active_label": "Caméras Actives:",
     "camera_guide_title": "Guide: Intégrer une caméra",
 
@@ -547,6 +550,7 @@ const translations = {
     "camera_mode_2s": "Actualizar cada 2 segundos",
     "camera_mode_5s": "Actualizar cada 5 segundos",
     "camera_add_btn": "Añadir cámara",
+    "camera_go2rtc_ui": "Interfaz Web go2rtc",
     "camera_active_label": "Cámaras Activas:",
     "camera_guide_title": "Guía: Integrar cámara",
 
@@ -698,6 +702,7 @@ const translations = {
     "camera_mode_2s": "Aggiorna ogni 2 secondi",
     "camera_mode_5s": "Aggiorna ogni 5 secondi",
     "camera_add_btn": "Aggiungi telecamera",
+    "camera_go2rtc_ui": "Interfaccia Web go2rtc",
     "camera_active_label": "Telecamere Attive:",
     "camera_guide_title": "Guida: Integrare telecamera",
 
@@ -849,6 +854,7 @@ const translations = {
     "camera_mode_2s": "Elke 2 seconden bijwerken",
     "camera_mode_5s": "Elke 5 seconden bijwerken",
     "camera_add_btn": "Camera toevoegen",
+    "camera_go2rtc_ui": "go2rtc Webinterface",
     "camera_active_label": "Actieve Camera's:",
     "camera_guide_title": "Handleiding: Camera integreren",
 
@@ -1000,6 +1006,7 @@ const translations = {
     "camera_mode_2s": "Aktualizacja co 2 sekundy",
     "camera_mode_5s": "Aktualizacja co 5 sekund",
     "camera_add_btn": "Dodaj kamerę",
+    "camera_go2rtc_ui": "Interfejs Web go2rtc",
     "camera_active_label": "Aktywne Kamery:",
     "camera_guide_title": "Instrukcja: Integracja kamery",
 
