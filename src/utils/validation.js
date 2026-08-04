@@ -61,6 +61,21 @@ function sanitizeCameras(value) {
     const name = cleanName(cam?.name, 'Kamera');
     const url = String(cam?.url || '').trim().slice(0, 800);
     if (!/^https?:\/\//i.test(url)) return acc;
+
+    // SSRF Check: Ensure saved URLs are private/local
+    try {
+      const parsed = new URL(url);
+      const host = parsed.hostname;
+      const isLocal = isPrivateIPv4(host) || 
+                      host === 'localhost' || 
+                      host.endsWith('.local') || 
+                      host.endsWith('.lan') || 
+                      host.endsWith('.fritz.box');
+      if (!isLocal) return acc;
+    } catch(e) {
+      return acc;
+    }
+
     const interval = Math.max(0, Number(cam?.interval || 0));
     acc.push({ id, name, url, interval });
     return acc;

@@ -17,15 +17,64 @@ router.get('/stream/:id', (req, res) => {
     }
 
     const streamUrl = camera.url;
+
+    // SSRF Check: Ensure the host is a private/local IP or hostname
+    try {
+      const parsedUrl = new URL(streamUrl);
+      const host = parsedUrl.hostname;
+      const { isPrivateIPv4 } = require('../utils/validation');
+      const isLocal = isPrivateIPv4(host) || 
+                      host === 'localhost' || 
+                      host.endsWith('.local') || 
+                      host.endsWith('.lan') || 
+                      host.endsWith('.fritz.box');
+      if (!isLocal) {
+        return res.status(403).send('Zugriff verweigert: Nur private/lokale Adressen erlaubt.');
+      }
+    } catch(err) {
+      return res.status(400).send('Ungültige Stream-URL.');
+    }
+
     const http = require('http');
     const https = require('https');
     const httpClient = streamUrl.toLowerCase().startsWith('https') ? https : http;
 
-    // Forward request to camera/Go2RTC
+    // Forward request to camera/Go2RTC with timeout
     const clientReq = httpClient.get(streamUrl, (clientRes) => {
-      // Set response headers to match the camera stream headers (e.g. multipart/x-mixed-replace)
+      const contentType = clientRes.headers['content-type'] || '';
+      const isMJPEG = contentType.toLowerCase().includes('multipart/x-mixed-replace');
+
+      let bytesReceived = 0;
+      const maxSnapshotBytes = 10 * 1024 * 1024; // Limit snapshots to 10MB to prevent memory exhaustion
+
+      // Set response headers to match the camera stream headers
       res.writeHead(clientRes.statusCode, clientRes.headers);
-      clientRes.pipe(res);
+
+      clientRes.on('data', (chunk) => {
+        if (!isMJPEG) {
+          bytesReceived += chunk.length;
+          if (bytesReceived > maxSnapshotBytes) {
+            console.warn(`[Camera Proxy Warning] Snapshot data limit exceeded for ${camera.name}. Closing connection.`);
+            clientRes.destroy();
+            res.end();
+            return;
+          }
+        }
+        res.write(chunk);
+      });
+
+      clientRes.on('end', () => {
+        res.end();
+      });
+    });
+
+    // Set connection timeout to 10 seconds to avoid hanging sockets
+    clientReq.setTimeout(10000, () => {
+      console.warn(`[Camera Proxy Timeout] Connection timed out after 10s for ${camera.name}`);
+      clientReq.destroy();
+      if (!res.headersSent) {
+        res.status(504).send('Zeitüberschreitung bei der Verbindung zur Kamera.');
+      }
     });
 
     clientReq.on('error', (err) => {
@@ -56,6 +105,24 @@ router.post('/', (req, res) => {
     if (!/^https?:\/\//i.test(cleanU)) {
       return res.status(400).json({ success: false, error: 'Ungültige Kamera-URL. Muss mit http:// oder https:// beginnen.' });
     }
+
+    // SSRF Check: Validate host of the saved camera URL
+    const { isPrivateIPv4 } = require('../utils/validation');
+    try {
+      const parsedUrl = new URL(cleanU);
+      const host = parsedUrl.hostname;
+      const isLocal = isPrivateIPv4(host) || 
+                      host === 'localhost' || 
+                      host.endsWith('.local') || 
+                      host.endsWith('.lan') || 
+                      host.endsWith('.fritz.box');
+      if (!isLocal) {
+        return res.status(400).json({ success: false, error: 'Kamera-URL muss eine private/lokale Adresse sein (z.B. lokale IP oder .local-Domain).' });
+      }
+    } catch(err) {
+      return res.status(400).json({ success: false, error: 'Ungültige Kamera-URL Struktur.' });
+    }
+
     const cleanI = Math.max(0, Number(interval || 0));
 
     const camerasRAM = fileStore.camerasRAM;
