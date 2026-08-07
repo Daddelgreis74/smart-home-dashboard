@@ -28,24 +28,30 @@ const { useSSL, sslOptions } = initializeSSL();
 // 3. Express App Setup
 const app = express();
 
-// Custom route to dynamically serve index.html with automatic version cache busting
-app.get(['/', '/index.html'], (req, res) => {
+// Cache index.html at server startup with the correct version
+let cachedIndexHtml = '';
+try {
   const indexPath = path.join(__dirname, 'public', 'index.html');
   if (fs.existsSync(indexPath)) {
-    try {
-      let html = fs.readFileSync(indexPath, 'utf8');
-      const { version } = require('./package.json');
-      html = html.replace(/\?v=[0-9.]+/g, `?v=${version}`);
-      res.send(html);
-    } catch (err) {
-      console.error('[Server] Fehler beim dynamischen Rendern von index.html:', err.message);
-      res.sendFile(indexPath);
-    }
+    let html = fs.readFileSync(indexPath, 'utf8');
+    const { version } = require('./package.json');
+    cachedIndexHtml = html.replace(/\?v=[0-9.]+/g, `?v=${version}`);
+  }
+} catch (err) {
+  console.error('[Server] Fehler beim Cachen von index.html beim Start:', err.message);
+}
+
+app.get(['/', '/index.html'], (req, res) => {
+  if (cachedIndexHtml) {
+    res.send(cachedIndexHtml);
   } else {
-    res.status(404).send('Not Found');
+    const indexPath = path.join(__dirname, 'public', 'index.html');
+    res.sendFile(indexPath);
   }
 });
 
+const compression = require('compression');
+app.use(compression());
 app.use(express.static('public'));
 app.use('/uploads', express.static(UPLOAD_DIR));
 app.use(express.json({ limit: '256kb' }));
