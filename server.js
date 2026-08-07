@@ -95,11 +95,16 @@ if (require.main === module) {
   const REDIRECT_PORT = process.env.REDIRECT_PORT || (useSSL && PORT === 8443 ? 8080 : null);
   if (useSSL && REDIRECT_PORT) {
     http.createServer((req, res) => {
-      const hostHeader = req.headers.host || '';
-      const host = hostHeader.split(':')[0];
-      const redirectUrl = `https://${host}:${PORT}${req.url}`;
-      res.writeHead(301, { Location: redirectUrl });
-      res.end();
+      if (req.url && req.url.startsWith('/api/tasmota/sensor-push')) {
+        // Pass unencrypted sensor push requests directly to express app without redirecting
+        app(req, res);
+      } else {
+        const hostHeader = req.headers.host || '';
+        const host = hostHeader.split(':')[0];
+        const redirectUrl = `https://${host}:${PORT}${req.url}`;
+        res.writeHead(301, { Location: redirectUrl });
+        res.end();
+      }
     }).listen(REDIRECT_PORT, HOST, () => {
       console.log(`HTTP-Redirect-Server läuft auf http://${HOST}:${REDIRECT_PORT} -> https://${HOST}:${PORT}`);
     });
