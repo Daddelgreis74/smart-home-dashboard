@@ -9,11 +9,6 @@ export async function initCameraWidget(socket) {
   const addBtn = document.getElementById('addCameraBtn');
   if(!addBtn) return;
 
-  // Dynamic go2rtc web interface URL resolving to the current page host on port 1984
-  const go2rtcLink = document.getElementById('go2rtcWebUiLink');
-  if (go2rtcLink) {
-    go2rtcLink.href = `http://${window.location.hostname}:1984`;
-  }
 
   // 1. Kamera hinzufügen Handler
   addBtn.addEventListener('click', async () => {
