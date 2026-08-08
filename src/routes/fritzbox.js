@@ -114,4 +114,31 @@ router.get('/radio', async (req, res) => {
   }
 });
 
+router.post('/test', (req, res) => {
+  const ip = String(req.body?.ip || '').trim();
+  const { isPrivateIPv4 } = require('../utils/validation');
+  if (!isPrivateIPv4(ip)) {
+    return res.status(400).json({ success: false, error: 'Ungültige lokale IPv4-Adresse' });
+  }
+
+  const net = require('net');
+  const client = new net.Socket();
+  client.setTimeout(3000);
+
+  client.connect(49000, ip, () => {
+    client.destroy();
+    res.json({ success: true });
+  });
+
+  client.on('error', (err) => {
+    client.destroy();
+    res.json({ success: false, error: `Verbindung fehlgeschlagen: ${err.message}` });
+  });
+
+  client.on('timeout', () => {
+    client.destroy();
+    res.json({ success: false, error: 'Verbindungstimeout (Port 49000 antwortet nicht)' });
+  });
+});
+
 module.exports = router;

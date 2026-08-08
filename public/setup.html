@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Neo Deck · Erstkonfiguration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Michroma&family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="setup.css">
+</head>
+<body>
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <div class="setup-container">
+    <div class="setup-card">
+      <div class="setup-header">
+        <div class="setup-logo">
+          <i class="fas fa-sliders-h"></i> <span>Neo Deck</span>
+        </div>
+        <h1 class="setup-title">Erstkonfiguration</h1>
+        <p class="setup-subtitle">Richten wir dein Command Center ein</p>
+        
+        <div class="setup-progress-container">
+          <div class="setup-progress-bar-bg">
+            <div id="setupProgressBar" class="setup-progress-bar" style="width: 0%;"></div>
+          </div>
+          <div class="setup-steps-indicator">
+            <span class="setup-step-dot active" data-step="1">1</span>
+            <span class="setup-step-dot" data-step="2">2</span>
+            <span class="setup-step-dot" data-step="3">3</span>
+            <span class="setup-step-dot" data-step="4">4</span>
+            <span class="setup-step-dot" data-step="5">5</span>
+            <span class="setup-step-dot" data-step="6">6</span>
+            <span class="setup-step-dot" data-step="7">7</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-body">
+        <!-- STEP 1: SPRACHE & DESIGN -->
+        <div class="setup-step-view active" data-step="1">
+          <h2 class="step-title"><i class="fas fa-palette"></i> Sprache & Design</h2>
+          <p class="step-desc">Wähle deine bevorzugte Sprache und ein Theme für das Dashboard aus.</p>
+          
+          <div class="form-group">
+            <label for="setupLang">Systemsprache</label>
+            <select id="setupLang" class="form-control">
+              <option value="de">Deutsch (Standard)</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+
+          <label>Farbthema wählen</label>
+          <div class="theme-grid">
+            <div class="theme-card selected" data-theme="theme-aurora">
+              <div class="theme-preview aurora"></div>
+              <span>Aurora Nordlicht</span>
+            </div>
+            <div class="theme-card" data-theme="theme-stealth">
+              <div class="theme-preview stealth"></div>
+              <span>Stealth Dark</span>
+            </div>
+            <div class="theme-card" data-theme="theme-retrowave">
+              <div class="theme-preview retrowave"></div>
+              <span>Retro Cyberpunk</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2: WETTER -->
+        <div class="setup-step-view" data-step="2">
+          <h2 class="step-title"><i class="fas fa-cloud-sun"></i> Wetter-Konfiguration</h2>
+          <p class="step-desc">Gib deinen Standort ein, um aktuelle Wetterdaten anzuzeigen.</p>
+          
+          <div class="form-group">
+            <label for="setupWeatherLoc">Standort (z.B. Ort oder PLZ)</label>
+            <input type="text" id="setupWeatherLoc" class="form-control" placeholder="z.B. Berlin, DE">
+          </div>
+
+          <div class="form-group">
+            <label for="setupWeatherProvider">Wetter-Provider</label>
+            <select id="setupWeatherProvider" class="form-control">
+              <option value="openmeteo">Open-Meteo (Kostenlos, keine Registrierung)</option>
+            </select>
+          </div>
+
+          <button id="setupTestWeather" class="btn btn-secondary"><i class="fas fa-search-location"></i> Standort prüfen</button>
+          <div id="setupWeatherIndicator" class="setup-test-indicator" style="display: none;"></div>
+        </div>
+
+        <!-- STEP 3: FRITZ!BOX -->
+        <div class="setup-step-view" data-step="3">
+          <h2 class="step-title"><i class="fas fa-ethernet"></i> Fritz!Box-Integration</h2>
+          <p class="step-desc">Verbinde dein Dashboard mit deiner AVM Fritz!Box, um Anrufe und Heimnetz-Geräte zu überwachen (optional).</p>
+          
+          <div class="form-group">
+            <label for="setupFritzIp">Fritz!Box IP-Adresse</label>
+            <input type="text" id="setupFritzIp" class="form-control" placeholder="192.168.178.1" value="192.168.178.1">
+          </div>
+
+          <div class="form-group">
+            <label for="setupFritzUser">Username (Optional)</label>
+            <input type="text" id="setupFritzUser" class="form-control" placeholder="z.B. admin">
+          </div>
+
+          <div class="form-group">
+            <label for="setupFritzPass">Passwort (Optional)</label>
+            <input type="password" id="setupFritzPass" class="form-control" placeholder="Fritz!Box Passwort eingeben">
+          </div>
+
+          <button id="setupTestFritz" class="btn btn-secondary"><i class="fas fa-link"></i> Verbindung testen</button>
+          <div id="setupFritzIndicator" class="setup-test-indicator" style="display: none;"></div>
+        </div>
+
+        <!-- STEP 4: TASMOTA -->
+        <div class="setup-step-view" data-step="4">
+          <h2 class="step-title"><i class="fas fa-plug"></i> Tasmota Smart Home</h2>
+          <p class="step-desc">Konfiguriere deinen Haupt-Temperatursensor und finde weitere Tasmota-Geräte im Heimnetzwerk.</p>
+          
+          <!-- Section 1: Haupt-Sensor -->
+          <div class="setup-section">
+            <h3 class="section-title"><i class="fas fa-thermometer-half"></i> 1. Haupt-Temperatursensor</h3>
+            <p class="section-desc">Dieser Sensor liefert die Temperatur- und Luftfeuchtigkeitsanzeige auf der Startseite des Dashboards.</p>
+            <div class="form-group" style="margin-top: 10px;">
+              <label for="setupTasmotaIp">Haupt-Sensor IP-Adresse</label>
+              <input type="text" id="setupTasmotaIp" class="form-control" placeholder="z.B. 192.168.178.50">
+            </div>
+          </div>
+
+          <!-- Section 2: Subnetz-Scan -->
+          <div class="setup-section" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--panel-border);">
+            <h3 class="section-title"><i class="fas fa-search"></i> 2. Weitere Smart-Home-Geräte suchen</h3>
+            <p class="section-desc">Scanne dein Subnetz nach anderen Tasmota-Geräten. Diese werden automatisch als steuerbare Steckdosen/Geräte in dein Dashboard importiert.</p>
+            
+            <div class="form-group" style="margin-top: 15px;">
+              <label for="setupTasmotaSubnet">Subnetz scannen</label>
+              <div style="display: flex; gap: 10px;">
+                <input type="text" id="setupTasmotaSubnet" class="form-control" placeholder="z.B. 192.168.178" value="192.168.178" style="flex: 1;">
+                <button id="setupScanSubnet" class="btn btn-secondary" style="margin: 0; white-space: nowrap;"><i class="fas fa-network-wired"></i> Scan starten</button>
+              </div>
+            </div>
+
+            <div id="setupTasmotaIndicator" class="setup-test-indicator" style="display: none;"></div>
+            <div id="setupTasmotaScanResults" class="scan-results-grid" style="margin-top: 15px;"></div>
+          </div>
+        </div>
+
+        <!-- STEP 5: ABFALLKALENDER -->
+        <div class="setup-step-view" data-step="5">
+          <h2 class="step-title"><i class="fas fa-trash-can"></i> Abfallkalender-Sync</h2>
+          <p class="step-desc">Lade eine aktuelle .ics-Datei deines Entsorgungsbetriebs hoch, damit dein Dashboard die nächsten Müllabfuhrtermine anzeigen kann (optional).</p>
+          
+          <div class="form-group" style="margin-top: 20px;">
+            <label for="setupIcsFile">Kalenderdatei (.ics)</label>
+            <div style="display: flex; gap: 10px;">
+              <input type="file" id="setupIcsFile" class="form-control" accept=".ics" style="flex: 1; padding: 8px 12px;">
+              <button id="setupUploadIcs" class="btn btn-secondary" style="margin: 0; white-space: nowrap;"><i class="fas fa-upload"></i> Hochladen</button>
+            </div>
+          </div>
+
+          <div id="setupIcsIndicator" class="setup-test-indicator" style="display: none; margin-top: 15px;"></div>
+        </div>
+
+        <!-- STEP 6: J.A.R.V.I.S. KI -->
+        <div class="setup-step-view" data-step="6">
+          <h2 class="step-title"><i class="fas fa-robot"></i> J.A.R.V.I.S. KI-Assistent</h2>
+          <p class="step-desc">Konfiguriere den integrierten Sprachassistenten J.A.R.V.I.S. (optional).</p>
+          
+          <div class="form-group">
+            <label for="setupJarvisProvider">KI Provider</label>
+            <select id="setupJarvisProvider" class="form-control">
+              <option value="gemini">Google Gemini (Empfohlen)</option>
+              <option value="openrouter">OpenRouter (Mehr Modelle)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="setupJarvisKey">API Key</label>
+            <input type="password" id="setupJarvisKey" class="form-control" placeholder="API Key eintragen">
+          </div>
+
+          <div class="form-group">
+            <label for="setupJarvisElevenKey">ElevenLabs API-Key (Optional für TTS-Stimme)</label>
+            <input type="password" id="setupJarvisElevenKey" class="form-control" placeholder="ElevenLabs Key für Sprachausgabe">
+          </div>
+        </div>
+
+        <!-- STEP 7: FERTIGSTELLUNG -->
+        <div class="setup-step-view" data-step="7">
+          <h2 class="step-title"><i class="fas fa-check-circle"></i> Fast geschafft!</h2>
+          <p class="step-desc">Deine Einstellungen wurden gesammelt. Du kannst das Setup nun abschließen und dein Dashboard starten.</p>
+          
+          <div class="summary-card">
+            <h3>Konfigurations-Übersicht</h3>
+            <ul class="summary-list">
+              <li><i class="fas fa-globe"></i> Sprache: <span id="sumLang">Deutsch</span></li>
+              <li><i class="fas fa-palette"></i> Theme: <span id="sumTheme">Aurora Nordlicht</span></li>
+              <li><i class="fas fa-cloud"></i> Wetter: <span id="sumWeather">Nicht konfiguriert</span></li>
+              <li><i class="fas fa-ethernet"></i> Fritz!Box: <span id="sumFritz">Deaktiviert</span></li>
+              <li><i class="fas fa-plug"></i> Tasmota: <span id="sumTasmota">Deaktiviert</span></li>
+              <li><i class="fas fa-trash-can"></i> Abfallkalender: <span id="sumWaste">Deaktiviert</span></li>
+              <li><i class="fas fa-robot"></i> J.A.R.V.I.S.: <span id="sumJarvis">Deaktiviert</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-footer">
+        <button id="setupPrevBtn" class="btn btn-muted" disabled><i class="fas fa-chevron-left"></i> Zurück</button>
+        <button id="setupSkipBtn" class="btn btn-muted" style="display: none;">Überspringen</button>
+        <button id="setupNextBtn" class="btn btn-primary">Weiter <i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/setup-client.js" type="module"></script>
+</body>
+</html>

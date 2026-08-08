@@ -77,6 +77,12 @@ describe('API Endpoints Tests', () => {
 
   test('GET / should return index.html with dynamically injected package.json version', async () => {
     const { version } = require('../package.json');
+    
+    // Simulate setup completed
+    const configPath = path.join(testDataDir, 'config.json');
+    fs.mkdirSync(testDataDir, { recursive: true });
+    fs.writeFileSync(configPath, JSON.stringify({ setup_completed: true }), 'utf8');
+
     const response = await request(app)
       .get('/')
       .expect('Content-Type', /html/)
@@ -130,6 +136,48 @@ describe('API Endpoints Tests', () => {
     expect(getRes2.body.humidity).toBeUndefined();
     expect(getRes2.body.batteryVoltage).toBeUndefined();
     expect(getRes2.body.batteryPercent).toBe(85); // kept because it was numeric
+  });
+
+  test('GET /api/config/status and POST /api/config/setup should manage setup flow', async () => {
+    const configPath = path.join(testDataDir, 'config.json');
+    if (fs.existsSync(configPath)) fs.unlinkSync(configPath);
+
+    const statusRes = await request(app)
+      .get('/api/config/status')
+      .expect(200);
+    expect(statusRes.body.needsSetup).toBe(true);
+
+    const setupData = {
+      config: {
+        dashboard_lang: 'de',
+        dashboard_theme: 'theme-aurora',
+        weather_location: 'Altenburg',
+        weather_provider: 'openmeteo'
+      },
+      fritzbox: {
+        ip: '192.168.178.1'
+      },
+      tasmota: [
+        { ip: '192.168.178.51', name: 'Wohnzimmer Lampe' }
+      ]
+    };
+
+    await request(app)
+      .post('/api/config/setup')
+      .send(setupData)
+      .expect(200);
+
+    const statusRes2 = await request(app)
+      .get('/api/config/status')
+      .expect(200);
+    expect(statusRes2.body.needsSetup).toBe(false);
+
+    const configContent = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    expect(configContent.setup_completed).toBe(true);
+
+    const tasmotaPath = path.join(testDataDir, 'tasmota.json');
+    const tasmotaContent = JSON.parse(fs.readFileSync(tasmotaPath, 'utf8'));
+    expect(tasmotaContent[0].ip).toBe('192.168.178.51');
   });
 
   afterAll(() => {

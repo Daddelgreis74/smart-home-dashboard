@@ -4,7 +4,7 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const { Server } = require('socket.io');
-const { PORT, HOST, UPLOAD_DIR } = require('./src/config/env');
+const { PORT, HOST, UPLOAD_DIR, CONFIG_FILE } = require('./src/config/env');
 const { runMigration } = require('./src/config/migration');
 const { initializeSSL } = require('./src/config/ssl');
 const { initSockets } = require('./src/sockets');
@@ -42,11 +42,25 @@ try {
 }
 
 app.get(['/', '/index.html'], (req, res) => {
-  if (cachedIndexHtml) {
-    res.send(cachedIndexHtml);
+  let setupCompleted = false;
+  if (fs.existsSync(CONFIG_FILE)) {
+    try {
+      const cfg = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+      setupCompleted = (cfg.setup_completed === true);
+    } catch (e) {
+      setupCompleted = false;
+    }
+  }
+
+  if (!setupCompleted) {
+    res.sendFile(path.join(__dirname, 'public', 'setup.html'));
   } else {
-    const indexPath = path.join(__dirname, 'public', 'index.html');
-    res.sendFile(indexPath);
+    if (cachedIndexHtml) {
+      res.send(cachedIndexHtml);
+    } else {
+      const indexPath = path.join(__dirname, 'public', 'index.html');
+      res.sendFile(indexPath);
+    }
   }
 });
 

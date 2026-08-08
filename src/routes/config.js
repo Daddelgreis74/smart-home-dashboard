@@ -45,7 +45,8 @@ const ALLOWED_CONFIG_KEYS = new Set([
   'weather_api_key',
   'weather_lat',
   'weather_lon',
-  'weather_loc_resolved'
+  'weather_loc_resolved',
+  'setup_completed'
 ]);
 
 const SENSIBLE_KEYS = [
@@ -55,6 +56,21 @@ const SENSIBLE_KEYS = [
   'jarvis_eleven_api_key',
   'weather_api_key'
 ];
+
+router.get('/status', (req, res) => {
+  try {
+    let needsSetup = true;
+    if (fs.existsSync(CONFIG_FILE)) {
+      const cfg = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+      if (cfg.setup_completed === true) {
+        needsSetup = false;
+      }
+    }
+    res.json({ success: true, needsSetup });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
 
 router.get('/', (req, res) => {
   try {
@@ -230,6 +246,57 @@ router.post('/factory-reset', (req, res) => {
   } catch (e) {
     console.error('Factory Reset fehlgeschlagen:', e.message);
     res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+router.post('/setup', (req, res) => {
+  const { config, fritzbox, tasmota } = req.body;
+  if (!config || !validateConfigStructure(config)) {
+    return res.status(400).json({ success: false, error: 'Ungültige Konfiguration' });
+  }
+
+  const toSave = { ...config, setup_completed: true };
+  delete toSave.server_permission_error;
+
+  const keys = Object.keys(toSave);
+  const invalidKey = keys.find(k => !ALLOWED_CONFIG_KEYS.has(k));
+  if (invalidKey) {
+    return res.status(400).json({ success: false, error: `Ungültiger Konfigurationsschlüssel: ${invalidKey}` });
+  }
+
+  try {
+    // General config speichern
+    safeWriteFileSync(CONFIG_FILE, JSON.stringify(toSave, null, 2), 'utf8');
+
+    // Tasmota-Geräte speichern falls vorhanden
+    if (tasmota && Array.isArray(tasmota)) {
+      const fileStore = require('../utils/fileStore');
+      fileStore.saveTasmota(tasmota);
+    }
+
+    // Fritz!Box config speichern falls IP vorhanden
+    if (fritzbox && fritzbox.ip) {
+      const fileStore = require('../utils/fileStore');
+      fileStore.saveFritzConfig({
+        ip: fritzbox.ip,
+        user: fritzbox.user || '',
+        pass: fritzbox.pass || '',
+        callMonitorEnabled: fritzbox.callMonitorEnabled !== false
+      });
+      // Initialisiere Fritz!Box-Verbindungen falls socket.io läuft
+      try {
+        const io = req.app.get('io');
+        const { initFritzboxConnections } = require('../services/fritzboxService');
+        initFritzboxConnections(io);
+      } catch (err) {
+        console.warn('[Setup] Fritz!Box-Verbindungsaufbau fehlgeschlagen:', err.message);
+      }
+    }
+
+    res.json({ success: true });
+  } catch (e) {
+    console.error('Setup fehlgeschlagen:', e.message);
+    res.status(500).json({ success: false, error: e.message });
   }
 });
 
