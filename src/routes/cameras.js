@@ -184,36 +184,84 @@ router.post('/ptz/:id', async (req, res) => {
     const host = camera.ptzHost || parsedUrl.hostname;
     const port = camera.ptzPort || 2020;
 
-    const onvif = require('node-onvif');
-    const device = new onvif.OnvifDevice({
-      xaddr: `http://${host}:${port}/onvif/device_service`,
-      user: camera.ptzUser || '',
-      pass: camera.ptzPass || ''
-    });
+    // Helper: Thingino HTTP Motor API fallback
+    const tryThinginoMotor = async () => {
+      const http = require('http');
+      let stepX = 0;
+      let stepY = 0;
+      const stepMagnitude = 300;
+      if (direction === 'left') stepX = -stepMagnitude;
+      if (direction === 'right') stepX = stepMagnitude;
+      if (direction === 'up') stepY = 200;
+      if (direction === 'down') stepY = -200;
 
-    await device.init();
+      if (direction === 'stop') return true;
 
-    if (direction === 'stop') {
-      await device.ptzStop();
-      return res.json({ success: true, action: 'stop' });
+      const thinginoUrl = `http://${host}/x/json-motor.cgi?d=g&x=${stepX}&y=${stepY}`;
+      return new Promise((resolve, reject) => {
+        const req = http.get(thinginoUrl, { timeout: 3000 }, (resp) => {
+          if (resp.statusCode === 200) {
+            resolve(true);
+          } else {
+            reject(new Error(`Thingino returned HTTP ${resp.statusCode}`));
+          }
+        });
+        req.on('error', reject);
+        req.on('timeout', () => { req.destroy(); reject(new Error('Thingino timeout')); });
+      });
+    };
+
+    // If port is 80 or if it's explicitly Thingino, try Thingino motor first
+    if (port === 80) {
+      try {
+        await tryThinginoMotor();
+        return res.json({ success: true, direction, type: 'thingino' });
+      } catch(e) {
+        console.warn('[Thingino PTZ Attempt Failed, trying ONVIF]:', e.message);
+      }
     }
 
-    const moveSpeed = { x: 0, y: 0, z: 0 };
-    const s = Math.min(1.0, Math.max(0.1, Number(speed) || 0.5));
-    if (direction === 'left') moveSpeed.x = -s;
-    if (direction === 'right') moveSpeed.x = s;
-    if (direction === 'up') moveSpeed.y = s;
-    if (direction === 'down') moveSpeed.y = -s;
+    // Try standard ONVIF
+    try {
+      const onvif = require('node-onvif');
+      const device = new onvif.OnvifDevice({
+        xaddr: `http://${host}:${port}/onvif/device_service`,
+        user: camera.ptzUser || '',
+        pass: camera.ptzPass || ''
+      });
 
-    await device.ptzMove({
-      speed: moveSpeed,
-      timeout: Math.min(5, Math.max(0.5, Number(timeout) || 1))
-    });
+      await device.init();
 
-    res.json({ success: true, direction });
+      if (direction === 'stop') {
+        await device.ptzStop();
+        return res.json({ success: true, action: 'stop' });
+      }
+
+      const moveSpeed = { x: 0, y: 0, z: 0 };
+      const s = Math.min(1.0, Math.max(0.1, Number(speed) || 0.5));
+      if (direction === 'left') moveSpeed.x = -s;
+      if (direction === 'right') moveSpeed.x = s;
+      if (direction === 'up') moveSpeed.y = s;
+      if (direction === 'down') moveSpeed.y = -s;
+
+      await device.ptzMove({
+        speed: moveSpeed,
+        timeout: Math.min(5, Math.max(0.5, Number(timeout) || 1))
+      });
+
+      return res.json({ success: true, direction, type: 'onvif' });
+    } catch(onvifErr) {
+      // ONVIF failed - try Thingino motor fallback
+      try {
+        await tryThinginoMotor();
+        return res.json({ success: true, direction, type: 'thingino-fallback' });
+      } catch(thinginoErr) {
+        throw new Error(`ONVIF (${onvifErr.message}) and Thingino (${thinginoErr.message}) both failed`);
+      }
+    }
   } catch (err) {
-    console.error('[ONVIF PTZ Error]:', err.message);
-    res.status(500).json({ success: false, error: err.message || 'ONVIF-Steuerung fehlgeschlagen.' });
+    console.error('[Camera PTZ Error]:', err.message);
+    res.status(500).json({ success: false, error: err.message || 'PTZ-Steuerung fehlgeschlagen.' });
   }
 });
 
