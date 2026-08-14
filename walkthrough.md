@@ -1,46 +1,24 @@
-# Walkthrough - Tapo Camera ONVIF & go2rtc Transcoding Integration (v3.21.23)
+# Walkthrough - Universal PTZ Controls & Thingino Native Motor Integration (v3.21.24)
 
-This release implements standard ONVIF PTZ (Pan-Tilt-Zoom) controls for cameras directly in the dashboard UI and optimizes go2rtc transcoding for hardware-accelerated video feeds.
-
----
-
-## 🛠️ Changes Implemented
-
-### 1. Dashboard Backend (`src/routes/cameras.js`)
-* Extended `POST /api/cameras` to persist ONVIF PTZ parameters (`ptz`, `ptzHost`, `ptzPort`, `ptzUser`, `ptzPass`).
-* Added `POST /api/cameras/ptz/:id` endpoint which utilizes `node-onvif` to connect directly to the camera and send pan/tilt movement commands.
-* Extracted the correct camera IP address (`ptzHost` or `url.hostname`) to ensure command routing works perfectly even when proxying the stream via go2rtc.
-
-### 2. Validation System (`src/utils/validation.js`)
-* Updated `sanitizeCameras` to correctly preserve the new ONVIF-related fields, preventing the storage mechanism from stripping them out during loading or saving operations.
-
-### 3. Frontend UI (`public/index.html` & `public/styles.css`)
-* Added *"ONVIF PTZ-Steuerung aktivieren"* toggle and credentials input fields to the camera settings form.
-* Created a sleek, frosted-glass D-pad overlay (`.ptz-controls-overlay`) that is dynamically displayed inside the fullscreen view of any camera with PTZ enabled.
-
-### 4. Client Module Logic (`public/js/modules/cameras.js`)
-* Updated the camera addition logic to extract and send all ONVIF parameters.
-* Added event listeners to D-pad buttons (Up, Down, Left, Right) to trigger PTZ movements in the background.
-
-### 5. Translation Keys (`public/translations.js`)
-* Added full translation strings for all 7 supported languages.
+This release implements universal camera control supporting both standard ONVIF PTZ (Profile S) and native Thingino open-source step motor control directly from the SmartHome Dashboard UI.
 
 ---
 
-## 🎥 go2rtc Transcoding Configuration on TrueNAS (`192.168.178.100`)
-To support MJPEG streaming on the dashboard without loading the camera's CPU, the streams are transcoded on-the-fly inside `go2rtc` on TrueNAS:
+## 🛠️ Key Improvements in v3.21.24
 
-```yaml
-streams:
-  tapo_tc60_h264: rtsp://daddelgreis74:Steffen.Gester811@192.168.178.30:554/stream1#transport=tcp
-  tapo_tc60: ffmpeg:tapo_tc60_h264#video=mjpeg
+### 1. Universal PTZ Routing (`src/routes/cameras.js`)
+* **Dual PTZ Engine:** The backend now seamlessly detects whether a camera uses standard ONVIF protocol (e.g. port 2020 on stock Tapo) or native HTTP step motor commands (Thingino on port 80).
+* **Automatic Fallback:** When a directional PTZ command (`up`, `down`, `left`, `right`) is triggered from the UI, the system executes the command reliably across all camera types.
 
-  tapo_c200_h264: rtsp://daddelgreis74:Steffen.Gester811@192.168.178.42:554/stream1#transport=tcp
-  tapo_c200: ffmpeg:tapo_c200_h264#video=mjpeg
-```
+### 2. Direct Thingino Native MJPEG Stream Support
+* Native MJPEG streaming from Thingino (`/x/ch0.mjpg`) without requiring external RTSP transcoders or go2rtc proxy overhead.
+
+### 3. Frontend Controls
+* Sleek, frosted-glass circular D-pad overlay on fullscreen camera feeds.
+* Added camera IP configuration input to route PTZ commands directly even when video streams are proxied.
 
 ---
 
-## 🏷️ Release v3.21.23 Info
-* **Bumped Version:** `3.21.23` in `package.json` and `public/index.html`.
-* **Deployed to Debian Server:** `192.168.178.101` (Service is active and running).
+## 🏷️ Release v3.21.24 Info
+* **Bumped Version:** `3.21.24` in `package.json` and `public/index.html`.
+* **Tested & Verified:** Live on Debian server (`192.168.178.101`) with physical Tapo C200 (Thingino) and Tapo TC60.
