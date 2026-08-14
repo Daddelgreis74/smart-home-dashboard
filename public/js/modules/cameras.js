@@ -7,90 +7,146 @@ export let fullscreenInterval = null;
 
 export async function initCameraWidget(socket) {
   const addBtn = document.getElementById('addCameraBtn');
-  if(!addBtn) return;
+  const ptzCheckbox = document.getElementById('cameraManPtz');
+  const ptzCreds = document.getElementById('cameraManPtzCreds');
 
+  // PTZ-Optionen ein-/ausblenden
+  if (ptzCheckbox && ptzCreds) {
+    ptzCheckbox.addEventListener('change', () => {
+      ptzCreds.style.display = ptzCheckbox.checked ? 'flex' : 'none';
+    });
+  }
 
   // 1. Kamera hinzufügen Handler
-  addBtn.addEventListener('click', async () => {
-    const nameInput = document.getElementById('cameraManName');
-    const urlInput = document.getElementById('cameraManUrl');
-    const intervalSelect = document.getElementById('cameraManInterval');
-    if(!nameInput || !urlInput) return;
+  if (addBtn) {
+    addBtn.addEventListener('click', async () => {
+      const nameInput = document.getElementById('cameraManName');
+      const urlInput = document.getElementById('cameraManUrl');
+      const intervalSelect = document.getElementById('cameraManInterval');
+      const ptzHostInput = document.getElementById('cameraManPtzHost');
+      const ptzPortInput = document.getElementById('cameraManPtzPort');
+      const ptzUserInput = document.getElementById('cameraManPtzUser');
+      const ptzPassInput = document.getElementById('cameraManPtzPass');
 
-    const name = nameInput.value.trim();
-    const url = urlInput.value.trim();
-    const interval = Number(intervalSelect.value);
+      if (!nameInput || !urlInput) return;
 
-    if(!name || !url) {
-      alert(getLangText('enterCamera'));
-      return;
-    }
+      const name = nameInput.value.trim();
+      const url = urlInput.value.trim();
+      const interval = Number(intervalSelect ? intervalSelect.value : 0);
+      const ptz = ptzCheckbox ? ptzCheckbox.checked : false;
+      const ptzHost = ptzHostInput ? ptzHostInput.value.trim() : '';
+      const ptzPort = ptzPortInput ? (Number(ptzPortInput.value) || 2020) : 2020;
+      const ptzUser = ptzUserInput ? ptzUserInput.value.trim() : '';
+      const ptzPass = ptzPassInput ? ptzPassInput.value : '';
 
-    try {
-      const res = await fetch('/api/cameras', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, url, interval })
-      });
-      const data = await res.json();
-      if(data && data.success) {
-        nameInput.value = '';
-        urlInput.value = '';
-        intervalSelect.value = '0';
-      } else {
-        alert('Fehler beim Hinzufügen: ' + (data.error || 'Unbekannter Fehler'));
+      if (!name || !url) {
+        alert(getLangText('enterCamera'));
+        return;
       }
-    } catch(err) {
-      console.error('Fehler beim Hinzufügen der Kamera:', err);
-      alert('Fehler beim Hinzufügen der Kamera: ' + err.message);
-    }
-  });
+
+      try {
+        const res = await fetch('/api/cameras', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, url, interval, ptz, ptzHost, ptzPort, ptzUser, ptzPass })
+        });
+        const data = await res.json();
+        if (data && data.success) {
+          nameInput.value = '';
+          urlInput.value = '';
+          if (intervalSelect) intervalSelect.value = '0';
+          if (ptzCheckbox) {
+            ptzCheckbox.checked = false;
+            if (ptzCreds) ptzCreds.style.display = 'none';
+          }
+          if (ptzHostInput) ptzHostInput.value = '';
+          if (ptzPortInput) ptzPortInput.value = '2020';
+          if (ptzUserInput) ptzUserInput.value = '';
+          if (ptzPassInput) ptzPassInput.value = '';
+        } else {
+          alert('Fehler beim Hinzufügen: ' + (data.error || 'Unbekannter Fehler'));
+        }
+      } catch (err) {
+        console.error('Fehler beim Hinzufügen der Kamera:', err);
+        alert('Fehler beim Hinzufügen der Kamera: ' + err.message);
+      }
+    });
+  }
 
   // 2. Vollbild Schließen Handler
   const closeOverlayBtn = document.getElementById('closeCameraFullscreen');
   const overlay = document.getElementById('cameraFullscreenOverlay');
-  if(closeOverlayBtn && overlay) {
+  if (closeOverlayBtn && overlay) {
     const closeOverlay = () => {
       overlay.setAttribute('hidden', '');
       const fsImg = document.getElementById('fullscreenCameraImg');
-      if(fsImg) {
+      const ptzControls = document.getElementById('cameraFullscreenPtzControls');
+      if (ptzControls) ptzControls.style.display = 'none';
+      if (fsImg) {
         fsImg.src = '';
         delete fsImg.dataset.cameraId;
       }
-      if(fullscreenInterval) {
+      if (fullscreenInterval) {
         clearInterval(fullscreenInterval);
         fullscreenInterval = null;
       }
     };
     closeOverlayBtn.addEventListener('click', closeOverlay);
     overlay.addEventListener('click', (e) => {
-      if(e.target === overlay || e.target.classList.contains('fullscreen-content')) {
+      if (e.target === overlay || e.target.classList.contains('fullscreen-content')) {
         closeOverlay();
       }
     });
   }
 
-  // 3. Socket-Event Registrierung
+  // 3. PTZ Steuerungs-Buttons Initialisierung
+  const sendPtz = async (dir) => {
+    const fsImg = document.getElementById('fullscreenCameraImg');
+    const camId = fsImg ? fsImg.dataset.cameraId : null;
+    if (!camId) return;
+
+    try {
+      await fetch(`/api/cameras/ptz/${camId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ direction: dir })
+      });
+    } catch (err) {
+      console.error('[PTZ Error] Senden fehlgeschlagen:', err);
+    }
+  };
+
+  const btnUp = document.getElementById('ptzBtnMoveUp');
+  const btnDown = document.getElementById('ptzBtnMoveDown');
+  const btnLeft = document.getElementById('ptzBtnMoveLeft');
+  const btnRight = document.getElementById('ptzBtnMoveRight');
+
+  if (btnUp) btnUp.addEventListener('click', (e) => { e.stopPropagation(); sendPtz('up'); });
+  if (btnDown) btnDown.addEventListener('click', (e) => { e.stopPropagation(); sendPtz('down'); });
+  if (btnLeft) btnLeft.addEventListener('click', (e) => { e.stopPropagation(); sendPtz('left'); });
+  if (btnRight) btnRight.addEventListener('click', (e) => { e.stopPropagation(); sendPtz('right'); });
+
+  // 4. Socket-Event Registrierung
   socket.on('cameras-updated', (cameras) => {
     currentCameras = cameras;
     renderCameraSettings(cameras);
     renderCameraWidget(cameras);
   });
 
-  // 4. Initialer Abruf
+  // 5. Initialer Abruf
   try {
     const res = await fetch('/api/cameras');
     const cameras = await res.json();
-    if(Array.isArray(cameras)) {
+    if (Array.isArray(cameras)) {
       currentCameras = cameras;
       renderCameraSettings(cameras);
       renderCameraWidget(cameras);
     }
-  } catch(err) {
+  } catch (err) {
     console.error('Initialer Kamera-Abruf fehlgeschlagen:', err);
   }
 
-  // 5. Watchdogs für Tab-Aktivierung & Online-Status
+  // 6. Watchdogs für Tab-Aktivierung & Online-Status
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && currentCameras.length > 0) {
       console.log('[Camera Watchdog] Tab aktiv - aktualisiere Feeds...');
@@ -118,10 +174,10 @@ export async function initCameraWidget(socket) {
 
 export function renderCameraSettings(cameras) {
   const list = document.getElementById('cameraSettingsList');
-  if(!list) return;
+  if (!list) return;
   list.innerHTML = '';
 
-  if(cameras.length === 0) {
+  if (cameras.length === 0) {
     const lang = Config.get('dashboard_lang', 'de');
     list.innerHTML = `<div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 10px;">${(window.translations && window.translations[lang]) ? window.translations[lang].camera_no_cameras || 'Keine Kameras registriert.' : 'Keine Kameras registriert.'}</div>`;
     return;
@@ -133,12 +189,17 @@ export function renderCameraSettings(cameras) {
     row.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);';
     
     let modeText = 'Live-Video (MJPEG)';
-    if(c.interval === 1) modeText = 'Aktualisierung: 1s';
-    else if(c.interval > 1) modeText = `Aktualisierung: ${c.interval}s`;
+    if (c.interval === 1) modeText = 'Aktualisierung: 1s';
+    else if (c.interval > 1) modeText = `Aktualisierung: ${c.interval}s`;
+
+    const ptzBadge = c.ptz ? '<span style="font-size: 8.5px; background: rgba(0,240,255,0.15); color: var(--primary); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(0,240,255,0.3); font-weight: 600; width: fit-content;">ONVIF PTZ</span>' : '';
 
     row.innerHTML = `
-      <div style="display: flex; flex-direction: column; text-align: left; gap: 2px;">
-        <span class="t-name" style="font-weight: 700;">${c.name}</span>
+      <div style="display: flex; flex-direction: column; text-align: left; gap: 3px;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span class="t-name" style="font-weight: 700;">${c.name}</span>
+          ${ptzBadge}
+        </div>
         <span class="t-ip" style="font-size: 9px; color: var(--text-muted); word-break: break-all; max-width: 250px;">${c.url.substring(0, 50)}${c.url.length > 50 ? '...' : ''}</span>
         <span style="font-size: 9px; color: var(--primary); font-weight: 600;">${modeText}</span>
       </div>
@@ -149,14 +210,14 @@ export function renderCameraSettings(cameras) {
 }
 
 export async function removeCamera(id) {
-  if(!confirm(getLangText('deleteCameraConfirm'))) return;
+  if (!confirm(getLangText('deleteCameraConfirm'))) return;
   try {
     const res = await fetch('/api/cameras/' + id, { method: 'DELETE' });
     const data = await res.json();
-    if(!data.success) {
+    if (!data.success) {
       alert(getLangText('deleteCameraError') + ' ' + (data.error || 'Error'));
     }
-  } catch(err) {
+  } catch (err) {
     console.error('Delete camera failed:', err);
   }
 }
@@ -166,7 +227,7 @@ window.removeCamera = removeCamera;
 
 export function renderCameraWidget(cameras) {
   const grid = document.getElementById('cameraGrid');
-  if(!grid) return;
+  if (!grid) return;
 
   Object.values(activeCameraIntervals).forEach(clearInterval);
   activeCameraIntervals = {};
@@ -174,20 +235,22 @@ export function renderCameraWidget(cameras) {
   grid.className = 'camera-grid';
   grid.innerHTML = '';
 
-  if(cameras.length === 0) {
+  if (cameras.length === 0) {
     const lang = Config.get('dashboard_lang', 'de');
     grid.innerHTML = `<div class="no-cameras">${(window.translations && window.translations[lang]) ? window.translations[lang].camera_no_cameras || 'Keine Kameras eingerichtet.' : 'Keine Kameras eingerichtet.'}</div>`;
     return;
   }
 
-  if(cameras.length === 1) grid.classList.add('cols-1');
-  else if(cameras.length === 2) grid.classList.add('cols-2');
+  if (cameras.length === 1) grid.classList.add('cols-1');
+  else if (cameras.length === 2) grid.classList.add('cols-2');
   else grid.classList.add('cols-4');
 
   cameras.forEach(c => {
     const card = document.createElement('div');
     card.className = 'camera-card';
-    card.style.cssText = 'position: relative; border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.4); aspect-ratio: 16/9; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all var(--transition); border: 1px solid rgba(255,255,255,0.06);';    const img = document.createElement('img');
+    card.style.cssText = 'position: relative; border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.4); aspect-ratio: 16/9; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all var(--transition); border: 1px solid rgba(255,255,255,0.06);';
+    
+    const img = document.createElement('img');
     img.className = 'camera-feed-img';
     img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; transition: filter var(--transition);';
     img.alt = c.name;
@@ -210,15 +273,23 @@ export function renderCameraWidget(cameras) {
       const overlay = document.getElementById('cameraFullscreenOverlay');
       const fsImg = document.getElementById('fullscreenCameraImg');
       const fsTitle = document.getElementById('fullscreenCameraTitle');
-      if(overlay && fsImg) {
-        if(fullscreenInterval) {
+      const ptzControls = document.getElementById('cameraFullscreenPtzControls');
+
+      if (overlay && fsImg) {
+        if (fullscreenInterval) {
           clearInterval(fullscreenInterval);
           fullscreenInterval = null;
         }
 
         fsImg.dataset.cameraId = c.id;
         fsImg.src = getTimestampedUrl(streamProxyUrl);
-        if(fsTitle) fsTitle.textContent = c.name;
+        if (fsTitle) fsTitle.textContent = c.name;
+
+        // PTZ-Steuerkreuz NUR einblenden, wenn die Kamera als PTZ konfiguriert ist
+        if (ptzControls) {
+          ptzControls.style.display = (c.ptz === true) ? 'flex' : 'none';
+        }
+
         overlay.removeAttribute('hidden');
 
         const refreshMs = c.interval > 0 ? (c.interval * 1000) : (240 * 1000);
@@ -246,7 +317,7 @@ export function renderCameraWidget(cameras) {
       }, 3000);
     };
 
-    if(c.interval > 0) {
+    if (c.interval > 0) {
       const intervalMs = c.interval * 1000;
       activeCameraIntervals[c.id] = setInterval(() => {
         img.src = getTimestampedUrl(streamProxyUrl);
@@ -261,3 +332,4 @@ export function renderCameraWidget(cameras) {
     grid.appendChild(card);
   });
 }
+

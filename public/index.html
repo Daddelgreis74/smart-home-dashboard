@@ -314,6 +314,16 @@
                       <option value="2" data-i18n="camera_mode_2s">⏱️ Aktualisierung alle 2 Sekunden</option>
                       <option value="5" data-i18n="camera_mode_5s">⏱️ Aktualisierung alle 5 Sekunden</option>
                     </select>
+                    <label class="checkbox-container" style="margin-top: 5px; display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+                      <input type="checkbox" id="cameraManPtz" style="cursor: pointer; width: 16px; height: 16px;">
+                      <span style="font-size: 11px; color: var(--text-color);" data-i18n="camera_ptz_checkbox">ONVIF PTZ-Steuerung aktivieren</span>
+                    </label>
+                    <div id="cameraManPtzCreds" style="display: none; flex-direction: column; gap: 8px; margin-top: 5px;">
+                      <input type="text" id="cameraManPtzHost" data-i18n="camera_ptz_host_placeholder" placeholder="Kamera IP-Adresse (z.B. 192.168.178.42)">
+                      <input type="number" id="cameraManPtzPort" data-i18n="camera_ptz_port_placeholder" placeholder="ONVIF Port (Standard: 2020)" value="2020" min="1" max="65535">
+                      <input type="text" id="cameraManPtzUser" data-i18n="camera_ptz_user_placeholder" placeholder="ONVIF Benutzername (Kamera-Konto)">
+                      <input type="password" id="cameraManPtzPass" data-i18n="camera_ptz_pass_placeholder" placeholder="ONVIF Passwort">
+                    </div>
                     <div style="display: flex; gap: 8px; margin-top: 5px;">
                       <button class="btn" id="addCameraBtn" style="flex: 1; margin: 0;"><i class="fas fa-plus"></i> <span data-i18n="camera_add_btn">Kamera hinzufügen</span></button>
                     </div>
@@ -919,6 +929,15 @@
     <div class="fullscreen-content">
       <img id="fullscreenCameraImg" src="" alt="Live-Stream">
       <div class="fullscreen-title" id="fullscreenCameraTitle">Kamera</div>
+      <!-- PTZ Controls Overlay (Only shown for PTZ enabled cameras) -->
+      <div class="ptz-controls-overlay" id="cameraFullscreenPtzControls" style="display: none;">
+        <button class="ptz-btn ptz-up" id="ptzBtnMoveUp" title="Up" aria-label="Kamera hoch"><i class="fas fa-chevron-up"></i></button>
+        <div class="ptz-row">
+          <button class="ptz-btn ptz-left" id="ptzBtnMoveLeft" title="Left" aria-label="Kamera links"><i class="fas fa-chevron-left"></i></button>
+          <button class="ptz-btn ptz-right" id="ptzBtnMoveRight" title="Right" aria-label="Kamera rechts"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <button class="ptz-btn ptz-down" id="ptzBtnMoveDown" title="Down" aria-label="Kamera runter"><i class="fas fa-chevron-down"></i></button>
+      </div>
     </div>
   </div>
 
@@ -1044,6 +1063,6 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script type="module" src="app.js?v=3.20.2"></script>
+  <script type="module" src="app.js?v=3.21.23"></script>
 </body>
 </html>

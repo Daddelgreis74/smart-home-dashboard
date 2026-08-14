@@ -98,7 +98,7 @@ router.get('/stream/:id', (req, res) => {
 
 router.post('/', (req, res) => {
   try {
-    const { id, name, url, interval } = req.body;
+    const { id, name, url, interval, ptz, ptzHost, ptzPort, ptzUser, ptzPass } = req.body;
     const cleanId = String(id || Date.now());
     const cleanN = cleanName(name, 'Kamera');
     const cleanU = String(url || '').trim().slice(0, 800);
@@ -124,6 +124,11 @@ router.post('/', (req, res) => {
     }
 
     const cleanI = Math.max(0, Number(interval || 0));
+    const cleanPtz = ptz === true;
+    const cleanPtzHost = String(ptzHost || '').trim().slice(0, 100);
+    const cleanPtzPort = Math.min(65535, Math.max(1, Number(ptzPort || 2020)));
+    const cleanPtzUser = String(ptzUser || '').trim().slice(0, 100);
+    const cleanPtzPass = String(ptzPass || '').slice(0, 200);
 
     const camerasRAM = fileStore.camerasRAM;
     const index = camerasRAM.findIndex(c => c.id === cleanId);
@@ -132,7 +137,12 @@ router.post('/', (req, res) => {
       id: cleanId,
       name: cleanN,
       url: cleanU,
-      interval: cleanI
+      interval: cleanI,
+      ptz: cleanPtz,
+      ptzHost: cleanPtzHost,
+      ptzPort: cleanPtzPort,
+      ptzUser: cleanPtzUser,
+      ptzPass: cleanPtzPass
     };
 
     if (index >= 0) {
@@ -150,6 +160,60 @@ router.post('/', (req, res) => {
     }
   } catch(e) {
     res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+router.post('/ptz/:id', async (req, res) => {
+  try {
+    const id = String(req.params.id);
+    const camera = fileStore.camerasRAM.find(c => c.id === id);
+    if (!camera) {
+      return res.status(404).json({ success: false, error: 'Kamera nicht gefunden.' });
+    }
+
+    if (!camera.ptz) {
+      return res.status(400).json({ success: false, error: 'PTZ ist für diese Kamera nicht aktiviert.' });
+    }
+
+    const { direction, speed = 0.5, timeout = 1 } = req.body;
+    if (!['up', 'down', 'left', 'right', 'stop'].includes(direction)) {
+      return res.status(400).json({ success: false, error: 'Ungültige Bewegungsrichtung.' });
+    }
+
+    const parsedUrl = new URL(camera.url);
+    const host = camera.ptzHost || parsedUrl.hostname;
+    const port = camera.ptzPort || 2020;
+
+    const onvif = require('node-onvif');
+    const device = new onvif.OnvifDevice({
+      xaddr: `http://${host}:${port}/onvif/device_service`,
+      user: camera.ptzUser || '',
+      pass: camera.ptzPass || ''
+    });
+
+    await device.init();
+
+    if (direction === 'stop') {
+      await device.ptzStop();
+      return res.json({ success: true, action: 'stop' });
+    }
+
+    const moveSpeed = { x: 0, y: 0, z: 0 };
+    const s = Math.min(1.0, Math.max(0.1, Number(speed) || 0.5));
+    if (direction === 'left') moveSpeed.x = -s;
+    if (direction === 'right') moveSpeed.x = s;
+    if (direction === 'up') moveSpeed.y = s;
+    if (direction === 'down') moveSpeed.y = -s;
+
+    await device.ptzMove({
+      speed: moveSpeed,
+      timeout: Math.min(5, Math.max(0.5, Number(timeout) || 1))
+    });
+
+    res.json({ success: true, direction });
+  } catch (err) {
+    console.error('[ONVIF PTZ Error]:', err.message);
+    res.status(500).json({ success: false, error: err.message || 'ONVIF-Steuerung fehlgeschlagen.' });
   }
 });
 
@@ -176,3 +240,4 @@ router.delete('/:id', (req, res) => {
 });
 
 module.exports = router;
+

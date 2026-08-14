@@ -77,7 +77,13 @@ function sanitizeCameras(value) {
     }
 
     const interval = Math.max(0, Number(cam?.interval || 0));
-    acc.push({ id, name, url, interval });
+    const ptz = cam?.ptz === true;
+    const ptzHost = String(cam?.ptzHost || '').trim().slice(0, 100);
+    const ptzPort = Math.min(65535, Math.max(1, Number(cam?.ptzPort || 2020)));
+    const ptzUser = String(cam?.ptzUser || '').trim().slice(0, 100);
+    const ptzPass = String(cam?.ptzPass || '').slice(0, 200);
+
+    acc.push({ id, name, url, interval, ptz, ptzHost, ptzPort, ptzUser, ptzPass });
     return acc;
   }, []);
 }
