@@ -39,8 +39,13 @@ router.get('/stream/:id', (req, res) => {
     const https = require('https');
     const httpClient = streamUrl.toLowerCase().startsWith('https') ? https : http;
 
+    const options = {};
+    if (streamUrl.toLowerCase().startsWith('https')) {
+      options.rejectUnauthorized = false;
+    }
+
     // Forward request to camera/Go2RTC with timeout
-    const clientReq = httpClient.get(streamUrl, (clientRes) => {
+    const clientReq = httpClient.get(streamUrl, options, (clientRes) => {
       const contentType = clientRes.headers['content-type'] || '';
       const isMJPEG = contentType.toLowerCase().includes('multipart/x-mixed-replace');
 
