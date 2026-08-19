@@ -5,7 +5,14 @@ const { cleanName } = require('../utils/validation');
 const router = express.Router();
 
 router.get('/', (req, res) => {
-  res.json(fileStore.camerasRAM);
+  const maskedCameras = fileStore.camerasRAM.map(camera => {
+    const cam = { ...camera };
+    if (cam.ptzPass) {
+      cam.ptzPass = '********';
+    }
+    return cam;
+  });
+  res.json(maskedCameras);
 });
 
 router.get('/stream/:id', (req, res) => {
@@ -133,10 +140,26 @@ router.post('/', (req, res) => {
     const cleanPtzHost = String(ptzHost || '').trim().slice(0, 100);
     const cleanPtzPort = Math.min(65535, Math.max(1, Number(ptzPort || 2020)));
     const cleanPtzUser = String(ptzUser || '').trim().slice(0, 100);
-    const cleanPtzPass = String(ptzPass || '').slice(0, 200);
+    let finalPtzPass = String(ptzPass || '').slice(0, 200);
+
+    if (cleanPtzHost) {
+      const isPtzLocal = isPrivateIPv4(cleanPtzHost) || 
+                          cleanPtzHost === 'localhost' || 
+                          cleanPtzHost.endsWith('.local') || 
+                          cleanPtzHost.endsWith('.lan') || 
+                          cleanPtzHost.endsWith('.fritz.box');
+      if (!isPtzLocal) {
+        return res.status(400).json({ success: false, error: 'PTZ-Host muss eine private/lokale Adresse sein.' });
+      }
+    }
 
     const camerasRAM = fileStore.camerasRAM;
     const index = camerasRAM.findIndex(c => c.id === cleanId);
+
+    if (finalPtzPass === '********') {
+      const existingCam = index >= 0 ? camerasRAM[index] : null;
+      finalPtzPass = existingCam ? (existingCam.ptzPass || '') : '';
+    }
 
     const camera = {
       id: cleanId,
@@ -147,7 +170,7 @@ router.post('/', (req, res) => {
       ptzHost: cleanPtzHost,
       ptzPort: cleanPtzPort,
       ptzUser: cleanPtzUser,
-      ptzPass: cleanPtzPass
+      ptzPass: finalPtzPass
     };
 
     if (index >= 0) {
@@ -157,11 +180,23 @@ router.post('/', (req, res) => {
     }
 
     fileStore.saveCameras(camerasRAM);
-    res.json({ success: true, camera });
+
+    const responseCamera = { ...camera };
+    if (responseCamera.ptzPass) {
+      responseCamera.ptzPass = '********';
+    }
+    res.json({ success: true, camera: responseCamera });
 
     const io = req.app.get('io');
     if (io) {
-      io.emit('cameras-updated', camerasRAM);
+      const maskedCameras = camerasRAM.map(c => {
+        const cam = { ...c };
+        if (cam.ptzPass) {
+          cam.ptzPass = '********';
+        }
+        return cam;
+      });
+      io.emit('cameras-updated', maskedCameras);
     }
   } catch(e) {
     res.status(500).json({ success: false, error: e.message });
@@ -188,6 +223,17 @@ router.post('/ptz/:id', async (req, res) => {
     const parsedUrl = new URL(camera.url);
     const host = camera.ptzHost || parsedUrl.hostname;
     const port = camera.ptzPort || 2020;
+
+    // SSRF Check: Defense in depth to ensure host is private/local
+    const { isPrivateIPv4 } = require('../utils/validation');
+    const isHostLocal = isPrivateIPv4(host) || 
+                        host === 'localhost' || 
+                        host.endsWith('.local') || 
+                        host.endsWith('.lan') || 
+                        host.endsWith('.fritz.box');
+    if (!isHostLocal) {
+      return res.status(400).json({ success: false, error: 'PTZ-Host muss eine private/lokale Adresse sein.' });
+    }
 
     // Helper: Thingino HTTP Motor API fallback
     const tryThinginoMotor = async () => {
@@ -229,6 +275,9 @@ router.post('/ptz/:id', async (req, res) => {
     // Try standard ONVIF
     try {
       const onvif = require('node-onvif');
+      if (onvif._OnvifSoap && typeof onvif._OnvifSoap.HTTP_TIMEOUT !== 'undefined') {
+        onvif._OnvifSoap.HTTP_TIMEOUT = 5000;
+      }
       const device = new onvif.OnvifDevice({
         xaddr: `http://${host}:${port}/onvif/device_service`,
         user: camera.ptzUser || '',
