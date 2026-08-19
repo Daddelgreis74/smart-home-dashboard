@@ -15,5 +15,8 @@ appointments.json
 data/
 backup.ps1
 backup.bat
+backup_all.ps1
+backup_all.bat
 walkthrough.md
 scratch/
+
