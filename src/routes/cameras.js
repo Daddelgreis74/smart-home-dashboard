@@ -135,6 +135,17 @@ router.post('/', (req, res) => {
     const cleanPtzUser = String(ptzUser || '').trim().slice(0, 100);
     const cleanPtzPass = String(ptzPass || '').slice(0, 200);
 
+    if (cleanPtzHost) {
+      const isPtzLocal = isPrivateIPv4(cleanPtzHost) || 
+                          cleanPtzHost === 'localhost' || 
+                          cleanPtzHost.endsWith('.local') || 
+                          cleanPtzHost.endsWith('.lan') || 
+                          cleanPtzHost.endsWith('.fritz.box');
+      if (!isPtzLocal) {
+        return res.status(400).json({ success: false, error: 'PTZ-Host muss eine private/lokale Adresse sein.' });
+      }
+    }
+
     const camerasRAM = fileStore.camerasRAM;
     const index = camerasRAM.findIndex(c => c.id === cleanId);
 
@@ -189,6 +200,17 @@ router.post('/ptz/:id', async (req, res) => {
     const host = camera.ptzHost || parsedUrl.hostname;
     const port = camera.ptzPort || 2020;
 
+    // SSRF Check: Defense in depth to ensure host is private/local
+    const { isPrivateIPv4 } = require('../utils/validation');
+    const isHostLocal = isPrivateIPv4(host) || 
+                        host === 'localhost' || 
+                        host.endsWith('.local') || 
+                        host.endsWith('.lan') || 
+                        host.endsWith('.fritz.box');
+    if (!isHostLocal) {
+      return res.status(400).json({ success: false, error: 'PTZ-Host muss eine private/lokale Adresse sein.' });
+    }
+
     // Helper: Thingino HTTP Motor API fallback
     const tryThinginoMotor = async () => {
       const http = require('http');
@@ -229,6 +251,9 @@ router.post('/ptz/:id', async (req, res) => {
     // Try standard ONVIF
     try {
       const onvif = require('node-onvif');
+      if (onvif._OnvifSoap && typeof onvif._OnvifSoap.HTTP_TIMEOUT !== 'undefined') {
+        onvif._OnvifSoap.HTTP_TIMEOUT = 5000;
+      }
       const device = new onvif.OnvifDevice({
         xaddr: `http://${host}:${port}/onvif/device_service`,
         user: camera.ptzUser || '',
