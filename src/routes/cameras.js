@@ -5,7 +5,14 @@ const { cleanName } = require('../utils/validation');
 const router = express.Router();
 
 router.get('/', (req, res) => {
-  res.json(fileStore.camerasRAM);
+  const maskedCameras = fileStore.camerasRAM.map(camera => {
+    const cam = { ...camera };
+    if (cam.ptzPass) {
+      cam.ptzPass = '********';
+    }
+    return cam;
+  });
+  res.json(maskedCameras);
 });
 
 router.get('/stream/:id', (req, res) => {
@@ -133,7 +140,7 @@ router.post('/', (req, res) => {
     const cleanPtzHost = String(ptzHost || '').trim().slice(0, 100);
     const cleanPtzPort = Math.min(65535, Math.max(1, Number(ptzPort || 2020)));
     const cleanPtzUser = String(ptzUser || '').trim().slice(0, 100);
-    const cleanPtzPass = String(ptzPass || '').slice(0, 200);
+    let finalPtzPass = String(ptzPass || '').slice(0, 200);
 
     if (cleanPtzHost) {
       const isPtzLocal = isPrivateIPv4(cleanPtzHost) || 
@@ -149,6 +156,11 @@ router.post('/', (req, res) => {
     const camerasRAM = fileStore.camerasRAM;
     const index = camerasRAM.findIndex(c => c.id === cleanId);
 
+    if (finalPtzPass === '********') {
+      const existingCam = index >= 0 ? camerasRAM[index] : null;
+      finalPtzPass = existingCam ? (existingCam.ptzPass || '') : '';
+    }
+
     const camera = {
       id: cleanId,
       name: cleanN,
@@ -158,7 +170,7 @@ router.post('/', (req, res) => {
       ptzHost: cleanPtzHost,
       ptzPort: cleanPtzPort,
       ptzUser: cleanPtzUser,
-      ptzPass: cleanPtzPass
+      ptzPass: finalPtzPass
     };
 
     if (index >= 0) {
@@ -168,11 +180,23 @@ router.post('/', (req, res) => {
     }
 
     fileStore.saveCameras(camerasRAM);
-    res.json({ success: true, camera });
+
+    const responseCamera = { ...camera };
+    if (responseCamera.ptzPass) {
+      responseCamera.ptzPass = '********';
+    }
+    res.json({ success: true, camera: responseCamera });
 
     const io = req.app.get('io');
     if (io) {
-      io.emit('cameras-updated', camerasRAM);
+      const maskedCameras = camerasRAM.map(c => {
+        const cam = { ...c };
+        if (cam.ptzPass) {
+          cam.ptzPass = '********';
+        }
+        return cam;
+      });
+      io.emit('cameras-updated', maskedCameras);
     }
   } catch(e) {
     res.status(500).json({ success: false, error: e.message });

@@ -180,6 +180,93 @@ describe('API Endpoints Tests', () => {
     expect(tasmotaContent[0].ip).toBe('192.168.178.51');
   });
 
+  test('Camera API - SSRF checks and ptzPass masking', async () => {
+    // 1. Post a camera with an invalid public stream URL
+    const res1 = await request(app)
+      .post('/api/cameras')
+      .send({
+        name: 'Public Stream Cam',
+        url: 'http://8.8.8.8/mjpeg'
+      })
+      .expect(400);
+    expect(res1.body.error).toContain('Kamera-URL muss eine private/lokale Adresse sein');
+
+    // 2. Post a camera with an invalid public PTZ Host
+    const res2 = await request(app)
+      .post('/api/cameras')
+      .send({
+        name: 'Public PTZ Cam',
+        url: 'http://192.168.1.100/mjpeg',
+        ptz: true,
+        ptzHost: '8.8.8.8'
+      })
+      .expect(400);
+    expect(res2.body.error).toContain('PTZ-Host muss eine private/lokale Adresse sein');
+
+    // 3. Post a valid camera with a password and check if response is masked
+    const camPayload = {
+      id: 'cam123',
+      name: 'Local PTZ Cam',
+      url: 'http://192.168.1.100/mjpeg',
+      ptz: true,
+      ptzHost: '192.168.1.101',
+      ptzPort: 80,
+      ptzUser: 'admin',
+      ptzPass: 'supersecret123'
+    };
+
+    const res3 = await request(app)
+      .post('/api/cameras')
+      .send(camPayload)
+      .expect(200);
+    
+    expect(res3.body.camera.ptzPass).toBe('********');
+
+    // 4. GET /api/cameras should return masked ptzPass
+    const res4 = await request(app)
+      .get('/api/cameras')
+      .expect(200);
+    
+    const camInList = res4.body.find(c => c.id === 'cam123');
+    expect(camInList).toBeDefined();
+    expect(camInList.ptzPass).toBe('********');
+
+    // 5. Updating the camera with ******** password should preserve the original password
+    const res5 = await request(app)
+      .post('/api/cameras')
+      .send({
+        ...camPayload,
+        name: 'Renamed Local PTZ Cam',
+        ptzPass: '********'
+      })
+      .expect(200);
+    expect(res5.body.camera.name).toBe('Renamed Local PTZ Cam');
+    expect(res5.body.camera.ptzPass).toBe('********');
+
+    // Verify in file store / backend memory that the actual password is still 'supersecret123'
+    const camerasFile = path.join(testDataDir, 'cameras.json');
+    const storedCams = JSON.parse(fs.readFileSync(camerasFile, 'utf8'));
+    const storedCam = storedCams.find(c => c.id === 'cam123');
+    expect(storedCam.ptzPass).toBe('supersecret123');
+
+    // 6. Test POST /api/cameras/ptz/:id with invalid public PTZ Host (manipulated manually after saving)
+    // We will save a camera with a public host in memory to bypass the POST validation, simulating a corrupted/edited file
+    const fileStore = require('../src/utils/fileStore');
+    fileStore.camerasRAM.push({
+      id: 'hackedcam',
+      name: 'Hacked Cam',
+      url: 'http://192.168.1.100/mjpeg',
+      ptz: true,
+      ptzHost: '8.8.8.8' // public IP
+    });
+
+    const res6 = await request(app)
+      .post('/api/cameras/ptz/hackedcam')
+      .send({ direction: 'left' })
+      .expect(400);
+    expect(res6.body.error).toContain('PTZ-Host muss eine private/lokale Adresse sein');
+  });
+
   afterAll(() => {
     try {
       fs.rmSync(testDataDir, { recursive: true, force: true });
