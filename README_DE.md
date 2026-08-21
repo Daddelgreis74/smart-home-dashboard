@@ -1,6 +1,18 @@
+<div align="center">
+
 > 🌐 **Language / Sprache:** &nbsp; 🇬🇧 [English](README.md) &nbsp;|&nbsp; 🇩🇪 [Deutsch](README_DE.md)
 
-# Smart Home Dashboard v3 · Neo Deck 🏠👻
+# 🏠 Smart Home Dashboard v3 · Neo Deck 👻
+
+**Modernes, hochgradig anpassbares Smart-Home-Wandpanel mit J.A.R.V.I.S. KI, Multi-Theme-Engine & TrueNAS SCALE Support**
+
+[![GitHub Release](https://img.shields.io/github/v/release/Daddelgreis74/smart-home-dashboard?color=00f0ff&logo=github&style=flat-square)](https://github.com/Daddelgreis74/smart-home-dashboard/releases)
+[![Docker Pulls](https://img.shields.io/docker/pulls/daddelgreis74/smart-home-dashboard?logo=docker&logoColor=white&color=2496ED&style=flat-square)](https://hub.docker.com/r/daddelgreis74/smart-home-dashboard)
+[![Docker Image Size](https://img.shields.io/docker/image-size/daddelgreis74/smart-home-dashboard/latest?logo=docker&logoColor=white&style=flat-square)](https://hub.docker.com/r/daddelgreis74/smart-home-dashboard)
+[![TrueNAS Community App](https://img.shields.io/badge/TrueNAS-Community_App-00a4e4?logo=truenas&logoColor=white&style=flat-square)](https://apps.truenas.com/catalog/smart-home-dashboard_community/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+
+</div>
 
 ![Dashboard Vorschau](preview.png)
 
