@@ -71,7 +71,8 @@ export class Config {
       'jarvis_unified_voice', 'jarvis_local_voice_name', 'jarvis_eleven_api_key',
       'jarvis_eleven_voice_id', 'jarvis_eleven_voices_cache',
       'jarvis_search_enabled', 'jarvis_brave_api_key', 'jarvis_chat_history',
-      'sensorIp', 'tasmotaBackup', 'weather_provider', 'weather_api_key'
+      'sensorIp', 'tasmotaBackup', 'weather_provider', 'weather_api_key',
+      'presence_sound_enabled'
     ];
     const toMigrate = {};
     for (const key of KEYS) {

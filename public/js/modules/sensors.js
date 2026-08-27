@@ -251,7 +251,17 @@ export async function refreshSensorWidget() {
       }
 
       if (data.time) {
-        sensorStatuses[index].time = data.time.slice(11, 16);
+        try {
+          const str = String(data.time).trim();
+          const d = new Date(str);
+          if (!isNaN(d.getTime())) {
+            sensorStatuses[index].time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+          } else {
+            sensorStatuses[index].time = str.slice(11, 16);
+          }
+        } catch (e) {
+          sensorStatuses[index].time = String(data.time).slice(11, 16);
+        }
       }
     } catch (e) {
       tempEl.textContent = '--.-';

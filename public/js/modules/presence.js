@@ -11,8 +11,21 @@ export async function initPresence(socket) {
   let selectedAvatarUrl = '';
   let activeStates = {};
 
+  // Toggle-Schalter für Benachrichtigungston initialisieren
+  const presenceSoundToggle = document.getElementById('presenceSoundEnabled');
+  if (presenceSoundToggle) {
+    const isSoundEnabled = Config.get('presence_sound_enabled', true);
+    presenceSoundToggle.checked = (isSoundEnabled === true || isSoundEnabled === 'true');
+    presenceSoundToggle.addEventListener('change', (e) => {
+      Config.set('presence_sound_enabled', e.target.checked);
+    });
+  }
+
   // Hilfsfunktion zur Erkennung von Zustandsübergängen (von offline zu online)
   function updatePresenceStatesAndPlay(persons) {
+    const soundVal = Config.get('presence_sound_enabled', true);
+    const soundEnabled = (soundVal === true || soundVal === 'true');
+
     persons.forEach(p => {
       const wasOffline = activeStates[p.id] === false;
       const isOnline = p.active === true;
@@ -21,7 +34,7 @@ export async function initPresence(socket) {
       activeStates[p.id] = p.active;
       
       // Nur abspielen, wenn der vorherige Status offline (false) war und jetzt online (true) ist
-      if (wasOffline && isOnline) {
+      if (wasOffline && isOnline && soundEnabled) {
         playPresencePing();
       }
     });

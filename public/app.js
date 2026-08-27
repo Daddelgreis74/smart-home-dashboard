@@ -153,6 +153,12 @@ function loadSavedSettings() {
     if (streamInput) streamInput.value = savedStream;
   }
 
+  const presenceSoundToggle = document.getElementById('presenceSoundEnabled');
+  if (presenceSoundToggle) {
+    const isSoundEnabled = Config.get('presence_sound_enabled', true);
+    presenceSoundToggle.checked = (isSoundEnabled === true || isSoundEnabled === 'true');
+  }
+
   // Wende Layout aus dem Socket Layer oder lokalen Storage an
   const savedLayout = JSON.parse(localStorage.getItem('widgetLayout') || '[]');
   if(savedLayout && savedLayout.length > 0) {

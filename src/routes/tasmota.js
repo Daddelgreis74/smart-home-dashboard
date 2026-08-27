@@ -54,8 +54,7 @@ router.post('/sensor-push', (req, res) => {
   
   console.log(`[Tasmota Push] Empfangen von ${ip}:`, data);
   
-  const tzoffset = (new Date()).getTimezoneOffset() * 60000;
-  const localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+  const nowIso = new Date().toISOString();
 
   const temperature = (typeof data.temperature === 'number' && !isNaN(data.temperature)) ? data.temperature : undefined;
   const humidity = (typeof data.humidity === 'number' && !isNaN(data.humidity)) ? data.humidity : undefined;
@@ -69,7 +68,7 @@ router.post('/sensor-push', (req, res) => {
     dewPoint,
     batteryVoltage,
     batteryPercent,
-    time: localISOTime
+    time: nowIso
   };
   
   savePushCache();
@@ -96,12 +95,16 @@ router.get('/sensor', async (req, res) => {
   // Falls wir gespeicherte Push-Daten für diesen Sensor besitzen, liefere diese direkt aus dem Cache
   if (pushedSensorCache[ip]) {
     const cached = pushedSensorCache[ip];
+    let timeStr = cached.time;
+    if (timeStr && typeof timeStr === 'string' && !timeStr.endsWith('Z') && !timeStr.includes('+')) {
+      timeStr = timeStr + 'Z';
+    }
     return res.json({
       success: true,
       online: true,
       ip,
       name: 'Solar-Sensor',
-      time: cached.time,
+      time: timeStr,
       temperature: cached.temperature,
       humidity: cached.humidity,
       dewPoint: cached.dewPoint,
