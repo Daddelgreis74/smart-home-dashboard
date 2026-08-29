@@ -484,10 +484,16 @@ body {
   font-size: 13px;
 }
 
-.weather-main { margin: 5px 0; }
-.weather-details { padding: 8px 15px; }
-.w-detail i { font-size: 11px; }
-.w-detail span { font-size: 11px; }
+.weather-main { margin: 3px 0; }
+.weather-details { 
+  display: grid; 
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 4px 6px; 
+  padding: 6px 8px; 
+  margin-bottom: 3px; 
+}
+.w-detail i { font-size: 10px; }
+.w-detail span { font-size: 10px; }
 
 /* RADIKALER HÖHEN-FIX FÜR 800px VIEWPORT TABLETS */
 .widget-body { 
@@ -501,13 +507,10 @@ body {
 }
 
 /* Wetter-Widget extrem quetschen */
-.weather-icon { font-size: clamp(35px, 4vw, 45px); }
-.weather-temp { font-size: clamp(40px, 5vw, 55px); line-height: 0.9; }
-.weather-desc { font-size: 14px; margin-bottom: 2px; }
-.weather-condition { font-size: 13px; margin-bottom: 8px; }
-.weather-details { padding: 6px 12px; margin-bottom: 5px;}
-.w-detail i { font-size: 10px; }
-.w-detail span { font-size: 10px; }
+.weather-icon { font-size: clamp(30px, 3.5vw, 40px); }
+.weather-temp { font-size: clamp(35px, 4.5vw, 48px); line-height: 0.9; }
+.weather-desc { font-size: 13px; margin-bottom: 2px; }
+.weather-condition { font-size: 12px; margin-bottom: 4px; }
 
 /* Abfall deutlich komprimieren */
 .waste-list { gap: 4px; }
@@ -912,6 +915,7 @@ body::before {
 .widget > * { position: relative; z-index: 1; }
 
 .widget[data-type="weather"] { grid-column: span 2; grid-row: span 1; }
+.widget[data-type="sensor"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="waste"], .widget[data-type="calendar"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="system"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="tasmota"] { grid-column: span 2; grid-row: span 1; }
@@ -1369,11 +1373,6 @@ body::before {
   .toggle-label { min-height: 42px; }
 }
 
-/* --- WEATHER PRO DETAILS --- */
-.widget[data-type="weather"] {
-  grid-column: span 3;
-}
-
 /* Combined Weather & Sensors Layout */
 .combined-weather-sensors-layout {
   display: grid !important;
@@ -1499,6 +1498,7 @@ body::before {
    Row 1: Weather | Waste | System
    Row 2: Smart Home wide | Radio */
 .widget[data-type="weather"] { grid-column: span 2; grid-row: span 1; }
+.widget[data-type="sensor"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="waste"], .widget[data-type="calendar"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="system"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="tasmota"] { grid-column: span 2; grid-row: span 1; }
@@ -1508,30 +1508,32 @@ body::before {
 
 /* Weather details stay rich, but no longer dominate the whole dashboard. */
 .weather-details {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 5px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px 6px;
   padding: 6px;
 }
 .w-detail {
-  padding: 5px 3px;
+  padding: 4px 2px;
 }
 .w-detail i { font-size: 10px; }
-.w-detail small { font-size: 7px; }
-.w-detail span { font-size: 9px; }
-.weather-temp { font-size: clamp(42px, 4.7vw, 64px); }
-.weather-icon { font-size: clamp(34px, 3.8vw, 52px); }
-.weather-main { gap: 12px; }
+.w-detail small { font-size: 7.5px; }
+.w-detail span { font-size: 9.5px; }
+.weather-temp { font-size: clamp(38px, 4.2vw, 56px); }
+.weather-icon { font-size: clamp(30px, 3.4vw, 46px); }
+.weather-main { gap: 10px; }
 
 /* Very wide displays can give the weather more breathing room. */
 @media (min-aspect-ratio: 17/9) {
   .dashboard { grid-template-columns: repeat(8, minmax(0, 1fr)); }
-  .widget[data-type="weather"] { grid-column: span 3; }
+  .widget[data-type="weather"] { grid-column: span 2; }
+  .widget[data-type="sensor"] { grid-column: span 2; }
   .widget[data-type="waste"], .widget[data-type="calendar"] { grid-column: span 2; }
-  .widget[data-type="system"] { grid-column: span 3; }
-  .widget[data-type="tasmota"] { grid-column: span 3; }
-  .widget[data-type="player"] { grid-column: span 3; }
-  .widget[data-type="presence"] { grid-column: span 3; }
-  .widget[data-type="timer"] { grid-column: span 3; }
+  .widget[data-type="system"] { grid-column: span 2; }
+  .widget[data-type="tasmota"] { grid-column: span 2; }
+  .widget[data-type="player"] { grid-column: span 2; }
+  .widget[data-type="presence"] { grid-column: span 2; }
+  .widget[data-type="timer"] { grid-column: span 2; }
 }
 
 /* If Fully Kiosk reports a squatter viewport, compress contents but keep two rows. */
@@ -1541,6 +1543,7 @@ body::before {
     grid-template-rows: repeat(2, minmax(0, 1fr));
   }
   .widget[data-type="weather"],
+  .widget[data-type="sensor"],
   .widget[data-type="waste"], .widget[data-type="calendar"],
   .widget[data-type="system"],
   .widget[data-type="player"],
@@ -1548,7 +1551,7 @@ body::before {
   .widget[data-type="timer"],
   .widget[data-type="tasmota"] { grid-column: span 2; }
   .weather-details {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 4px;
   }
   .w-detail i { display: none; }
@@ -1566,10 +1569,12 @@ body::before {
     padding-bottom: 18px;
   }
   .widget[data-type="weather"],
+  .widget[data-type="sensor"],
   .widget[data-type="waste"], .widget[data-type="calendar"],
   .widget[data-type="system"],
-  .widget[data-type="tasmota"],
-  .widget[data-type="player"] {
+  .widget[data-type="player"],
+  .widget[data-type="presence"],
+  .widget[data-type="timer"] {
     grid-column: span 1;
     grid-row: span 1;
   }
@@ -1873,7 +1878,8 @@ body::before {
   grid-template-rows: repeat(2, minmax(320px, 1fr));
   grid-auto-rows: minmax(320px, 1fr);
 }
-.widget[data-type="weather"] { grid-column: span 6; grid-row: span 1; }
+.widget[data-type="weather"] { grid-column: span 3; grid-row: span 1; }
+.widget[data-type="sensor"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="waste"], .widget[data-type="calendar"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="system"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="tasmota"] { grid-column: span 3; grid-row: span 1; }
@@ -1883,7 +1889,8 @@ body::before {
 
 @media (min-aspect-ratio: 17/9) {
   .dashboard { grid-template-columns: repeat(12, minmax(0, 1fr)); }
-  .widget[data-type="weather"] { grid-column: span 6; }
+  .widget[data-type="weather"] { grid-column: span 3; }
+  .widget[data-type="sensor"] { grid-column: span 3; }
   .widget[data-type="waste"], .widget[data-type="calendar"] { grid-column: span 3; }
   .widget[data-type="system"] { grid-column: span 3; }
   .widget[data-type="player"],
@@ -1899,7 +1906,8 @@ body::before {
     grid-template-rows: repeat(2, minmax(270px, 1fr));
     grid-auto-rows: minmax(270px, 1fr);
   }
-  .widget[data-type="weather"] { grid-column: span 6; }
+  .widget[data-type="weather"] { grid-column: span 3; }
+  .widget[data-type="sensor"] { grid-column: span 3; }
   .widget[data-type="waste"], .widget[data-type="calendar"] { grid-column: span 3; }
   .widget[data-type="system"] { grid-column: span 3; }
   .widget[data-type="player"],
@@ -1913,7 +1921,8 @@ body::before {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: none;
   }
-  .widget[data-type="weather"] { grid-column: span 2; }
+  .widget[data-type="weather"],
+  .widget[data-type="sensor"],
   .widget[data-type="waste"], .widget[data-type="calendar"],
   .widget[data-type="system"],
   .widget[data-type="player"],
@@ -2095,7 +2104,6 @@ body::before {
 
 @media (max-height: 760px) {
   .widget[data-type="player"],
-  .widget[data-type="sensor"],
   .widget[data-type="presence"],
   .widget[data-type="tasmota"],
   .widget[data-type="timer"] { grid-column: span 3; }
@@ -2110,7 +2118,7 @@ body::before {
 }
 
 @media (max-aspect-ratio: 4/3) {
-  .widget[data-type="weather"] { grid-column: span 2; }
+  .widget[data-type="weather"],
   .widget[data-type="waste"], .widget[data-type="calendar"],
   .widget[data-type="system"],
   .widget[data-type="sensor"],
