@@ -58,6 +58,9 @@
             <button class="settings-tab-btn" data-tab="weather">
               <i class="fas fa-cloud-sun"></i> <span data-i18n="settings_tab_weather">Wetter & Standort</span>
             </button>
+            <button class="settings-tab-btn" data-tab="sensor">
+              <i class="fas fa-temperature-half"></i> <span data-i18n="settings_tab_sensor">Raumklima</span>
+            </button>
             <button class="settings-tab-btn" data-tab="waste">
               <i class="fas fa-trash-can"></i> <span data-i18n="settings_tab_waste">Abfallkalender Sync</span>
             </button>
@@ -124,7 +127,8 @@
                 <h3 class="section-title"><i class="fas fa-layer-group"></i> <span data-i18n="layout_section_title">Dashboard Layout</span></h3>
                 <p data-i18n="layout_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Wähle, welche Widgets auf dem Display angezeigt werden sollen.</p>
                 <div class="toggle-group">
-                  <label class="toggle-label"><span data-i18n="toggle_layout_weather">Wetter & Raumklima</span><input type="checkbox" id="toggle-weather" checked><div class="toggle-switch"></div></label>
+                  <label class="toggle-label"><span data-i18n="toggle_layout_weather">Wetter</span><input type="checkbox" id="toggle-weather" checked><div class="toggle-switch"></div></label>
+                  <label class="toggle-label"><span data-i18n="toggle_layout_sensor">Raumklima</span><input type="checkbox" id="toggle-sensor" checked><div class="toggle-switch"></div></label>
                   <label class="toggle-label"><span data-i18n="toggle_layout_waste">Abfallkalender</span><input type="checkbox" id="toggle-waste" checked><div class="toggle-switch"></div></label>
                   <label class="toggle-label"><span data-i18n="toggle_layout_player">Live Radio</span><input type="checkbox" id="toggle-player" checked><div class="toggle-switch"></div></label>
                   <label class="toggle-label"><span data-i18n="toggle_layout_system">System Status</span><input type="checkbox" id="toggle-system" checked><div class="toggle-switch"></div></label>
@@ -197,10 +201,13 @@
                   <input type="password" id="weatherApiKey" placeholder="API-Key von weatherapi.com" style="width: 100%;">
                 </div>
               </div>
+            </div>
 
+            <!-- TAB: RAUMKLIMA & SENSOREN -->
+            <div class="settings-tab-content" id="tab-sensor">
               <!-- 3. TASMOTA AM2301 SENSOR -->
-              <div class="setting-section" style="margin-top: 30px;">
-                <h3 class="section-title"><i class="fas fa-gauge-high"></i> <span data-i18n="sensor_section_title">Temperatur-Sensoren</span></h3>
+              <div class="setting-section">
+                <h3 class="section-title"><i class="fas fa-temperature-half"></i> <span data-i18n="widget_title_sensor">Raumklima</span></h3>
                 <div id="sensorSettingsList" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
                   <!-- Wird dynamisch von renderSensorSettings() befüllt -->
                 </div>
@@ -558,31 +565,40 @@
     <!-- MAIN DASHBOARD -->
     <main class="dashboard" id="dashboard">
       
+      <!-- WIDGET 1: LOKALES WETTER -->
       <div class="widget" data-type="weather">
         <div class="widget-header">
-          <h3><i class="fas fa-cloud-sun" style="color:var(--primary)"></i> <span data-i18n="widget_title_weather">Wetter & Raumklima</span></h3>
+          <h3><i class="fas fa-cloud-sun" style="color:var(--primary)"></i> <span data-i18n="widget_title_weather">Wetter</span></h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
-        <div class="widget-body combined-weather-sensors-layout" id="weatherBody">
-          <!-- Links: Lokales Wetter -->
-          <div class="weather-side" id="localWeatherSide">
+        <div class="widget-body weather-layout" id="weatherBody">
+          <div class="weather-top-row">
             <div class="weather-desc" id="weatherCity">Laden...</div>
-            <div class="weather-main">
-              <div class="weather-icon"><i class="fas fa-cloud"></i></div>
-              <div class="weather-temp">--°</div>
-            </div>
-            <div class="weather-condition" id="weatherCondition">--</div>
-            <div class="weather-details combined-weather-details">
-              <div class="w-detail"><i class="fas fa-temperature-half"></i><small>Max/Min</small><span id="w-minmax">-- / --</span></div>
-              <div class="w-detail"><i class="fas fa-person-rays"></i><small>Gefühlt</small><span id="w-feels">--°</span></div>
-              <div class="w-detail"><i class="fas fa-droplet"></i><small>Feuchte</small><span id="w-humidity">-- %</span></div>
-              <div class="w-detail"><i class="fas fa-cloud-rain"></i><small>Regen</small><span id="w-rain">-- %</span></div>
-            </div>
           </div>
-          <!-- Rechts: Sensoren (Wetterstation LCD 2.0) -->
-          <div class="sensors-side sensor-layout" id="sensorBody">
-            <!-- Wird dynamisch von sensors.js befüllt -->
+          <div class="weather-main">
+            <div class="weather-icon"><i class="fas fa-cloud"></i></div>
+            <div class="weather-temp">--°</div>
           </div>
+          <div class="weather-condition" id="weatherCondition">--</div>
+          <div class="weather-details">
+            <div class="w-detail"><i class="fas fa-temperature-half"></i><small data-i18n="weather_minmax">Max/Min</small><span id="w-minmax">-- / --</span></div>
+            <div class="w-detail"><i class="fas fa-person-rays"></i><small data-i18n="weather_feels">Gefühlt</small><span id="w-feels">--°</span></div>
+            <div class="w-detail"><i class="fas fa-cloud-rain"></i><small data-i18n="weather_rain">Regen</small><span id="w-rain">-- %</span></div>
+            <div class="w-detail"><i class="fas fa-wind"></i><small data-i18n="weather_wind">Wind</small><span id="w-wind">-- km/h</span></div>
+            <div class="w-detail"><i class="fas fa-droplet"></i><small data-i18n="weather_humidity">Feuchte</small><span id="w-humidity">-- %</span></div>
+            <div class="w-detail"><i class="fas fa-gauge"></i><small data-i18n="weather_pressure">Druck</small><span id="w-pressure">-- hPa</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WIDGET 2: RAUMKLIMA (SENSOREN) -->
+      <div class="widget" data-type="sensor">
+        <div class="widget-header">
+          <h3><i class="fas fa-temperature-half" style="color:var(--primary)"></i> <span data-i18n="widget_title_sensor">Raumklima</span></h3>
+          <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
+        </div>
+        <div class="widget-body sensor-layout" id="sensorBody">
+          <!-- Wird dynamisch von sensors.js befüllt -->
         </div>
       </div>
 

@@ -172,7 +172,7 @@ function loadSavedSettings() {
   // Initiiere Sensor-Einstellungen
   renderSensorSettings();
 
-  ['weather', 'waste', 'calendar', 'player', 'system', 'tasmota', 'fritzbox', 'presence', 'camera', 'jarvis', 'timer'].forEach(type => {
+  ['weather', 'sensor', 'waste', 'calendar', 'player', 'system', 'tasmota', 'fritzbox', 'presence', 'camera', 'jarvis', 'timer'].forEach(type => {
     const isVisible = localStorage.getItem('show_' + type) !== 'false';
     const widget = document.querySelector(`.widget[data-type="${type}"]`);
     const toggle = document.getElementById('toggle-' + type);
@@ -387,7 +387,7 @@ function initSettings() {
     });
   }
 
-  ['weather', 'waste', 'calendar', 'player', 'system', 'tasmota', 'fritzbox', 'presence', 'camera', 'jarvis', 'timer'].forEach(type => {
+  ['weather', 'sensor', 'waste', 'calendar', 'player', 'system', 'tasmota', 'fritzbox', 'presence', 'camera', 'jarvis', 'timer'].forEach(type => {
     const toggle = document.getElementById('toggle-' + type);
     if(toggle) {
       toggle.addEventListener('change', (e) => {

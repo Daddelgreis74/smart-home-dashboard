@@ -64,7 +64,8 @@ const translations = {
     "camera_guide_title": "Anleitung: Kamera einbinden",
 
     // Widgets titles & status
-    "widget_title_weather": "Wetter & Raumklima",
+    "widget_title_weather": "Wetter",
+    "widget_title_sensor": "Raumklima",
     "widget_title_waste": "Abfallkalender",
     "widget_title_radio": "Live Radio",
     "widget_title_system": "System Status",
@@ -112,10 +113,10 @@ const translations = {
     "popup_radio_no_stations_desc": "Bitte stelle sicher, dass unter fritz.box deine Sender eingerichtet sind. (Es wurden Demosender geladen!)",
 
     // Layout Toggle Labels
-    "toggle_layout_weather": "Wetter & Raumklima",
+    "toggle_layout_weather": "Wetter",
+    "toggle_layout_sensor": "Raumklima",
     "toggle_layout_waste": "Abfallkalender",
     "toggle_layout_player": "Live Radio",
-    "toggle_layout_sensor": "Temperatur",
     "toggle_layout_system": "System Status",
     "toggle_layout_tasmota": "Tasmota Geräte",
     "toggle_layout_fritzbox": "Fritz!Box Monitor",
@@ -161,6 +162,7 @@ const translations = {
     "reminder_sound_label": "Alarm-Ton:",
     "reminder_loop_label": "Wiederholung:",
     "settings_tab_weather": "Wetter & Standort",
+    "settings_tab_sensor": "Raumklima",
     "settings_tab_waste": "Abfallkalender Sync",
     "settings_tab_reminder": "Terminerinnerungen",
     "settings_tab_timer": "Timer",
@@ -243,7 +245,8 @@ const translations = {
     "camera_guide_title": "Guide: Add Camera",
 
     // Widgets titles & status
-    "widget_title_weather": "Weather & Indoor Climate",
+    "widget_title_weather": "Weather",
+    "widget_title_sensor": "Indoor Climate",
     "widget_title_waste": "Waste Calendar",
     "widget_title_radio": "Live Radio",
     "widget_title_system": "System Status",
@@ -291,10 +294,10 @@ const translations = {
     "popup_radio_no_stations_desc": "Please make sure your stations are set up under fritz.box. (Demo stations loaded!)",
 
     // Layout Toggle Labels
-    "toggle_layout_weather": "Weather & Indoor Climate",
+    "toggle_layout_weather": "Weather",
+    "toggle_layout_sensor": "Indoor Climate",
     "toggle_layout_waste": "Waste Calendar",
     "toggle_layout_player": "Live Radio",
-    "toggle_layout_sensor": "Temperature",
     "toggle_layout_system": "System Status",
     "toggle_layout_tasmota": "Tasmota Devices",
     "toggle_layout_fritzbox": "Fritz!Box Monitor",
@@ -340,6 +343,7 @@ const translations = {
     "reminder_sound_label": "Alarm Sound:",
     "reminder_loop_label": "Repeat Mode:",
     "settings_tab_weather": "Weather & Location",
+    "settings_tab_sensor": "Indoor Climate",
     "settings_tab_waste": "Waste Calendar Sync",
     "settings_tab_reminder": "Appointment Reminders",
     "settings_tab_timer": "Timer",
@@ -422,6 +426,7 @@ const translations = {
 
     // Widgets titles & status
     "widget_title_weather": "Météo",
+    "widget_title_sensor": "Climat intérieur",
     "widget_title_waste": "Calendrier des Déchets",
     "widget_title_radio": "Radio en Direct",
     "widget_title_system": "Statut Système",
@@ -469,10 +474,10 @@ const translations = {
     "popup_radio_no_stations_desc": "Vérifiez vos paramètres dans fritz.box. (Stations démo chargées!)",
 
     // Layout Toggle Labels
-    "toggle_layout_weather": "Météo & Climat",
+    "toggle_layout_weather": "Météo",
+    "toggle_layout_sensor": "Climat intérieur",
     "toggle_layout_waste": "Calendrier des Déchets",
     "toggle_layout_player": "Radio en Direct",
-    "toggle_layout_sensor": "Température",
     "toggle_layout_system": "Statut Système",
     "toggle_layout_tasmota": "Appareils Tasmota",
     "toggle_layout_fritzbox": "Moniteur Fritz!Box",
@@ -498,6 +503,7 @@ const translations = {
     "jarvis_search_section_title": "Recherche Web J.A.R.V.I.S.",
     "jarvis_search_section_desc": "Autorisez J.A.R.V.I.S. à effectuer des recherches sur le Web pour les questions d'actualité.",
     "settings_tab_weather": "Météo & Localisation",
+    "settings_tab_sensor": "Climat intérieur",
     "settings_tab_waste": "Sync Calendrier Déchets",
     "settings_tab_reminder": "Rappels de Rendez-vous",
     "settings_tab_timer": "Minuteur",
@@ -580,6 +586,7 @@ const translations = {
 
     // Widgets titles & status
     "widget_title_weather": "Tiempo",
+    "widget_title_sensor": "Clima interior",
     "widget_title_waste": "Calendario de Residuos",
     "widget_title_radio": "Radio en Vivo",
     "widget_title_system": "Estado del Sistema",
@@ -627,10 +634,10 @@ const translations = {
     "popup_radio_no_stations_desc": "Verifica tu configuración en fritz.box. (Emisoras de demo cargadas!)",
 
     // Layout Toggle Labels
-    "toggle_layout_weather": "Tiempo y Clima",
+    "toggle_layout_weather": "Tiempo",
+    "toggle_layout_sensor": "Clima interior",
     "toggle_layout_waste": "Calendario de Residuos",
     "toggle_layout_player": "Radio en Vivo",
-    "toggle_layout_sensor": "Temperatura",
     "toggle_layout_system": "Estado del Sistema",
     "toggle_layout_tasmota": "Dispositivos Tasmota",
     "toggle_layout_fritzbox": "Monitor Fritz!Box",
@@ -656,6 +663,7 @@ const translations = {
     "jarvis_search_section_title": "Búsqueda web J.A.R.V.I.S.",
     "jarvis_search_section_desc": "Permite que J.A.R.V.I.S. busque en la web preguntas actuales.",
     "settings_tab_weather": "Tiempo & Ubicación",
+    "settings_tab_sensor": "Clima interior",
     "settings_tab_waste": "Sincronizar Calendario de Residuos",
     "settings_tab_reminder": "Recordatorios de Citas",
     "settings_tab_timer": "Temporizador",
@@ -738,6 +746,7 @@ const translations = {
 
     // Widgets titles & status
     "widget_title_weather": "Meteo",
+    "widget_title_sensor": "Clima interno",
     "widget_title_waste": "Calendario Rifiuti",
     "widget_title_radio": "Radio dal Vivo",
     "widget_title_system": "Stato del Sistema",
@@ -785,10 +794,10 @@ const translations = {
     "popup_radio_no_stations_desc": "Verifica le tue impostazioni in fritz.box. (Stazioni demo caricate!)",
 
     // Layout Toggle Labels
-    "toggle_layout_weather": "Meteo e Clima",
+    "toggle_layout_weather": "Meteo",
+    "toggle_layout_sensor": "Clima interno",
     "toggle_layout_waste": "Calendario Rifiuti",
     "toggle_layout_player": "Radio dal Vivo",
-    "toggle_layout_sensor": "Temperatura",
     "toggle_layout_system": "Stato del Sistema",
     "toggle_layout_tasmota": "Dispositivi Tasmota",
     "toggle_layout_fritzbox": "Monitor Fritz!Box",
@@ -814,6 +823,7 @@ const translations = {
     "jarvis_search_section_title": "Ricerca web J.A.R.V.I.S.",
     "jarvis_search_section_desc": "Consenti a J.A.R.V.I.S. di cercare nel web per domande attuali.",
     "settings_tab_weather": "Meteo & Posizione",
+    "settings_tab_sensor": "Clima interno",
     "settings_tab_waste": "Sincronizzazione Calendario Rifiuti",
     "settings_tab_reminder": "Promemoria Appuntamenti",
     "settings_tab_timer": "Timer",
@@ -896,6 +906,7 @@ const translations = {
 
     // Widgets titles & status
     "widget_title_weather": "Weer",
+    "widget_title_sensor": "Binnenklimaat",
     "widget_title_waste": "Afvalkalender",
     "widget_title_radio": "Live Radio",
     "widget_title_system": "Systeemstatus",
@@ -943,10 +954,10 @@ const translations = {
     "popup_radio_no_stations_desc": "Controleer uw instellingen in fritz.box. (Demozenders geladen!)",
 
     // Layout Toggle Labels
-    "toggle_layout_weather": "Weer & Klimaat",
+    "toggle_layout_weather": "Weer",
+    "toggle_layout_sensor": "Binnenklimaat",
     "toggle_layout_waste": "Afvalkalender",
     "toggle_layout_player": "Live Radio",
-    "toggle_layout_sensor": "Temperatuur",
     "toggle_layout_system": "Systeemstatus",
     "toggle_layout_tasmota": "Tasmota Apparaten",
     "toggle_layout_fritzbox": "Fritz!Box Monitor",
@@ -972,6 +983,7 @@ const translations = {
     "jarvis_search_section_title": "J.A.R.V.I.S. Webzoekopdracht",
     "jarvis_search_section_desc": "Sta J.A.R.V.I.S. toe op het web te zoeken naar actuele vragen.",
     "settings_tab_weather": "Weer & Locatie",
+    "settings_tab_sensor": "Binnenklimaat",
     "settings_tab_waste": "Afvalkalender Synchronisatie",
     "settings_tab_reminder": "Afsprakenherinneringen",
     "settings_tab_timer": "Timer",
@@ -1054,6 +1066,7 @@ const translations = {
 
     // Widgets titles & status
     "widget_title_weather": "Pogoda",
+    "widget_title_sensor": "Klimat w pomieszczeniu",
     "widget_title_waste": "Terminarz Wywozu",
     "widget_title_radio": "Radio na Żywo",
     "widget_title_system": "Status Systemu",
@@ -1101,10 +1114,10 @@ const translations = {
     "popup_radio_no_stations_desc": "Upewnij się, że stacje są ustawione w fritz.box. (Załadowano stacje demonstracyjne!)",
 
     // Layout Toggle Labels
-    "toggle_layout_weather": "Pogoda i Klimat",
+    "toggle_layout_weather": "Pogoda",
+    "toggle_layout_sensor": "Klimat w pomieszczeniu",
     "toggle_layout_waste": "Terminarz Wywozu",
     "toggle_layout_player": "Radio na Żywo",
-    "toggle_layout_sensor": "Temperatura",
     "toggle_layout_system": "Status Systemu",
     "toggle_layout_tasmota": "Urządzenia Tasmota",
     "toggle_layout_fritzbox": "Monitor Fritz!Box",
@@ -1130,6 +1143,7 @@ const translations = {
     "jarvis_search_section_title": "Wyszukiwanie w sieci J.A.R.V.I.S.",
     "jarvis_search_section_desc": "Zezwól J.A.R.V.I.S. na wyszukiwanie w sieci aktualnych pytań.",
     "settings_tab_weather": "Pogoda & Lokalizacja",
+    "settings_tab_sensor": "Klimat w pomieszczeniu",
     "settings_tab_waste": "Sync Kalendarza Wywozu Śmieci",
     "settings_tab_reminder": "Przypomnienia o Spotkaniach",
     "settings_tab_timer": "Minutnik",
