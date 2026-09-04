@@ -66,6 +66,27 @@ describe('API Endpoints Tests', () => {
     expect(getRes.body.weather_api_key).toBe('********');
   });
 
+  test('PATCH /api/config/presence_sound_enabled should update and persist the boolean flag', async () => {
+    // 1. Disable presence sound
+    await request(app)
+      .patch('/api/config/presence_sound_enabled')
+      .send({ value: false })
+      .expect(200);
+
+    // 2. Verify via GET /api/config
+    const res1 = await request(app).get('/api/config').expect(200);
+    expect(res1.body.presence_sound_enabled).toBe(false);
+
+    // 3. Re-enable presence sound
+    await request(app)
+      .patch('/api/config/presence_sound_enabled')
+      .send({ value: true })
+      .expect(200);
+
+    const res2 = await request(app).get('/api/config').expect(200);
+    expect(res2.body.presence_sound_enabled).toBe(true);
+  });
+
   test('POST /api/tasmota with invalid payload should return 400', async () => {
     const response = await request(app)
       .post('/api/tasmota')

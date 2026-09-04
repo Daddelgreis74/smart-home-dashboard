@@ -46,7 +46,8 @@ const ALLOWED_CONFIG_KEYS = new Set([
   'weather_lat',
   'weather_lon',
   'weather_loc_resolved',
-  'setup_completed'
+  'setup_completed',
+  'presence_sound_enabled'
 ]);
 
 const SENSIBLE_KEYS = [

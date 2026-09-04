@@ -17,7 +17,19 @@ export class Config {
 
   /** Liest einen Wert aus der Config (mit optionalem Standardwert) */
   static get(key, defaultValue = null) {
-    const val = Config._data[key];
+    let val = Config._data[key];
+    if (val === undefined || val === null) {
+      try {
+        const localVal = localStorage.getItem(key);
+        if (localVal !== null) {
+          try {
+            val = JSON.parse(localVal);
+          } catch {
+            val = localVal;
+          }
+        }
+      } catch (e) {}
+    }
     if (val === undefined || val === null) return defaultValue;
     return val;
   }
@@ -26,13 +38,19 @@ export class Config {
   static async set(key, value) {
     Config._data[key] = value;
     try {
-      await fetch(`/api/config/${encodeURIComponent(key)}`, {
+      localStorage.setItem(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
+    } catch (e) {}
+    try {
+      const res = await fetch(`/api/config/${encodeURIComponent(key)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value })
       });
+      if (!res.ok) {
+        console.warn(`Config.set: Server-Status ${res.status} für Key ${key}`);
+      }
     } catch (e) {
-      console.warn('Config.set: Server-Fehler, nur im RAM gespeichert');
+      console.warn('Config.set: Server-Fehler, nur im RAM/LocalStorage gespeichert');
     }
   }
 
