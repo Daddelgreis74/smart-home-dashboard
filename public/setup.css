@@ -51,6 +51,16 @@ body.theme-retrowave {
   --orb-opacity: 0.5;
 }
 
+body.theme-jarvis {
+  --bg-gradient: linear-gradient(135deg, #02050e 0%, #060f1e 60%, #030712 100%);
+  --accent-primary: #00f0ff;
+  --accent-secondary: #ffb703;
+  --orb-color-1: rgba(0, 240, 255, 0.4);
+  --orb-color-2: rgba(255, 183, 3, 0.3);
+  --orb-color-3: rgba(0, 240, 255, 0.3);
+  --orb-opacity: 0.5;
+}
+
 /* Base resets & styles */
 * {
   box-sizing: border-box;
@@ -337,7 +347,7 @@ select.form-control {
 /* Theme selector cards */
 .theme-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 15px;
   margin-bottom: 20px;
 }
@@ -384,6 +394,12 @@ select.form-control {
 
 .theme-preview.retrowave {
   background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+}
+
+.theme-preview.jarvis {
+  background: linear-gradient(135deg, #00f0ff 0%, #ffb703 100%);
+  border-color: #00f0ff;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.35);
 }
 
 .theme-card span {

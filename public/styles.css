@@ -3695,6 +3695,12 @@ body.theme-stealth .radio-select option {
   color: #f3f4f6;
 }
 
+body.theme-jarvis select option,
+body.theme-jarvis .radio-select option {
+  background-color: #060f1e;
+  color: #e0f8ff;
+}
+
 /* ==========================================
    J.A.R.V.I.S. KI-ASSISTENT WIDGET STYLES
    ========================================== */
@@ -3749,6 +3755,11 @@ body.theme-retrowave .jarvis-msg-assistant {
 body.theme-terminal .jarvis-msg-assistant {
   background: rgba(0, 255, 0, 0.03);
   border-color: rgba(0, 255, 0, 0.2);
+}
+body.theme-jarvis .jarvis-msg-assistant {
+  background: rgba(0, 240, 255, 0.06);
+  border-color: rgba(0, 240, 255, 0.3);
+  color: #e0f8ff;
 }
 
 .jarvis-msg-system {
@@ -4325,6 +4336,203 @@ body.theme-orbital .call-duration,
 body.theme-orbital .value-mono {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 500;
+}
+
+/* --- 8. J.A.R.V.I.S. / STARK INDUSTRIES HUD (THEME 8) --- */
+body.theme-jarvis {
+  --bg-color: #02040a;
+  --panel-bg: rgba(4, 12, 24, 0.72);
+  --panel-border: rgba(0, 240, 255, 0.38);
+  --text-main: #e6f9ff;
+  --text-muted: rgba(224, 248, 255, 0.5);
+  --primary: #00f0ff;
+  --primary-glow: rgba(0, 240, 255, 0.5);
+  --secondary: #ffb703;
+  --secondary-glow: rgba(255, 183, 3, 0.4);
+  --accent-blue: #00f0ff;
+  --accent-violet: #ffb703;
+  --radius-lg: 2px;
+  --radius-md: 2px;
+  --radius-sm: 2px;
+  --blur: blur(14px);
+}
+
+/* Background: Holographic Tactical Blueprint Grid */
+body.theme-jarvis {
+  background-color: #02040a !important;
+  background-image:
+    radial-gradient(circle at 50% 25%, rgba(0, 240, 255, 0.12) 0%, transparent 65%),
+    radial-gradient(circle at 85% 85%, rgba(255, 183, 3, 0.06) 0%, transparent 50%),
+    linear-gradient(rgba(0, 240, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(170deg, #010308 0%, #050e1c 50%, #02050c 100%) !important;
+  background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px, 100% 100% !important;
+}
+
+/* Authentic Holographic Scanlines Overlay */
+body.theme-jarvis::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.28) 50%);
+  background-size: 100% 3px;
+  opacity: 0.65;
+  display: block;
+}
+
+body.theme-jarvis .bg-orbs { display: block; opacity: 0.45; }
+body.theme-jarvis .orb-1 { background: #00f0ff; filter: blur(90px); }
+body.theme-jarvis .orb-2 { background: #ffb703; filter: blur(100px); }
+body.theme-jarvis .orb-3 { background: #0088ff; filter: blur(90px); }
+
+/* Header: Stark Industries HUD */
+body.theme-jarvis .header {
+  border-bottom: 2px solid var(--primary);
+  box-shadow: 0 4px 20px rgba(0, 240, 255, 0.15);
+  background: rgba(3, 8, 18, 0.85);
+  backdrop-filter: blur(16px);
+}
+
+body.theme-jarvis .deck-title span {
+  font-family: 'Orbitron', monospace !important;
+  font-weight: 900 !important;
+  letter-spacing: 3px !important;
+  color: #ffffff !important;
+  text-shadow: 0 0 12px var(--primary), 0 0 24px rgba(0, 240, 255, 0.4);
+}
+
+body.theme-jarvis .deck-title small {
+  font-family: 'Share Tech Mono', monospace !important;
+  color: var(--secondary) !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase !important;
+  font-weight: 600 !important;
+}
+
+body.theme-jarvis .header-time {
+  font-family: 'Share Tech Mono', monospace !important;
+  font-size: 32px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  text-shadow: 0 0 14px var(--primary);
+  letter-spacing: 2px;
+}
+
+body.theme-jarvis .header-date {
+  font-family: 'Share Tech Mono', monospace !important;
+  color: var(--secondary) !important;
+  letter-spacing: 1.5px;
+}
+
+/* Widgets: Stark HUD Chamfered Tech Cards */
+body.theme-jarvis .widget {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-left: 3px solid var(--primary);
+  border-radius: 0;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), inset 0 0 20px rgba(0, 240, 255, 0.04);
+  backdrop-filter: var(--blur);
+  position: relative;
+  transition: all 0.25s ease;
+}
+
+body.theme-jarvis .widget:hover {
+  border-color: rgba(0, 240, 255, 0.8);
+  border-left-color: var(--secondary);
+  box-shadow: 0 14px 40px rgba(0, 240, 255, 0.2), inset 0 0 25px rgba(0, 240, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Top-Right Chamfer Corner Accent Indicator */
+body.theme-jarvis .widget::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(135deg, transparent 50%, var(--secondary) 50%);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+/* Header Icons in Stark Gold */
+body.theme-jarvis .widget-header h3 i {
+  color: var(--secondary) !important;
+  filter: drop-shadow(0 0 6px rgba(255, 183, 3, 0.6));
+}
+
+body.theme-jarvis .widget-header h3 {
+  font-family: 'Orbitron', monospace !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase !important;
+  color: var(--primary) !important;
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.35);
+}
+
+body.theme-jarvis .drag-handle {
+  color: var(--secondary);
+  opacity: 0.7;
+}
+
+/* Arc Reactor: Cyan & Stark Gold Multi-Rings */
+body.theme-jarvis .orbital-core {
+  background: #ffffff !important;
+  box-shadow: 0 0 18px #00f0ff, 0 0 35px #00f0ff, 0 0 50px rgba(255, 183, 3, 0.4) !important;
+}
+
+body.theme-jarvis .orbital-ring.ring-1,
+body.theme-jarvis .orbital-ring.ring-3,
+body.theme-jarvis .orbital-ring.ring-5 {
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.5) !important;
+}
+
+body.theme-jarvis .orbital-ring.ring-2,
+body.theme-jarvis .orbital-ring.ring-4 {
+  border-color: var(--secondary) !important;
+  border-style: dashed !important;
+  box-shadow: 0 0 10px rgba(255, 183, 3, 0.5) !important;
+}
+
+/* Values & Gauges */
+body.theme-jarvis .weather-temp,
+body.theme-jarvis .sensor-gauge strong {
+  font-family: 'Share Tech Mono', monospace !important;
+  color: #ffffff !important;
+  text-shadow: 0 0 12px var(--primary);
+}
+
+body.theme-jarvis .w-detail span,
+body.theme-jarvis .sensor-meta span,
+body.theme-jarvis .bar-val,
+body.theme-jarvis .call-time,
+body.theme-jarvis .call-duration,
+body.theme-jarvis .value-mono {
+  font-family: 'Share Tech Mono', monospace !important;
+  color: var(--secondary) !important;
+}
+
+/* Toggle Switches & Relais */
+body.theme-jarvis .toggle-switch {
+  border-color: var(--panel-border);
+  background: rgba(0, 240, 255, 0.08);
+}
+
+body.theme-jarvis input:checked + .toggle-switch {
+  background: rgba(0, 240, 255, 0.3) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.5) !important;
+}
+
+body.theme-jarvis input:checked + .toggle-switch::after {
+  background: var(--primary) !important;
+  box-shadow: 0 0 10px var(--primary) !important;
 }
 
 /* ==========================================
@@ -5134,5 +5342,11 @@ body.theme-cyberpunk .ptz-controls-overlay {
 body.theme-nordic .ptz-controls-overlay {
   background: rgba(46, 52, 64, 0.8);
   border-color: rgba(216, 222, 233, 0.2);
+}
+
+body.theme-jarvis .ptz-controls-overlay {
+  background: rgba(4, 10, 22, 0.85);
+  border-color: var(--primary);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
 }
 

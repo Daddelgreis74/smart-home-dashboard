@@ -10,7 +10,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="icon" href="icon.png" type="image/png">
   <link rel="apple-touch-icon" href="icon.png">
-  <link rel="stylesheet" href="styles.css?v=3.20.2">
+  <link rel="stylesheet" href="styles.css?v=3.21.31-j1">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
   <script src="translations.js"></script>
@@ -108,6 +108,7 @@
                     <option value="theme-terminal">📟 Terminal Classic (Matrix Grün)</option>
                     <option value="theme-stealth">🌑 OLED Stealth (Nachtmodus)</option>
                     <option value="theme-orbital">🛸 Orbital (Holo-Deck)</option>
+                    <option value="theme-jarvis">🤖 J.A.R.V.I.S. (Stark HUD)</option>
                   </select>
                 </div>
                 <div class="input-group" style="margin-top: 15px;">
@@ -866,16 +867,6 @@
         </div>
         <div class="widget-body" id="timerBody" style="height: calc(100% - 30px); padding: 5px; display: flex; flex-direction: column; justify-content: flex-start; position: relative;">
           
-          <!-- Timer Tab Header -->
-          <div class="timer-tabs">
-            <button class="timer-tab active" data-timer-id="1">
-              <span>Timer 1</span><span class="timer-tab-indicator" id="timerTabIndicator1"></span>
-            </button>
-            <button class="timer-tab" data-timer-id="2">
-              <span>Timer 2</span><span class="timer-tab-indicator" id="timerTabIndicator2"></span>
-            </button>
-          </div>
-
           <!-- Setup-Ansicht -->
           <div class="timer-setup-container" style="display: flex; flex-direction: column; gap: 4px; flex-grow: 1; justify-content: space-between;">
             <!-- Preset Grid -->

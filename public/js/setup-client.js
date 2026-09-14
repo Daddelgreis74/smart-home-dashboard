@@ -419,6 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let themeText = 'Aurora Nordlicht';
     if (config.dashboard_theme === 'theme-stealth') themeText = 'Stealth Dark';
     else if (config.dashboard_theme === 'theme-retrowave') themeText = 'Retro Cyberpunk';
+    else if (config.dashboard_theme === 'theme-jarvis') themeText = 'J.A.R.V.I.S. HUD';
     document.getElementById('sumTheme').textContent = themeText;
 
     document.getElementById('sumWeather').textContent = config.weather_location 
