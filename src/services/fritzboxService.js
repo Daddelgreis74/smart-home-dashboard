@@ -1,6 +1,14 @@
+const http = require('http');
 const net = require('net');
 const crypto = require('crypto');
 const fileStore = require('../utils/fileStore');
+
+const TR064_PORT = 49000;
+const CALLMONITOR_PORT = 1012;
+const SOAP_TIMEOUT_MS = 3000;
+const TCP_PING_TIMEOUT_MS = 1200;
+const CALLMONITOR_RECONNECT_DELAY_MS = 15000;
+const MAX_STORED_CALLS = 10;
 
 let callMonitorSocket = null;
 let reconnectTimeout = null;
@@ -58,14 +66,13 @@ function soapCall(ip, path, service, action, args, auth = null) {
       headers['Authorization'] = auth;
     }
 
-    const httpReq = require('http'); // core module
-    const req = httpReq.request({
+    const req = http.request({
       host: ip,
-      port: 49000,
+      port: TR064_PORT,
       path: path,
       method: 'POST',
       headers: headers,
-      timeout: 3000
+      timeout: SOAP_TIMEOUT_MS
     }, (res) => {
       let data = '';
       res.on('data', chunk => data += chunk);
@@ -107,7 +114,7 @@ function addCallToLog(call) {
     duration: call.duration,
     callerName: call.callerName || 'Unbekannter Anrufer'
   });
-  fileStore.fritzCalls = fileStore.fritzCalls.slice(0, 10);
+  fileStore.fritzCalls = fileStore.fritzCalls.slice(0, MAX_STORED_CALLS);
   fileStore.saveCallLog();
   if (ioInstance) {
     ioInstance.emit('fritz-calls', fileStore.fritzCalls);
@@ -122,10 +129,10 @@ function getMergedCalls() {
     duration: 0,
     callerName: c.type === 'RING' ? 'Klingelt...' : 'Verbunden'
   }));
-  return [...current, ...fileStore.fritzCalls].slice(0, 10);
+  return [...current, ...fileStore.fritzCalls].slice(0, MAX_STORED_CALLS);
 }
 
-function pingTcp(host, port, timeout = 1200) {
+function pingTcp(host, port, timeout = TCP_PING_TIMEOUT_MS) {
   return new Promise((resolve) => {
     const start = Date.now();
     const socket = new net.Socket();
@@ -163,8 +170,8 @@ function connectFritzCallMonitor() {
     return;
   }
 
-  console.log(`[Fritz!Box] Verbinde mit CallMonitor auf ${fritzConfig.ip}:1012...`);
-  callMonitorSocket = net.createConnection({ host: fritzConfig.ip, port: 1012 });
+  console.log(`[Fritz!Box] Verbinde mit CallMonitor auf ${fritzConfig.ip}:${CALLMONITOR_PORT}...`);
+  callMonitorSocket = net.createConnection({ host: fritzConfig.ip, port: CALLMONITOR_PORT });
 
   callMonitorSocket.on('connect', () => {
     console.log('[Fritz!Box] Live-CallMonitor erfolgreich verbunden!');
@@ -266,7 +273,7 @@ function connectFritzCallMonitor() {
     if (!reconnectTimeout) {
       reconnectTimeout = setTimeout(() => {
         connectFritzCallMonitor();
-      }, 15000);
+      }, CALLMONITOR_RECONNECT_DELAY_MS);
     }
   });
 }
