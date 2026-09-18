@@ -1,17 +1,16 @@
 import { playSound } from './utils.js';
 
-// Dictionary zur Verwaltung beider Timer
-let timers = {
-  1: { duration: 0, remaining: 0, interval: null, isPaused: false, alarmInterval: null, targetHH: 0, targetMM: 10, targetSS: 0 },
-  2: { duration: 0, remaining: 0, interval: null, isPaused: false, alarmInterval: null, targetHH: 0, targetMM: 10, targetSS: 0 }
+// Zentraler Timer-Zustand (Single Timer)
+const timerState = {
+  duration: 0,
+  remaining: 0,
+  interval: null,
+  isPaused: false,
+  alarmInterval: null,
+  targetHH: 0,
+  targetMM: 10,
+  targetSS: 0
 };
-
-let currentTimerId = 1; // Aktuell sichtbarer Timer-Tab
-
-// Hilfsvariablen für die aktuelle Auswahl im Wähler (Trommel)
-let targetHH = 0;
-let targetMM = 10;
-let targetSS = 0;
 
 // DOM Elemente
 let setupContainer = null;
@@ -27,7 +26,7 @@ let drumHH = null;
 let drumMM = null;
 let drumSS = null;
 
-const ITEM_HEIGHT = 30; // Entspricht der CSS Zeilenhöhe
+const ITEM_HEIGHT = 30; // Entspricht der CSS Zeilenhoehe
 
 export function initTimer(socket) {
   setupContainer = document.querySelector('.timer-setup-container');
@@ -57,57 +56,55 @@ export function initTimer(socket) {
   }, 100);
 
   // Event Listeners for scroll logic
-  setupScrollListener(drumHH, (val) => { targetHH = val; });
-  setupScrollListener(drumMM, (val) => { targetMM = val; });
-  setupScrollListener(drumSS, (val) => { targetSS = val; });
+  setupScrollListener(drumHH, (val) => { timerState.targetHH = val; });
+  setupScrollListener(drumMM, (val) => { timerState.targetMM = val; });
+  setupScrollListener(drumSS, (val) => { timerState.targetSS = val; });
 
-  // Event Listeners für Presets
+  // Event Listeners fuer Presets
   document.querySelectorAll('.timer-preset-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const seconds = parseInt(btn.getAttribute('data-time'), 10);
-      if (seconds > 0) {
-        // Räder flüssig einstellen und danach starten
-        const hh = Math.floor(seconds / 3600);
-        const mm = Math.floor((seconds % 3600) / 60);
-        const ss = seconds % 60;
-        
-        setDrumValue(drumHH, hh, true);
-        setDrumValue(drumMM, mm, true);
-        setDrumValue(drumSS, ss, true);
-        
-        setTimeout(() => {
-          startTimer(seconds);
-        }, 500); // 500ms Verzögerung für die Animation
-      }
+      if (!seconds || seconds <= 0) return;
+
+      const hh = Math.floor(seconds / 3600);
+      const mm = Math.floor((seconds % 3600) / 60);
+      const ss = seconds % 60;
+      
+      setDrumValue(drumHH, hh, true);
+      setDrumValue(drumMM, mm, true);
+      setDrumValue(drumSS, ss, true);
+      
+      setTimeout(() => {
+        startTimer(seconds);
+      }, 500);
     });
   });
 
-  // Event Listener für Start Button
+  // Event Listener fuer Start Button
   if (startBtn) {
     startBtn.addEventListener('click', () => {
-      const totalSeconds = targetHH * 3600 + targetMM * 60 + targetSS;
+      const totalSeconds = timerState.targetHH * 3600 + timerState.targetMM * 60 + timerState.targetSS;
       if (totalSeconds > 0) {
         startTimer(totalSeconds);
       }
     });
   }
 
-  // Event Listener für Cancel Button
+  // Event Listener fuer Cancel Button
   if (cancelBtn) {
     cancelBtn.addEventListener('click', () => {
       cancelTimer();
     });
   }
 
-  // Event Listener für Pause Button
+  // Event Listener fuer Pause/Resume Button
   if (pauseBtn) {
     pauseBtn.addEventListener('click', () => {
-      const t = timers[currentTimerId];
-      if (t.alarmInterval) {
+      if (timerState.alarmInterval) {
         cancelTimer();
         return;
       }
-      if (t.isPaused) {
+      if (timerState.isPaused) {
         resumeTimer();
       } else {
         pauseTimer();
@@ -115,27 +112,19 @@ export function initTimer(socket) {
     });
   }
 
-  // Event Listeners für Tab-Umschaltung
-  document.querySelectorAll('.timer-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      const id = parseInt(tab.getAttribute('data-timer-id'), 10);
-      switchTimerTab(id);
-    });
-  });
-
   // Socket Sync Event Listeners
   if (socket) {
     socket.on('timer-started', (data) => {
-      syncStartTimer(data.id || 1, data.duration, data.remaining, data.isPaused);
+      syncStartTimer(data?.duration || 0, data?.remaining || 0, data?.isPaused || false);
     });
-    socket.on('timer-paused', (data) => {
-      syncPauseTimer(data.id || 1);
+    socket.on('timer-paused', () => {
+      syncPauseTimer();
     });
-    socket.on('timer-resumed', (data) => {
-      syncResumeTimer(data.id || 1);
+    socket.on('timer-resumed', () => {
+      syncResumeTimer();
     });
-    socket.on('timer-cancelled', (data) => {
-      syncCancelTimer(data.id || 1);
+    socket.on('timer-cancelled', () => {
+      syncCancelTimer();
     });
   }
 }
@@ -212,115 +201,58 @@ function setDrumValue(container, value, smooth = true) {
   });
 }
 
-function switchTimerTab(newId) {
-  if (newId === currentTimerId) return;
-
-  // 1. Sichere aktuelle Wähler-Werte des alten Timers
-  timers[currentTimerId].targetHH = targetHH;
-  timers[currentTimerId].targetMM = targetMM;
-  timers[currentTimerId].targetSS = targetSS;
-
-  // Tab Header umschalten
-  document.querySelectorAll('.timer-tab').forEach(tab => {
-    const tabId = parseInt(tab.getAttribute('data-timer-id'), 10);
-    if (tabId === newId) {
-      tab.classList.add('active');
-    } else {
-      tab.classList.remove('active');
-    }
-  });
-
-  // 2. Lade Werte des neuen Timers
-  currentTimerId = newId;
-  const t = timers[currentTimerId];
-  targetHH = t.targetHH;
-  targetMM = t.targetMM;
-  targetSS = t.targetSS;
-
-  // Räder positionieren
-  if (drumHH && drumMM && drumSS) {
-    setDrumValue(drumHH, targetHH, false);
-    setDrumValue(drumMM, targetMM, false);
-    setDrumValue(drumSS, targetSS, false);
-  }
-
-  // 3. Sichtbarkeit anpassen
-  if (t.duration > 0 || t.alarmInterval !== null) {
-    setupContainer.style.display = 'none';
-    activeContainer.style.display = 'flex';
-    updateActiveUI();
-    updatePauseButtonUI();
-    
-    if (t.remaining < 30) {
-      activeContainer.classList.add('low-time');
-    } else {
-      activeContainer.classList.remove('low-time');
-    }
-  } else {
-    setupContainer.style.display = 'flex';
-    activeContainer.style.display = 'none';
-    activeContainer.classList.remove('low-time');
-  }
-}
-
 export function startTimer(seconds) {
-  const id = currentTimerId;
-  const t = timers[id];
-  stopAlarm(id);
-  t.duration = seconds;
-  t.remaining = seconds;
-  t.isPaused = false;
+  if (!seconds || seconds <= 0) return;
 
-  if (id === currentTimerId) {
-    updateActiveUI();
-    setupContainer.style.display = 'none';
-    activeContainer.style.display = 'flex';
-    updatePauseButtonUI();
-  }
+  stopAlarm();
+  timerState.duration = seconds;
+  timerState.remaining = seconds;
+  timerState.isPaused = false;
 
-  if (t.interval) clearInterval(t.interval);
-  t.interval = setInterval(() => tick(id), 1000);
+  updateActiveUI();
+  if (setupContainer) setupContainer.style.display = 'none';
+  if (activeContainer) activeContainer.style.display = 'flex';
+  updatePauseButtonUI();
 
-  updateTabIndicators();
+  if (timerState.interval) clearInterval(timerState.interval);
+  timerState.interval = setInterval(() => tick(), 1000);
 
   if (window.socket) {
     window.socket.emit('timer-start', {
-      id: id,
-      duration: t.duration,
-      remaining: t.remaining,
-      isPaused: t.isPaused
+      id: 1,
+      duration: timerState.duration,
+      remaining: timerState.remaining,
+      isPaused: timerState.isPaused
     });
   }
 }
 
-function syncStartTimer(id, duration, remaining, paused) {
-  const t = timers[id];
-  stopAlarm(id);
-  t.duration = duration;
-  t.remaining = remaining;
-  t.isPaused = paused;
+function syncStartTimer(duration, remaining, paused) {
+  if (!duration || duration <= 0) return;
 
-  if (t.interval) clearInterval(t.interval);
-  if (!t.isPaused) {
-    t.interval = setInterval(() => tick(id), 1000);
+  stopAlarm();
+  timerState.duration = duration;
+  timerState.remaining = remaining;
+  timerState.isPaused = paused;
+
+  if (timerState.interval) clearInterval(timerState.interval);
+  if (!timerState.isPaused) {
+    timerState.interval = setInterval(() => tick(), 1000);
   }
 
-  if (id === currentTimerId) {
-    updateActiveUI();
-    setupContainer.style.display = 'none';
+  updateActiveUI();
+  if (setupContainer) setupContainer.style.display = 'none';
+  if (activeContainer) {
     activeContainer.style.display = 'flex';
-    updatePauseButtonUI();
-    
-    if (t.remaining < 30) {
+    if (timerState.remaining < 30) {
       activeContainer.classList.add('low-time');
     } else {
       activeContainer.classList.remove('low-time');
     }
   }
+  updatePauseButtonUI();
 
-  updateTabIndicators();
-
-  // Widget-Sichtbarkeit erzwingen
+  // Widget-Sichtbarkeit sicherstellen
   const widget = document.querySelector('.widget[data-type="timer"]');
   if (widget) {
     widget.classList.remove('hidden');
@@ -337,29 +269,27 @@ function syncStartTimer(id, duration, remaining, paused) {
   localStorage.setItem('show_timer', 'true');
 }
 
-function tick(id) {
-  const t = timers[id];
-  if (t.remaining <= 0) {
-    triggerAlarm(id);
+function tick() {
+  if (timerState.remaining <= 0) {
+    triggerAlarm();
     return;
   }
-  t.remaining--;
+  timerState.remaining--;
 
-  if (id === currentTimerId) {
-    updateActiveUI();
-    if (t.remaining < 30) {
-      activeContainer.classList.add('low-time');
-    } else {
-      activeContainer.classList.remove('low-time');
-    }
+  updateActiveUI();
+  if (!activeContainer) return;
+
+  if (timerState.remaining < 30) {
+    activeContainer.classList.add('low-time');
+  } else {
+    activeContainer.classList.remove('low-time');
   }
 }
 
 function updateActiveUI() {
-  const t = timers[currentTimerId];
-  const hh = Math.floor(t.remaining / 3600);
-  const mm = Math.floor((t.remaining % 3600) / 60);
-  const ss = t.remaining % 60;
+  const hh = Math.floor(timerState.remaining / 3600);
+  const mm = Math.floor((timerState.remaining % 3600) / 60);
+  const ss = timerState.remaining % 60;
 
   let displayStr = "";
   if (hh > 0) {
@@ -372,23 +302,22 @@ function updateActiveUI() {
     countdownText.textContent = displayStr;
   }
 
-  if (ringCircle && t.duration > 0) {
+  if (ringCircle && timerState.duration > 0) {
     const totalCircumference = 301.6; // 2 * Math.PI * 48
-    const progress = t.remaining / t.duration;
+    const progress = timerState.remaining / timerState.duration;
     const offset = totalCircumference * (1 - progress);
     ringCircle.setAttribute('stroke-dashoffset', offset.toFixed(1));
   }
 }
 
 function updatePauseButtonUI() {
-  const t = timers[currentTimerId];
   if (!pauseBtn) return;
 
-  if (t.alarmInterval) {
+  if (timerState.alarmInterval) {
     pauseBtn.innerHTML = `<i class="fas fa-stop-circle"></i> <span data-i18n="timer_btn_stop">Stop</span>`;
     pauseBtn.style.background = '#ef4444';
     pauseBtn.style.color = '#fff';
-  } else if (t.isPaused) {
+  } else if (timerState.isPaused) {
     pauseBtn.innerHTML = `<i class="fas fa-play"></i> <span data-i18n="timer_btn_resume">Fortsetzen</span>`;
     pauseBtn.style.background = '#4fd8ff';
     pauseBtn.style.color = '#000';
@@ -400,183 +329,147 @@ function updatePauseButtonUI() {
 }
 
 export function pauseTimer() {
-  const id = currentTimerId;
-  const t = timers[id];
-  if (t.interval) {
-    clearInterval(t.interval);
-    t.interval = null;
-  }
-  t.isPaused = true;
+  if (timerState.isPaused) return;
 
-  if (id === currentTimerId) {
-    updatePauseButtonUI();
+  if (timerState.interval) {
+    clearInterval(timerState.interval);
+    timerState.interval = null;
   }
+  timerState.isPaused = true;
+
+  updatePauseButtonUI();
 
   if (window.socket) {
-    window.socket.emit('timer-pause', { id });
+    window.socket.emit('timer-pause', { id: 1 });
   }
 }
 
-function syncPauseTimer(id) {
-  const t = timers[id];
-  if (t.interval) {
-    clearInterval(t.interval);
-    t.interval = null;
+function syncPauseTimer() {
+  if (timerState.interval) {
+    clearInterval(timerState.interval);
+    timerState.interval = null;
   }
-  t.isPaused = true;
-
-  if (id === currentTimerId) {
-    updatePauseButtonUI();
-  }
+  timerState.isPaused = true;
+  updatePauseButtonUI();
 }
 
 export function resumeTimer() {
-  const id = currentTimerId;
-  const t = timers[id];
-  t.isPaused = false;
+  if (!timerState.isPaused || timerState.remaining <= 0) return;
 
-  if (id === currentTimerId) {
-    updatePauseButtonUI();
-  }
+  timerState.isPaused = false;
+  updatePauseButtonUI();
 
-  if (t.interval) clearInterval(t.interval);
-  t.interval = setInterval(() => tick(id), 1000);
+  if (timerState.interval) clearInterval(timerState.interval);
+  timerState.interval = setInterval(() => tick(), 1000);
 
   if (window.socket) {
-    window.socket.emit('timer-resume', { id });
+    window.socket.emit('timer-resume', { id: 1 });
   }
 }
 
-function syncResumeTimer(id) {
-  const t = timers[id];
-  t.isPaused = false;
+function syncResumeTimer() {
+  timerState.isPaused = false;
+  updatePauseButtonUI();
 
-  if (id === currentTimerId) {
-    updatePauseButtonUI();
-  }
-
-  if (t.interval) clearInterval(t.interval);
-  t.interval = setInterval(() => tick(id), 1000);
+  if (timerState.interval) clearInterval(timerState.interval);
+  timerState.interval = setInterval(() => tick(), 1000);
 }
 
 export function cancelTimer() {
-  const id = currentTimerId;
-  const t = timers[id];
-  stopAlarm(id);
+  stopAlarm();
 
-  if (t.interval) {
-    clearInterval(t.interval);
-    t.interval = null;
+  if (timerState.interval) {
+    clearInterval(timerState.interval);
+    timerState.interval = null;
   }
-  t.duration = 0;
-  t.remaining = 0;
-  t.isPaused = false;
+  timerState.duration = 0;
+  timerState.remaining = 0;
+  timerState.isPaused = false;
 
-  if (id === currentTimerId) {
+  if (activeContainer) {
     activeContainer.classList.remove('low-time');
-    setupContainer.style.display = 'flex';
     activeContainer.style.display = 'none';
-    updatePauseButtonUI();
-
-    // Räder zurückstellen
-    if (drumHH && drumMM && drumSS) {
-      setDrumValue(drumHH, targetHH, false);
-      setDrumValue(drumMM, targetMM, false);
-      setDrumValue(drumSS, targetSS, false);
-    }
   }
+  if (setupContainer) {
+    setupContainer.style.display = 'flex';
+  }
+  updatePauseButtonUI();
 
-  updateTabIndicators();
+  // Räder zurückstellen
+  if (drumHH && drumMM && drumSS) {
+    setDrumValue(drumHH, timerState.targetHH, false);
+    setDrumValue(drumMM, timerState.targetMM, false);
+    setDrumValue(drumSS, timerState.targetSS, false);
+  }
 
   if (window.socket) {
-    window.socket.emit('timer-cancel', { id });
+    window.socket.emit('timer-cancel', { id: 1 });
   }
 }
 
-function syncCancelTimer(id) {
-  const t = timers[id];
-  stopAlarm(id);
+function syncCancelTimer() {
+  stopAlarm();
 
-  if (t.interval) {
-    clearInterval(t.interval);
-    t.interval = null;
+  if (timerState.interval) {
+    clearInterval(timerState.interval);
+    timerState.interval = null;
   }
-  t.duration = 0;
-  t.remaining = 0;
-  t.isPaused = false;
+  timerState.duration = 0;
+  timerState.remaining = 0;
+  timerState.isPaused = false;
 
-  if (id === currentTimerId) {
+  if (activeContainer) {
     activeContainer.classList.remove('low-time');
-    setupContainer.style.display = 'flex';
     activeContainer.style.display = 'none';
-    updatePauseButtonUI();
-
-    if (drumHH && drumMM && drumSS) {
-      setDrumValue(drumHH, targetHH, false);
-      setDrumValue(drumMM, targetMM, false);
-      setDrumValue(drumSS, targetSS, false);
-    }
   }
+  if (setupContainer) {
+    setupContainer.style.display = 'flex';
+  }
+  updatePauseButtonUI();
 
-  updateTabIndicators();
+  if (drumHH && drumMM && drumSS) {
+    setDrumValue(drumHH, timerState.targetHH, false);
+    setDrumValue(drumMM, timerState.targetMM, false);
+    setDrumValue(drumSS, timerState.targetSS, false);
+  }
 }
 
-function triggerAlarm(id) {
-  const t = timers[id];
-  if (t.interval) {
-    clearInterval(t.interval);
-    t.interval = null;
-  }
-
-  // Bei Alarm automatisch auf den ablaufenden Timer umschalten!
-  if (id !== currentTimerId) {
-    switchTimerTab(id);
+function triggerAlarm() {
+  if (timerState.interval) {
+    clearInterval(timerState.interval);
+    timerState.interval = null;
   }
 
   if (countdownText) {
     countdownText.textContent = "ALARM!";
   }
-  activeContainer.classList.add('low-time');
+  if (activeContainer) {
+    activeContainer.classList.add('low-time');
+  }
   updatePauseButtonUI();
 
   const soundType = localStorage.getItem('timer_alarm_sound') || 'sound-gong';
   playSound(soundType);
 
-  if (t.alarmInterval) clearInterval(t.alarmInterval);
-  t.alarmInterval = setInterval(() => {
+  if (timerState.alarmInterval) clearInterval(timerState.alarmInterval);
+  timerState.alarmInterval = setInterval(() => {
     playSound(soundType);
   }, 2500);
 }
 
-function stopAlarm(id) {
-  const t = timers[id];
-  if (t.alarmInterval) {
-    clearInterval(t.alarmInterval);
-    t.alarmInterval = null;
+function stopAlarm() {
+  if (timerState.alarmInterval) {
+    clearInterval(timerState.alarmInterval);
+    timerState.alarmInterval = null;
   }
 }
 
-function updateTabIndicators() {
-  [1, 2].forEach(id => {
-    const t = timers[id];
-    const dot = document.getElementById(`timerTabIndicator${id}`);
-    if (dot) {
-      if (t.duration > 0 || t.alarmInterval !== null) {
-        dot.style.display = 'inline-block';
-      } else {
-        dot.style.display = 'none';
-      }
-    }
-  });
-}
-
 export function getTimerStatus() {
-  const t = timers[currentTimerId];
   return {
-    active: t.interval !== null || t.alarmInterval !== null,
-    remaining: t.remaining,
-    duration: t.duration,
-    isPaused: t.isPaused,
-    isAlarm: t.alarmInterval !== null
+    active: timerState.interval !== null || timerState.alarmInterval !== null,
+    remaining: timerState.remaining,
+    duration: timerState.duration,
+    isPaused: timerState.isPaused,
+    isAlarm: timerState.alarmInterval !== null
   };
 }
