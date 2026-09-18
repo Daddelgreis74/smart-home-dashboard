@@ -9,6 +9,66 @@ const router = express.Router();
 let weatherCache = null;
 let weatherCacheTime = 0;
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 Minuten
+const DEFAULT_LAT = 52.52;
+const DEFAULT_LON = 13.41;
+
+// Regex-Muster deutscher Bundeslaender fuer Geocoding-Filter
+const GERMAN_STATE_PATTERNS = {
+  'th': /thüringen|thuringia/i,
+  'thür': /thüringen|thuringia/i,
+  'thüringen': /thüringen|thuringia/i,
+  'by': /bayern|bavaria/i,
+  'bay': /bayern|bavaria/i,
+  'bayern': /bayern|bavaria/i,
+  'nrw': /nordrhein-westfalen|north rhine/i,
+  'nw': /nordrhein-westfalen|north rhine/i,
+  'nordrhein-westfalen': /nordrhein-westfalen|north rhine/i,
+  'sn': /sachsen|saxony/i,
+  'sachs': /sachsen|saxony/i,
+  'sachsen': /sachsen|saxony/i,
+  'he': /hessen|hesse/i,
+  'hessen': /hessen|hesse/i,
+  'bw': /baden-württemberg|baden/i,
+  'baden-württemberg': /baden-württemberg|baden/i,
+  'rp': /rheinland-pfalz|rhineland/i,
+  'rlp': /rheinland-pfalz|rhineland/i,
+  'rheinland-pfalz': /rheinland-pfalz|rhineland/i,
+  'sl': /saarland/i,
+  'saarland': /saarland/i,
+  'sh': /schleswig-holstein|schleswig/i,
+  'schleswig-holstein': /schleswig-holstein|schleswig/i,
+  'mv': /mecklenburg-vorpommern|mecklenburg/i,
+  'mvp': /mecklenburg-vorpommern|mecklenburg/i,
+  'mecklenburg-vorpommern': /mecklenburg-vorpommern|mecklenburg/i,
+  'hh': /hamburg/i,
+  'hamburg': /hamburg/i,
+  'hb': /bremen/i,
+  'bremen': /bremen/i,
+  'be': /berlin/i,
+  'berlin': /berlin/i,
+  'bb': /brandenburg/i,
+  'brandenburg': /brandenburg/i,
+  'st': /sachsen-anhalt|saxony-anhalt/i,
+  'sachsen-anhalt': /sachsen-anhalt|saxony-anhalt/i,
+  'ni': /niedersachsen|lower saxony/i,
+  'niedersachsen': /niedersachsen|lower saxony/i
+};
+
+function parseLocationWithState(rawLocation) {
+  let location = String(rawLocation || '').trim();
+  let targetState = null;
+  const words = location.split(/\s+/);
+  if (words.length > 1) {
+    const lastWord = words[words.length - 1].toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, '');
+    if (GERMAN_STATE_PATTERNS[lastWord]) {
+      targetState = GERMAN_STATE_PATTERNS[lastWord];
+      words.pop();
+      location = words.join(' ');
+      console.log(`[Weather Test] State-Filter erkannt: ${lastWord}, Suche nach: "${location}"`);
+    }
+  }
+  return { location, targetState };
+}
 
 function loadConfig() {
   try {
@@ -87,7 +147,7 @@ router.get('/', async (req, res) => {
       }
     } catch (e) {
       console.warn('[Weather Warning] Geocoding fehlgeschlagen, nutze Fallback-Koordinaten:', e.message);
-      if (!lat) { lat = 52.52; lon = 13.41; } // Fallback Berlin
+      if (!lat) { lat = DEFAULT_LAT; lon = DEFAULT_LON; }
     }
   } else if (provider === 'openmeteo') {
     locName = cachedLoc || locName;
@@ -146,7 +206,7 @@ router.get('/', async (req, res) => {
   if (!success) {
     try {
       console.log(`[Weather] Lade Daten von Open-Meteo für "${locName}" (lat=${lat}, lon=${lon})...`);
-      if (!lat) { lat = 52.52; lon = 13.41; }
+      if (!lat) { lat = DEFAULT_LAT; lon = DEFAULT_LON; }
       const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
         `&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_gusts_10m,precipitation,rain,pressure_msl,cloud_cover` +
         `&daily=temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_probability_max,sunrise,sunset` +
@@ -187,103 +247,46 @@ router.post('/clear-cache', (req, res) => {
 });
 
 router.post('/test', async (req, res) => {
-  let { location } = req.body;
-  if (!location) {
+  const rawLocation = req.body?.location;
+  if (!rawLocation) {
     return res.status(400).json({ success: false, error: 'Ort fehlt' });
   }
 
-  location = String(location).trim();
-
-
-  // 2. Clean up German state abbreviations and names to avoid geocoding issues
-  let targetState = null;
-  const words = location.split(/\s+/);
-  if (words.length > 1) {
-    const lastWord = words[words.length - 1].toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
-    
-    // Map of German state abbreviations to regexes or names
-    const STATE_RESOLVER = {
-      'th': /thüringen|thuringia/i,
-      'thür': /thüringen|thuringia/i,
-      'thüringen': /thüringen|thuringia/i,
-      'by': /bayern|bavaria/i,
-      'bay': /bayern|bavaria/i,
-      'bayern': /bayern|bavaria/i,
-      'nrw': /nordrhein-westfalen|north rhine/i,
-      'nw': /nordrhein-westfalen|north rhine/i,
-      'nordrhein-westfalen': /nordrhein-westfalen|north rhine/i,
-      'sn': /sachsen|saxony/i,
-      'sachs': /sachsen|saxony/i,
-      'sachsen': /sachsen|saxony/i,
-      'he': /hessen|hesse/i,
-      'hessen': /hessen|hesse/i,
-      'bw': /baden-württemberg|baden/i,
-      'baden-württemberg': /baden-württemberg|baden/i,
-      'rp': /rheinland-pfalz|rhineland/i,
-      'rlp': /rheinland-pfalz|rhineland/i,
-      'rheinland-pfalz': /rheinland-pfalz|rhineland/i,
-      'sl': /saarland/i,
-      'saarland': /saarland/i,
-      'sh': /schleswig-holstein|schleswig/i,
-      'schleswig-holstein': /schleswig-holstein|schleswig/i,
-      'mv': /mecklenburg-vorpommern|mecklenburg/i,
-      'mvp': /mecklenburg-vorpommern|mecklenburg/i,
-      'mecklenburg-vorpommern': /mecklenburg-vorpommern|mecklenburg/i,
-      'hh': /hamburg/i,
-      'hamburg': /hamburg/i,
-      'hb': /bremen/i,
-      'bremen': /bremen/i,
-      'be': /berlin/i,
-      'berlin': /berlin/i,
-      'bb': /brandenburg/i,
-      'brandenburg': /brandenburg/i,
-      'st': /sachsen-anhalt|saxony-anhalt/i,
-      'sachsen-anhalt': /sachsen-anhalt|saxony-anhalt/i,
-      'ni': /niedersachsen|lower saxony/i,
-      'niedersachsen': /niedersachsen|lower saxony/i
-    };
-
-    if (STATE_RESOLVER[lastWord]) {
-      targetState = STATE_RESOLVER[lastWord];
-      words.pop();
-      location = words.join(' ');
-      console.log(`[Weather Test] State-Filter erkannt: ${lastWord}, Suche nach: "${location}"`);
-    }
-  }
+  const { location, targetState } = parseLocationWithState(rawLocation);
 
   try {
     const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(location)}&count=10&language=de&format=json`;
     const geoRes = await fetchJson(geoUrl);
-    if (geoRes.results && geoRes.results.length > 0) {
-      let result = geoRes.results[0]; // Default to first
-
-      // If we have a target state filter, find the matching result
-      if (targetState) {
-        const matched = geoRes.results.find(res => 
-          (res.admin1 && targetState.test(res.admin1)) || 
-          (res.admin2 && targetState.test(res.admin2)) ||
-          (res.admin3 && targetState.test(res.admin3)) ||
-          (res.admin4 && targetState.test(res.admin4))
-        );
-        if (matched) {
-          result = matched;
-          console.log(`[Weather Test] Passenden Ort für State-Filter gefunden: "${result.name}" (${result.admin1}, ${result.country})`);
-        } else {
-          console.log(`[Weather Test] Kein genauer Treffer für State-Filter, nehme ersten Eintrag: "${result.name}" (${result.admin1}, ${result.country})`);
-        }
-      }
-
-      return res.json({
-        success: true,
-        resolvedLocation: result.name,
-        country: result.country || '',
-        admin1: result.admin1 || '',
-        lat: result.latitude,
-        lon: result.longitude
-      });
-    } else {
+    
+    if (!geoRes?.results || geoRes.results.length === 0) {
       return res.json({ success: false, error: 'Ort konnte nicht gefunden werden' });
     }
+
+    let result = geoRes.results[0]; // Default to first
+
+    if (targetState) {
+      const matched = geoRes.results.find(r => 
+        (r.admin1 && targetState.test(r.admin1)) || 
+        (r.admin2 && targetState.test(r.admin2)) ||
+        (r.admin3 && targetState.test(r.admin3)) ||
+        (r.admin4 && targetState.test(r.admin4))
+      );
+      if (matched) {
+        result = matched;
+        console.log(`[Weather Test] Passenden Ort für State-Filter gefunden: "${result.name}" (${result.admin1}, ${result.country})`);
+      } else {
+        console.log(`[Weather Test] Kein genauer Treffer für State-Filter, nehme ersten Eintrag: "${result.name}" (${result.admin1}, ${result.country})`);
+      }
+    }
+
+    return res.json({
+      success: true,
+      resolvedLocation: result.name,
+      country: result.country || '',
+      admin1: result.admin1 || '',
+      lat: result.latitude,
+      lon: result.longitude
+    });
   } catch (err) {
     console.error('[Weather Test Error]', err.message);
     return res.status(500).json({ success: false, error: err.message });
