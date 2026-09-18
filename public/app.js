@@ -15,6 +15,12 @@ import { initTimer } from './js/modules/timer.js';
 const socket = io();
 window.socket = socket;
 
+const WIDGET_TYPES = [
+  'weather', 'sensor', 'waste', 'calendar', 'player', 
+  'system', 'tasmota', 'fritzbox', 'presence', 'camera', 
+  'jarvis', 'timer'
+];
+
 document.addEventListener('DOMContentLoaded', async () => {
   // Globaler Audio-Unlock bei der ersten Benutzerinteraktion (verhindert stummen/blockierten AudioContext)
   const unlockAudio = () => {
@@ -51,19 +57,30 @@ function init() {
   loadICS();
   setInterval(loadICS, 60 * 60 * 1000); // Automatisches Hintergrund-Abfallkalender-Update jede Stunde
   
-  initRadioWidget(socket);
-  initFritzRadioPopup();
-  initRadioWakeGuards();
-  initSensorWidget();
-  initSystemBargraph(socket);
-  initTasmota();
-  initFritzbox(socket);
-  initPresence(socket);
-  initCameraWidget(socket);
-  initJarvis();
-  initCalendar(socket);
+  // Module isoliert initialisieren, damit ein einzelner Widget-Fehler nicht das gesamte Dashboard blockiert
+  const initializers = [
+    () => initRadioWidget(socket),
+    () => initFritzRadioPopup(),
+    () => initRadioWakeGuards(),
+    () => initSensorWidget(),
+    () => initSystemBargraph(socket),
+    () => initTasmota(),
+    () => initFritzbox(socket),
+    () => initPresence(socket),
+    () => initCameraWidget(socket),
+    () => initJarvis(),
+    () => initCalendar(socket)
+  ];
 
-  // Version Badge – lädt die aktuelle Version vom Server und zeigt sie im Header an
+  initializers.forEach(fn => {
+    try {
+      fn();
+    } catch (err) {
+      console.error('[Dashboard Module Init Error]', err);
+    }
+  });
+
+  // Version Badge – laedt die aktuelle Version vom Server und zeigt sie im Header an
   fetch('/api/version')
     .then(r => r.json())
     .then(({ version }) => {
@@ -91,7 +108,7 @@ function init() {
 
 function initSortable() {
   const dashboard = document.getElementById('dashboard');
-  if(!window.Sortable) return;
+  if (!window.Sortable || !dashboard) return;
   
   Sortable.create(dashboard, {
     handle: '.drag-handle', // Drag handle is the 3 dots
@@ -172,15 +189,15 @@ function loadSavedSettings() {
   // Initiiere Sensor-Einstellungen
   renderSensorSettings();
 
-  ['weather', 'sensor', 'waste', 'calendar', 'player', 'system', 'tasmota', 'fritzbox', 'presence', 'camera', 'jarvis', 'timer'].forEach(type => {
+  WIDGET_TYPES.forEach(type => {
     const isVisible = localStorage.getItem('show_' + type) !== 'false';
     const widget = document.querySelector(`.widget[data-type="${type}"]`);
     const toggle = document.getElementById('toggle-' + type);
     
     if (toggle) toggle.checked = isVisible;
     if (widget) {
-      if (isVisible) { widget.classList.remove('hidden'); widget.style.display = ''; }
-      else { widget.classList.add('hidden'); widget.style.display = 'none'; }
+      widget.classList.toggle('hidden', !isVisible);
+      widget.style.display = isVisible ? '' : 'none';
     }
   });
   updateSettingsSidebarVisibility();
@@ -387,20 +404,20 @@ function initSettings() {
     });
   }
 
-  ['weather', 'sensor', 'waste', 'calendar', 'player', 'system', 'tasmota', 'fritzbox', 'presence', 'camera', 'jarvis', 'timer'].forEach(type => {
+  WIDGET_TYPES.forEach(type => {
     const toggle = document.getElementById('toggle-' + type);
-    if(toggle) {
-      toggle.addEventListener('change', (e) => {
-        const isVisible = e.target.checked;
-        localStorage.setItem('show_' + type, isVisible);
-        const widget = document.querySelector(`.widget[data-type="${type}"]`);
-        if(widget) {
-          if(isVisible){ widget.classList.remove('hidden'); widget.style.display = ''; }
-          else { widget.classList.add('hidden'); widget.style.display = 'none'; }
-        }
-        updateSettingsSidebarVisibility();
-      });
-    }
+    if (!toggle) return;
+
+    toggle.addEventListener('change', (e) => {
+      const isVisible = e.target.checked;
+      localStorage.setItem('show_' + type, isVisible);
+      const widget = document.querySelector(`.widget[data-type="${type}"]`);
+      if (widget) {
+        widget.classList.toggle('hidden', !isVisible);
+        widget.style.display = isVisible ? '' : 'none';
+      }
+      updateSettingsSidebarVisibility();
+    });
   });
 
   const settingsSearch = document.getElementById('settingsSearch');
