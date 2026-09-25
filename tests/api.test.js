@@ -288,6 +288,71 @@ describe('API Endpoints Tests', () => {
     expect(res6.body.error).toContain('PTZ-Host muss eine private/lokale Adresse sein');
   });
 
+  describe('Note API Tests (/api/note)', () => {
+    test('GET /api/note returns null note initially or if no file exists', async () => {
+      const res = await request(app)
+        .get('/api/note')
+        .expect(200);
+
+      expect(res.body.success).toBe(true);
+      expect(res.body.note).toBeNull();
+    });
+
+    test('POST /api/note fails if image is missing', async () => {
+      const res = await request(app)
+        .post('/api/note')
+        .send({})
+        .expect(400);
+
+      expect(res.body.success).toBe(false);
+      expect(res.body.error).toContain('Keine Bilddaten uebergeben');
+    });
+
+    test('POST /api/note successfully saves note drawing', async () => {
+      const samplePayload = {
+        image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+        lines: [[{ x: 10, y: 10 }, { x: 20, y: 20 }]],
+        color: '#fef08a'
+      };
+
+      const res = await request(app)
+        .post('/api/note')
+        .send(samplePayload)
+        .expect(200);
+
+      expect(res.body.success).toBe(true);
+      expect(res.body.note.image).toBe(samplePayload.image);
+      expect(res.body.note.lines).toHaveLength(1);
+    });
+
+    test('GET /api/note returns previously saved note', async () => {
+      const res = await request(app)
+        .get('/api/note')
+        .expect(200);
+
+      expect(res.body.success).toBe(true);
+      expect(res.body.note).toBeDefined();
+      expect(res.body.note.color).toBe('#fef08a');
+      expect(res.body.note.lines).toHaveLength(1);
+    });
+
+    test('DELETE /api/note clears note content', async () => {
+      const res = await request(app)
+        .delete('/api/note')
+        .expect(200);
+
+      expect(res.body.success).toBe(true);
+
+      const checkRes = await request(app)
+        .get('/api/note')
+        .expect(200);
+
+      expect(checkRes.body.success).toBe(true);
+      expect(checkRes.body.note.image).toBe('');
+      expect(checkRes.body.note.lines).toHaveLength(0);
+    });
+  });
+
   afterAll(() => {
     try {
       fs.rmSync(testDataDir, { recursive: true, force: true });

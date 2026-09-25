@@ -11,6 +11,7 @@ import { initPresence } from './js/modules/presence.js';
 import { initCameraWidget } from './js/modules/cameras.js';
 import { initJarvis } from './js/modules/jarvis.js';
 import { initTimer } from './js/modules/timer.js';
+import { initNote } from './js/modules/note.js';
 // Global Socket.io instance
 const socket = io();
 window.socket = socket;
@@ -18,7 +19,7 @@ window.socket = socket;
 const WIDGET_TYPES = [
   'weather', 'sensor', 'waste', 'calendar', 'player', 
   'system', 'tasmota', 'fritzbox', 'presence', 'camera', 
-  'jarvis', 'timer'
+  'jarvis', 'timer', 'note'
 ];
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -69,7 +70,8 @@ function init() {
     () => initPresence(socket),
     () => initCameraWidget(socket),
     () => initJarvis(),
-    () => initCalendar(socket)
+    () => initCalendar(socket),
+    () => initNote(socket)
   ];
 
   initializers.forEach(fn => {

@@ -16,6 +16,7 @@ const CONFIG_FILE = path.join(DATA_DIR, 'config.json');
 const FRITZ_FILE = path.join(DATA_DIR, 'fritzbox.json');
 const CALLS_LOG_FILE = path.join(DATA_DIR, 'fritzbox_calls.json');
 const PRESENCE_FILE = path.join(DATA_DIR, 'presence.json');
+const NOTE_FILE = path.join(DATA_DIR, 'sticky_note.json');
 
 const sslKeyPath = path.join(SSL_DIR, 'key.pem');
 const sslCertPath = path.join(SSL_DIR, 'cert.pem');
@@ -40,6 +41,7 @@ module.exports = {
   FRITZ_FILE,
   CALLS_LOG_FILE,
   PRESENCE_FILE,
+  NOTE_FILE,
   sslKeyPath,
   sslCertPath,
   autoSSL

@@ -68,7 +68,7 @@ const compression = require('compression');
 app.use(compression());
 app.use(express.static('public'));
 app.use('/uploads', express.static(UPLOAD_DIR));
-app.use(express.json({ limit: '256kb' }));
+app.use(express.json({ limit: '5mb' }));
 
 // 4. HTTP oder HTTPS Server erstellen
 const server = useSSL ? https.createServer(sslOptions, app) : http.createServer(app);
@@ -89,6 +89,7 @@ app.use('/api/weather', require('./src/routes/weather'));
 app.use('/api/search', require('./src/routes/search'));
 app.use('/api/elevenlabs', require('./src/routes/tts'));
 app.use('/api/jarvis', require('./src/routes/jarvis'));
+app.use('/api/note', require('./src/routes/note'));
 
 // Version endpoint – serves current app version from package.json
 app.get('/api/version', (req, res) => {

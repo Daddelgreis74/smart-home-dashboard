@@ -178,7 +178,12 @@ const translations = {
     "timer_preset_tea": "🫖 Tee (3m)",
     "timer_preset_egg": "🥚 Ei (5m)",
     "timer_preset_pasta": "🍝 Pasta (10m)",
-    "timer_preset_pizza": "🍕 Pizza (15m)"
+    "timer_preset_pizza": "🍕 Pizza (15m)",
+    "widget_title_note": "Notizzettel",
+    "toggle_layout_note": "Notizzettel",
+    "note_modal_title": "Notizzettel",
+    "note_tap_to_write": "Tippen zum Schreiben",
+    "note_done": "Fertig"
   },
   en: {
     // Header
@@ -359,7 +364,12 @@ const translations = {
     "timer_preset_tea": "🫖 Tea (3m)",
     "timer_preset_egg": "🥚 Egg (5m)",
     "timer_preset_pasta": "🍝 Pasta (10m)",
-    "timer_preset_pizza": "🍕 Pizza (15m)"
+    "timer_preset_pizza": "🍕 Pizza (15m)",
+    "widget_title_note": "Sticky Note",
+    "toggle_layout_note": "Sticky Note",
+    "note_modal_title": "Sticky Note",
+    "note_tap_to_write": "Tap to write",
+    "note_done": "Done"
   },
   fr: {
     // Header

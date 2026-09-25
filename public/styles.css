@@ -5350,3 +5350,321 @@ body.theme-jarvis .ptz-controls-overlay {
   box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
 }
 
+/* ==========================================================================
+   POST-IT / NOTIZZETTEL WIDGET & ZOOM-MODAL
+   ========================================================================== */
+
+/* 1. Dashboard Widget */
+.widget[data-type="note"] {
+  cursor: pointer;
+  user-select: none;
+}
+
+.note-widget-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.note-paper-preview {
+  position: relative;
+  flex: 1;
+  min-height: 140px;
+  background: linear-gradient(135deg, #fef9c3 0%, #fef08a 60%, #fde047 100%);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.15), inset 0 -2px 6px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  overflow: hidden;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.note-paper-preview::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 18px;
+  background: linear-gradient(180deg, rgba(234, 179, 8, 0.2) 0%, rgba(234, 179, 8, 0) 100%);
+  pointer-events: none;
+}
+
+.widget[data-type="note"]:hover .note-paper-preview {
+  transform: translateY(-2px) rotate(-0.5deg);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.note-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.note-empty-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #854d0e;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.note-empty-placeholder i {
+  font-size: 24px;
+  opacity: 0.85;
+}
+
+.note-hover-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(133, 77, 14, 0.15);
+  color: #713f12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.widget[data-type="note"]:hover .note-hover-badge {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+/* 2. Zoom Modal Overlay */
+.note-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(10, 15, 26, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease-out;
+}
+
+.note-modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.note-modal-card {
+  width: 94vw;
+  max-width: 960px;
+  height: 84vh;
+  max-height: 720px;
+  background: #fef08a;
+  border-radius: 12px;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(234, 179, 8, 0.4);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: scale(0.65);
+  opacity: 0;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease-out;
+}
+
+.note-modal-card.zoomed-in {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* 3. Modal Header Toolbar */
+.note-modal-header {
+  background: #fde047;
+  border-bottom: 1px solid rgba(202, 138, 4, 0.35);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  user-select: none;
+}
+
+.note-modal-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #713f12;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.note-modal-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.note-tool-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(254, 240, 138, 0.65);
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(202, 138, 4, 0.25);
+}
+
+/* Farb-Buttons */
+.note-color-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--c);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.note-color-btn:active {
+  transform: scale(0.9);
+}
+
+.note-color-btn.active {
+  transform: scale(1.18);
+  box-shadow: 0 0 0 2px #713f12, 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.note-color-btn.highlighter {
+  position: relative;
+  background: #facc15;
+}
+
+.note-color-btn.highlighter::after {
+  content: "T";
+  font-size: 10px;
+  font-weight: 800;
+  color: #713f12;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Größen-Buttons */
+.note-size-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.note-size-btn.active {
+  background: rgba(113, 63, 18, 0.15);
+  border-color: rgba(113, 63, 18, 0.3);
+}
+
+.size-dot {
+  background: #1e293b;
+  border-radius: 50%;
+  display: block;
+}
+
+.size-dot.dot-sm { width: 5px; height: 5px; }
+.size-dot.dot-md { width: 9px; height: 9px; }
+.size-dot.dot-lg { width: 14px; height: 14px; }
+
+/* Werkzeug-Buttons (Radierer, Undo, Clear) */
+.note-tool-btn {
+  min-width: 34px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #713f12;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.note-tool-btn:hover {
+  background: rgba(113, 63, 18, 0.1);
+}
+
+.note-tool-btn:active {
+  transform: scale(0.92);
+}
+
+.note-tool-btn.active {
+  background: #dc2626;
+  color: #fff;
+  border-color: #b91c1c;
+}
+
+/* Fertig / Schließen Button */
+.note-close-btn {
+  background: #16a34a !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 6px 16px !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(22, 163, 74, 0.3) !important;
+}
+
+.note-close-btn:hover {
+  background: #15803d !important;
+}
+
+/* 4. Canvas Zeichenfläche */
+.note-canvas-wrapper {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  background: #fef08a;
+  overflow: hidden;
+  cursor: crosshair;
+}
+
+#noteCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+

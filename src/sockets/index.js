@@ -77,6 +77,15 @@ function initSockets(io) {
       socket.broadcast.emit('timer-cancelled', { id });
     });
 
+    // Sticky Note Live-Sync
+    socket.on('note-update', (data) => {
+      socket.broadcast.emit('note-updated', data);
+    });
+
+    socket.on('note-clear', () => {
+      socket.broadcast.emit('note-cleared');
+    });
+
     socket.emit('fritz-calls', getMergedCalls());
     socket.emit('presence-list-updated', fileStore.presenceRAM);
     socket.emit('cameras-updated', fileStore.camerasRAM);

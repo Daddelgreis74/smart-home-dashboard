@@ -142,6 +142,7 @@
                   <label class="toggle-label"><span data-i18n="toggle_layout_calendar">Terminkalender</span><input type="checkbox" id="toggle-calendar" checked><div class="toggle-switch"></div></label>
                   <label class="toggle-label"><span data-i18n="toggle_layout_jarvis">J.A.R.V.I.S. KI-Assistent</span><input type="checkbox" id="toggle-jarvis" checked><div class="toggle-switch"></div></label>
                   <label class="toggle-label"><span data-i18n="toggle_layout_timer">Timer</span><input type="checkbox" id="toggle-timer" checked><div class="toggle-switch"></div></label>
+                  <label class="toggle-label"><span data-i18n="toggle_layout_note">Notizzettel</span><input type="checkbox" id="toggle-note" checked><div class="toggle-switch"></div></label>
                 </div>
               </div>
 
@@ -927,6 +928,24 @@
         </div>
       </div>
 
+      <!-- WIDGET 13: NOTIZZETTEL (POST-IT) -->
+      <div class="widget" data-type="note">
+        <div class="widget-header">
+          <h3><i class="fas fa-sticky-note" style="color: #facc15;"></i> <span data-i18n="widget_title_note">Notizzettel</span></h3>
+          <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
+        </div>
+        <div class="widget-body note-widget-body" id="noteWidgetCard">
+          <div class="note-paper-preview" id="notePaperPreview">
+            <canvas id="noteThumbnailCanvas" class="note-thumbnail"></canvas>
+            <div class="note-empty-placeholder" id="noteEmptyPlaceholder">
+              <i class="fas fa-pen-nib"></i>
+              <span data-i18n="note_tap_to_write">Tippen zum Schreiben</span>
+            </div>
+            <div class="note-hover-badge"><i class="fas fa-expand-alt"></i></div>
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
   <!-- Live Fritz!Box Call Toast Overlay -->
@@ -1075,6 +1094,54 @@
         <button id="reminderCloseBtn" class="btn" style="background: rgba(255,255,255,0.08); border: 1px solid var(--panel-border); color: var(--text-main); font-weight: 500; padding: 12px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'" data-i18n="reminder_btn_close">
           Schließen
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTE DRAWING MODAL (ZOOM POPUP) -->
+  <div class="note-modal-overlay" id="noteModalOverlay" hidden>
+    <div class="note-modal-card" id="noteModalCard">
+      <!-- Modal Header mit Toolbar -->
+      <div class="note-modal-header">
+        <div class="note-modal-title">
+          <i class="fas fa-sticky-note" style="color: #eab308;"></i>
+          <span data-i18n="note_modal_title">Notizzettel</span>
+        </div>
+
+        <div class="note-modal-tools">
+          <!-- Farben -->
+          <div class="note-tool-group note-color-group">
+            <button type="button" class="note-color-btn active" data-color="#1e293b" title="Schwarz" style="--c: #1e293b;"></button>
+            <button type="button" class="note-color-btn" data-color="#2563eb" title="Blau" style="--c: #2563eb;"></button>
+            <button type="button" class="note-color-btn" data-color="#dc2626" title="Rot" style="--c: #dc2626;"></button>
+            <button type="button" class="note-color-btn" data-color="#16a34a" title="Grün" style="--c: #16a34a;"></button>
+            <button type="button" class="note-color-btn highlighter" data-color="rgba(250, 204, 21, 0.45)" title="Textmarker Gelb" style="--c: #facc15;"></button>
+          </div>
+
+          <!-- Stiftgrößen -->
+          <div class="note-tool-group note-size-group">
+            <button type="button" class="note-size-btn active" data-size="3" title="Fein"><span class="size-dot dot-sm"></span></button>
+            <button type="button" class="note-size-btn" data-size="6" title="Mittel"><span class="size-dot dot-md"></span></button>
+            <button type="button" class="note-size-btn" data-size="12" title="Dick"><span class="size-dot dot-lg"></span></button>
+          </div>
+
+          <!-- Werkzeuge -->
+          <div class="note-tool-group note-action-group">
+            <button type="button" class="note-tool-btn" id="noteEraserBtn" title="Radierer"><i class="fas fa-eraser"></i></button>
+            <button type="button" class="note-tool-btn" id="noteUndoBtn" title="Rückgängig"><i class="fas fa-undo"></i></button>
+            <button type="button" class="note-tool-btn" id="noteClearBtn" title="Alles löschen"><i class="fas fa-trash-can"></i></button>
+          </div>
+
+          <!-- Schließen / Fertig -->
+          <button type="button" class="btn btn-primary note-close-btn" id="noteCloseBtn">
+            <i class="fas fa-check"></i> <span data-i18n="note_done">Fertig</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Zeichenfläche -->
+      <div class="note-canvas-wrapper" id="noteCanvasWrapper">
+        <canvas id="noteCanvas"></canvas>
       </div>
     </div>
   </div>
