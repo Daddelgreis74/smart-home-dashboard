@@ -57,7 +57,20 @@ export function initNote(socket) {
     if (thumbnailCanvas && thumbnailCanvas.dataset.lastImage) {
       renderImageToThumbnails(thumbnailCanvas.dataset.lastImage);
     }
+    if (modalOverlay && !modalOverlay.hasAttribute('hidden')) {
+      resizeNoteCanvas();
+    }
   });
+
+  const wrapper = document.getElementById('noteCanvasWrapper');
+  if (window.ResizeObserver && wrapper) {
+    const resizeObserver = new ResizeObserver(() => {
+      if (modalOverlay && !modalOverlay.hasAttribute('hidden')) {
+        resizeNoteCanvas();
+      }
+    });
+    resizeObserver.observe(wrapper);
+  }
 
   // Widget Klick -> Modal mit Zoom öffnen
   const noteWidget = document.querySelector('.widget[data-type="note"]');
@@ -209,10 +222,28 @@ function resizeNoteCanvas() {
   const wrapper = document.getElementById('noteCanvasWrapper');
   if (!wrapper) return;
 
-  const rect = wrapper.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
+  // clientWidth und clientHeight liefern die unskalierte Layout-Größe des Wrappers
+  let targetWidth = wrapper.clientWidth;
+  let targetHeight = wrapper.clientHeight;
 
-  // Sichern des bisherigen Inhalts bei Resize
+  if (!targetWidth || !targetHeight) {
+    const rect = wrapper.getBoundingClientRect();
+    targetWidth = Math.floor(rect.width);
+    targetHeight = Math.floor(rect.height);
+  }
+
+  if (targetWidth <= 0 || targetHeight <= 0) return;
+
+  const newBufferWidth = Math.round(targetWidth * dpr);
+  const newBufferHeight = Math.round(targetHeight * dpr);
+
+  // Wenn Größe unverändert ist, kein unnötiges Neu-Allokieren
+  if (noteCanvas.width === newBufferWidth && noteCanvas.height === newBufferHeight) {
+    return;
+  }
+
+  // Sichern des bisherigen Inhalts bei Größenänderung
   let tempCanvas = null;
   if (noteCanvas.width > 0 && noteCanvas.height > 0) {
     tempCanvas = document.createElement('canvas');
@@ -222,19 +253,18 @@ function resizeNoteCanvas() {
     tempCtx.drawImage(noteCanvas, 0, 0);
   }
 
-  const targetWidth = Math.floor(rect.width);
-  const targetHeight = Math.floor(rect.height);
+  noteCanvas.width = newBufferWidth;
+  noteCanvas.height = newBufferHeight;
 
-  noteCanvas.width = targetWidth * dpr;
-  noteCanvas.height = targetHeight * dpr;
-  noteCanvas.style.width = targetWidth + 'px';
-  noteCanvas.style.height = targetHeight + 'px';
-
+  // Wichtig: Kontext-Matrix sauber initialisieren und skalieren
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.scale(dpr, dpr);
 
-  // Wiederherstellen des Inhalts nach Resize
+  // Bisherigen Inhalt wieder einpassen
   if (tempCanvas) {
     ctx.drawImage(tempCanvas, 0, 0, targetWidth, targetHeight);
+  } else if (thumbnailCanvas && thumbnailCanvas.dataset.lastImage) {
+    renderImageToCanvas(thumbnailCanvas.dataset.lastImage, false);
   }
 }
 
@@ -331,9 +361,16 @@ function handlePointerCancel(e) {
 
 function getCanvasPos(e) {
   const rect = noteCanvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const logicalWidth = noteCanvas.width / dpr;
+  const logicalHeight = noteCanvas.height / dpr;
+
+  const scaleX = rect.width > 0 ? (logicalWidth / rect.width) : 1;
+  const scaleY = rect.height > 0 ? (logicalHeight / rect.height) : 1;
+
   return {
-    x: e.clientX - rect.left,
-    y: e.clientY - rect.top
+    x: Math.max(0, Math.min(logicalWidth, (e.clientX - rect.left) * scaleX)),
+    y: Math.max(0, Math.min(logicalHeight, (e.clientY - rect.top) * scaleY))
   };
 }
 
@@ -420,7 +457,15 @@ export function openNoteModal() {
   requestAnimationFrame(() => {
     modalOverlay.classList.add('open');
     modalCard.classList.add('zoomed-in');
+    
+    // Sofortige Layout-Berechnung
     resizeNoteCanvas();
+
+    // Nach Abschluss der CSS-Zoom-Animation (280ms) finale Messung & Resize
+    setTimeout(() => {
+      resizeNoteCanvas();
+    }, 320);
+
     // Nach Resize Bild bei Bedarf neu aufziehen
     if (thumbnailCanvas && thumbnailCanvas.dataset.lastImage) {
       renderImageToCanvas(thumbnailCanvas.dataset.lastImage, false);

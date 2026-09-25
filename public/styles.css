@@ -5479,10 +5479,10 @@ body.theme-jarvis .ptz-controls-overlay {
 }
 
 .note-modal-card {
-  width: 94vw;
-  max-width: 960px;
-  height: 84vh;
-  max-height: 720px;
+  width: 96vw;
+  max-width: 1040px;
+  height: 88vh;
+  max-height: 780px;
   background: #fef08a;
   border-radius: 12px;
   box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(234, 179, 8, 0.4);
@@ -5663,14 +5663,17 @@ body.theme-jarvis .ptz-controls-overlay {
   background: #fef08a;
   overflow: hidden;
   cursor: crosshair;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 #noteCanvas {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100% !important;
+  height: 100% !important;
   display: block;
   touch-action: none;
 }
