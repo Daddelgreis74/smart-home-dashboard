@@ -119,7 +119,7 @@ body {
 /* WICHTIG FÜR SORTABLE GHOST (Die Schattengrafik beim Dragen) */
 .sortable-ghost { opacity: 0.4; transform: scale(0.95); background: rgba(74, 222, 128, 0.1); border-color: var(--primary); }
 
-.widget[data-type="player"], .widget[data-type="weather"], .widget[data-type="sensor"], .widget[data-type="waste"], .widget[data-type="calendar"], .widget[data-type="system"], .widget[data-type="tasmota"] {
+.widget[data-type="player"], .widget[data-type="weather"], .widget[data-type="sensor"], .widget[data-type="waste"], .widget[data-type="calendar"], .widget[data-type="system"], .widget[data-type="tasmota"], .widget[data-type="timer"], .widget[data-type="note"] {
     grid-column: span 1;
     grid-row: span 1;
 }
@@ -921,7 +921,7 @@ body::before {
 .widget[data-type="tasmota"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="player"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="presence"] { grid-column: span 2; grid-row: span 1; }
-.widget[data-type="timer"] { grid-column: span 2; grid-row: span 1; }
+.widget[data-type="timer"], .widget[data-type="note"] { grid-column: span 2; grid-row: span 1; }
 
 .widget[data-type="tasmota"]::before {
   background:
@@ -1504,7 +1504,7 @@ body::before {
 .widget[data-type="tasmota"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="player"] { grid-column: span 2; grid-row: span 1; }
 .widget[data-type="presence"] { grid-column: span 2; grid-row: span 1; }
-.widget[data-type="timer"] { grid-column: span 2; grid-row: span 1; }
+.widget[data-type="timer"], .widget[data-type="note"] { grid-column: span 2; grid-row: span 1; }
 
 /* Weather details stay rich, but no longer dominate the whole dashboard. */
 .weather-details {
@@ -1533,7 +1533,7 @@ body::before {
   .widget[data-type="tasmota"] { grid-column: span 2; }
   .widget[data-type="player"] { grid-column: span 2; }
   .widget[data-type="presence"] { grid-column: span 2; }
-  .widget[data-type="timer"] { grid-column: span 2; }
+  .widget[data-type="timer"], .widget[data-type="note"] { grid-column: span 2; }
 }
 
 /* If Fully Kiosk reports a squatter viewport, compress contents but keep two rows. */
@@ -1549,6 +1549,7 @@ body::before {
   .widget[data-type="player"],
   .widget[data-type="presence"],
   .widget[data-type="timer"],
+  .widget[data-type="note"],
   .widget[data-type="tasmota"] { grid-column: span 2; }
   .weather-details {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1574,7 +1575,8 @@ body::before {
   .widget[data-type="system"],
   .widget[data-type="player"],
   .widget[data-type="presence"],
-  .widget[data-type="timer"] {
+  .widget[data-type="timer"],
+  .widget[data-type="note"] {
     grid-column: span 1;
     grid-row: span 1;
   }
@@ -1885,7 +1887,7 @@ body::before {
 .widget[data-type="tasmota"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="player"] { grid-column: span 3; grid-row: span 1; }
 .widget[data-type="presence"] { grid-column: span 3; grid-row: span 1; }
-.widget[data-type="timer"] { grid-column: span 3; grid-row: span 1; }
+.widget[data-type="timer"], .widget[data-type="note"] { grid-column: span 3; grid-row: span 1; }
 
 @media (min-aspect-ratio: 17/9) {
   .dashboard { grid-template-columns: repeat(12, minmax(0, 1fr)); }
@@ -1896,6 +1898,7 @@ body::before {
   .widget[data-type="player"],
   .widget[data-type="presence"],
   .widget[data-type="timer"],
+  .widget[data-type="note"],
   .widget[data-type="tasmota"] { grid-column: span 3; }
 }
 
@@ -1913,6 +1916,7 @@ body::before {
   .widget[data-type="player"],
   .widget[data-type="presence"],
   .widget[data-type="timer"],
+  .widget[data-type="note"],
   .widget[data-type="tasmota"] { grid-column: span 3; }
 }
 
@@ -1927,7 +1931,8 @@ body::before {
   .widget[data-type="system"],
   .widget[data-type="player"],
   .widget[data-type="presence"],
-  .widget[data-type="timer"] { grid-column: span 1; }
+  .widget[data-type="timer"],
+  .widget[data-type="note"] { grid-column: span 1; }
   .widget[data-type="tasmota"] { grid-column: span 2; }
 }
 
@@ -2106,7 +2111,8 @@ body::before {
   .widget[data-type="player"],
   .widget[data-type="presence"],
   .widget[data-type="tasmota"],
-  .widget[data-type="timer"] { grid-column: span 3; }
+  .widget[data-type="timer"],
+  .widget[data-type="note"] { grid-column: span 3; }
   .sensor-layout { gap: 6px; }
   .sensor-gauges { gap: 6px; }
   .sensor-gauge { width: 64px; }
@@ -2127,7 +2133,8 @@ body::before {
   .widget[data-type="presence"],
   .widget[data-type="camera"],
   .widget[data-type="jarvis"],
-  .widget[data-type="timer"] { grid-column: span 1; }
+  .widget[data-type="timer"],
+  .widget[data-type="note"] { grid-column: span 1; }
   .widget[data-type="tasmota"] { grid-column: span 2; }
 }
 

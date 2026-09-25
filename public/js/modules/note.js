@@ -52,6 +52,13 @@ export function initNote(socket) {
   // Thumbnail-Größe initialisieren
   initThumbnailCanvas();
 
+  window.addEventListener('resize', () => {
+    initThumbnailCanvas();
+    if (thumbnailCanvas && thumbnailCanvas.dataset.lastImage) {
+      renderImageToThumbnails(thumbnailCanvas.dataset.lastImage);
+    }
+  });
+
   // Widget Klick -> Modal mit Zoom öffnen
   const noteWidget = document.querySelector('.widget[data-type="note"]');
   if (noteWidget) {
