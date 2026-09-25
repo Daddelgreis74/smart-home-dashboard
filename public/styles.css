@@ -5460,9 +5460,9 @@ body.theme-jarvis .ptz-controls-overlay {
   position: fixed;
   inset: 0;
   z-index: 10000;
-  background: rgba(10, 15, 26, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(10, 15, 26, 0.85);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;

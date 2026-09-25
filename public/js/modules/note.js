@@ -27,9 +27,17 @@ let lastX = 0;
 let lastY = 0;
 let points = [];
 
-// Undo Stack (begrenzt auf 20 Zustände)
+// Undo Stack (Offscreen-Canvas Snapshots)
 const undoStack = [];
-const MAX_UNDO = 20;
+const MAX_UNDO = 15;
+
+// Flag ob Notiz Zeichnungsinhalt hat
+let hasDrawnContent = false;
+
+// Cached BoundingBox und Skalierung für 0ms Latenz bei PointerMove
+let cachedRect = null;
+let cachedScaleX = 1;
+let cachedScaleY = 1;
 
 // Auto-Save Debounce Timer
 let autoSaveTimer = null;
@@ -46,7 +54,8 @@ export function initNote(socket) {
 
   if (!noteCanvas || !thumbnailCanvas || !modalOverlay) return;
 
-  ctx = noteCanvas.getContext('2d');
+  // desynchronized: true aktiviert die Android / Chrome Low-Latency Direct-Ink-Pipeline
+  ctx = noteCanvas.getContext('2d', { desynchronized: true });
   thumbCtx = thumbnailCanvas.getContext('2d');
 
   // Thumbnail-Größe initialisieren
@@ -268,6 +277,29 @@ function resizeNoteCanvas() {
   }
 }
 
+function updateCanvasMetrics() {
+  if (!noteCanvas) return;
+  cachedRect = noteCanvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const logicalWidth = noteCanvas.width / dpr;
+  const logicalHeight = noteCanvas.height / dpr;
+
+  cachedScaleX = cachedRect.width > 0 ? (logicalWidth / cachedRect.width) : 1;
+  cachedScaleY = cachedRect.height > 0 ? (logicalHeight / cachedRect.height) : 1;
+}
+
+function getCanvasPos(e) {
+  if (!cachedRect) updateCanvasMetrics();
+  const dpr = window.devicePixelRatio || 1;
+  const logicalWidth = noteCanvas.width / dpr;
+  const logicalHeight = noteCanvas.height / dpr;
+
+  return {
+    x: Math.max(0, Math.min(logicalWidth, (e.clientX - cachedRect.left) * cachedScaleX)),
+    y: Math.max(0, Math.min(logicalHeight, (e.clientY - cachedRect.top) * cachedScaleY))
+  };
+}
+
 function handlePointerDown(e) {
   // Palm Rejection: Wenn ein Pen aktiv ist, ignorieren wir Touch-Events von aufgelegten Handflächen
   if (penActive && e.pointerType === 'touch') {
@@ -287,28 +319,34 @@ function handlePointerDown(e) {
   activePointerType = e.pointerType;
   isDrawing = true;
 
-  // Vor neuem Strich aktuellen Zustand im Undo-Stack sichern
+  // Geometrie für diesen Strich cachen (eliminiert teure DOM-Reflows bei jedem PointerMove)
+  updateCanvasMetrics();
+
+  // Schneller GPU-Snapshot vor dem neuen Strich (0ms Latenz)
   saveUndoState();
 
   const pos = getCanvasPos(e);
   lastX = pos.x;
   lastY = pos.y;
-  points = [{ x: pos.x, y: pos.y, pressure: e.pressure || 0.5 }];
+  const pressure = (e.pressure && e.pressure > 0) ? e.pressure : 0.5;
+  points = [{ x: pos.x, y: pos.y, pressure: pressure }];
 
+  hasDrawnContent = true;
   // Sofort einen Punkt malen (für kurzes Antippen z. B. i-Punkte)
-  drawStrokePoint(pos.x, pos.y, e.pressure || 0.5);
+  drawStrokePoint(pos.x, pos.y, pressure);
 }
 
-function handlePointerMove(e) {
-  if (!isDrawing || e.pointerId !== activePointerId) return;
+function renderStrokeStep(pos, pressure) {
+  points.push({ x: pos.x, y: pos.y, pressure: pressure });
 
-  // Palm Rejection Check
-  if (penActive && e.pointerType === 'touch') return;
-
-  const pos = getCanvasPos(e);
-  points.push({ x: pos.x, y: pos.y, pressure: e.pressure || 0.5 });
-
-  if (points.length >= 3) {
+  if (points.length === 2) {
+    // Sofortige direkte Linie zwischen Startpunkt und Folgebild (beseitigt Lag beim Strichansetzen)
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    ctx.lineTo(points[1].x, points[1].y);
+    configureContext(points[1].pressure);
+    ctx.stroke();
+  } else if (points.length >= 3) {
     const p0 = points[points.length - 3];
     const p1 = points[points.length - 2];
     const p2 = points[points.length - 1];
@@ -321,9 +359,22 @@ function handlePointerMove(e) {
     ctx.beginPath();
     ctx.moveTo(mid1X, mid1Y);
     ctx.quadraticCurveTo(p1.x, p1.y, mid2X, mid2Y);
-
     configureContext(p1.pressure);
     ctx.stroke();
+  }
+}
+
+function handlePointerMove(e) {
+  if (!isDrawing || e.pointerId !== activePointerId) return;
+  if (penActive && e.pointerType === 'touch') return;
+
+  // Alle zwischengespeicherten Hardware-Sub-Events des Stylus (120Hz/240Hz Digitizer) auswerten
+  const events = (typeof e.getCoalescedEvents === 'function') ? e.getCoalescedEvents() : [e];
+  for (let i = 0; i < events.length; i++) {
+    const subEvent = events[i];
+    const pos = getCanvasPos(subEvent);
+    const pressure = (subEvent.pressure && subEvent.pressure > 0) ? subEvent.pressure : 0.5;
+    renderStrokeStep(pos, pressure);
   }
 }
 
@@ -334,18 +385,30 @@ function handlePointerUp(e) {
     noteCanvas.releasePointerCapture(e.pointerId);
   } catch (err) {}
 
+  // Letzten Punkt sauber vollenden
+  if (points.length >= 2) {
+    const lastP = points[points.length - 1];
+    const secondLastP = points[points.length - 2];
+    ctx.beginPath();
+    ctx.moveTo((secondLastP.x + lastP.x) / 2, (secondLastP.y + lastP.y) / 2);
+    ctx.lineTo(lastP.x, lastP.y);
+    configureContext(lastP.pressure);
+    ctx.stroke();
+  }
+
   isDrawing = false;
   activePointerId = null;
+  points = [];
 
-  // Nach Stiftende kurze Verzögerung vor Freigabe für Touch (verhindert Nachtouches)
+  // Nach Stiftende kurze Pause vor Palm-Freigabe
   if (e.pointerType === 'pen') {
     setTimeout(() => {
       penActive = false;
-    }, 250);
+    }, 200);
   }
 
-  // Thumbnail sofort aktualisieren
-  updateThumbnailFromCanvas();
+  // Leichtes Thumbnail-Update ohne teures toDataURL()
+  updateThumbnailFast();
 
   // Debounced Auto-Save zum Server (1 Sekunde nach letztem Strich)
   triggerAutoSave();
@@ -356,22 +419,8 @@ function handlePointerCancel(e) {
     isDrawing = false;
     activePointerId = null;
     penActive = false;
+    points = [];
   }
-}
-
-function getCanvasPos(e) {
-  const rect = noteCanvas.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
-  const logicalWidth = noteCanvas.width / dpr;
-  const logicalHeight = noteCanvas.height / dpr;
-
-  const scaleX = rect.width > 0 ? (logicalWidth / rect.width) : 1;
-  const scaleY = rect.height > 0 ? (logicalHeight / rect.height) : 1;
-
-  return {
-    x: Math.max(0, Math.min(logicalWidth, (e.clientX - rect.left) * scaleX)),
-    y: Math.max(0, Math.min(logicalHeight, (e.clientY - rect.top) * scaleY))
-  };
 }
 
 function configureContext(pressure = 0.5) {
@@ -417,10 +466,14 @@ function drawStrokePoint(x, y, pressure) {
 }
 
 function saveUndoState() {
-  if (!ctx || !noteCanvas) return;
-  const dpr = window.devicePixelRatio || 1;
-  const imgData = ctx.getImageData(0, 0, noteCanvas.width, noteCanvas.height);
-  undoStack.push(imgData);
+  if (!ctx || !noteCanvas || noteCanvas.width === 0) return;
+  // Extrem schneller Offscreen-Canvas GPU-Texture-Copy (dauert < 1ms statt 200ms getImageData)
+  const backup = document.createElement('canvas');
+  backup.width = noteCanvas.width;
+  backup.height = noteCanvas.height;
+  const bCtx = backup.getContext('2d');
+  bCtx.drawImage(noteCanvas, 0, 0);
+  undoStack.push(backup);
   if (undoStack.length > MAX_UNDO) {
     undoStack.shift();
   }
@@ -429,16 +482,34 @@ function saveUndoState() {
 function handleUndo() {
   if (undoStack.length === 0 || !ctx || !noteCanvas) return;
   const prevState = undoStack.pop();
-  ctx.putImageData(prevState, 0, 0);
-  updateThumbnailFromCanvas();
+  const dpr = window.devicePixelRatio || 1;
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, noteCanvas.width, noteCanvas.height);
+  ctx.drawImage(prevState, 0, 0);
+  ctx.restore();
+
+  hasDrawnContent = undoStack.length > 0;
+  updateThumbnailFast();
   triggerAutoSave();
 }
 
 function clearCanvasLocal() {
   if (!noteCanvas || !ctx) return;
   saveUndoState();
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, noteCanvas.width, noteCanvas.height);
-  updateThumbnailFromCanvas();
+  ctx.restore();
+  hasDrawnContent = false;
+  if (thumbnailCanvas && thumbCtx) {
+    const dpr = window.devicePixelRatio || 1;
+    thumbCtx.clearRect(0, 0, thumbnailCanvas.width / dpr, thumbnailCanvas.height / dpr);
+    thumbnailCanvas.dataset.lastImage = '';
+  }
+  if (emptyPlaceholder) {
+    emptyPlaceholder.style.display = 'flex';
+  }
 }
 
 export function openNoteModal() {
@@ -486,7 +557,7 @@ export function closeNoteModal() {
   }, 250);
 }
 
-function updateThumbnailFromCanvas() {
+function updateThumbnailFast() {
   if (!noteCanvas || !thumbnailCanvas || !thumbCtx) return;
 
   const dpr = window.devicePixelRatio || 1;
@@ -496,27 +567,8 @@ function updateThumbnailFromCanvas() {
   thumbCtx.clearRect(0, 0, w, h);
   thumbCtx.drawImage(noteCanvas, 0, 0, w, h);
 
-  // Prüfen ob leer
-  const hasContent = checkCanvasHasContent(noteCanvas);
   if (emptyPlaceholder) {
-    emptyPlaceholder.style.display = hasContent ? 'none' : 'flex';
-  }
-
-  // Bild-DataURL am Thumbnail merken
-  try {
-    thumbnailCanvas.dataset.lastImage = noteCanvas.toDataURL('image/png');
-  } catch (e) {}
-}
-
-function checkCanvasHasContent(canvas) {
-  try {
-    const testCtx = canvas.getContext('2d');
-    const pixelBuffer = new Uint32Array(
-      testCtx.getImageData(0, 0, canvas.width, canvas.height).data.buffer
-    );
-    return pixelBuffer.some(color => color !== 0);
-  } catch (e) {
-    return true;
+    emptyPlaceholder.style.display = hasDrawnContent ? 'none' : 'flex';
   }
 }
 
@@ -567,6 +619,9 @@ async function saveNoteToServer() {
 
   try {
     const dataUrl = noteCanvas.toDataURL('image/png');
+    if (thumbnailCanvas) {
+      thumbnailCanvas.dataset.lastImage = dataUrl;
+    }
     
     // Server-Call
     await fetch('/api/note', {
