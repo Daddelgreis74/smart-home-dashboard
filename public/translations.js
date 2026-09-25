@@ -183,7 +183,18 @@ const translations = {
     "toggle_layout_note": "Notizzettel",
     "note_modal_title": "Notizzettel",
     "note_tap_to_write": "Tippen zum Schreiben",
-    "note_done": "Fertig"
+    "note_done": "Fertig",
+    "setting_note_color": "Notizzettel-Farbe",
+    "setting_note_color_desc": "Wähle das Farbdesign für Notizblock und Schreibfläche.",
+    "note_color_yellow": "Gelb (Klassisch)",
+    "note_color_blue": "Pastellblau",
+    "note_color_green": "Pastellgrün",
+    "note_color_pink": "Pastellrosa",
+    "note_color_white": "Weiß (Clean Paper)",
+    "note_color_purple": "Lavendel",
+    "settings_tab_note": "Notizzettel",
+    "note_section_title": "Notizzettel",
+    "note_section_desc": "Passe das Erscheinungsbild und Verhalten des Notizzettel-Widgets an."
   },
   en: {
     // Header
@@ -369,7 +380,18 @@ const translations = {
     "toggle_layout_note": "Sticky Note",
     "note_modal_title": "Sticky Note",
     "note_tap_to_write": "Tap to write",
-    "note_done": "Done"
+    "note_done": "Done",
+    "setting_note_color": "Sticky Note Color",
+    "setting_note_color_desc": "Choose the color theme for notepad and canvas.",
+    "note_color_yellow": "Yellow (Classic)",
+    "note_color_blue": "Pastel Blue",
+    "note_color_green": "Pastel Green",
+    "note_color_pink": "Pastel Pink",
+    "note_color_white": "White (Clean Paper)",
+    "note_color_purple": "Lavender",
+    "settings_tab_note": "Sticky Note",
+    "note_section_title": "Sticky Note",
+    "note_section_desc": "Customize the appearance and behavior of the sticky note widget."
   },
   fr: {
     // Header

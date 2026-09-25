@@ -5367,6 +5367,99 @@ body.theme-jarvis .ptz-controls-overlay {
   user-select: none;
 }
 
+/* ==========================================================================
+   NOTIZZETTEL / POST-IT COLOR THEMES & 2D STACK
+   ========================================================================== */
+:root {
+  --note-paper-top: #fef9c3;
+  --note-paper-mid: #fef08a;
+  --note-paper-bottom: #fde047;
+  --note-paper-border: rgba(202, 138, 4, 0.55);
+  --note-paper-border-mid: rgba(202, 138, 4, 0.45);
+  --note-paper-border-bottom: rgba(202, 138, 4, 0.5);
+  --note-paper-glue: rgba(253, 224, 71, 0.65);
+  --note-paper-glue-border: rgba(202, 138, 4, 0.4);
+  --note-paper-text: #713f12;
+  --note-paper-text-muted: #854d0e;
+  --note-paper-card-shadow: rgba(234, 179, 8, 0.4);
+  --note-paper-tool-bg: rgba(254, 240, 138, 0.65);
+}
+
+[data-note-theme="blue"] {
+  --note-paper-top: #f0f9ff;
+  --note-paper-mid: #e0f2fe;
+  --note-paper-bottom: #bae6fd;
+  --note-paper-border: rgba(2, 132, 199, 0.5);
+  --note-paper-border-mid: rgba(2, 132, 199, 0.4);
+  --note-paper-border-bottom: rgba(2, 132, 199, 0.45);
+  --note-paper-glue: rgba(186, 230, 253, 0.75);
+  --note-paper-glue-border: rgba(2, 132, 199, 0.35);
+  --note-paper-text: #0369a1;
+  --note-paper-text-muted: #0284c7;
+  --note-paper-card-shadow: rgba(56, 189, 248, 0.4);
+  --note-paper-tool-bg: rgba(224, 242, 254, 0.75);
+}
+
+[data-note-theme="green"] {
+  --note-paper-top: #f0fdf4;
+  --note-paper-mid: #dcfce7;
+  --note-paper-bottom: #bbf7d0;
+  --note-paper-border: rgba(22, 163, 74, 0.5);
+  --note-paper-border-mid: rgba(22, 163, 74, 0.4);
+  --note-paper-border-bottom: rgba(22, 163, 74, 0.45);
+  --note-paper-glue: rgba(187, 247, 208, 0.75);
+  --note-paper-glue-border: rgba(22, 163, 74, 0.35);
+  --note-paper-text: #15803d;
+  --note-paper-text-muted: #16a34a;
+  --note-paper-card-shadow: rgba(74, 222, 128, 0.4);
+  --note-paper-tool-bg: rgba(220, 252, 231, 0.75);
+}
+
+[data-note-theme="pink"] {
+  --note-paper-top: #fdf2f8;
+  --note-paper-mid: #fce7f3;
+  --note-paper-bottom: #fbcfe8;
+  --note-paper-border: rgba(219, 39, 119, 0.5);
+  --note-paper-border-mid: rgba(219, 39, 119, 0.4);
+  --note-paper-border-bottom: rgba(219, 39, 119, 0.45);
+  --note-paper-glue: rgba(251, 207, 232, 0.75);
+  --note-paper-glue-border: rgba(219, 39, 119, 0.35);
+  --note-paper-text: #9d174d;
+  --note-paper-text-muted: #be185d;
+  --note-paper-card-shadow: rgba(244, 114, 182, 0.4);
+  --note-paper-tool-bg: rgba(252, 231, 243, 0.75);
+}
+
+[data-note-theme="white"] {
+  --note-paper-top: #ffffff;
+  --note-paper-mid: #f8fafc;
+  --note-paper-bottom: #e2e8f0;
+  --note-paper-border: rgba(148, 163, 184, 0.55);
+  --note-paper-border-mid: rgba(148, 163, 184, 0.45);
+  --note-paper-border-bottom: rgba(148, 163, 184, 0.5);
+  --note-paper-glue: rgba(226, 232, 240, 0.85);
+  --note-paper-glue-border: rgba(148, 163, 184, 0.4);
+  --note-paper-text: #334155;
+  --note-paper-text-muted: #64748b;
+  --note-paper-card-shadow: rgba(148, 163, 184, 0.4);
+  --note-paper-tool-bg: rgba(241, 245, 249, 0.85);
+}
+
+[data-note-theme="purple"] {
+  --note-paper-top: #faf5ff;
+  --note-paper-mid: #f3e8ff;
+  --note-paper-bottom: #e9d5ff;
+  --note-paper-border: rgba(147, 51, 234, 0.5);
+  --note-paper-border-mid: rgba(147, 51, 234, 0.4);
+  --note-paper-border-bottom: rgba(147, 51, 234, 0.45);
+  --note-paper-glue: rgba(233, 213, 255, 0.75);
+  --note-paper-glue-border: rgba(147, 51, 234, 0.35);
+  --note-paper-text: #6b21a8;
+  --note-paper-text-muted: #7e22ce;
+  --note-paper-card-shadow: rgba(192, 132, 252, 0.4);
+  --note-paper-tool-bg: rgba(243, 232, 255, 0.75);
+}
+
 .note-widget-body {
   padding: 10px 14px 14px 10px;
   display: flex;
@@ -5392,12 +5485,12 @@ body.theme-jarvis .ptz-controls-overlay {
   left: 7px;
   right: -7px;
   bottom: -7px;
-  background: #fde047;
-  border: 1.5px solid rgba(202, 138, 4, 0.5);
+  background: var(--note-paper-bottom);
+  border: 1.5px solid var(--note-paper-border-bottom);
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   z-index: 1;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, background 0.3s ease, border-color 0.3s ease;
 }
 
 /* Mittlere Schicht des 2D-Blocks */
@@ -5408,11 +5501,11 @@ body.theme-jarvis .ptz-controls-overlay {
   left: 3.5px;
   right: -3.5px;
   bottom: -3.5px;
-  background: #fef08a;
-  border: 1.5px solid rgba(202, 138, 4, 0.45);
+  background: var(--note-paper-mid);
+  border: 1.5px solid var(--note-paper-border-mid);
   border-radius: 6px;
   z-index: 2;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, background 0.3s ease, border-color 0.3s ease;
 }
 
 /* Oberstes Blatt mit Handschrift-Vorschau */
@@ -5422,11 +5515,11 @@ body.theme-jarvis .ptz-controls-overlay {
   flex: 1;
   width: 100%;
   height: 100%;
-  background: #fef9c3;
+  background: var(--note-paper-top);
   border-radius: 6px;
-  border: 1.5px solid rgba(202, 138, 4, 0.55);
+  border: 1.5px solid var(--note-paper-border);
   overflow: hidden;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background 0.3s ease, border-color 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -5439,10 +5532,11 @@ body.theme-jarvis .ptz-controls-overlay {
   left: 0;
   right: 0;
   height: 16px;
-  background: rgba(253, 224, 71, 0.65);
-  border-bottom: 1.5px dashed rgba(202, 138, 4, 0.4);
+  background: var(--note-paper-glue);
+  border-bottom: 1.5px dashed var(--note-paper-glue-border);
   pointer-events: none;
   z-index: 4;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .widget[data-type="note"]:hover .note-paper-preview {
@@ -5469,11 +5563,12 @@ body.theme-jarvis .ptz-controls-overlay {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  color: #854d0e;
+  color: var(--note-paper-text-muted);
   font-size: 12px;
   font-weight: 600;
-  opacity: 0.75;
+  opacity: 0.8;
   pointer-events: none;
+  transition: color 0.3s ease;
 }
 
 .note-empty-placeholder i {
@@ -5488,14 +5583,14 @@ body.theme-jarvis .ptz-controls-overlay {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: rgba(133, 77, 14, 0.15);
-  color: #713f12;
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--note-paper-text);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 11px;
   opacity: 0;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease, color 0.3s ease;
 }
 
 .widget[data-type="note"]:hover .note-hover-badge {
@@ -5531,15 +5626,15 @@ body.theme-jarvis .ptz-controls-overlay {
   max-width: 1040px;
   height: 88vh;
   max-height: 780px;
-  background: #fef08a;
+  background: var(--note-paper-mid);
   border-radius: 12px;
-  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(234, 179, 8, 0.4);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.65), 0 0 0 1px var(--note-paper-card-shadow);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   transform: scale(0.65);
   opacity: 0;
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease-out;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease-out, background 0.3s ease;
 }
 
 .note-modal-card.zoomed-in {
@@ -5549,8 +5644,8 @@ body.theme-jarvis .ptz-controls-overlay {
 
 /* 3. Modal Header Toolbar */
 .note-modal-header {
-  background: #fde047;
-  border-bottom: 1px solid rgba(202, 138, 4, 0.35);
+  background: var(--note-paper-bottom);
+  border-bottom: 1px solid var(--note-paper-border);
   padding: 10px 16px;
   display: flex;
   align-items: center;
@@ -5558,15 +5653,17 @@ body.theme-jarvis .ptz-controls-overlay {
   flex-wrap: wrap;
   gap: 12px;
   user-select: none;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .note-modal-title {
   font-size: 15px;
   font-weight: 700;
-  color: #713f12;
+  color: var(--note-paper-text);
   display: flex;
   align-items: center;
   gap: 8px;
+  transition: color 0.3s ease;
 }
 
 .note-modal-tools {
@@ -5580,10 +5677,11 @@ body.theme-jarvis .ptz-controls-overlay {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(254, 240, 138, 0.65);
+  background: var(--note-paper-tool-bg);
   padding: 4px 8px;
   border-radius: 8px;
-  border: 1px solid rgba(202, 138, 4, 0.25);
+  border: 1px solid var(--note-paper-border-mid);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 /* Farb-Buttons */
@@ -5605,7 +5703,7 @@ body.theme-jarvis .ptz-controls-overlay {
 
 .note-color-btn.active {
   transform: scale(1.18);
-  box-shadow: 0 0 0 2px #713f12, 0 3px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 0 2px var(--note-paper-text), 0 3px 6px rgba(0, 0, 0, 0.3);
 }
 
 .note-color-btn.highlighter {
@@ -5640,8 +5738,8 @@ body.theme-jarvis .ptz-controls-overlay {
 }
 
 .note-size-btn.active {
-  background: rgba(113, 63, 18, 0.15);
-  border-color: rgba(113, 63, 18, 0.3);
+  background: rgba(0, 0, 0, 0.12);
+  border-color: var(--note-paper-border-mid);
 }
 
 .size-dot {
@@ -5662,7 +5760,7 @@ body.theme-jarvis .ptz-controls-overlay {
   border-radius: 8px;
   background: transparent;
   border: 1px solid transparent;
-  color: #713f12;
+  color: var(--note-paper-text);
   font-size: 14px;
   display: flex;
   align-items: center;
@@ -5672,7 +5770,7 @@ body.theme-jarvis .ptz-controls-overlay {
 }
 
 .note-tool-btn:hover {
-  background: rgba(113, 63, 18, 0.1);
+  background: rgba(0, 0, 0, 0.08);
 }
 
 .note-tool-btn:active {
@@ -5708,12 +5806,13 @@ body.theme-jarvis .ptz-controls-overlay {
   flex: 1;
   width: 100%;
   height: 100%;
-  background: #fef08a;
+  background: var(--note-paper-mid);
   overflow: hidden;
   cursor: crosshair;
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
+  transition: background 0.3s ease;
 }
 
 #noteCanvas {

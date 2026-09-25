@@ -42,8 +42,24 @@ let cachedScaleY = 1;
 // Auto-Save Debounce Timer
 let autoSaveTimer = null;
 
+export function setNoteTheme(theme) {
+  const validThemes = ['yellow', 'blue', 'green', 'pink', 'white', 'purple'];
+  const activeTheme = validThemes.includes(theme) ? theme : 'yellow';
+  document.documentElement.setAttribute('data-note-theme', activeTheme);
+  localStorage.setItem('note_theme', activeTheme);
+
+  const select = document.getElementById('settingNoteColor');
+  if (select && select.value !== activeTheme) {
+    select.value = activeTheme;
+  }
+}
+
 export function initNote(socket) {
   globalSocket = socket;
+
+  // Farbschema initialisieren
+  const savedTheme = localStorage.getItem('note_theme') || 'yellow';
+  setNoteTheme(savedTheme);
 
   noteCanvas = document.getElementById('noteCanvas');
   thumbnailCanvas = document.getElementById('noteThumbnailCanvas');
@@ -489,9 +505,14 @@ function handleUndo() {
   ctx.drawImage(prevState, 0, 0);
   ctx.restore();
 
-  hasDrawnContent = undoStack.length > 0;
-  updateThumbnailFast();
-  triggerAutoSave();
+  if (undoStack.length === 0) {
+    clearCanvasLocal();
+    syncNoteClearToServer();
+  } else {
+    hasDrawnContent = true;
+    updateThumbnailFast();
+    triggerAutoSave();
+  }
 }
 
 function clearCanvasLocal() {
@@ -505,7 +526,7 @@ function clearCanvasLocal() {
   if (thumbnailCanvas && thumbCtx) {
     const dpr = window.devicePixelRatio || 1;
     thumbCtx.clearRect(0, 0, thumbnailCanvas.width / dpr, thumbnailCanvas.height / dpr);
-    thumbnailCanvas.dataset.lastImage = '';
+    delete thumbnailCanvas.dataset.lastImage;
   }
   if (emptyPlaceholder) {
     emptyPlaceholder.style.display = 'flex';
@@ -537,8 +558,8 @@ export function openNoteModal() {
       resizeNoteCanvas();
     }, 320);
 
-    // Nach Resize Bild bei Bedarf neu aufziehen
-    if (thumbnailCanvas && thumbnailCanvas.dataset.lastImage) {
+    // Nach Resize Bild nur aufziehen, wenn tatsächlich Inhalt vorhanden ist
+    if (hasDrawnContent && thumbnailCanvas && thumbnailCanvas.dataset.lastImage) {
       renderImageToCanvas(thumbnailCanvas.dataset.lastImage, false);
     }
   });
@@ -552,8 +573,10 @@ export function closeNoteModal() {
 
   setTimeout(() => {
     modalOverlay.setAttribute('hidden', '');
-    // Sofort final synchronisieren
-    saveNoteToServer();
+    // Nur speichern, wenn Inhalt gezeichnet wurde
+    if (hasDrawnContent) {
+      saveNoteToServer();
+    }
   }, 250);
 }
 
@@ -565,7 +588,9 @@ function updateThumbnailFast() {
   const h = thumbnailCanvas.height / dpr;
 
   thumbCtx.clearRect(0, 0, w, h);
-  thumbCtx.drawImage(noteCanvas, 0, 0, w, h);
+  if (hasDrawnContent) {
+    thumbCtx.drawImage(noteCanvas, 0, 0, w, h);
+  }
 
   if (emptyPlaceholder) {
     emptyPlaceholder.style.display = hasDrawnContent ? 'none' : 'flex';
@@ -573,7 +598,16 @@ function updateThumbnailFast() {
 }
 
 function renderImageToThumbnails(dataUrl) {
-  if (!thumbnailCanvas || !thumbCtx || !dataUrl) return;
+  if (!thumbnailCanvas || !thumbCtx) return;
+
+  if (!dataUrl || typeof dataUrl !== 'string' || dataUrl.trim() === '') {
+    hasDrawnContent = false;
+    delete thumbnailCanvas.dataset.lastImage;
+    const dpr = window.devicePixelRatio || 1;
+    thumbCtx.clearRect(0, 0, thumbnailCanvas.width / dpr, thumbnailCanvas.height / dpr);
+    if (emptyPlaceholder) emptyPlaceholder.style.display = 'flex';
+    return;
+  }
 
   const img = new Image();
   img.onload = () => {
@@ -582,10 +616,34 @@ function renderImageToThumbnails(dataUrl) {
     const h = thumbnailCanvas.height / dpr;
     thumbCtx.clearRect(0, 0, w, h);
     thumbCtx.drawImage(img, 0, 0, w, h);
-    thumbnailCanvas.dataset.lastImage = dataUrl;
 
-    if (emptyPlaceholder) {
-      emptyPlaceholder.style.display = 'none';
+    // Prüfen, ob das Bild tatsächlich gezeichnete Pixel hat (nicht nur transparent ist)
+    let isBlank = true;
+    try {
+      const checkW = Math.min(Math.floor(thumbnailCanvas.width), 160);
+      const checkH = Math.min(Math.floor(thumbnailCanvas.height), 160);
+      const imgData = thumbCtx.getImageData(0, 0, checkW, checkH).data;
+      for (let i = 3; i < imgData.length; i += 16) {
+        if (imgData[i] > 15) {
+          isBlank = false;
+          break;
+        }
+      }
+    } catch (e) {
+      isBlank = false;
+    }
+
+    if (isBlank) {
+      hasDrawnContent = false;
+      delete thumbnailCanvas.dataset.lastImage;
+      thumbCtx.clearRect(0, 0, w, h);
+      if (emptyPlaceholder) emptyPlaceholder.style.display = 'flex';
+      // Server bereinigen falls leeres Bild gespeichert war
+      syncNoteClearToServer();
+    } else {
+      hasDrawnContent = true;
+      thumbnailCanvas.dataset.lastImage = dataUrl;
+      if (emptyPlaceholder) emptyPlaceholder.style.display = 'none';
     }
   };
   img.src = dataUrl;
@@ -616,6 +674,15 @@ function triggerAutoSave() {
 
 async function saveNoteToServer() {
   if (!noteCanvas) return;
+
+  // Wenn keine Inhalte vorhanden sind, niemals ein leeres transparentes PNG speichern!
+  if (!hasDrawnContent) {
+    if (thumbnailCanvas && thumbnailCanvas.dataset.lastImage) {
+      delete thumbnailCanvas.dataset.lastImage;
+      syncNoteClearToServer();
+    }
+    return;
+  }
 
   try {
     const dataUrl = noteCanvas.toDataURL('image/png');

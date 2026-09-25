@@ -11,7 +11,7 @@ import { initPresence } from './js/modules/presence.js';
 import { initCameraWidget } from './js/modules/cameras.js';
 import { initJarvis } from './js/modules/jarvis.js';
 import { initTimer } from './js/modules/timer.js';
-import { initNote } from './js/modules/note.js';
+import { initNote, setNoteTheme } from './js/modules/note.js';
 // Global Socket.io instance
 const socket = io();
 window.socket = socket;
@@ -429,6 +429,15 @@ function initSettings() {
     });
   });
 
+  const noteColorSelect = document.getElementById('settingNoteColor');
+  if (noteColorSelect) {
+    const currentTheme = localStorage.getItem('note_theme') || 'yellow';
+    noteColorSelect.value = currentTheme;
+    noteColorSelect.addEventListener('change', (e) => {
+      setNoteTheme(e.target.value);
+    });
+  }
+
   const settingsSearch = document.getElementById('settingsSearch');
   if (settingsSearch) {
     settingsSearch.addEventListener('input', () => {
@@ -578,18 +587,21 @@ function updateSettingsSidebarVisibility() {
   const showJarvis = localStorage.getItem('show_jarvis') !== 'false';
   const showFritzbox = localStorage.getItem('show_fritzbox') !== 'false';
   const showTimer = localStorage.getItem('show_timer') !== 'false';
+  const showNote = localStorage.getItem('show_note') !== 'false';
 
   const tabVisibility = {
     general: true,
     smarthome: showTasmota,
-    weather: showWeather || showSensor,
+    weather: showWeather,
+    sensor: showSensor,
     waste: showWaste,
     reminder: showCalendar,
     presence: showPresence,
     camera: showCamera,
     jarvis: showJarvis,
     fritzbox: showFritzbox,
-    timer: showTimer
+    timer: showTimer,
+    note: showNote
   };
 
   const searchQuery = document.getElementById('settingsSearch')?.value.toLowerCase().trim() || '';
