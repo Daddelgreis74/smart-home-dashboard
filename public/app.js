@@ -186,6 +186,13 @@ function loadSavedSettings() {
       const widget = dashboard.querySelector(`.widget[data-type="${type}"]`);
       if(widget) dashboard.appendChild(widget);
     });
+    // Neue Widgets, die noch nicht im gespeicherten Layout existieren, ans Ende anfügen
+    WIDGET_TYPES.forEach(type => {
+      if (!savedLayout.includes(type)) {
+        const widget = dashboard.querySelector(`.widget[data-type="${type}"]`);
+        if(widget) dashboard.appendChild(widget);
+      }
+    });
   }
 
   // Initiiere Sensor-Einstellungen
