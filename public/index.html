@@ -935,13 +935,16 @@
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body note-widget-body" id="noteWidgetCard">
-          <div class="note-paper-preview" id="notePaperPreview">
-            <canvas id="noteThumbnailCanvas" class="note-thumbnail"></canvas>
-            <div class="note-empty-placeholder" id="noteEmptyPlaceholder">
-              <i class="fas fa-pen-nib"></i>
-              <span data-i18n="note_tap_to_write">Tippen zum Schreiben</span>
+          <div class="note-paper-stack" id="notePaperStack">
+            <div class="note-paper-preview" id="notePaperPreview">
+              <div class="note-paper-glue"></div>
+              <canvas id="noteThumbnailCanvas" class="note-thumbnail"></canvas>
+              <div class="note-empty-placeholder" id="noteEmptyPlaceholder">
+                <i class="fas fa-pen-nib"></i>
+                <span data-i18n="note_tap_to_write">Tippen zum Schreiben</span>
+              </div>
+              <div class="note-hover-badge"><i class="fas fa-expand-alt"></i></div>
             </div>
-            <div class="note-hover-badge"><i class="fas fa-expand-alt"></i></div>
           </div>
         </div>
       </div>
