@@ -2,79 +2,113 @@ const fileStore = require('../utils/fileStore');
 const { getMergedCalls, pingTcp } = require('../services/fritzboxService');
 const { getSystemStatus } = require('../services/systemService');
 
-let serverTimers = {
-  1: { duration: 0, remaining: 0, isPaused: false, lastUpdated: 0, active: false },
-  2: { duration: 0, remaining: 0, isPaused: false, lastUpdated: 0, active: false }
+let serverTimer = {
+  duration: 0,
+  remaining: 0,
+  endTime: 0,
+  isPaused: false,
+  isAlarm: false,
+  active: false,
+  lastUpdated: 0
 };
+
+function getTimerPayload() {
+  const now = Date.now();
+  let remaining = serverTimer.remaining;
+  if (serverTimer.active && !serverTimer.isPaused && serverTimer.endTime > 0) {
+    remaining = Math.max(0, Math.ceil((serverTimer.endTime - now) / 1000));
+    if (remaining === 0 && !serverTimer.isAlarm) {
+      serverTimer.isAlarm = true;
+    }
+  }
+  return {
+    id: 1,
+    active: serverTimer.active,
+    duration: serverTimer.duration,
+    remaining: remaining,
+    endTime: serverTimer.endTime,
+    isPaused: serverTimer.isPaused,
+    isAlarm: serverTimer.isAlarm
+  };
+}
+
+function resetServerTimer() {
+  serverTimer = {
+    duration: 0,
+    remaining: 0,
+    endTime: 0,
+    isPaused: false,
+    isAlarm: false,
+    active: false,
+    lastUpdated: 0
+  };
+}
 
 function initSockets(io) {
   io.on('connection', (socket) => {
     // Aktuellen Timer-Status an neu verbundene/wiederverbundene Clients senden
-    [1, 2].forEach(id => {
-      const timer = serverTimers[id];
-      if (timer.active) {
-        let currentRemaining = timer.remaining;
-        if (!timer.isPaused) {
-          const elapsed = Math.floor((Date.now() - timer.lastUpdated) / 1000);
-          currentRemaining = Math.max(0, timer.remaining - elapsed);
-        }
-        socket.emit('timer-started', {
-          id: id,
-          duration: timer.duration,
-          remaining: currentRemaining,
-          isPaused: timer.isPaused
-        });
-      } else {
-        socket.emit('timer-cancelled', { id });
-      }
-    });
+    const timerPayload = getTimerPayload();
+    if (timerPayload.active) {
+      socket.emit('timer-started', timerPayload);
+    } else {
+      socket.emit('timer-cancelled', { id: 1 });
+    }
 
     socket.on('update-layout', (layout) => socket.broadcast.emit('layout-updated', layout));
     
     socket.on('timer-start', (data) => {
-      const id = data.id || 1;
-      serverTimers[id] = {
-        duration: data.duration,
-        remaining: data.remaining,
-        isPaused: data.isPaused,
-        lastUpdated: Date.now(),
-        active: true
-      };
-      socket.broadcast.emit('timer-started', data);
-    });
-
-    socket.on('timer-pause', (data) => {
-      const id = data?.id || 1;
-      const timer = serverTimers[id];
-      if (timer.active && !timer.isPaused) {
-        const elapsed = Math.floor((Date.now() - timer.lastUpdated) / 1000);
-        timer.remaining = Math.max(0, timer.remaining - elapsed);
-        timer.isPaused = true;
-        timer.lastUpdated = Date.now();
-      }
-      socket.broadcast.emit('timer-paused', { id });
-    });
-
-    socket.on('timer-resume', (data) => {
-      const id = data?.id || 1;
-      const timer = serverTimers[id];
-      if (timer.active && timer.isPaused) {
-        timer.isPaused = false;
-        timer.lastUpdated = Date.now();
-      }
-      socket.broadcast.emit('timer-resumed', { id });
-    });
-
-    socket.on('timer-cancel', (data) => {
-      const id = data?.id || 1;
-      serverTimers[id] = {
-        duration: 0,
-        remaining: 0,
+      const duration = Number(data?.duration) || 0;
+      if (duration <= 0) return;
+      const now = Date.now();
+      serverTimer = {
+        duration,
+        remaining: duration,
+        endTime: now + duration * 1000,
         isPaused: false,
-        lastUpdated: 0,
-        active: false
+        isAlarm: false,
+        active: true,
+        lastUpdated: now
       };
-      socket.broadcast.emit('timer-cancelled', { id });
+      const payload = getTimerPayload();
+      socket.broadcast.emit('timer-started', payload);
+    });
+
+    socket.on('timer-pause', () => {
+      if (serverTimer.active && !serverTimer.isPaused) {
+        const now = Date.now();
+        const remaining = Math.max(0, Math.ceil((serverTimer.endTime - now) / 1000));
+        serverTimer.remaining = remaining;
+        serverTimer.endTime = 0;
+        serverTimer.isPaused = true;
+        serverTimer.lastUpdated = now;
+      }
+      const payload = getTimerPayload();
+      socket.broadcast.emit('timer-paused', payload);
+    });
+
+    socket.on('timer-resume', () => {
+      if (serverTimer.active && serverTimer.isPaused && serverTimer.remaining > 0) {
+        const now = Date.now();
+        serverTimer.endTime = now + serverTimer.remaining * 1000;
+        serverTimer.isPaused = false;
+        serverTimer.lastUpdated = now;
+      }
+      const payload = getTimerPayload();
+      socket.broadcast.emit('timer-resumed', payload);
+    });
+
+    socket.on('timer-cancel', () => {
+      resetServerTimer();
+      socket.broadcast.emit('timer-cancelled', { id: 1 });
+    });
+
+    socket.on('timer-alarm', () => {
+      if (serverTimer.active) {
+        serverTimer.isAlarm = true;
+        serverTimer.remaining = 0;
+        serverTimer.endTime = 0;
+        socket.broadcast.emit('timer-alarm', { id: 1 });
+      }
     });
 
     // Sticky Note Live-Sync
@@ -93,17 +127,18 @@ function initSockets(io) {
   });
 
   // System-Status-Timer (alle 5 Sekunden)
-  setInterval(async () => {
+  const sysTimer = setInterval(async () => {
     const status = await getSystemStatus();
     if (status) {
       io.emit('sys-status', status);
     }
   }, 5000);
+  if (sysTimer && typeof sysTimer.unref === 'function') sysTimer.unref();
 
   // Fritz!Box/Internet-Status-Timer (alle 10 Sekunden)
-  setInterval(async () => {
+  const fritzTimer = setInterval(async () => {
     const fritzConfig = fileStore.fritzConfig;
-    if (!fritzConfig.ip) return;
+    if (!fritzConfig || !fritzConfig.ip) return;
     try {
       const fritzPing = await pingTcp(fritzConfig.ip, 80, 2500);
       const internetPing = await pingTcp('1.1.1.1', 53, 2500);
@@ -115,8 +150,11 @@ function initSockets(io) {
       });
     } catch(e) {}
   }, 10000);
+  if (fritzTimer && typeof fritzTimer.unref === 'function') fritzTimer.unref();
 }
 
 module.exports = {
-  initSockets
+  initSockets,
+  getTimerPayload,
+  resetServerTimer
 };

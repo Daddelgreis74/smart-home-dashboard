@@ -4,6 +4,7 @@ import { playSound } from './utils.js';
 const timerState = {
   duration: 0,
   remaining: 0,
+  endTime: 0,
   interval: null,
   isPaused: false,
   alarmInterval: null,
@@ -115,18 +116,39 @@ export function initTimer(socket) {
   // Socket Sync Event Listeners
   if (socket) {
     socket.on('timer-started', (data) => {
-      syncStartTimer(data?.duration || 0, data?.remaining || 0, data?.isPaused || false);
+      syncStartTimer(data);
     });
-    socket.on('timer-paused', () => {
-      syncPauseTimer();
+    socket.on('timer-paused', (data) => {
+      syncPauseTimer(data);
     });
-    socket.on('timer-resumed', () => {
-      syncResumeTimer();
+    socket.on('timer-resumed', (data) => {
+      syncResumeTimer(data);
     });
-    socket.on('timer-cancelled', () => {
-      syncCancelTimer();
+    socket.on('timer-cancelled', (data) => {
+      if (!data || data.id === 1 || data.id === undefined) {
+        syncCancelTimer();
+      }
+    });
+    socket.on('timer-alarm', () => {
+      triggerAlarm(false);
     });
   }
+
+  // Sofortige Re-Synchronisation bei Reaktivierung des Bildschirms / Tabs (Tablet Wakeup)
+  const resyncOnWake = () => {
+    if (document.hidden) return;
+    if (timerState.endTime > 0 && !timerState.isPaused) {
+      const now = Date.now();
+      timerState.remaining = Math.max(0, Math.ceil((timerState.endTime - now) / 1000));
+      if (timerState.remaining <= 0) {
+        triggerAlarm(true);
+      } else {
+        updateActiveUI();
+      }
+    }
+  };
+  document.addEventListener('visibilitychange', resyncOnWake);
+  window.addEventListener('focus', resyncOnWake);
 }
 
 function populateDrum(container, count) {
@@ -205,8 +227,10 @@ export function startTimer(seconds) {
   if (!seconds || seconds <= 0) return;
 
   stopAlarm();
+  const now = Date.now();
   timerState.duration = seconds;
   timerState.remaining = seconds;
+  timerState.endTime = now + seconds * 1000;
   timerState.isPaused = false;
 
   updateActiveUI();
@@ -222,22 +246,38 @@ export function startTimer(seconds) {
       id: 1,
       duration: timerState.duration,
       remaining: timerState.remaining,
+      endTime: timerState.endTime,
       isPaused: timerState.isPaused
     });
   }
 }
 
-function syncStartTimer(duration, remaining, paused) {
+function syncStartTimer(data) {
+  const duration = (typeof data === 'number') ? data : (data?.duration || 0);
   if (!duration || duration <= 0) return;
 
   stopAlarm();
   timerState.duration = duration;
-  timerState.remaining = remaining;
-  timerState.isPaused = paused;
+  timerState.isPaused = !!data?.isPaused;
+
+  const now = Date.now();
+  if (data?.endTime && data.endTime > now && !timerState.isPaused) {
+    timerState.endTime = data.endTime;
+    timerState.remaining = Math.max(0, Math.ceil((timerState.endTime - now) / 1000));
+  } else {
+    const rem = (typeof data?.remaining === 'number') ? data.remaining : duration;
+    timerState.remaining = rem;
+    timerState.endTime = timerState.isPaused ? 0 : (now + rem * 1000);
+  }
 
   if (timerState.interval) clearInterval(timerState.interval);
-  if (!timerState.isPaused) {
+  if (!timerState.isPaused && timerState.remaining > 0) {
     timerState.interval = setInterval(() => tick(), 1000);
+  }
+
+  if (data?.isAlarm || timerState.remaining <= 0) {
+    triggerAlarm(false);
+    return;
   }
 
   updateActiveUI();
@@ -270,11 +310,20 @@ function syncStartTimer(duration, remaining, paused) {
 }
 
 function tick() {
+  if (timerState.isPaused) return;
+
+  const now = Date.now();
+  if (timerState.endTime > 0) {
+    // Exakte Berechnung gegen Zeitstempel - verhindert jedes Driften
+    timerState.remaining = Math.max(0, Math.ceil((timerState.endTime - now) / 1000));
+  } else {
+    timerState.remaining = Math.max(0, timerState.remaining - 1);
+  }
+
   if (timerState.remaining <= 0) {
-    triggerAlarm();
+    triggerAlarm(true);
     return;
   }
-  timerState.remaining--;
 
   updateActiveUI();
   if (!activeContainer) return;
@@ -331,44 +380,68 @@ function updatePauseButtonUI() {
 export function pauseTimer() {
   if (timerState.isPaused) return;
 
+  const now = Date.now();
+  if (timerState.endTime > 0) {
+    timerState.remaining = Math.max(0, Math.ceil((timerState.endTime - now) / 1000));
+  }
+  timerState.endTime = 0;
   if (timerState.interval) {
     clearInterval(timerState.interval);
     timerState.interval = null;
   }
   timerState.isPaused = true;
 
+  updateActiveUI();
   updatePauseButtonUI();
 
   if (window.socket) {
-    window.socket.emit('timer-pause', { id: 1 });
+    window.socket.emit('timer-pause', { id: 1, remaining: timerState.remaining });
   }
 }
 
-function syncPauseTimer() {
+function syncPauseTimer(data) {
   if (timerState.interval) {
     clearInterval(timerState.interval);
     timerState.interval = null;
   }
   timerState.isPaused = true;
+  timerState.endTime = 0;
+  if (typeof data?.remaining === 'number') {
+    timerState.remaining = data.remaining;
+  }
+  updateActiveUI();
   updatePauseButtonUI();
 }
 
 export function resumeTimer() {
   if (!timerState.isPaused || timerState.remaining <= 0) return;
 
+  const now = Date.now();
   timerState.isPaused = false;
+  timerState.endTime = now + timerState.remaining * 1000;
   updatePauseButtonUI();
 
   if (timerState.interval) clearInterval(timerState.interval);
   timerState.interval = setInterval(() => tick(), 1000);
 
   if (window.socket) {
-    window.socket.emit('timer-resume', { id: 1 });
+    window.socket.emit('timer-resume', { id: 1, remaining: timerState.remaining, endTime: timerState.endTime });
   }
 }
 
-function syncResumeTimer() {
+function syncResumeTimer(data) {
   timerState.isPaused = false;
+  const now = Date.now();
+  if (data?.endTime && data.endTime > now) {
+    timerState.endTime = data.endTime;
+    timerState.remaining = Math.max(0, Math.ceil((timerState.endTime - now) / 1000));
+  } else if (typeof data?.remaining === 'number') {
+    timerState.remaining = data.remaining;
+    timerState.endTime = now + timerState.remaining * 1000;
+  } else {
+    timerState.endTime = now + timerState.remaining * 1000;
+  }
+  updateActiveUI();
   updatePauseButtonUI();
 
   if (timerState.interval) clearInterval(timerState.interval);
@@ -384,6 +457,7 @@ export function cancelTimer() {
   }
   timerState.duration = 0;
   timerState.remaining = 0;
+  timerState.endTime = 0;
   timerState.isPaused = false;
 
   if (activeContainer) {
@@ -416,6 +490,7 @@ function syncCancelTimer() {
   }
   timerState.duration = 0;
   timerState.remaining = 0;
+  timerState.endTime = 0;
   timerState.isPaused = false;
 
   if (activeContainer) {
@@ -434,11 +509,13 @@ function syncCancelTimer() {
   }
 }
 
-function triggerAlarm() {
+function triggerAlarm(emitSocket = true) {
   if (timerState.interval) {
     clearInterval(timerState.interval);
     timerState.interval = null;
   }
+  timerState.remaining = 0;
+  timerState.endTime = 0;
 
   if (countdownText) {
     countdownText.textContent = "ALARM!";
@@ -455,6 +532,10 @@ function triggerAlarm() {
   timerState.alarmInterval = setInterval(() => {
     playSound(soundType);
   }, 2500);
+
+  if (emitSocket && window.socket) {
+    window.socket.emit('timer-alarm', { id: 1 });
+  }
 }
 
 function stopAlarm() {
@@ -465,9 +546,13 @@ function stopAlarm() {
 }
 
 export function getTimerStatus() {
+  let rem = timerState.remaining;
+  if (!timerState.isPaused && timerState.endTime > 0) {
+    rem = Math.max(0, Math.ceil((timerState.endTime - Date.now()) / 1000));
+  }
   return {
-    active: timerState.interval !== null || timerState.alarmInterval !== null,
-    remaining: timerState.remaining,
+    active: timerState.interval !== null || timerState.alarmInterval !== null || (timerState.endTime > Date.now()),
+    remaining: rem,
     duration: timerState.duration,
     isPaused: timerState.isPaused,
     isAlarm: timerState.alarmInterval !== null
