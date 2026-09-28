@@ -10,6 +10,10 @@ const router = express.Router();
 const ALLOWED_CONFIG_KEYS = new Set([
   'dashboard_theme',
   'dashboard_lang',
+  'dashboard_view_mode',
+  'dashboard_show_view_toggle',
+  'dashboard_carousel_infinite',
+  'dashboard_carousel_fullscreen',
   'temp_sensor_ip',
   'tasmota_scan_subnet',
   'widgetLayout',

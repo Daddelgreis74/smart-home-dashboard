@@ -112,7 +112,7 @@ function initSortable() {
   const dashboard = document.getElementById('dashboard');
   if (!window.Sortable || !dashboard) return;
   
-  Sortable.create(dashboard, {
+  window.dashboardSortable = Sortable.create(dashboard, {
     handle: '.drag-handle', // Drag handle is the 3 dots
     animation: 250,
     ghostClass: 'sortable-ghost',
@@ -123,6 +123,11 @@ function initSortable() {
       saveLayout();
     }
   });
+
+  const currentMode = localStorage.getItem('dashboard_view_mode') || 'grid';
+  if (currentMode === 'carousel' && window.dashboardSortable) {
+    window.dashboardSortable.option('disabled', true);
+  }
 }
 
 function loadSavedSettings() {
@@ -273,14 +278,16 @@ function initSettings() {
   }
 
   document.getElementById('settingsBtn').addEventListener('click', () => {
-    // Reset to general tab when opening
+    // Reset to viewmode tab when opening
     document.querySelectorAll('.settings-tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.settings-tab-content').forEach(c => c.classList.remove('active'));
     
-    const defaultTabBtn = document.querySelector('.settings-tab-btn[data-tab="general"]');
+    const defaultTabBtn = document.querySelector('.settings-tab-btn[data-tab="viewmode"]') || document.querySelector('.settings-tab-btn[data-tab="general"]');
     if (defaultTabBtn) defaultTabBtn.classList.add('active');
-    const defaultTabContent = document.getElementById('tab-general');
+    const defaultTabContent = document.getElementById('tab-viewmode') || document.getElementById('tab-general');
     if (defaultTabContent) defaultTabContent.classList.add('active');
+
+    initViewModeSettingsUI();
 
     document.getElementById('settingsOverlay').classList.add('open');
   });
@@ -590,6 +597,7 @@ function updateSettingsSidebarVisibility() {
   const showNote = localStorage.getItem('show_note') !== 'false';
 
   const tabVisibility = {
+    viewmode: true,
     general: true,
     smarthome: showTasmota,
     weather: showWeather,
@@ -619,7 +627,7 @@ function updateSettingsSidebarVisibility() {
       matchesSearch = tabText.includes(searchQuery);
     }
 
-    const isVisible = (tabName === 'general') ? (searchQuery ? matchesSearch : true) : (isActive && matchesSearch);
+    const isVisible = (tabName === 'general' || tabName === 'viewmode') ? (searchQuery ? matchesSearch : true) : (isActive && matchesSearch);
 
     if (isVisible) {
       btn.style.display = '';
@@ -632,9 +640,502 @@ function updateSettingsSidebarVisibility() {
   });
 
   if (!activeTabStillVisible) {
-    const generalTabBtn = document.querySelector('.settings-tab-btn[data-tab="general"]');
-    if (generalTabBtn) {
-      generalTabBtn.click();
+    const fallbackTabBtn = document.querySelector('.settings-tab-btn[data-tab="viewmode"]') || document.querySelector('.settings-tab-btn[data-tab="general"]');
+    if (fallbackTabBtn) {
+      fallbackTabBtn.click();
     }
   }
+}
+
+// ==========================================
+// DASHBOARD VIEW MODE (GRID vs CAROUSEL)
+// ==========================================
+
+function initViewModeSettingsUI() {
+  const currentMode = localStorage.getItem('dashboard_view_mode') || 'grid';
+  const showToggle = localStorage.getItem('dashboard_show_view_toggle') !== 'false';
+  const infiniteLoop = localStorage.getItem('dashboard_carousel_infinite') !== 'false';
+  const tapFullscreen = localStorage.getItem('dashboard_carousel_fullscreen') !== 'false';
+
+  const cardGrid = document.getElementById('settingsCardGrid');
+  const cardCarousel = document.getElementById('settingsCardCarousel');
+  if (cardGrid && cardCarousel) {
+    cardGrid.classList.toggle('selected', currentMode === 'grid');
+    cardCarousel.classList.toggle('selected', currentMode === 'carousel');
+  }
+
+  const toggleShow = document.getElementById('settingShowViewToggle');
+  if (toggleShow) toggleShow.checked = showToggle;
+
+  const toggleInfinite = document.getElementById('settingCarouselInfinite');
+  if (toggleInfinite) toggleInfinite.checked = infiniteLoop;
+
+  const toggleFs = document.getElementById('settingCarouselTapFullscreen');
+  if (toggleFs) toggleFs.checked = tapFullscreen;
+}
+
+function applyViewMode(mode) {
+  const validMode = (mode === 'carousel') ? 'carousel' : 'grid';
+  localStorage.setItem('dashboard_view_mode', validMode);
+
+  document.body.classList.remove('view-grid', 'view-carousel');
+  document.body.classList.add(`view-${validMode}`);
+
+  const btn = document.getElementById('btnViewToggle');
+  if (btn) {
+    const showToggle = localStorage.getItem('dashboard_show_view_toggle') !== 'false';
+    btn.style.display = showToggle ? '' : 'none';
+    if (validMode === 'carousel') {
+      btn.innerHTML = '<i class="fas fa-th-large"></i>';
+      btn.title = 'Zu Kachelraster wechseln';
+    } else {
+      btn.innerHTML = '<i class="fas fa-layer-group"></i>';
+      btn.title = 'Zu Deck-Karussell wechseln';
+    }
+  }
+
+  const cardGrid = document.getElementById('settingsCardGrid');
+  const cardCarousel = document.getElementById('settingsCardCarousel');
+  if (cardGrid && cardCarousel) {
+    cardGrid.classList.toggle('selected', validMode === 'grid');
+    cardCarousel.classList.toggle('selected', validMode === 'carousel');
+  }
+
+  window.dispatchEvent(new CustomEvent('viewmodechange', { detail: { mode: validMode } }));
+}
+
+let viewModeInitialized = false;
+function initViewMode() {
+  if (viewModeInitialized) return;
+  viewModeInitialized = true;
+
+  const initialMode = localStorage.getItem('dashboard_view_mode') || 'grid';
+  applyViewMode(initialMode);
+
+  // Schnellumschalter im Header
+  const btnViewToggle = document.getElementById('btnViewToggle');
+  if (btnViewToggle) {
+    btnViewToggle.addEventListener('click', () => {
+      const current = localStorage.getItem('dashboard_view_mode') || 'grid';
+      const nextMode = (current === 'grid') ? 'carousel' : 'grid';
+      applyViewMode(nextMode);
+    });
+  }
+
+  // Klick auf Auswahlkarten im Einstellungs-Dialog
+  const cardGrid = document.getElementById('settingsCardGrid');
+  const cardCarousel = document.getElementById('settingsCardCarousel');
+  if (cardGrid && cardCarousel) {
+    cardGrid.addEventListener('click', () => {
+      cardGrid.classList.add('selected');
+      cardCarousel.classList.remove('selected');
+    });
+    cardCarousel.addEventListener('click', () => {
+      cardCarousel.classList.add('selected');
+      cardGrid.classList.remove('selected');
+    });
+  }
+
+  // Speichern-Button
+  const saveBtn = document.getElementById('saveViewModeSettings');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', () => {
+      const isCarousel = cardCarousel && cardCarousel.classList.contains('selected');
+      const targetMode = isCarousel ? 'carousel' : 'grid';
+
+      const showToggle = document.getElementById('settingShowViewToggle')?.checked ?? true;
+      const infiniteLoop = document.getElementById('settingCarouselInfinite')?.checked ?? true;
+      const tapFullscreen = document.getElementById('settingCarouselTapFullscreen')?.checked ?? true;
+
+      localStorage.setItem('dashboard_show_view_toggle', showToggle ? 'true' : 'false');
+      localStorage.setItem('dashboard_carousel_infinite', infiniteLoop ? 'true' : 'false');
+      localStorage.setItem('dashboard_carousel_fullscreen', tapFullscreen ? 'true' : 'false');
+
+      applyViewMode(targetMode);
+      alert('Dashboard-Ansicht Einstellungen gespeichert.');
+    });
+  }
+}
+
+// ==========================================================================
+// DECK-CAROUSEL (COVERFLOW 3D) ENGINE & FULLSCREEN ZOOM
+// ==========================================================================
+let carouselInitialized = false;
+let carouselCurrentIndex = 0;
+const carouselPrevOffsets = new Map();
+let isCardFullscreen = false;
+let fullscreenWidget = null;
+let carouselSwipeActive = false;
+let carouselDidSwipe = false;
+let carouselStartX = 0;
+let carouselCurrentX = 0;
+let carouselStartTime = 0;
+
+function getVisibleWidgets() {
+  const dashboard = document.getElementById('dashboard');
+  if (!dashboard) return [];
+  return Array.from(dashboard.querySelectorAll('.widget')).filter(w => {
+    return !w.classList.contains('hidden') && w.style.display !== 'none';
+  });
+}
+
+function getCircularOffset(idx, current, total) {
+  let diff = (idx - current) % total;
+  if (diff > total / 2) diff -= total;
+  if (diff < -total / 2) diff += total;
+  return diff;
+}
+
+function renderCarousel() {
+  const currentMode = localStorage.getItem('dashboard_view_mode') || 'grid';
+  if (currentMode !== 'carousel') return;
+
+  const widgets = getVisibleWidgets();
+  const total = widgets.length;
+  if (total === 0) return;
+
+  const infinite = localStorage.getItem('dashboard_carousel_infinite') !== 'false';
+  if (carouselCurrentIndex >= total) carouselCurrentIndex = 0;
+  if (carouselCurrentIndex < 0) carouselCurrentIndex = total - 1;
+
+  widgets.forEach((card, idx) => {
+    let offset = 0;
+    if (infinite) {
+      offset = getCircularOffset(idx, carouselCurrentIndex, total);
+    } else {
+      offset = idx - carouselCurrentIndex;
+    }
+
+    const lastOffset = carouselPrevOffsets.get(idx);
+    const isTeleporting = (infinite && lastOffset !== undefined && Math.abs(offset) >= 3 && Math.abs(lastOffset) >= 3 && Math.sign(offset) !== Math.sign(lastOffset));
+
+    card.classList.remove('active', 'prev-1', 'next-1', 'prev-2', 'next-2', 'hidden-left', 'hidden-right');
+    if (isTeleporting) card.classList.add('no-transition');
+
+    if (offset === 0) {
+      card.classList.add('active');
+    } else if (offset === -1) {
+      card.classList.add('prev-1');
+    } else if (offset === 1) {
+      card.classList.add('next-1');
+    } else if (offset === -2) {
+      card.classList.add('prev-2');
+    } else if (offset === 2) {
+      card.classList.add('next-2');
+    } else if (offset <= -3) {
+      card.classList.add('hidden-left');
+    } else if (offset >= 3) {
+      card.classList.add('hidden-right');
+    }
+
+    if (Math.abs(offset) >= 3) {
+      card.style.visibility = 'hidden';
+      card.style.pointerEvents = 'none';
+    } else {
+      card.style.visibility = '';
+      card.style.pointerEvents = '';
+    }
+
+    if (isTeleporting) {
+      void card.offsetWidth;
+      requestAnimationFrame(() => {
+        card.classList.remove('no-transition');
+      });
+    }
+
+    carouselPrevOffsets.set(idx, offset);
+  });
+
+  // Update Navigation-Pills
+  const pillsContainer = document.getElementById('carouselPills');
+  if (pillsContainer) {
+    const pills = pillsContainer.querySelectorAll('.carousel-pill');
+    pills.forEach((pill, idx) => {
+      pill.classList.toggle('active', idx === carouselCurrentIndex);
+    });
+  }
+
+  // Pfeil-Buttons ggf. deaktivieren wenn kein Endlos-Scrollen
+  const prevBtn = document.getElementById('carouselNavPrev');
+  const nextBtn = document.getElementById('carouselNavNext');
+  if (prevBtn && nextBtn) {
+    if (!infinite) {
+      prevBtn.style.opacity = carouselCurrentIndex === 0 ? '0.3' : '1';
+      prevBtn.style.pointerEvents = carouselCurrentIndex === 0 ? 'none' : 'auto';
+      nextBtn.style.opacity = carouselCurrentIndex === total - 1 ? '0.3' : '1';
+      nextBtn.style.pointerEvents = carouselCurrentIndex === total - 1 ? 'none' : 'auto';
+    } else {
+      prevBtn.style.opacity = '1';
+      prevBtn.style.pointerEvents = 'auto';
+      nextBtn.style.opacity = '1';
+      nextBtn.style.pointerEvents = 'auto';
+    }
+  }
+}
+
+function carouselGoTo(index) {
+  const widgets = getVisibleWidgets();
+  const total = widgets.length;
+  if (total === 0) return;
+  const infinite = localStorage.getItem('dashboard_carousel_infinite') !== 'false';
+  if (infinite) {
+    carouselCurrentIndex = ((index % total) + total) % total;
+  } else {
+    carouselCurrentIndex = Math.max(0, Math.min(total - 1, index));
+  }
+  renderCarousel();
+}
+
+function carouselNext() {
+  carouselGoTo(carouselCurrentIndex + 1);
+}
+
+function carouselPrev() {
+  carouselGoTo(carouselCurrentIndex - 1);
+}
+
+function openWidgetFullscreen(widget) {
+  if (isCardFullscreen) return;
+  isCardFullscreen = true;
+  fullscreenWidget = widget;
+  document.body.classList.add('card-fullscreen-mode');
+  widget.classList.add('fullscreen');
+
+  const zoomBtn = widget.querySelector('.widget-carousel-zoom-btn i');
+  if (zoomBtn) {
+    zoomBtn.className = 'fas fa-compress';
+  }
+
+  // Canvas / Resize Event triggern
+  window.dispatchEvent(new Event('resize'));
+}
+
+function closeWidgetFullscreen() {
+  if (!isCardFullscreen) return;
+  isCardFullscreen = false;
+  document.body.classList.remove('card-fullscreen-mode');
+  if (fullscreenWidget) {
+    fullscreenWidget.classList.remove('fullscreen');
+    const zoomBtn = fullscreenWidget.querySelector('.widget-carousel-zoom-btn i');
+    if (zoomBtn) {
+      zoomBtn.className = 'fas fa-expand';
+    }
+    fullscreenWidget = null;
+  }
+  window.dispatchEvent(new Event('resize'));
+}
+
+function toggleWidgetFullscreen(widget) {
+  if (isCardFullscreen) {
+    closeWidgetFullscreen();
+  } else {
+    openWidgetFullscreen(widget);
+  }
+}
+
+function initCarouselPills() {
+  const pillsContainer = document.getElementById('carouselPills');
+  if (!pillsContainer) return;
+  pillsContainer.innerHTML = '';
+
+  const widgets = getVisibleWidgets();
+  widgets.forEach((w, idx) => {
+    const titleSpan = w.querySelector('.widget-header h3 span');
+    const iconEl = w.querySelector('.widget-header h3 i');
+    const title = titleSpan ? titleSpan.textContent.trim() : (w.dataset.type || `Widget ${idx + 1}`);
+    const iconClass = iconEl ? iconEl.className : 'fas fa-th';
+
+    const pill = document.createElement('div');
+    pill.className = `carousel-pill ${idx === carouselCurrentIndex ? 'active' : ''}`;
+    pill.innerHTML = `<i class="${iconClass}"></i> <span>${title}</span>`;
+    pill.addEventListener('click', (e) => {
+      e.stopPropagation();
+      carouselGoTo(idx);
+    });
+    pillsContainer.appendChild(pill);
+  });
+}
+
+function injectZoomButtons() {
+  const widgets = document.querySelectorAll('#dashboard > .widget');
+  widgets.forEach(w => {
+    const header = w.querySelector('.widget-header');
+    if (header && !header.querySelector('.widget-carousel-zoom-btn')) {
+      const zoomBtn = document.createElement('button');
+      zoomBtn.type = 'button';
+      zoomBtn.className = 'widget-carousel-zoom-btn';
+      zoomBtn.title = 'Vollbild umschalten';
+      zoomBtn.innerHTML = '<i class="fas fa-expand"></i>';
+      zoomBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleWidgetFullscreen(w);
+      });
+      header.appendChild(zoomBtn);
+    }
+  });
+}
+
+function initCarouselEngine() {
+  if (carouselInitialized) return;
+  carouselInitialized = true;
+
+  const dashboard = document.getElementById('dashboard');
+  if (!dashboard) return;
+
+  injectZoomButtons();
+  initCarouselPills();
+
+  // Navigation Arrows
+  const prevBtn = document.getElementById('carouselNavPrev');
+  const nextBtn = document.getElementById('carouselNavNext');
+  if (prevBtn) prevBtn.addEventListener('click', carouselPrev);
+  if (nextBtn) nextBtn.addEventListener('click', carouselNext);
+
+  // Widget Klick- & Tap-Steuerung
+  dashboard.addEventListener('click', (e) => {
+    const currentMode = localStorage.getItem('dashboard_view_mode') || 'grid';
+    if (currentMode !== 'carousel') return;
+    if (carouselDidSwipe) return;
+
+    // Wenn Detailansicht aktiv ist und auf den abgedunkelten Hintergrund getippt wird: schließen
+    if (isCardFullscreen && !e.target.closest('.widget.fullscreen')) {
+      closeWidgetFullscreen();
+      return;
+    }
+
+    const widget = e.target.closest('.widget');
+    if (!widget) return;
+
+    const widgets = getVisibleWidgets();
+    const widgetIndex = widgets.indexOf(widget);
+    if (widgetIndex === -1) return;
+
+    // 1. Wenn Karte nicht im Fokus: Ins Zentrum holen
+    if (widgetIndex !== carouselCurrentIndex) {
+      if (!e.target.closest('button, input, select, textarea, canvas, a')) {
+        carouselGoTo(widgetIndex);
+      }
+      return;
+    }
+
+    // 2. Wenn Karte bereits aktiv / zentriert ist:
+    // A) Klick auf Zoom-Button hat eigenen Handler
+    if (e.target.closest('.widget-carousel-zoom-btn')) {
+      return;
+    }
+
+    // B) Klick auf interaktive Controls im Widget: normal bedienen
+    const isInteractive = e.target.closest(
+      'button, input, select, textarea, canvas, a, ' +
+      '.play-round-btn, .widget-volume-control, .radio-presets-widget, .radio-main-panel, ' +
+      '.t-btn, .btn, .gauge-container, .tasmota-row, .waste-item, .camera-view, .station-badge, ' +
+      '.sensor-item, .appt-item, .drag-handle, .note-tool-btn, .note-color-btn, .note-size-btn, ' +
+      '.timer-preset-btn, .timer-btn, .preset-btn, .note-paper-preview'
+    );
+    if (isInteractive) {
+      return;
+    }
+
+    // C) Klick auf Header oder leeren Widget-Hintergrund:
+    // Wenn Vollbild-Zoom aktiviert ist, umschalten
+    const tapFullscreen = localStorage.getItem('dashboard_carousel_fullscreen') !== 'false';
+    if (tapFullscreen || isCardFullscreen) {
+      toggleWidgetFullscreen(widget);
+    }
+  });
+
+  // Touch & Pointer Swipe Gesten
+  dashboard.addEventListener('pointerdown', (e) => {
+    const currentMode = localStorage.getItem('dashboard_view_mode') || 'grid';
+    if (currentMode !== 'carousel' || isCardFullscreen) return;
+    if (e.target.closest('#noteCanvas, .note-canvas-wrapper, input[type="range"]')) return;
+
+    carouselSwipeActive = true;
+    carouselDidSwipe = false;
+    carouselStartX = e.clientX;
+    carouselCurrentX = e.clientX;
+    carouselStartTime = Date.now();
+  });
+
+  window.addEventListener('pointermove', (e) => {
+    if (!carouselSwipeActive) return;
+    carouselCurrentX = e.clientX;
+    if (Math.abs(carouselCurrentX - carouselStartX) > 12) {
+      carouselDidSwipe = true;
+    }
+  });
+
+  window.addEventListener('pointerup', () => {
+    if (!carouselSwipeActive) return;
+    carouselSwipeActive = false;
+    const diffX = carouselCurrentX - carouselStartX;
+    const elapsed = Date.now() - carouselStartTime;
+
+    if (diffX < -40 || (diffX < -20 && elapsed < 350)) {
+      carouselNext();
+    } else if (diffX > 40 || (diffX > 20 && elapsed < 350)) {
+      carouselPrev();
+    }
+
+    setTimeout(() => {
+      carouselDidSwipe = false;
+    }, 120);
+  });
+
+  window.addEventListener('pointercancel', () => {
+    carouselSwipeActive = false;
+  });
+
+  // Tastatur-Navigation
+  window.addEventListener('keydown', (e) => {
+    const currentMode = localStorage.getItem('dashboard_view_mode') || 'grid';
+    if (e.key === 'Escape' && isCardFullscreen) {
+      closeWidgetFullscreen();
+      return;
+    }
+    if (currentMode !== 'carousel' || isCardFullscreen) return;
+
+    if (e.key === 'ArrowRight') carouselNext();
+    if (e.key === 'ArrowLeft') carouselPrev();
+  });
+
+  // Reagiere auf Ansichtswechsel
+  window.addEventListener('viewmodechange', (e) => {
+    const mode = e.detail?.mode;
+    if (mode === 'carousel') {
+      if (window.dashboardSortable) {
+        window.dashboardSortable.option('disabled', true);
+      }
+      initCarouselPills();
+      renderCarousel();
+    } else {
+      closeWidgetFullscreen();
+      if (window.dashboardSortable) {
+        window.dashboardSortable.option('disabled', false);
+      }
+      // Entferne alle Karussell-Klassen
+      const widgets = document.querySelectorAll('#dashboard > .widget');
+      widgets.forEach(w => {
+        w.classList.remove('active', 'prev-1', 'next-1', 'prev-2', 'next-2', 'hidden-left', 'hidden-right', 'no-transition', 'fullscreen');
+        w.style.visibility = '';
+        w.style.pointerEvents = '';
+      });
+    }
+  });
+
+  // Initiale Ausführung falls bereits Karussell-Modus
+  const initialMode = localStorage.getItem('dashboard_view_mode') || 'grid';
+  if (initialMode === 'carousel') {
+    renderCarousel();
+  }
+}
+
+// Initialisiere View Mode und Carousel beim Laden
+document.addEventListener('DOMContentLoaded', () => {
+  initViewMode();
+  initCarouselEngine();
+});
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  initViewMode();
+  initCarouselEngine();
 }

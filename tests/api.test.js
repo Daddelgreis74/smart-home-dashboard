@@ -172,6 +172,7 @@ describe('API Endpoints Tests', () => {
       config: {
         dashboard_lang: 'de',
         dashboard_theme: 'theme-aurora',
+        dashboard_view_mode: 'carousel',
         weather_location: 'Altenburg',
         weather_provider: 'openmeteo'
       },
@@ -195,6 +196,7 @@ describe('API Endpoints Tests', () => {
 
     const configContent = JSON.parse(fs.readFileSync(configPath, 'utf8'));
     expect(configContent.setup_completed).toBe(true);
+    expect(configContent.dashboard_view_mode).toBe('carousel');
 
     const tasmotaPath = path.join(testDataDir, 'tasmota.json');
     const tasmotaContent = JSON.parse(fs.readFileSync(tasmotaPath, 'utf8'));

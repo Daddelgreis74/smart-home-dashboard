@@ -35,6 +35,7 @@
       <div class="header-right">
         <span class="header-version-badge" id="headerVersionBadge" title="Dashboard Version"></span>
         <div class="header-date" id="headerDate">---</div>
+        <button class="settings-btn" id="btnViewToggle" title="Ansicht umschalten (Kachelraster / Karussell)"><i class="fas fa-layer-group"></i></button>
         <button class="settings-btn" id="settingsBtn"><i class="fas fa-bars"></i></button>
       </div>
     </header>
@@ -51,8 +52,11 @@
         <div class="settings-layout">
           <!-- Sidebar Navigation -->
           <div class="settings-sidebar">
-            <button class="settings-tab-btn active" data-tab="general">
-              <i class="fas fa-palette"></i> <span data-i18n="settings_tab_general">Design & Layout</span>
+            <button class="settings-tab-btn active" data-tab="viewmode">
+              <i class="fas fa-layer-group"></i> <span data-i18n="settings_tab_viewmode">Dashboard-Ansicht</span>
+            </button>
+            <button class="settings-tab-btn" data-tab="general">
+              <i class="fas fa-palette"></i> <span data-i18n="settings_tab_general">Design & Farben</span>
             </button>
             <button class="settings-tab-btn" data-tab="smarthome">
               <i class="fas fa-plug"></i> <span data-i18n="settings_tab_smarthome">Smart Home</span>
@@ -96,8 +100,82 @@
           <!-- Content Area -->
           <div class="settings-body">
             
-            <!-- TAB: DESIGN & LAYOUT -->
-            <div class="settings-tab-content active" id="tab-general">
+            <!-- TAB: DASHBOARD-ANSICHT -->
+            <div class="settings-tab-content active" id="tab-viewmode">
+              <div class="setting-section">
+                <h3 class="section-title"><i class="fas fa-layer-group"></i> <span data-i18n="viewmode_section_title">Standard-Ansichtsmodus</span></h3>
+                <p data-i18n="viewmode_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Wähle das Standard-Layout, in dem dein Dashboard beim Öffnen starten soll.</p>
+                
+                <div class="viewmode-cards-grid">
+                  <!-- KARTE 1: KACHELRASTER -->
+                  <div class="viewmode-card selected" id="settingsCardGrid">
+                    <div class="viewmode-radio-circle"></div>
+                    <span class="viewmode-badge" data-i18n="viewmode_grid_badge">Desktop & Monitor</span>
+                    <div class="viewmode-mockup">
+                      <div class="viewmode-mini-grid">
+                        <div class="viewmode-mini-tile"></div>
+                        <div class="viewmode-mini-tile"></div>
+                        <div class="viewmode-mini-tile"></div>
+                        <div class="viewmode-mini-tile"></div>
+                        <div class="viewmode-mini-tile"></div>
+                        <div class="viewmode-mini-tile"></div>
+                      </div>
+                    </div>
+                    <div style="font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px;" data-i18n="viewmode_grid_title">Kompaktes Kachelraster</div>
+                    <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;" data-i18n="viewmode_grid_desc">Alle aktiven Widgets gleichzeitig auf einem Bildschirm im Überblick. Klassisches Raster – ideal für Desktop-PCs und Monitore.</div>
+                  </div>
+
+                  <!-- KARTE 2: DECK-COVERFLOW -->
+                  <div class="viewmode-card" id="settingsCardCarousel">
+                    <div class="viewmode-radio-circle"></div>
+                    <span class="viewmode-badge" data-i18n="viewmode_carousel_badge">Tablet & Touch</span>
+                    <div class="viewmode-mockup">
+                      <div class="viewmode-mini-coverflow">
+                        <div class="viewmode-mini-prev"></div>
+                        <div class="viewmode-mini-hero"><i class="fas fa-radio"></i></div>
+                        <div class="viewmode-mini-next"></div>
+                      </div>
+                    </div>
+                    <div style="font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 4px;" data-i18n="viewmode_carousel_title">Deck-Karussell (Coverflow)</div>
+                    <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;" data-i18n="viewmode_carousel_desc">Großformatige Hero-Karten mit Touch- und Wischgesten, Endlos-Scrollen und Vollbild-Zoom. Ideal für Wand-Tablets.</div>
+                  </div>
+                </div>
+
+                <div class="toggle-group" style="margin-top: 20px;">
+                  <label class="toggle-label">
+                    <div>
+                      <div data-i18n="viewmode_opt_header_toggle" style="font-size: 13px; font-weight: 500;">Schnellumschalter in Menüleiste anzeigen</div>
+                      <div data-i18n="viewmode_opt_header_toggle_desc" style="font-size: 10px; color: var(--text-muted); font-weight: normal; margin-top: 2px;">Ermöglicht den schnellen 1-Klick-Wechsel direkt über das Icon in der oberen Dashboard-Leiste.</div>
+                    </div>
+                    <input type="checkbox" id="settingShowViewToggle" checked>
+                    <div class="toggle-switch"></div>
+                  </label>
+
+                  <label class="toggle-label" style="margin-top: 12px;">
+                    <div>
+                      <div data-i18n="viewmode_opt_infinite" style="font-size: 13px; font-weight: 500;">Endlos-Scrollen (Circular Loop)</div>
+                      <div data-i18n="viewmode_opt_infinite_desc" style="font-size: 10px; color: var(--text-muted); font-weight: normal; margin-top: 2px;">Karten nahtlos im Kreis durchblättern ohne Endanschlag.</div>
+                    </div>
+                    <input type="checkbox" id="settingCarouselInfinite" checked>
+                    <div class="toggle-switch"></div>
+                  </label>
+
+                  <label class="toggle-label" style="margin-top: 12px;">
+                    <div>
+                      <div data-i18n="viewmode_opt_fullscreen" style="font-size: 13px; font-weight: 500;">Tap-to-Fullscreen Zoom</div>
+                      <div data-i18n="viewmode_opt_fullscreen_desc" style="font-size: 10px; color: var(--text-muted); font-weight: normal; margin-top: 2px;">Tippen auf das Widget öffnet die 100%-Vollbildansicht, erneutes Tippen schließt sie wieder.</div>
+                    </div>
+                    <input type="checkbox" id="settingCarouselTapFullscreen" checked>
+                    <div class="toggle-switch"></div>
+                  </label>
+                </div>
+
+                <button class="btn" id="saveViewModeSettings" style="margin-top: 20px; width: 100%;"><i class="fas fa-save"></i> <span data-i18n="viewmode_btn_save">Einstellungen speichern</span></button>
+              </div>
+            </div>
+
+            <!-- TAB: DESIGN & FARBEN -->
+            <div class="settings-tab-content" id="tab-general">
               <!-- 0. DASHBOARD DESIGN -->
               <div class="setting-section">
                 <h3 class="section-title"><i class="fas fa-palette"></i> <span data-i18n="design_section_title">Dashboard Design</span></h3>
@@ -972,6 +1050,17 @@
       </div>
 
     </main>
+
+    <!-- Deck-Karussell (Coverflow) Navigations-Elemente -->
+    <button class="carousel-nav-btn prev" id="carouselNavPrev" aria-label="Vorheriges Widget" title="Vorheriges Widget">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <button class="carousel-nav-btn next" id="carouselNavNext" aria-label="Nächstes Widget" title="Nächstes Widget">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+    <div class="carousel-dock" id="carouselDock">
+      <div class="carousel-pills" id="carouselPills"></div>
+    </div>
   </div>
   <!-- Live Fritz!Box Call Toast Overlay -->
   <div class="fritz-toast-overlay" id="fritzToastOverlay" hidden>

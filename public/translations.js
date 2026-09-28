@@ -194,7 +194,23 @@ const translations = {
     "note_color_purple": "Lavendel",
     "settings_tab_note": "Notizzettel",
     "note_section_title": "Notizzettel",
-    "note_section_desc": "Passe das Erscheinungsbild und Verhalten des Notizzettel-Widgets an."
+    "note_section_desc": "Passe das Erscheinungsbild und Verhalten des Notizzettel-Widgets an.",
+    "settings_tab_viewmode": "Dashboard-Ansicht",
+    "viewmode_section_title": "Standard-Ansichtsmodus",
+    "viewmode_section_desc": "Wähle das Standard-Layout, in dem dein Dashboard beim Öffnen starten soll.",
+    "viewmode_grid_title": "Kompaktes Kachelraster",
+    "viewmode_grid_desc": "Alle aktiven Widgets gleichzeitig auf einem Bildschirm im Überblick. Klassisches Raster – ideal für Desktop-PCs und breite Monitore.",
+    "viewmode_grid_badge": "Desktop & Monitor",
+    "viewmode_carousel_title": "Deck-Karussell (Coverflow)",
+    "viewmode_carousel_desc": "Großformatige Hero-Karten mit Touch- und Wischgesten, Endlos-Scrollen und Vollbild-Zoom. Ideal für Wand-Tablets.",
+    "viewmode_carousel_badge": "Tablet & Touch",
+    "viewmode_opt_header_toggle": "Schnellumschalter in Menüleiste anzeigen",
+    "viewmode_opt_header_toggle_desc": "Ermöglicht den schnellen 1-Klick-Wechsel direkt über das Icon in der oberen Dashboard-Leiste.",
+    "viewmode_opt_infinite": "Endlos-Scrollen (Circular Loop)",
+    "viewmode_opt_infinite_desc": "Karten nahtlos im Kreis durchblättern ohne Endanschlag.",
+    "viewmode_opt_fullscreen": "Tap-to-Fullscreen Zoom",
+    "viewmode_opt_fullscreen_desc": "Tippen auf das Widget öffnet die 100%-Vollbildansicht, erneutes Tippen schließt sie wieder.",
+    "viewmode_btn_save": "Einstellungen speichern"
   },
   en: {
     // Header
@@ -391,7 +407,23 @@ const translations = {
     "note_color_purple": "Lavender",
     "settings_tab_note": "Sticky Note",
     "note_section_title": "Sticky Note",
-    "note_section_desc": "Customize the appearance and behavior of the sticky note widget."
+    "note_section_desc": "Customize the appearance and behavior of the sticky note widget.",
+    "settings_tab_viewmode": "Dashboard View",
+    "viewmode_section_title": "Default View Mode",
+    "viewmode_section_desc": "Choose the default layout your dashboard starts with.",
+    "viewmode_grid_title": "Compact Grid",
+    "viewmode_grid_desc": "All active widgets visible at once on one screen. Classic fixed grid – ideal for desktop PCs and monitors.",
+    "viewmode_grid_badge": "Desktop & Monitor",
+    "viewmode_carousel_title": "Deck Carousel (Coverflow)",
+    "viewmode_carousel_desc": "Large hero cards with touch & stylus swipe gestures, infinite looping, and tap-to-fullscreen zoom. Ideal for wall tablets.",
+    "viewmode_carousel_badge": "Tablet & Touch",
+    "viewmode_opt_header_toggle": "Show quick view toggle in top bar",
+    "viewmode_opt_header_toggle_desc": "Enables 1-click view switching right from the top navigation bar.",
+    "viewmode_opt_infinite": "Infinite Loop Scrolling",
+    "viewmode_opt_infinite_desc": "Seamlessly scroll through cards in a circle without hard stops.",
+    "viewmode_opt_fullscreen": "Tap-to-Fullscreen Zoom",
+    "viewmode_opt_fullscreen_desc": "Tapping a card expands it to 100% full screen, tapping again returns to carousel.",
+    "viewmode_btn_save": "Save Settings"
   },
   fr: {
     // Header
@@ -551,7 +583,8 @@ const translations = {
     "timer_preset_tea": "🫖 Thé (3m)",
     "timer_preset_egg": "🥚 Œuf (5m)",
     "timer_preset_pasta": "🍝 Pâtes (10m)",
-    "timer_preset_pizza": "🍕 Pizza (15m)"
+    "timer_preset_pizza": "🍕 Pizza (15m)",
+    "settings_tab_viewmode": "Vue Dashboard"
   },
   es: {
     // Header
@@ -711,7 +744,8 @@ const translations = {
     "timer_preset_tea": "🫖 Té (3m)",
     "timer_preset_egg": "🥚 Huevo (5m)",
     "timer_preset_pasta": "🍝 Pasta (10m)",
-    "timer_preset_pizza": "🍕 Pizza (15m)"
+    "timer_preset_pizza": "🍕 Pizza (15m)",
+    "settings_tab_viewmode": "Vista Panel"
   },
   it: {
     // Header
@@ -871,7 +905,8 @@ const translations = {
     "timer_preset_tea": "🫖 Tè (3m)",
     "timer_preset_egg": "🥚 Uovo (5m)",
     "timer_preset_pasta": "🍝 Pasta (10m)",
-    "timer_preset_pizza": "🍕 Pizza (15m)"
+    "timer_preset_pizza": "🍕 Pizza (15m)",
+    "settings_tab_viewmode": "Vista Dashboard"
   },
   nl: {
     // Header
@@ -1031,7 +1066,8 @@ const translations = {
     "timer_preset_tea": "🫖 Thee (3m)",
     "timer_preset_egg": "🥚 Eier (5m)",
     "timer_preset_pasta": "🍝 Pasta (10m)",
-    "timer_preset_pizza": "🍕 Pizza (15m)"
+    "timer_preset_pizza": "🍕 Pizza (15m)",
+    "settings_tab_viewmode": "Dashboard-weergave"
   },
   pl: {
     // Header
@@ -1191,7 +1227,8 @@ const translations = {
     "timer_preset_tea": "🫖 Herbata (3m)",
     "timer_preset_egg": "🥚 Jajko (5m)",
     "timer_preset_pasta": "🍝 Makaron (10m)",
-    "timer_preset_pizza": "🍕 Pizza (15m)"
+    "timer_preset_pizza": "🍕 Pizza (15m)",
+    "settings_tab_viewmode": "Widok panelu"
   }
 };
 

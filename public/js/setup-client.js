@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const config = {
     dashboard_lang: 'de',
     dashboard_theme: 'theme-aurora',
+    dashboard_view_mode: 'grid',
     weather_location: '',
     weather_provider: 'openmeteo',
     weather_lat: null,
@@ -33,6 +34,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const tasmotaDevices = [];
   let icsUploaded = false;
+
+  // Check if setup was already completed
+  fetch('/api/config/status')
+    .then(r => r.json())
+    .then(data => {
+      if (data.success && !data.needsSetup) {
+        window.location.href = '/';
+      }
+    })
+    .catch(() => {});
 
   // Check if calendar already exists
   fetch('/api/appointments/ics-data')
@@ -96,6 +107,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const theme = card.getAttribute('data-theme');
       config.dashboard_theme = theme;
       applyTheme(theme);
+    });
+  });
+
+  // Step 1: View mode selection listener
+  const viewModeCards = document.querySelectorAll('.viewmode-setup-card');
+  viewModeCards.forEach(card => {
+    card.addEventListener('click', () => {
+      viewModeCards.forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      const mode = card.getAttribute('data-viewmode') || 'grid';
+      config.dashboard_view_mode = mode;
+      localStorage.setItem('dashboard_view_mode', mode);
     });
   });
 
@@ -422,6 +445,13 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (config.dashboard_theme === 'theme-jarvis') themeText = 'J.A.R.V.I.S. HUD';
     document.getElementById('sumTheme').textContent = themeText;
 
+    const sumViewMode = document.getElementById('sumViewMode');
+    if (sumViewMode) {
+      sumViewMode.textContent = config.dashboard_view_mode === 'carousel' 
+        ? 'Deck-Karussell (Coverflow)' 
+        : 'Kompaktes Kachelraster';
+    }
+
     document.getElementById('sumWeather').textContent = config.weather_location 
       ? config.weather_location 
       : 'Nicht konfiguriert';
@@ -470,8 +500,9 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       const data = await res.json();
       if (data.success) {
-        // Success! Reload page - server will now serve the real index.html
-        window.location.reload();
+        // Success! Redirect to main dashboard
+        localStorage.setItem('dashboard_view_mode', config.dashboard_view_mode);
+        window.location.href = '/';
       } else {
         throw new Error(data.error || 'Speichern der Einstellungen fehlgeschlagen');
       }

@@ -41,7 +41,7 @@ try {
   console.error('[Server] Fehler beim Cachen von index.html beim Start:', err.message);
 }
 
-app.get(['/', '/index.html'], (req, res) => {
+app.get(['/', '/index.html', '/setup.html'], (req, res) => {
   let setupCompleted = false;
   if (fs.existsSync(CONFIG_FILE)) {
     try {
@@ -55,6 +55,9 @@ app.get(['/', '/index.html'], (req, res) => {
   if (!setupCompleted) {
     res.sendFile(path.join(__dirname, 'public', 'setup.html'));
   } else {
+    if (req.path === '/setup.html') {
+      return res.redirect('/');
+    }
     if (cachedIndexHtml) {
       res.send(cachedIndexHtml);
     } else {

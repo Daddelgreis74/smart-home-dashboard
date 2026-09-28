@@ -407,6 +407,94 @@ select.form-control {
   font-weight: 500;
 }
 
+/* Viewmode setup cards */
+.viewmode-setup-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+  .viewmode-setup-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.viewmode-setup-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.viewmode-setup-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(99, 102, 241, 0.4);
+  transform: translateY(-2px);
+}
+
+.viewmode-setup-card.selected {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.25);
+}
+
+.viewmode-setup-radio {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.viewmode-setup-card.selected .viewmode-setup-radio {
+  border-color: var(--accent-primary);
+  background: var(--accent-primary);
+}
+
+.viewmode-setup-card.selected .viewmode-setup-radio::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #000;
+}
+
+.viewmode-setup-icon {
+  font-size: 24px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.viewmode-setup-card.selected .viewmode-setup-icon {
+  color: var(--accent-primary);
+}
+
+.viewmode-setup-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.viewmode-setup-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
 /* Indicators */
 .setup-test-indicator {
   margin-top: 15px;
