@@ -12,7 +12,7 @@
     "no-console": "off",
     "no-empty": "warn"
   },
-  "ignorePatterns": ["www/"],
+  "ignorePatterns": ["www/", "scratch/"],
   "overrides": [
     {
       "files": ["public/**/*.js"],

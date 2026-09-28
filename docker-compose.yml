@@ -7,6 +7,7 @@ services:
     ports:
       - "8443:8443"
       - "8080:8080"
+      - "8888:8888/udp"
     volumes:
       # Mountet alle Konfigurationen, Kalender-Uploads (calendar.ics) und SSL-Zertifikate in einen lokalen Ordner
       - ./data:/app/data

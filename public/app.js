@@ -63,7 +63,7 @@ function init() {
     () => initRadioWidget(socket),
     () => initFritzRadioPopup(),
     () => initRadioWakeGuards(),
-    () => initSensorWidget(),
+    () => initSensorWidget(socket),
     () => initSystemBargraph(socket),
     () => initTasmota(),
     () => initFritzbox(socket),

@@ -302,7 +302,107 @@ export async function refreshSensorWidget() {
   }
 }
 
-export function initSensorWidget() {
+export function handleRealtimeSensorUpdate(data) {
+  if (!data || typeof data !== 'object') return;
+  const sensorList = getSensorListFromConfig();
+  if (!sensorList || sensorList.length === 0) return;
+
+  const targetIp = data.senderIp || data.ip;
+  const isSolarOutdoor = String(data.sensor || '').toLowerCase().includes('outdoor') || String(data.sensor || '').toLowerCase().includes('solar');
+
+  let matchIndex = -1;
+  if (targetIp) {
+    matchIndex = sensorList.findIndex(s => s.ip === targetIp);
+  }
+  if (matchIndex === -1 && isSolarOutdoor) {
+    matchIndex = sensorList.findIndex(s => {
+      const n = (s.name || '').toLowerCase();
+      return n.includes('out') || n.includes('außen') || n.includes('aussen') || n.includes('solar');
+    });
+  }
+  if (matchIndex === -1 && sensorList.length === 1) {
+    matchIndex = 0;
+  }
+
+  if (matchIndex === -1) return;
+
+  const tempEl = document.getElementById(`sensorTemp-${matchIndex}`);
+  const humEl = document.getElementById(`sensorHum-${matchIndex}`);
+  const batEl = document.getElementById(`sensorBat-${matchIndex}`);
+  if (!tempEl) return;
+
+  const temp = Number(data.temperature);
+  const hum = Number(data.humidity);
+
+  if (Number.isFinite(temp)) {
+    tempEl.textContent = temp.toFixed(1);
+    const trendEl = document.getElementById(`sensorTrend-${matchIndex}`);
+    if (trendEl) {
+      const prev = prevTemps[matchIndex];
+      if (prev !== undefined && prev !== null) {
+        const diff = temp - prev;
+        if (diff > 0.1) {
+          trendEl.innerHTML = '<i class="fas fa-arrow-up-long lcd-trend-up" title="Steigend"></i>';
+        } else if (diff < -0.1) {
+          trendEl.innerHTML = '<i class="fas fa-arrow-down-long lcd-trend-down" title="Fallend"></i>';
+        } else {
+          trendEl.innerHTML = '<i class="fas fa-arrow-right-long lcd-trend-stable" title="Stabil"></i>';
+        }
+      }
+      prevTemps[matchIndex] = temp;
+    }
+  }
+
+  if (Number.isFinite(hum) && humEl) {
+    humEl.textContent = `${Math.round(hum)}%`;
+    const comfortEl = document.getElementById(`sensorComfort-${matchIndex}`);
+    if (comfortEl) {
+      if (hum >= 40 && hum <= 60) {
+        comfortEl.innerHTML = '<i class="fas fa-face-smile lcd-comfort-ok" title="Komfortbereich"></i>';
+      } else if (hum > 60) {
+        comfortEl.innerHTML = '<i class="fas fa-droplet lcd-comfort-wet" title="Feucht"></i>';
+      } else {
+        comfortEl.innerHTML = '<i class="fas fa-sun lcd-comfort-dry" title="Trocken"></i>';
+      }
+    }
+  }
+
+  if (batEl) {
+    const pct = (data.batteryPercent !== null && data.batteryPercent !== undefined) ? Number(data.batteryPercent) : null;
+    const volt = (data.batteryVoltage !== null && data.batteryVoltage !== undefined) ? Number(data.batteryVoltage) : null;
+    if (pct !== null || volt !== null) {
+      batEl.style.display = 'flex';
+      let batIcon = 'fa-battery-half';
+      let batColor = '#22c55e';
+      if (pct !== null) {
+        if (pct < 20) { batIcon = 'fa-battery-empty'; batColor = '#ef4444'; }
+        else if (pct < 50) { batIcon = 'fa-battery-quarter'; batColor = '#f97316'; }
+        else if (pct < 75) { batIcon = 'fa-battery-half'; }
+        else if (pct < 90) { batIcon = 'fa-battery-three-quarters'; }
+        else { batIcon = 'fa-battery-full'; }
+      }
+      batEl.style.color = batColor;
+      let batText = `<i class="fas ${batIcon}"></i>`;
+      if (pct !== null) batText += ` <span>${pct}%</span>`;
+      if (volt !== null) {
+        if (pct !== null) batText += ` <span style="opacity: 0.6; font-size: 8px; margin-left: 2px;">(${volt.toFixed(2)}V)</span>`;
+        else batText += ` <span>${volt.toFixed(2)}V</span>`;
+      }
+      batEl.innerHTML = batText;
+    }
+  }
+
+  const combinedStatusEl = document.getElementById('sensorStatus-combined');
+  const statusDotEl = document.getElementById('lcdStatusDot');
+  if (combinedStatusEl) {
+    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    const name = sensorList[matchIndex].name || (isSolarOutdoor ? 'Außen' : 'Sensor');
+    combinedStatusEl.textContent = `${name}: ${now} (Live UDP)`;
+    if (statusDotEl) statusDotEl.className = 'lcd-status-dot';
+  }
+}
+
+export function initSensorWidget(socket) {
   let list = Config.get('sensorList');
   if (!list) {
     const legacyIp = Config.get('sensorIp');
@@ -315,4 +415,17 @@ export function initSensorWidget() {
   renderSensorSettings();
   refreshSensorWidget();
   setInterval(refreshSensorWidget, 15000);
+
+  if (socket) {
+    socket.on('sensor_update', (data) => {
+      handleRealtimeSensorUpdate(data);
+    });
+    socket.on('sensor-update', (payload) => {
+      if (payload && payload.data) {
+        handleRealtimeSensorUpdate({ ...payload.data, ip: payload.ip });
+      } else if (payload) {
+        handleRealtimeSensorUpdate(payload);
+      }
+    });
+  }
 }

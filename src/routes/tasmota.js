@@ -47,22 +47,17 @@ router.post('/', (req, res) => {
   res.json({ success: true, saved: fileStore.tasmotaRAM });
 });
 
-// Neuer Endpoint für den Push-Empfang vom solarbetriebenen ESP32-C3
-router.post('/sensor-push', (req, res) => {
-  const ip = req.ip.replace(/^::ffff:/, ''); // IPv4 extrahieren falls dual-stack
-  const data = req.body || {};
-  
-  console.log(`[Tasmota Push] Empfangen von ${ip}:`, data);
-  
-  const nowIso = new Date().toISOString();
+function updatePushedSensor(ip, data) {
+  const nowIso = data?.receivedAt || data?.time || new Date().toISOString();
 
-  const temperature = (typeof data.temperature === 'number' && !isNaN(data.temperature)) ? data.temperature : undefined;
-  const humidity = (typeof data.humidity === 'number' && !isNaN(data.humidity)) ? data.humidity : undefined;
-  const dewPoint = (typeof data.dewPoint === 'number' && !isNaN(data.dewPoint)) ? data.dewPoint : undefined;
-  const batteryVoltage = (typeof data.batteryVoltage === 'number' && !isNaN(data.batteryVoltage)) ? data.batteryVoltage : undefined;
-  const batteryPercent = (typeof data.batteryPercent === 'number' && !isNaN(data.batteryPercent)) ? data.batteryPercent : undefined;
+  const temperature = (typeof data?.temperature === 'number' && !isNaN(data.temperature)) ? data.temperature : undefined;
+  const humidity = (typeof data?.humidity === 'number' && !isNaN(data.humidity)) ? data.humidity : undefined;
+  const dewPoint = (typeof data?.dewPoint === 'number' && !isNaN(data.dewPoint)) ? data.dewPoint : undefined;
+  const batteryVoltage = (typeof data?.batteryVoltage === 'number' && !isNaN(data.batteryVoltage)) ? data.batteryVoltage : undefined;
+  const batteryPercent = (typeof data?.batteryPercent === 'number' && !isNaN(data.batteryPercent)) ? data.batteryPercent : undefined;
 
-  pushedSensorCache[ip] = {
+  const entry = {
+    sensor: data?.sensor,
     temperature,
     humidity,
     dewPoint,
@@ -70,17 +65,37 @@ router.post('/sensor-push', (req, res) => {
     batteryPercent,
     time: nowIso
   };
-  
+
+  if (ip) {
+    pushedSensorCache[ip] = entry;
+  }
+  if (data?.sensor) {
+    pushedSensorCache[data.sensor] = entry;
+  }
+
   savePushCache();
+  return entry;
+}
+
+// Neuer Endpoint für den Push-Empfang vom solarbetriebenen ESP32-C3
+router.post('/sensor-push', (req, res) => {
+  const ip = req.ip.replace(/^::ffff:/, ''); // IPv4 extrahieren falls dual-stack
+  const data = req.body || {};
+  
+  console.log(`[Tasmota Push] Empfangen von ${ip}:`, data);
+  const entry = updatePushedSensor(ip, data);
   
   // Realtime Broadcast an Web-HUD (falls Sockets aktiv)
   const io = req.app.get('io');
   if (io) {
-    io.emit('sensor-update', { ip, data: pushedSensorCache[ip] });
+    io.emit('sensor-update', { ip, data: entry });
+    io.emit('sensor_update', { ip, ...entry });
   }
   
   res.json({ success: true, tempOffset: 0.0 });
 });
+
+router.updatePushedSensor = updatePushedSensor;
 
 router.get('/status', async (req, res) => {
   const devices = fileStore.tasmotaRAM;

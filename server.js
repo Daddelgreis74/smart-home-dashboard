@@ -9,6 +9,7 @@ const { runMigration } = require('./src/config/migration');
 const { initializeSSL } = require('./src/config/ssl');
 const { initSockets } = require('./src/sockets');
 const { initFritzboxConnections, pollPresence } = require('./src/services/fritzboxService');
+const { initUdpListener } = require('./src/services/udpService');
 
 // Globales Error-Handling zur Vermeidung von Abstürzen bei unerwarteten Fehlern
 process.on('uncaughtException', (err) => {
@@ -105,6 +106,7 @@ if (require.main === module) {
   // Realtime Sockets & Services initialisieren
   initSockets(io);
   initFritzboxConnections(io);
+  initUdpListener(io);
 
   // Presence-Polling starten (Fritz!Box-Abfrage)
   setInterval(pollPresence, 30000);
