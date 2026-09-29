@@ -798,14 +798,44 @@ export function updatePenBatteryUI(level, name = 'Lenovo Tab Pen Plus') {
 }
 
 export function checkPenBattery() {
-  if (typeof window !== 'undefined' && window.AndroidPen && typeof window.AndroidPen.getBatteryLevel === 'function') {
+  const hasAndroidPen = typeof window !== 'undefined' && Boolean(window.AndroidPen);
+  let level = null;
+  let name = null;
+  let connected = null;
+
+  if (hasAndroidPen) {
     try {
-      const level = window.AndroidPen.getBatteryLevel();
-      const name = (typeof window.AndroidPen.getPenName === 'function') ? window.AndroidPen.getPenName() : 'Lenovo Tab Pen Plus';
-      updatePenBatteryUI(level, name);
+      if (typeof window.AndroidPen.getBatteryLevel === 'function') {
+        level = window.AndroidPen.getBatteryLevel();
+      }
+      if (typeof window.AndroidPen.getPenName === 'function') {
+        name = window.AndroidPen.getPenName();
+      }
+      if (typeof window.AndroidPen.isConnected === 'function') {
+        connected = window.AndroidPen.isConnected();
+      }
     } catch (err) {
       console.warn('[Note Module] Fehler beim Abfragen von AndroidPen:', err.message);
     }
+  }
+
+  // Diagnose-Telemetry an Dashboard-Server senden
+  try {
+    fetch('/api/note/debug-pen', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        hasAndroidPen,
+        level,
+        name,
+        connected,
+        userAgent: (typeof navigator !== 'undefined') ? navigator.userAgent : ''
+      })
+    }).catch(() => {});
+  } catch (e) {}
+
+  if (level != null) {
+    updatePenBatteryUI(level, name || 'Lenovo Tab Pen Plus');
   }
 }
 
