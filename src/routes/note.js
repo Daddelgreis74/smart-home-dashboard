@@ -19,12 +19,6 @@ router.get('/', (req, res) => {
   }
 });
 
-// Pen-Diagnose-Endpunkt für Kiosk-Tablet
-router.post('/debug-pen', (req, res) => {
-  console.log('[PEN DEBUG FROM TABLET]:', JSON.stringify(req.body));
-  return res.json({ ok: true });
-});
-
 // Speichert oder aktualisiert die Notiz
 router.post('/', (req, res) => {
   try {

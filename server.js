@@ -42,15 +42,6 @@ try {
   console.error('[Server] Fehler beim Cachen von index.html beim Start:', err.message);
 }
 
-// Request-Logging & Cache-Buster für Live-Tests
-app.use((req, res, next) => {
-  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-  if (req.path.startsWith('/api') || req.path === '/' || req.path.endsWith('.js')) {
-    console.log(`[HTTP ${req.method}] ${req.path} from ${req.ip}`);
-  }
-  next();
-});
-
 app.get(['/', '/index.html', '/setup.html'], (req, res) => {
   let setupCompleted = false;
   if (fs.existsSync(CONFIG_FILE)) {

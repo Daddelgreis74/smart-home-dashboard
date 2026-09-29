@@ -138,9 +138,6 @@ export function initNote(socket) {
   // Notiz vom Server laden
   loadNoteFromServer();
 
-  // Bluetooth Pen Akku-Überwachung initialisieren
-  initPenBatteryMonitor();
-
   // Socket.io Realtime-Sync
   if (globalSocket) {
     globalSocket.on('note-updated', (data) => {
@@ -327,7 +324,6 @@ function handlePointerDown(e) {
 
   if (e.pointerType === 'pen') {
     penActive = true;
-    checkPenBattery();
   }
 
   // Pointer Capture für saubere Strichführung auch bei schnellen Bewegungen
@@ -739,125 +735,3 @@ async function loadNoteFromServer() {
     console.warn('[Note Module] Notiz konnte nicht geladen werden:', err.message);
   }
 }
-
-// Stylus / Bluetooth Pen Akku-Anzeige
-export function updatePenBatteryUI(level, name = 'Lenovo Tab Pen Plus') {
-  const widgetBadge = document.getElementById('notePenBattery');
-  const modalBadge = document.getElementById('noteModalPenBattery');
-  const widgetIcon = document.getElementById('notePenBatIcon');
-  const modalIcon = document.getElementById('noteModalPenBatIcon');
-  const widgetText = document.getElementById('notePenBatText');
-  const modalText = document.getElementById('noteModalPenBatText');
-
-  // Falls ungültig oder nicht verbunden (< 0), Badges ausblenden
-  if (level == null || typeof level !== 'number' || isNaN(level) || level < 0) {
-    if (widgetBadge) widgetBadge.style.display = 'none';
-    if (modalBadge) modalBadge.style.display = 'none';
-    return;
-  }
-
-  const clampedLevel = Math.max(0, Math.min(100, Math.round(level)));
-  const textStr = `${clampedLevel}%`;
-  const titleStr = `${name || 'Stylus'}: ${textStr}`;
-
-  // Icon je nach Ladezustand
-  let iconClass = 'fa-battery-full';
-  if (clampedLevel <= 15) {
-    iconClass = 'fa-battery-empty';
-  } else if (clampedLevel <= 35) {
-    iconClass = 'fa-battery-quarter';
-  } else if (clampedLevel <= 65) {
-    iconClass = 'fa-battery-half';
-  } else if (clampedLevel <= 85) {
-    iconClass = 'fa-battery-three-quarters';
-  }
-
-  // Farbklasse je nach Ladezustand
-  let statusClass = 'battery-good';
-  if (clampedLevel <= 20) {
-    statusClass = 'battery-low';
-  } else if (clampedLevel <= 50) {
-    statusClass = 'battery-medium';
-  }
-
-  const updateBadge = (badge, icon, text) => {
-    if (!badge) return;
-    badge.style.display = 'inline-flex';
-    badge.title = titleStr;
-    badge.classList.remove('battery-good', 'battery-medium', 'battery-low');
-    badge.classList.add(statusClass);
-
-    if (text) text.textContent = textStr;
-    if (icon) {
-      icon.className = `fas ${iconClass}`;
-    }
-  };
-
-  updateBadge(widgetBadge, widgetIcon, widgetText);
-  updateBadge(modalBadge, modalIcon, modalText);
-}
-
-export function checkPenBattery() {
-  const hasAndroidPen = typeof window !== 'undefined' && Boolean(window.AndroidPen);
-  let level = null;
-  let name = null;
-  let connected = null;
-
-  if (hasAndroidPen) {
-    try {
-      if (typeof window.AndroidPen.getBatteryLevel === 'function') {
-        level = window.AndroidPen.getBatteryLevel();
-      }
-      if (typeof window.AndroidPen.getPenName === 'function') {
-        name = window.AndroidPen.getPenName();
-      }
-      if (typeof window.AndroidPen.isConnected === 'function') {
-        connected = window.AndroidPen.isConnected();
-      }
-    } catch (err) {
-      console.warn('[Note Module] Fehler beim Abfragen von AndroidPen:', err.message);
-    }
-  }
-
-  // Diagnose-Telemetry an Dashboard-Server senden
-  try {
-    fetch('/api/note/debug-pen', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        hasAndroidPen,
-        level,
-        name,
-        connected,
-        userAgent: (typeof navigator !== 'undefined') ? navigator.userAgent : ''
-      })
-    }).catch(() => {});
-  } catch (e) {}
-
-  if (level != null) {
-    updatePenBatteryUI(level, name || 'Lenovo Tab Pen Plus');
-  }
-}
-
-function initPenBatteryMonitor() {
-  // 1. Android Event Listener (vom Kiosk Bridge oder CustomEvent)
-  window.addEventListener('pen-battery-update', (e) => {
-    if (e && e.detail && typeof e.detail.level === 'number') {
-      updatePenBatteryUI(e.detail.level, e.detail.name);
-    }
-  });
-
-  // 2. Aktualisierung bei jeder Stifteingabe auf dem Bildschirm
-  window.addEventListener('pointerdown', (e) => {
-    if (e.pointerType === 'pen') {
-      checkPenBattery();
-    }
-  }, { passive: true });
-
-  // 3. Initialer Statuscheck
-  checkPenBattery();
-
-  // 4. Regelmäßiges Polling alle 30 Sekunden
-  setInterval(checkPenBattery, 30000);
-}
-
