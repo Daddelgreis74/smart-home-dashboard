@@ -121,10 +121,31 @@ Die Anwendung kann über folgende Umgebungsvariablen konfiguriert werden:
   * **Aktivieren:** `#96*5*` (und abheben/wählen)
   * **Deaktivieren (optional):** `#96*6*`
 
-### 🌡️ AM2301/Tasmota Klima-Sensor
-Das Sensor-Widget fragt lokal einen Tasmota-Endpunkt ab:
-`GET /api/tasmota/sensor?ip=192.168.178.40`
-Die IP ist im Präferenzen-Menü oben rechts änderbar. Das Backend akzeptiert bewusst nur private IPv4-Adressen.
+### 🌡️ Raumklima: Tasmota & Solar-Außensensor (UDP-Broadcast)
+Das Dashboard unterstützt sowohl daueraktive Tasmota-Sensoren (HTTP-Polling) als auch batterie-/solarbetriebene Außensensoren (Deep-Sleep via UDP-Broadcast):
+
+1. **Klassische Tasmota-Sensoren (z.B. AM2301 / DHT22):**
+   - **Abfrage:** Werden zyklisch über HTTP abgefragt (`GET /api/tasmota/sensor?ip=192.168.178.40`).
+   - **Konfiguration:** Im Menü *Einstellungen ➔ Raumklima* einfach Name (z.B. `Innen`) und die lokale IPv4-Adresse des Tasmota-Geräts eintragen.
+
+2. **Solar- / Batterie-Außensensor (ESP32 Deep-Sleep via UDP):**
+   - **Funktionsweise:** Der Sensor wacht z.B. alle 1–5 Minuten aus dem Deep-Sleep auf, sendet ein einzelnes UDP-Broadcast-Paket ins lokale Netzwerk an Port **`8888`** und schläft sofort wieder ein. Der Dashboard-Server empfängt das Paket und verteilt es in Echtzeit via WebSocket an alle verbundenen Dashboards.
+   - **Konfiguration im Dashboard:**
+     - **Name:** `Außensensor` oder `Außen` *(enthält der Name „Außen“, „out“ oder „solar“, aktiviert das Dashboard automatisch das Außen-Icon und das `OUT`-Badge)*.
+     - **IP-Adresse:** Entweder **`UDP`** oder die reale IP-Adresse des ESPs eintragen.
+   - **Deep-Sleep Schutz:** Das Dashboard behält die letzten Messwerte bis zu 60 Minuten stabil im Widget und löscht sie nicht bei fehlgeschlagenen HTTP-Pings, während der Sensor schläft.
+   - **Docker / TrueNAS Port:** Port `8888/udp` muss im Container freigegeben/gemappt sein.
+   - **JSON-Payload-Format des Sensors (Port 8888 UDP Broadcast):**
+     ```json
+     {
+       "sensor": "solar_outdoor",
+       "temperature": 21.5,
+       "humidity": 58.2,
+       "dewPoint": 12.9,
+       "batteryVoltage": 4.12,
+       "batteryPercent": 98
+     }
+     ```
 
 ### 🗓️ Abfallkalender-Datumslogik
 Ganztägige `.ics` Termine werden als lokale Kalendertage verglichen. Dadurch wird z.B. eine morgige Leerung morgens nicht mehr fälschlich als „Heute“ angezeigt, nur weil die aktuelle Uhrzeit bereits nach `00:00` liegt.

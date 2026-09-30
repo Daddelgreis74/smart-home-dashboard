@@ -124,10 +124,31 @@ The application can be configured using the following environment variables:
   * **Enable:** `#96*5*` (and dial/call)
   * **Disable (optional):** `#96*6*`
 
-### 🌡️ AM2301/Tasmota Climate Sensor
-The sensor widget queries a local Tasmota endpoint:
-`GET /api/tasmota/sensor?ip=192.168.178.40`
-The IP can be configured in the Preferences menu (top right). The backend only accepts private IPv4 addresses.
+### 🌡️ Climate Sensors: Tasmota & Solar Outdoor Sensor (UDP Broadcast)
+The dashboard supports both always-on Tasmota sensors (HTTP polling) and battery/solar-powered outdoor sensors (deep sleep via UDP broadcast):
+
+1. **Standard Tasmota Sensors (e.g. AM2301 / DHT22):**
+   - **Polling:** Polled periodically over HTTP (`GET /api/tasmota/sensor?ip=192.168.178.40`).
+   - **Configuration:** In *Settings ➔ Climate / Sensors*, set Name (e.g., `Indoor`) and the local IPv4 address.
+
+2. **Solar / Battery Outdoor Sensor (ESP32 Deep Sleep via UDP):**
+   - **How it works:** The sensor wakes from deep sleep (e.g., every 1–5 minutes), broadcasts a single UDP packet on port **`8888`** to the local subnet, and immediately goes back to sleep. The dashboard server receives the broadcast and pushes updates in real-time to all clients via WebSocket.
+   - **Dashboard Configuration:**
+     - **Name:** `Außensensor` or `Outdoor` *(contains "out", "außen", or "solar" to automatically display the outdoor icon & OUT badge)*.
+     - **IP Address:** Enter either **`UDP`** or the sensor's local IP address.
+   - **Deep Sleep Protection:** The dashboard caches received data for up to 60 minutes, ensuring values (temperature, humidity, battery % & voltage) remain persistently displayed even while the sensor sleeps.
+   - **Docker / TrueNAS Port:** Ensure port `8888/udp` is exposed/mapped.
+   - **Sensor JSON Payload (Port 8888 UDP Broadcast):**
+     ```json
+     {
+       "sensor": "solar_outdoor",
+       "temperature": 21.5,
+       "humidity": 58.2,
+       "dewPoint": 12.9,
+       "batteryVoltage": 4.12,
+       "batteryPercent": 98
+     }
+     ```
 
 ### 🗓️ Waste Calendar Date Logic
 All-day `.ics` events are compared using local calendar days. This ensures that tomorrow's pick-up is not incorrectly displayed as "Today" just because the current time is past `00:00`.
