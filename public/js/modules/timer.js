@@ -293,20 +293,24 @@ function syncStartTimer(data) {
   updatePauseButtonUI();
 
   // Widget-Sichtbarkeit sicherstellen
-  const widget = document.querySelector('.widget[data-type="timer"]');
-  if (widget) {
-    widget.classList.remove('hidden');
-    widget.style.display = '';
-  }
-  const toggle = document.getElementById('toggle-timer');
-  if (toggle) {
-    toggle.checked = true;
+  if (typeof window.setWidgetVisibility === 'function') {
+    window.setWidgetVisibility('timer', true);
+  } else {
+    const widget = document.querySelector('.widget[data-type="timer"]');
+    if (widget) {
+      widget.classList.remove('hidden');
+      widget.style.display = '';
+    }
+    const toggle = document.getElementById('toggle-timer');
+    if (toggle) {
+      toggle.checked = true;
+    }
+    localStorage.setItem('show_timer', 'true');
   }
   const tabBtn = document.querySelector('.settings-tab-btn[data-tab="timer"]');
   if (tabBtn) {
     tabBtn.style.display = '';
   }
-  localStorage.setItem('show_timer', 'true');
 }
 
 function tick() {

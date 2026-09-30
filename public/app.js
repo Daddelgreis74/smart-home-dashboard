@@ -211,7 +211,12 @@ function loadSavedSettings() {
     if (toggle) toggle.checked = isVisible;
     if (widget) {
       widget.classList.toggle('hidden', !isVisible);
-      widget.style.display = isVisible ? '' : 'none';
+      if (isVisible) {
+        widget.style.display = '';
+      } else {
+        widget.style.setProperty('display', 'none', 'important');
+        widget.classList.remove('active', 'prev-1', 'next-1', 'prev-2', 'next-2', 'hidden-left', 'hidden-right', 'fullscreen');
+      }
     }
   });
   updateSettingsSidebarVisibility();
@@ -420,19 +425,51 @@ function initSettings() {
     });
   }
 
+  function setWidgetVisibility(type, isVisible) {
+    localStorage.setItem('show_' + type, isVisible ? 'true' : 'false');
+    const widget = document.querySelector(`.widget[data-type="${type}"]`);
+    const toggle = document.getElementById('toggle-' + type);
+
+    if (toggle && toggle.checked !== isVisible) {
+      toggle.checked = isVisible;
+    }
+
+    if (widget) {
+      widget.classList.toggle('hidden', !isVisible);
+      if (isVisible) {
+        widget.style.display = '';
+      } else {
+        widget.style.setProperty('display', 'none', 'important');
+        widget.classList.remove('active', 'prev-1', 'next-1', 'prev-2', 'next-2', 'hidden-left', 'hidden-right', 'fullscreen');
+        if (typeof isCardFullscreen !== 'undefined' && isCardFullscreen && fullscreenWidget === widget) {
+          closeWidgetFullscreen();
+        }
+      }
+    }
+
+    updateSettingsSidebarVisibility();
+
+    // Karussell-Ansicht sofort live neu synchronisieren
+    const currentMode = localStorage.getItem('dashboard_view_mode') || 'grid';
+    if (currentMode === 'carousel' && typeof renderCarousel === 'function') {
+      const visibleWidgets = getVisibleWidgets();
+      if (typeof carouselCurrentIndex !== 'undefined' && carouselCurrentIndex >= visibleWidgets.length) {
+        carouselCurrentIndex = Math.max(0, visibleWidgets.length - 1);
+      }
+      if (typeof initCarouselPills === 'function') {
+        initCarouselPills();
+      }
+      renderCarousel();
+    }
+  }
+  window.setWidgetVisibility = setWidgetVisibility;
+
   WIDGET_TYPES.forEach(type => {
     const toggle = document.getElementById('toggle-' + type);
     if (!toggle) return;
 
     toggle.addEventListener('change', (e) => {
-      const isVisible = e.target.checked;
-      localStorage.setItem('show_' + type, isVisible);
-      const widget = document.querySelector(`.widget[data-type="${type}"]`);
-      if (widget) {
-        widget.classList.toggle('hidden', !isVisible);
-        widget.style.display = isVisible ? '' : 'none';
-      }
-      updateSettingsSidebarVisibility();
+      setWidgetVisibility(type, e.target.checked);
     });
   });
 
@@ -790,13 +827,31 @@ function renderCarousel() {
   const currentMode = localStorage.getItem('dashboard_view_mode') || 'grid';
   if (currentMode !== 'carousel') return;
 
+  // Versteckte Widgets von Karussell-Klassen säubern, damit keine Geister-Karten bleiben
+  const dashboard = document.getElementById('dashboard');
+  if (dashboard) {
+    dashboard.querySelectorAll('.widget.hidden, .widget[style*="display: none"], .widget[style*="display:none"]').forEach(w => {
+      w.classList.remove('active', 'prev-1', 'next-1', 'prev-2', 'next-2', 'hidden-left', 'hidden-right', 'fullscreen');
+      w.style.visibility = 'hidden';
+      w.style.pointerEvents = 'none';
+    });
+  }
+
   const widgets = getVisibleWidgets();
   const total = widgets.length;
-  if (total === 0) return;
+  if (total === 0) {
+    const pillsContainer = document.getElementById('carouselPills');
+    if (pillsContainer) pillsContainer.innerHTML = '';
+    const prevBtn = document.getElementById('carouselNavPrev');
+    const nextBtn = document.getElementById('carouselNavNext');
+    if (prevBtn) prevBtn.style.opacity = '0';
+    if (nextBtn) nextBtn.style.opacity = '0';
+    return;
+  }
 
   const infinite = localStorage.getItem('dashboard_carousel_infinite') !== 'false';
-  if (carouselCurrentIndex >= total) carouselCurrentIndex = 0;
-  if (carouselCurrentIndex < 0) carouselCurrentIndex = total - 1;
+  if (carouselCurrentIndex >= total) carouselCurrentIndex = Math.max(0, total - 1);
+  if (carouselCurrentIndex < 0) carouselCurrentIndex = 0;
 
   widgets.forEach((card, idx) => {
     let offset = 0;

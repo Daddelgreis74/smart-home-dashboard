@@ -6048,6 +6048,17 @@ body.view-carousel .widget.no-transition {
   transition: none !important;
 }
 
+/* Versteckte Widgets im Karussell-Modus zwingend ausblenden */
+body.view-carousel .widget.hidden,
+body.view-carousel .widget[style*="display: none"],
+body.view-carousel .widget[style*="display:none"] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  transform: scale(0.001) !important;
+}
+
 body.view-carousel .widget-header {
   pointer-events: auto !important;
   padding: 16px 20px !important;

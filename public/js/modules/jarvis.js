@@ -800,15 +800,19 @@ export async function callJarvisAPI(prompt) {
 
                 let widgetToggled = false;
                 if (localStorage.getItem('show_timer') === 'false') {
-                  localStorage.setItem('show_timer', 'true');
-                  const widget = document.querySelector('.widget[data-type="timer"]');
-                  if (widget) {
-                    widget.classList.remove('hidden');
-                    widget.style.display = '';
-                  }
-                  const toggle = document.getElementById('toggle-timer');
-                  if (toggle) {
-                    toggle.checked = true;
+                  if (typeof window.setWidgetVisibility === 'function') {
+                    window.setWidgetVisibility('timer', true);
+                  } else {
+                    localStorage.setItem('show_timer', 'true');
+                    const widget = document.querySelector('.widget[data-type="timer"]');
+                    if (widget) {
+                      widget.classList.remove('hidden');
+                      widget.style.display = '';
+                    }
+                    const toggle = document.getElementById('toggle-timer');
+                    if (toggle) {
+                      toggle.checked = true;
+                    }
                   }
                   const tabBtn = document.querySelector('.settings-tab-btn[data-tab="timer"]');
                   if (tabBtn) {
