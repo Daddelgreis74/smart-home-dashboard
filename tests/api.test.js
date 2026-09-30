@@ -159,6 +159,39 @@ describe('API Endpoints Tests', () => {
     expect(getRes2.body.batteryPercent).toBe(85); // kept because it was numeric
   });
 
+  test('GET /api/tasmota/sensor should support special UDP keys and solar_outdoor fallback', async () => {
+    // 1. Post solar_outdoor sensor payload
+    await request(app)
+      .post('/api/tasmota/sensor-push')
+      .send({
+        sensor: 'solar_outdoor',
+        temperature: 22.3,
+        humidity: 55,
+        dewPoint: 12.8,
+        batteryVoltage: 4.15,
+        batteryPercent: 97
+      })
+      .expect(200);
+
+    // 2. Fetch using special key 'udp'
+    const udpRes = await request(app)
+      .get('/api/tasmota/sensor?ip=udp')
+      .expect(200);
+
+    expect(udpRes.body.success).toBe(true);
+    expect(udpRes.body.temperature).toBe(22.3);
+    expect(udpRes.body.humidity).toBe(55);
+    expect(udpRes.body.batteryPercent).toBe(97);
+
+    // 3. Fetch using special key 'solar_outdoor'
+    const solarRes = await request(app)
+      .get('/api/tasmota/sensor?ip=solar_outdoor')
+      .expect(200);
+
+    expect(solarRes.body.success).toBe(true);
+    expect(solarRes.body.temperature).toBe(22.3);
+  });
+
   test('GET /api/config/status and POST /api/config/setup should manage setup flow', async () => {
     const configPath = path.join(testDataDir, 'config.json');
     if (fs.existsSync(configPath)) fs.unlinkSync(configPath);

@@ -45,7 +45,7 @@ export function renderSensorSettings() {
     row.style.marginBottom = '8px';
     row.innerHTML = `
       <input type="text" class="sensor-name-input input-field" style="flex: 1;" placeholder="${getLangText('sensor_name_placeholder') || 'Name'}" value="${sensor.name || ''}">
-      <input type="text" class="sensor-ip-input input-field" style="flex: 1;" placeholder="z.B. 192.168.178.40" value="${sensor.ip || ''}">
+      <input type="text" class="sensor-ip-input input-field" style="flex: 1;" placeholder="z.B. 192.168.178.40 oder UDP" value="${sensor.ip || ''}">
       <button class="btn btn-danger remove-sensor-btn" data-index="${index}" style="padding: 8px 12px; background: #ef4444;"><i class="fas fa-trash-can"></i></button>
     `;
     container.appendChild(row);
@@ -68,6 +68,7 @@ export function removeSensor(index) {
 
 let prevTemps = {};
 let smoothedHums = {};
+let lastKnownSensorValues = {};
 
 export async function refreshSensorWidget() {
   const sensorBody = document.getElementById('sensorBody');
@@ -263,15 +264,33 @@ export async function refreshSensorWidget() {
           sensorStatuses[index].time = String(data.time).slice(11, 16);
         }
       }
+
+      // Im Cache speichern
+      lastKnownSensorValues[index] = {
+        temp,
+        hum,
+        time: sensorStatuses[index].time,
+        timestamp: Date.now()
+      };
     } catch (e) {
-      tempEl.textContent = '--.-';
-      if (humEl) humEl.textContent = '--%';
-      
-      if (batEl) {
-        batEl.style.display = 'none';
+      // Wenn der Abruf fehlschlägt (z.B. Außensensor im Deep-Sleep), prüfen wir, ob wir gültige Werte im Cache haben
+      const lastKnown = lastKnownSensorValues[index];
+      const isStillFresh = lastKnown && (Date.now() - (lastKnown.timestamp || 0) < 60 * 60 * 1000);
+
+      if (isStillFresh) {
+        sensorStatuses[index].offline = false;
+        sensorStatuses[index].time = lastKnown.time || 'Aktiv';
+        // Werte im DOM behalten! Nicht mit '--.-' überschreiben!
+      } else {
+        tempEl.textContent = '--.-';
+        if (humEl) humEl.textContent = '--%';
+        
+        if (batEl) {
+          batEl.style.display = 'none';
+        }
+        
+        sensorStatuses[index].offline = true;
       }
-      
-      sensorStatuses[index].offline = true;
     }
   });
 
@@ -317,7 +336,9 @@ export function handleRealtimeSensorUpdate(data) {
   if (matchIndex === -1 && isSolarOutdoor) {
     matchIndex = sensorList.findIndex(s => {
       const n = (s.name || '').toLowerCase();
-      return n.includes('out') || n.includes('außen') || n.includes('aussen') || n.includes('solar');
+      const ipLower = (s.ip || '').toLowerCase();
+      return n.includes('out') || n.includes('außen') || n.includes('aussen') || n.includes('solar') ||
+             ipLower === 'udp' || ipLower === 'solar_outdoor';
     });
   }
   if (matchIndex === -1 && sensorList.length === 1) {
@@ -392,12 +413,22 @@ export function handleRealtimeSensorUpdate(data) {
     }
   }
 
+  const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+  const timeLabel = `${now} (Live UDP)`;
+
+  // Im Cache sichern, damit spätere Polling-Intervalle die Werte nicht löschen
+  lastKnownSensorValues[matchIndex] = {
+    temp,
+    hum,
+    time: timeLabel,
+    timestamp: Date.now()
+  };
+
   const combinedStatusEl = document.getElementById('sensorStatus-combined');
   const statusDotEl = document.getElementById('lcdStatusDot');
   if (combinedStatusEl) {
-    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
     const name = sensorList[matchIndex].name || (isSolarOutdoor ? 'Außen' : 'Sensor');
-    combinedStatusEl.textContent = `${name}: ${now} (Live UDP)`;
+    combinedStatusEl.textContent = `${name}: ${timeLabel}`;
     if (statusDotEl) statusDotEl.className = 'lcd-status-dot';
   }
 }

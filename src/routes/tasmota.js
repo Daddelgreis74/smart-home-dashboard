@@ -73,6 +73,14 @@ function updatePushedSensor(ip, data) {
     pushedSensorCache[data.sensor] = entry;
   }
 
+  // Generische Schlüssel für solarbetriebene Außensensoren (UDP)
+  const sensorName = String(data?.sensor || '').toLowerCase();
+  if (sensorName.includes('outdoor') || sensorName.includes('solar')) {
+    pushedSensorCache['solar_outdoor'] = entry;
+    pushedSensorCache['outdoor'] = entry;
+    pushedSensorCache['udp'] = entry;
+  }
+
   savePushCache();
   return entry;
 }
@@ -104,12 +112,21 @@ router.get('/status', async (req, res) => {
 });
 
 router.get('/sensor', async (req, res) => {
-  const ip = String(req.query?.ip || '192.168.178.40').trim();
-  if (!isPrivateIPv4(ip)) return res.status(400).json({ success: false, error: 'Ungültige lokale IPv4-Adresse' });
+  const rawIp = String(req.query?.ip || '192.168.178.40').trim();
+  const lowerIp = rawIp.toLowerCase();
+  const isSpecialKey = ['solar_outdoor', 'outdoor', 'udp', 'broadcast'].includes(lowerIp);
 
-  // Falls wir gespeicherte Push-Daten für diesen Sensor besitzen, liefere diese direkt aus dem Cache
-  if (pushedSensorCache[ip]) {
-    const cached = pushedSensorCache[ip];
+  if (!isPrivateIPv4(rawIp) && !isSpecialKey) {
+    return res.status(400).json({ success: false, error: 'Ungültige lokale IPv4-Adresse' });
+  }
+
+  // 1. Direkt im Cache nach IP oder Spezialschlüssel suchen
+  let cached = pushedSensorCache[rawIp] || pushedSensorCache[lowerIp];
+  if (!cached && isSpecialKey) {
+    cached = pushedSensorCache['solar_outdoor'] || pushedSensorCache['outdoor'] || pushedSensorCache['udp'] || pushedSensorCache['172.17.0.1'];
+  }
+
+  if (cached) {
     let timeStr = cached.time;
     if (timeStr && typeof timeStr === 'string' && !timeStr.endsWith('Z') && !timeStr.includes('+')) {
       timeStr = timeStr + 'Z';
@@ -117,8 +134,8 @@ router.get('/sensor', async (req, res) => {
     return res.json({
       success: true,
       online: true,
-      ip,
-      name: 'Solar-Sensor',
+      ip: rawIp,
+      name: cached.sensor || 'Solar-Sensor',
       time: timeStr,
       temperature: cached.temperature,
       humidity: cached.humidity,
@@ -129,11 +146,42 @@ router.get('/sensor', async (req, res) => {
     });
   }
 
+  if (isSpecialKey) {
+    return res.json({ success: false, online: false, ip: rawIp, error: 'Keine UDP-Messdaten im Cache vorhanden' });
+  }
+
   try {
-    const data = await getSensorData(ip);
+    const data = await getSensorData(rawIp);
     res.json(data);
   } catch (e) {
-    res.json({ success: false, online: false, ip, error: e.message });
+    // 2. FALLBACK: Falls reguläre HTTP-Tasmota-Abfrage fehlschlägt (z.B. weil der Sensor
+    // ein batteriebetriebener Außensensor im Deep-Sleep ist), prüfen wir auf solar_outdoor Daten im Cache
+    const solarFallback = pushedSensorCache['solar_outdoor'] || pushedSensorCache['outdoor'] || pushedSensorCache['udp'] || pushedSensorCache['172.17.0.1'];
+    if (solarFallback) {
+      let timeStr = solarFallback.time;
+      if (timeStr && typeof timeStr === 'string' && !timeStr.endsWith('Z') && !timeStr.includes('+')) {
+        timeStr = timeStr + 'Z';
+      }
+      pushedSensorCache[rawIp] = solarFallback;
+      savePushCache();
+
+      return res.json({
+        success: true,
+        online: true,
+        ip: rawIp,
+        name: solarFallback.sensor || 'Solar-Sensor',
+        time: timeStr,
+        temperature: solarFallback.temperature,
+        humidity: solarFallback.humidity,
+        dewPoint: solarFallback.dewPoint,
+        tempUnit: 'C',
+        batteryPercent: solarFallback.batteryPercent,
+        batteryVoltage: solarFallback.batteryVoltage,
+        cachedPush: true
+      });
+    }
+
+    res.json({ success: false, online: false, ip: rawIp, error: e.message });
   }
 });
 

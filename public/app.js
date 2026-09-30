@@ -375,7 +375,7 @@ function initSettings() {
       row.style.marginBottom = '8px';
       row.innerHTML = `
         <input type="text" class="sensor-name-input input-field" style="flex: 1;" placeholder="${getLangText('sensor_name_placeholder') || 'Name'}" value="">
-        <input type="text" class="sensor-ip-input input-field" style="flex: 1;" placeholder="z.B. 192.168.178.40" value="">
+        <input type="text" class="sensor-ip-input input-field" style="flex: 1;" placeholder="z.B. 192.168.178.40 oder UDP" value="">
         <button class="btn btn-danger remove-sensor-btn-new" style="padding: 8px 12px; background: #ef4444;"><i class="fas fa-trash-can"></i></button>
       `;
       container.appendChild(row);
