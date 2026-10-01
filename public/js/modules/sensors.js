@@ -138,9 +138,28 @@ export async function refreshSensorWidget() {
     const batEl = document.getElementById(`sensorBat-${index}`);
     if (!tempEl) return;
 
+    const nameLower = (sensor.name || '').toLowerCase();
+    const ipLower = (sensor.ip || '').toLowerCase();
+    const isOutdoor = nameLower.includes('out') || nameLower.includes('außen') || nameLower.includes('aussen') || nameLower.includes('solar') || ipLower === 'udp';
+
+    let fetchIp = sensor.ip;
+    if (isOutdoor && (ipLower === 'udp' || !fetchIp || ipLower === 'solar_outdoor')) {
+      fetchIp = 'udp';
+    }
+
     try {
-      const res = await fetch(`/api/tasmota/sensor?ip=${encodeURIComponent(sensor.ip)}`);
-      const data = await res.json();
+      let res = await fetch(`/api/tasmota/sensor?ip=${encodeURIComponent(fetchIp)}`);
+      let data = await res.json();
+
+      // Falls Außensensor mit IP konfiguriert wurde und HTTP fehlschlägt, auf 'udp' zurückgreifen
+      if (!data.success && isOutdoor && fetchIp !== 'udp') {
+        const fallbackRes = await fetch('/api/tasmota/sensor?ip=udp');
+        const fallbackData = await fallbackRes.json();
+        if (fallbackData.success) {
+          data = fallbackData;
+        }
+      }
+
       if (!data.success) throw new Error(data.error || 'Sensor nicht erreichbar');
 
       const temp = Number(data.temperature);
@@ -330,18 +349,28 @@ export function handleRealtimeSensorUpdate(data) {
   const isSolarOutdoor = String(data.sensor || '').toLowerCase().includes('outdoor') || String(data.sensor || '').toLowerCase().includes('solar');
 
   let matchIndex = -1;
-  if (targetIp) {
-    matchIndex = sensorList.findIndex(s => s.ip === targetIp);
-  }
-  if (matchIndex === -1 && isSolarOutdoor) {
+  if (isSolarOutdoor) {
+    // 1. Zuerst gezielt nach Außensensor in der Liste suchen (Name oder IP=udp)
     matchIndex = sensorList.findIndex(s => {
       const n = (s.name || '').toLowerCase();
       const ipLower = (s.ip || '').toLowerCase();
       return n.includes('out') || n.includes('außen') || n.includes('aussen') || n.includes('solar') ||
              ipLower === 'udp' || ipLower === 'solar_outdoor';
     });
+    // 2. Falls keiner explizit als außen benannt ist, aber die IP übereinstimmt:
+    if (matchIndex === -1 && targetIp) {
+      matchIndex = sensorList.findIndex(s => s.ip === targetIp);
+    }
+  } else {
+    // Reguläres Sensor-Update nach IP
+    if (targetIp) {
+      matchIndex = sensorList.findIndex(s => s.ip === targetIp);
+    }
   }
-  if (matchIndex === -1 && sensorList.length === 1) {
+
+  // WICHTIG: Wenn es ein solar_outdoor UDP-Update ist, darf es NIEMALS den Innensensor (Index 0) überschreiben,
+  // wenn mehrere Sensoren vorhanden sind!
+  if (matchIndex === -1 && sensorList.length === 1 && isSolarOutdoor) {
     matchIndex = 0;
   }
 
@@ -410,6 +439,8 @@ export function handleRealtimeSensorUpdate(data) {
         else batText += ` <span>${volt.toFixed(2)}V</span>`;
       }
       batEl.innerHTML = batText;
+    } else {
+      batEl.style.display = 'none';
     }
   }
 
