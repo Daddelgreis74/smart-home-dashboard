@@ -42,13 +42,53 @@ if (pushedSensorCache && typeof pushedSensorCache === 'object') {
   }
 }
 
-function savePushCache() {
-  try {
-    fs.writeFileSync(PUSH_CACHE_FILE, JSON.stringify(pushedSensorCache, null, 2), 'utf8');
-  } catch (e) {
-    console.error('[Tasmota Push] Fehler beim Speichern des Push-Caches:', e.message);
+let isSaveScheduled = false;
+let isDirty = false;
+let saveTimer = null;
+
+function savePushCache(forceImmediate = false) {
+  isDirty = true;
+  if (forceImmediate) {
+    if (saveTimer) {
+      clearTimeout(saveTimer);
+      saveTimer = null;
+    }
+    isSaveScheduled = false;
+    isDirty = false;
+    try {
+      fs.writeFileSync(PUSH_CACHE_FILE, JSON.stringify(pushedSensorCache, null, 2), 'utf8');
+    } catch (e) {
+      console.error('[Tasmota Push] Fehler beim synchronen Speichern des Push-Caches:', e.message);
+    }
+    return;
+  }
+
+  if (isSaveScheduled) return;
+
+  isSaveScheduled = true;
+  saveTimer = setTimeout(async () => {
+    isSaveScheduled = false;
+    if (!isDirty) return;
+    isDirty = false;
+    try {
+      await fs.promises.writeFile(PUSH_CACHE_FILE, JSON.stringify(pushedSensorCache, null, 2), 'utf8');
+    } catch (e) {
+      console.error('[Tasmota Push] Fehler beim asynchronen Speichern des Push-Caches:', e.message);
+    }
+  }, 3000);
+  if (saveTimer && typeof saveTimer.unref === 'function') {
+    saveTimer.unref();
   }
 }
+
+function flushPushCache() {
+  if (isDirty) {
+    savePushCache(true);
+  }
+}
+
+process.once('SIGINT', flushPushCache);
+process.once('SIGTERM', flushPushCache);
 
 router.get('/', (req, res) => {
   res.json(fileStore.tasmotaRAM);
@@ -63,6 +103,8 @@ router.post('/', (req, res) => {
   res.json({ success: true, saved: fileStore.tasmotaRAM });
 });
 
+const MAX_CACHE_ENTRIES = 20;
+
 function updatePushedSensor(ip, data) {
   const nowIso = data?.receivedAt || data?.time || new Date().toISOString();
 
@@ -72,6 +114,12 @@ function updatePushedSensor(ip, data) {
   const batteryVoltage = (typeof data?.batteryVoltage === 'number' && !isNaN(data.batteryVoltage)) ? data.batteryVoltage : undefined;
   const batteryPercent = (typeof data?.batteryPercent === 'number' && !isNaN(data.batteryPercent)) ? data.batteryPercent : undefined;
 
+  // Wenn keinerlei gültige numerische Messwerte enthalten sind, verwerfen und null zurückgeben
+  const hasValidValue = [temperature, humidity, dewPoint, batteryVoltage, batteryPercent].some(v => v !== undefined);
+  if (!hasValidValue) {
+    return null;
+  }
+
   const entry = {
     sensor: data?.sensor,
     temperature,
@@ -79,22 +127,25 @@ function updatePushedSensor(ip, data) {
     dewPoint,
     batteryVoltage,
     batteryPercent,
-    time: nowIso
+    time: nowIso,
+    senderIp: ip || data?.senderIp,
+    receivedAt: nowIso
   };
 
-  if (ip) {
-    pushedSensorCache[ip] = entry;
-  }
-  if (data?.sensor) {
-    pushedSensorCache[data.sensor] = entry;
-  }
+  const keysToSet = [];
+  if (ip) keysToSet.push(ip);
+  if (data?.sensor) keysToSet.push(data.sensor);
 
   // Generische Schlüssel für solarbetriebene Außensensoren (UDP)
   const sensorName = String(data?.sensor || '').toLowerCase();
   if (sensorName.includes('outdoor') || sensorName.includes('solar')) {
-    pushedSensorCache['solar_outdoor'] = entry;
-    pushedSensorCache['outdoor'] = entry;
-    pushedSensorCache['udp'] = entry;
+    keysToSet.push('solar_outdoor', 'outdoor', 'udp');
+  }
+
+  for (const k of keysToSet) {
+    if (pushedSensorCache[k] !== undefined || Object.keys(pushedSensorCache).length < MAX_CACHE_ENTRIES) {
+      pushedSensorCache[k] = entry;
+    }
   }
 
   savePushCache();

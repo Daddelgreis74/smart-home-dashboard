@@ -106,4 +106,49 @@ describe('UDP Sensor Service', () => {
       });
     }, 100);
   });
+
+  test('sendet keine Events, wenn im Messwert nur Strings statt Zahlen enthalten sind', (done) => {
+    initUdpListener(mockIo, TEST_PORT, '127.0.0.1');
+
+    const invalidNumbersMsg = Buffer.from(JSON.stringify({
+      sensor: 'solar_outdoor',
+      temperature: 'twenty_degrees',
+      humidity: 'very_humid'
+    }));
+
+    setTimeout(() => {
+      clientSocket.send(invalidNumbersMsg, TEST_PORT, '127.0.0.1', (err) => {
+        expect(err).toBeNull();
+
+        setTimeout(() => {
+          expect(mockIo.emit).not.toHaveBeenCalled();
+          done();
+        }, 100);
+      });
+    }, 100);
+  });
+
+  test('verwirft uebergrosse UDP-Pakete ueber 2 KB sofort', (done) => {
+    initUdpListener(mockIo, TEST_PORT, '127.0.0.1');
+
+    // Erstelle ein Paket groesser als 2048 Bytes
+    const bigData = {
+      sensor: 'solar_outdoor',
+      temperature: 20.0,
+      junk: 'x'.repeat(2100)
+    };
+    const bigMsg = Buffer.from(JSON.stringify(bigData));
+    expect(bigMsg.length).toBeGreaterThan(2048);
+
+    setTimeout(() => {
+      clientSocket.send(bigMsg, TEST_PORT, '127.0.0.1', (err) => {
+        expect(err).toBeNull();
+
+        setTimeout(() => {
+          expect(mockIo.emit).not.toHaveBeenCalled();
+          done();
+        }, 100);
+      });
+    }, 100);
+  });
 });

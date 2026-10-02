@@ -22,18 +22,48 @@ router.get('/', (req, res) => {
 // Speichert oder aktualisiert die Notiz
 router.post('/', (req, res) => {
   try {
+    if (!req.body || typeof req.body !== 'object') {
+      return res.status(400).json({ success: false, error: 'Ungueltige Anfrage' });
+    }
+
     const { image, lines, color, updatedAt } = req.body;
     
-    // image ist die Base64-Data-URL des gezeichneten Canvas
-    if (!image && image !== '') {
+    // 1. image validieren: String, entweder '' oder data:image/(png|jpeg|jpg|webp);base64,... (max 4 Mio Zeichen)
+    if (typeof image !== 'string') {
       return res.status(400).json({ success: false, error: 'Keine Bilddaten uebergeben' });
     }
+
+    if (image.length > 4000000) {
+      return res.status(400).json({ success: false, error: 'Bilddaten ueberschreiten die Maximallaenge von 4MB' });
+    }
+
+    if (image !== '' && !/^data:image\/(png|jpe?g|webp);base64,[A-Za-z0-9+/=]+$/.test(image)) {
+      return res.status(400).json({ success: false, error: 'Ungueltiges Data-URL-Format fuer Bilddaten' });
+    }
+
+    // 2. color validieren: optional, aber wenn vorhanden muss es Hex-Code sein
+    if (color !== undefined && color !== null && color !== '') {
+      if (typeof color !== 'string' || !/^#[0-9a-fA-F]{3,8}$/.test(color)) {
+        return res.status(400).json({ success: false, error: 'Ungueltiger Farbwert' });
+      }
+    }
+
+    // 3. lines validieren: optional, aber wenn vorhanden muss es ein Array mit max 5000 Einträgen sein
+    if (lines !== undefined && lines !== null) {
+      if (!Array.isArray(lines) || lines.length > 5000) {
+        return res.status(400).json({ success: false, error: 'Ungueltige Linien-Daten' });
+      }
+    }
+
+    const validUpdatedAt = (typeof updatedAt === 'number' && Number.isFinite(updatedAt) && updatedAt > 0) 
+      ? updatedAt 
+      : Date.now();
 
     const payload = {
       image: image || '',
       lines: Array.isArray(lines) ? lines : [],
       color: color || '#fef08a', // Standard Post-it Gelb
-      updatedAt: updatedAt || Date.now()
+      updatedAt: validUpdatedAt
     };
 
     safeWriteFileSync(NOTE_FILE, JSON.stringify(payload, null, 2), 'utf8');

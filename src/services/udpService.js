@@ -1,6 +1,16 @@
 const dgram = require('dgram');
 
 let udpSocket = null;
+const lastLogPerSensor = new Map();
+
+function logUdpRateLimited(sensorName, address, port) {
+  const now = Date.now();
+  const lastTime = lastLogPerSensor.get(sensorName) || 0;
+  if (now - lastTime >= 60000) {
+    lastLogPerSensor.set(sensorName, now);
+    console.log(`[UDP Service] Messdaten empfangen von Sensor '${sensorName}' (${address}:${port})`);
+  }
+}
 
 /**
  * Initialisiert den UDP-Broadcast Empfänger für Sensoren (z.B. solarbetriebener Außensensor)
@@ -29,6 +39,11 @@ function initUdpListener(io, port = 8888, host = '0.0.0.0') {
     });
 
     socket.on('message', (msg, rinfo) => {
+      // 1. Datagramme über 2 KB sofort verwerfen
+      if (!msg || msg.length > 2048) {
+        return;
+      }
+
       try {
         const text = msg.toString('utf8');
         const data = JSON.parse(text);
@@ -38,29 +53,36 @@ function initUdpListener(io, port = 8888, host = '0.0.0.0') {
           return;
         }
 
-        // Mit Sender-IP und Empfangszeit anreichern
+        // 2. Sensornamen validieren (z.B. solar_outdoor)
+        const sensorName = data.sensor;
+        if (typeof sensorName !== 'string' || !/^[A-Za-z0-9_-]{1,32}$/.test(sensorName)) {
+          return;
+        }
+
+        // 3. Rate-limited logging (ohne volles Payload-Objekt, max. 1x/min pro Sensor)
+        logUdpRateLimited(sensorName, rinfo.address, rinfo.port);
+
+        // 4. Mit Sender-IP und Empfangszeit anreichern
         const enriched = {
           ...data,
           senderIp: rinfo.address,
           receivedAt: new Date().toISOString()
         };
 
-        console.log(`[UDP Service] Messdaten empfangen von ${rinfo.address}:${rinfo.port}:`, enriched);
-
-        // Per Socket.io an alle verbundenen Web-Clients senden
-        if (io) {
-          io.emit('sensor_update', enriched);
-          // Für volle Abwärtskompatibilität auch das alternative Format senden
-          io.emit('sensor-update', { ip: rinfo.address, data: enriched });
-        }
-
-        // Lokalen Cache in tasmota route aktualisieren, damit auch HTTP GET /sensor sofort die Daten hat
+        // 5. Lokalen Cache in tasmota route aktualisieren und bereinigten Eintrag abholen
+        let cleanedEntry = null;
         try {
           const tasmotaRoute = require('../routes/tasmota');
           if (tasmotaRoute && typeof tasmotaRoute.updatePushedSensor === 'function') {
-            tasmotaRoute.updatePushedSensor(rinfo.address, enriched);
+            cleanedEntry = tasmotaRoute.updatePushedSensor(rinfo.address, enriched);
           }
         } catch (_) {}
+
+        // 6. Nur den bereinigten Eintrag an Clients senden; wenn nichts Gültiges drin war, nichts senden
+        if (cleanedEntry && io) {
+          io.emit('sensor_update', cleanedEntry);
+          io.emit('sensor-update', { ip: rinfo.address, data: cleanedEntry });
+        }
 
       } catch (parseErr) {
         console.warn(`[UDP Service] JSON-Parse-Fehler von ${rinfo.address}:${rinfo.port}:`, parseErr.message);

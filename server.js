@@ -36,7 +36,7 @@ try {
   if (fs.existsSync(indexPath)) {
     let html = fs.readFileSync(indexPath, 'utf8');
     const { version } = require('./package.json');
-    cachedIndexHtml = html.replace(/\?v=[0-9.]+/g, `?v=${version}`);
+    cachedIndexHtml = html.replace(/\?v=[^"'&\s]+/g, `?v=${version}`);
   }
 } catch (err) {
   console.error('[Server] Fehler beim Cachen von index.html beim Start:', err.message);
@@ -72,7 +72,8 @@ const compression = require('compression');
 app.use(compression());
 app.use(express.static('public'));
 app.use('/uploads', express.static(UPLOAD_DIR));
-app.use(express.json({ limit: '5mb' }));
+app.use('/api/note', express.json({ limit: '5mb' }));
+app.use(express.json({ limit: '256kb' }));
 
 // 4. HTTP oder HTTPS Server erstellen
 const server = useSSL ? https.createServer(sslOptions, app) : http.createServer(app);

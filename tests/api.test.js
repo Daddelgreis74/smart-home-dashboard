@@ -386,6 +386,56 @@ describe('API Endpoints Tests', () => {
       expect(checkRes.body.note.image).toBe('');
       expect(checkRes.body.note.lines).toHaveLength(0);
     });
+
+    test('POST /api/note mit ungueltigem image oder color gibt 400', async () => {
+      // Ungültiges Image-Format (kein Data-URL)
+      const resBadImage = await request(app)
+        .post('/api/note')
+        .send({ image: 'not_a_valid_data_url' })
+        .expect(400);
+      expect(resBadImage.body.success).toBe(false);
+
+      // Ungültiger Farbcode (kein Hex)
+      const resBadColor = await request(app)
+        .post('/api/note')
+        .send({
+          image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+          color: 'not_a_color'
+        })
+        .expect(400);
+      expect(resBadColor.body.success).toBe(false);
+    });
+
+    test('eine gueltige Notiz ueber 256 KB geht durch', async () => {
+      // Erstelle ein gültiges PNG Data-URL mit mehr als 256 KB (z.B. ~300 KB)
+      const largeBase64 = 'A'.repeat(300 * 1024);
+      const largeDataUrl = `data:image/png;base64,${largeBase64}`;
+      expect(Buffer.byteLength(largeDataUrl)).toBeGreaterThan(256 * 1024);
+
+      const res = await request(app)
+        .post('/api/note')
+        .send({
+          image: largeDataUrl
+        })
+        .expect(200);
+
+      expect(res.body.success).toBe(true);
+      expect(res.body.note.image).toBe(largeDataUrl);
+    });
+
+    test('ein anderer Endpunkt mit ueber 256 KB Body gibt 413', async () => {
+      // Erstelle einen Request größer als 256 KB an einen regulären Endpunkt wie /api/appointments
+      const largeAppointmentsPayload = {
+        title: 'Test',
+        date: '2026-10-02',
+        junk: 'x'.repeat(280 * 1024)
+      };
+
+      await request(app)
+        .post('/api/appointments')
+        .send(largeAppointmentsPayload)
+        .expect(413);
+    });
   });
 
   afterAll(() => {
