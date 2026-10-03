@@ -1,8 +1,92 @@
 const express = require('express');
 const fileStore = require('../utils/fileStore');
-const { initFritzboxConnections, soapCall } = require('../services/fritzboxService');
+const { 
+  initFritzboxConnections, 
+  soapCall,
+  getFritzExtraData,
+  getGuestWifi,
+  setGuestWifi,
+  refreshPhonebook
+} = require('../services/fritzboxService');
 
 const router = express.Router();
+
+router.get('/status', (req, res) => {
+  try {
+    const data = getFritzExtraData();
+    res.json({ success: true, ...data });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.get('/guest-wifi', (req, res) => {
+  try {
+    const gw = getGuestWifi();
+    res.json({
+      success: true,
+      enabled: gw.enabled,
+      ssid: gw.ssid,
+      key: gw.key,
+      status: gw.status
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.get('/guest-wifi/qr', (req, res) => {
+  try {
+    const gw = getGuestWifi();
+    if (!gw.ssid) {
+      return res.status(400).json({ success: false, error: 'Keine Gast-WLAN SSID konfiguriert' });
+    }
+    const QRCode = require('qrcode-svg');
+    const wifiString = `WIFI:T:WPA;S:${gw.ssid};P:${gw.key || ''};;`;
+    const qrcode = new QRCode({
+      content: wifiString,
+      padding: 2,
+      width: 256,
+      height: 256,
+      color: '#0f172a',
+      background: '#ffffff',
+      ecl: 'M',
+      container: 'svg-viewbox',
+      join: true
+    });
+    res.json({
+      success: true,
+      svg: qrcode.svg(),
+      ssid: gw.ssid,
+      key: gw.key,
+      enabled: gw.enabled
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.post('/guest-wifi', async (req, res) => {
+  try {
+    const { enabled } = req.body || {};
+    if (typeof enabled !== 'boolean') {
+      return res.status(400).json({ success: false, error: 'Parameter "enabled" muss ein Boolean sein' });
+    }
+    const result = await setGuestWifi(enabled);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.post('/phonebook/reload', async (req, res) => {
+  try {
+    await refreshPhonebook();
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 router.get('/config', (req, res) => {
   const fritzConfig = fileStore.fritzConfig;

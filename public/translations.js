@@ -100,6 +100,9 @@ const translations = {
     "fritzbox_up_label": "Up:",
     "fritzbox_recent_calls": "Letzte Anrufe",
     "fritzbox_no_calls": "Keine Anrufe protokolliert.",
+    "fritzbox_guest_wifi": "Gast-WLAN",
+    "fritzbox_guest_qr_title": "Gast-WLAN Zugang",
+    "fritzbox_guest_qr_hint": "Einfach mit der Smartphone-Kamera scannen, um direkt zu verbinden.",
     "presence_no_people": "Keine Personen registriert.",
     "camera_no_cameras": "Keine Kameras eingerichtet.",
     
@@ -313,6 +316,9 @@ const translations = {
     "fritzbox_up_label": "Up:",
     "fritzbox_recent_calls": "Recent Calls",
     "fritzbox_no_calls": "No calls logged.",
+    "fritzbox_guest_wifi": "Guest Wi-Fi",
+    "fritzbox_guest_qr_title": "Guest Wi-Fi Access",
+    "fritzbox_guest_qr_hint": "Simply scan with your smartphone camera to connect immediately.",
     "presence_no_people": "No people registered.",
     "camera_no_cameras": "No cameras configured.",
     
@@ -525,6 +531,9 @@ const translations = {
     "fritzbox_up_label": "Débit montant:",
     "fritzbox_recent_calls": "Appels Récents",
     "fritzbox_no_calls": "Aucun appel enregistré.",
+    "fritzbox_guest_wifi": "Wi-Fi Invité",
+    "fritzbox_guest_qr_title": "Accès Wi-Fi Invité",
+    "fritzbox_guest_qr_hint": "Scannez simplement avec votre appareil photo pour vous connecter.",
     "presence_no_people": "Aucune personne enregistrée.",
     "camera_no_cameras": "Aucune caméra configurée.",
     
@@ -686,6 +695,9 @@ const translations = {
     "fritzbox_up_label": "Carga:",
     "fritzbox_recent_calls": "Llamadas Recientes",
     "fritzbox_no_calls": "Ninguna llamada registrada.",
+    "fritzbox_guest_wifi": "Wi-Fi de Invitados",
+    "fritzbox_guest_qr_title": "Acceso Wi-Fi de Invitados",
+    "fritzbox_guest_qr_hint": "Simplemente escanea con la cámara de tu smartphone para conectarte.",
     "presence_no_people": "Ninguna persona registrada.",
     "camera_no_cameras": "Ninguna cámara configurada.",
     
@@ -847,6 +859,9 @@ const translations = {
     "fritzbox_up_label": "Upload:",
     "fritzbox_recent_calls": "Chiamate Recenti",
     "fritzbox_no_calls": "Nessuna chiamata registrata.",
+    "fritzbox_guest_wifi": "Wi-Fi Ospiti",
+    "fritzbox_guest_qr_title": "Accesso Wi-Fi Ospiti",
+    "fritzbox_guest_qr_hint": "Scansiona semplicemente con la fotocamera dello smartphone per connetterti.",
     "presence_no_people": "Nessuna persona registrata.",
     "camera_no_cameras": "Nessuna telecamera configurata.",
     
@@ -1008,6 +1023,9 @@ const translations = {
     "fritzbox_up_label": "Upload:",
     "fritzbox_recent_calls": "Recente Oproepen",
     "fritzbox_no_calls": "Geen oproepen geregistreerd.",
+    "fritzbox_guest_wifi": "Gast-WiFi",
+    "fritzbox_guest_qr_title": "Gast-WiFi Toegang",
+    "fritzbox_guest_qr_hint": "Scan eenvoudig met uw smartphone-camera om direct verbinding te maken.",
     "presence_no_people": "Geen personen geregistreerd.",
     "camera_no_cameras": "Geen camera's geconfigureerd.",
     
@@ -1169,6 +1187,9 @@ const translations = {
     "fritzbox_up_label": "Wysyłanie:",
     "fritzbox_recent_calls": "Ostatnie Połączenia",
     "fritzbox_no_calls": "Brak zarejestrowanych połączeń.",
+    "fritzbox_guest_wifi": "Wi-Fi dla gości",
+    "fritzbox_guest_qr_title": "Dostęp do Wi-Fi dla gości",
+    "fritzbox_guest_qr_hint": "Po prostu zeskanuj aparatem smartfona, aby połączyć się od razu.",
     "presence_no_people": "Brak zarejestrowanych osób.",
     "camera_no_cameras": "Brak skonfigurowanych kamer.",
     

@@ -10,7 +10,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="icon" href="icon.png" type="image/png">
   <link rel="apple-touch-icon" href="icon.png">
-  <link rel="stylesheet" href="styles.css?v=3.23.6">
+  <link rel="stylesheet" href="styles.css?v=3.23.7">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
   <script src="translations.js"></script>
@@ -871,28 +871,83 @@
 
       <div class="widget" data-type="fritzbox">
         <div class="widget-header">
-          <h3><i class="fas fa-ethernet" style="color:var(--primary)"></i> <span data-i18n="widget_title_fritzbox">Fritz!Box Monitor</span></h3>
+          <h3>
+            <i class="fas fa-network-wired" style="color:var(--primary)"></i>
+            <span id="fritzHeaderModel" data-i18n="widget_title_fritzbox">FRITZ!Box Monitor</span>
+          </h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body fritzbox-layout">
-          <!-- Live Network Status LEDs -->
-          <div class="fritz-network-status">
-            <div class="net-indicator">
+          <!-- Status Banner: Router & Internet Connection Badges -->
+          <div class="fritz-status-banner">
+            <div class="fritz-status-item">
               <span class="led-dot red" id="ledFritz"></span>
-              <span><span data-i18n="fritzbox_fritz_label">Fritz!Box:</span> <strong id="valFritzStatus">Offline</strong></span>
+              <span id="valFritzStatus">Offline</span>
             </div>
-            <div class="net-indicator">
+            <div class="fritz-status-item">
               <span class="led-dot red" id="ledInternet"></span>
-              <span><span data-i18n="fritzbox_internet_label">Internet:</span> <strong id="valInternetStatus">Offline</strong></span>
+              <span id="valInternetStatus">Offline</span>
             </div>
           </div>
-          <!-- Traffic rates -->
-          <div class="fritz-traffic-rates" style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 12px; padding: 4px 0px; border-bottom: 1px dashed rgba(255,255,255,0.05);">
-            <div><i class="fas fa-arrow-down" style="color: #4ade80; margin-right: 4px;"></i><span data-i18n="fritzbox_down_label">Down:</span> <strong id="valFritzDown" style="color: var(--text-main); font-variant-numeric: tabular-nums;">0.0 Mbit/s</strong></div>
-            <div><i class="fas fa-arrow-up" style="color: #a855f7; margin-right: 4px;"></i><span data-i18n="fritzbox_up_label">Up:</span> <strong id="valFritzUp" style="color: var(--text-main); font-variant-numeric: tabular-nums;">0.0 Mbit/s</strong></div>
+
+          <!-- Dual Bandwidth Glow Cards -->
+          <div class="fritz-bandwidth-grid">
+            <!-- Download -->
+            <div class="fritz-speed-card down">
+              <div class="speed-card-header">
+                <span class="speed-label"><i class="fas fa-arrow-down"></i> <span data-i18n="fritzbox_down_label">Down</span></span>
+                <span class="speed-sync" id="valFritzSyncDown">Sync: --</span>
+              </div>
+              <div class="speed-value-row">
+                <span class="speed-value" id="valFritzDown">0.0</span>
+                <span class="speed-unit">Mbit/s</span>
+              </div>
+              <div class="speed-progress-bar">
+                <div class="speed-progress-fill down" id="barFritzDown" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- Upload -->
+            <div class="fritz-speed-card up">
+              <div class="speed-card-header">
+                <span class="speed-label"><i class="fas fa-arrow-up"></i> <span data-i18n="fritzbox_up_label">Up</span></span>
+                <span class="speed-sync" id="valFritzSyncUp">Sync: --</span>
+              </div>
+              <div class="speed-value-row">
+                <span class="speed-value" id="valFritzUp">0.0</span>
+                <span class="speed-unit">Mbit/s</span>
+              </div>
+              <div class="speed-progress-bar">
+                <div class="speed-progress-fill up" id="barFritzUp" style="width: 0%;"></div>
+              </div>
+            </div>
           </div>
-          <!-- Recent Call List -->
-          <div class="fritz-call-title"><i class="fas fa-phone-volume"></i> <span data-i18n="fritzbox_recent_calls">Letzte Anrufe</span></div>
+
+          <!-- Guest WiFi Bar -->
+          <div class="fritz-guest-bar" id="fritzGuestBar">
+            <div class="guest-info">
+              <i class="fas fa-wifi text-muted" id="iconFritzGuest"></i>
+              <div>
+                <div class="guest-title" data-i18n="fritzbox_guest_wifi">Gast-WLAN</div>
+                <div class="guest-sub" id="valFritzGuestSsid">Inaktiv</div>
+              </div>
+            </div>
+            <div class="guest-actions">
+              <button class="btn-guest-qr" id="btnFritzGuestQr" title="WLAN QR-Code anzeigen" style="display: none;">
+                <i class="fas fa-qrcode"></i>
+              </button>
+              <label class="toggle-switch-compact">
+                <input type="checkbox" id="toggleFritzGuest">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Recent Calls Section -->
+          <div class="fritz-call-header">
+            <span class="call-title-text"><i class="fas fa-phone-volume"></i> <span data-i18n="fritzbox_recent_calls">Letzte Anrufe</span></span>
+            <span class="call-count-badge" id="fritzCallCount">0</span>
+          </div>
           <div class="fritz-call-list" id="fritzCallList">
             <div class="no-calls" data-i18n="fritzbox_no_calls">Keine Anrufe protokolliert.</div>
           </div>
@@ -1260,8 +1315,28 @@
     </div>
   </div>
 
+  <!-- GUEST WIFI QR CODE MODAL -->
+  <div class="radio-fullscreen-overlay" id="fritzGuestQrModal" hidden>
+    <div class="fullscreen-content fritz-qr-modal-content">
+      <div class="overlay-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2 style="font-size: 1.25rem; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-wifi" style="color:var(--primary)"></i> <span data-i18n="fritzbox_guest_qr_title">Gast-WLAN Zugang</span>
+        </h2>
+        <button class="close-btn" id="closeGuestQrModal" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem;"><i class="fas fa-times"></i></button>
+      </div>
+      <div id="fritzQrCodeContainer" class="fritz-qr-container">
+        <!-- SVG QR code rendered here -->
+      </div>
+      <div class="fritz-qr-credentials">
+        <div><span style="color: var(--text-muted);">SSID:</span> <strong id="modalGuestSsid" style="color: #fff;">--</strong></div>
+        <div style="margin-top: 4px;"><span style="color: var(--text-muted);">Passwort:</span> <strong id="modalGuestKey" style="color: var(--primary); font-family: monospace;">--</strong></div>
+      </div>
+      <p style="font-size: 11px; color: var(--text-muted); margin-top: 14px;" data-i18n="fritzbox_guest_qr_hint">Einfach mit der Smartphone-Kamera scannen, um direkt zu verbinden.</p>
+    </div>
+  </div>
+
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script type="module" src="app.js?v=3.23.6"></script>
+  <script type="module" src="app.js?v=3.23.7"></script>
 </body>
 </html>

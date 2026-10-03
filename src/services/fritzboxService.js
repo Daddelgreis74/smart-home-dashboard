@@ -99,6 +99,203 @@ function soapCall(ip, path, service, action, args, auth = null) {
   });
 }
 
+let fritzDataCache = {
+  modelName: '',
+  softwareVersion: '',
+  uptime: 0,
+  maxDown: 0,
+  maxUp: 0,
+  linkStatus: '',
+  guestWifi: {
+    enabled: false,
+    ssid: '',
+    status: '',
+    key: ''
+  },
+  phonebook: [],
+  lastRefreshed: 0
+};
+
+async function callTr064(path, service, action, args = {}) {
+  const fritzConfig = fileStore.fritzConfig;
+  if (!fritzConfig || !fritzConfig.ip) return { status: 400, error: 'Keine Fritz!Box konfiguriert' };
+  const username = fritzConfig.user || 'admin';
+  const password = fritzConfig.pass || '';
+
+  let res = await soapCall(fritzConfig.ip, path, service, action, args);
+  if (res.status === 401 && res.header) {
+    const params = parseDigestHeader(res.header);
+    const auth = calculateDigest(username, password, params.realm, params.nonce, 'POST', path);
+    res = await soapCall(fritzConfig.ip, path, service, action, args, auth);
+  }
+  return res;
+}
+
+function httpGet(urlStr) {
+  return new Promise((resolve, reject) => {
+    http.get(urlStr, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => resolve(data));
+    }).on('error', reject);
+  });
+}
+
+function normalizeNumber(num) {
+  if (!num) return '';
+  let clean = String(num).replace(/[^\d+]/g, '');
+  if (clean.startsWith('+49')) clean = '0' + clean.slice(3);
+  else if (clean.startsWith('0049')) clean = '0' + clean.slice(4);
+  else if (clean.startsWith('49') && clean.length > 9) clean = '0' + clean.slice(2);
+  return clean;
+}
+
+function resolveCallerName(rawNumber) {
+  if (!rawNumber) return 'Unbekannter Anrufer';
+  const clean = normalizeNumber(rawNumber);
+  if (!clean) return String(rawNumber);
+
+  for (const contact of fritzDataCache.phonebook) {
+    for (const num of contact.numbers) {
+      const cleanNum = normalizeNumber(num);
+      if (clean === cleanNum || (clean.length >= 6 && cleanNum.endsWith(clean)) || (cleanNum.length >= 6 && clean.endsWith(cleanNum))) {
+        return contact.name;
+      }
+    }
+  }
+  return String(rawNumber);
+}
+
+async function refreshPhonebook() {
+  try {
+    const pbRes = await callTr064('/upnp/control/x_contact', 'urn:dslforum-org:service:X_AVM-DE_OnTel:1', 'GetPhonebook', { NewPhonebookID: 0 });
+    if (pbRes.status === 200 && pbRes.body) {
+      const urlMatch = pbRes.body.match(/<NewPhonebookURL>([^<]+)<\/NewPhonebookURL>/);
+      if (urlMatch) {
+        const rawUrl = urlMatch[1].replace(/&amp;/g, '&');
+        const xml = await httpGet(rawUrl);
+        const contacts = [];
+        const contactRegex = /<contact>([\s\S]+?)<\/contact>/g;
+        let m;
+        while ((m = contactRegex.exec(xml)) !== null) {
+          const c = m[1];
+          const nameMatch = c.match(/<realName>([^<]+)<\/realName>/);
+          const name = nameMatch ? nameMatch[1] : '';
+          const numbers = [];
+          const numRegex = /<number[^>]*>([^<]+)<\/number>/g;
+          let nm;
+          while ((nm = numRegex.exec(c)) !== null) {
+            numbers.push(nm[1].replace(/\s+/g, ''));
+          }
+          if (name && numbers.length > 0) {
+            contacts.push({ name, numbers });
+          }
+        }
+        fritzDataCache.phonebook = contacts;
+        console.log(`[Fritz!Box] Telefonbuch aktualisiert: ${contacts.length} Kontakte geladen.`);
+      }
+    }
+  } catch (err) {
+    console.warn('[Fritz!Box] Fehler beim Laden des Telefonbuchs:', err.message);
+  }
+}
+
+async function refreshFritzData() {
+  const fritzConfig = fileStore.fritzConfig;
+  if (!fritzConfig || !fritzConfig.ip) return;
+
+  try {
+    // 1. Device Info
+    const dev = await callTr064('/upnp/control/deviceinfo', 'urn:dslforum-org:service:DeviceInfo:1', 'GetInfo');
+    if (dev.status === 200 && dev.body) {
+      const model = dev.body.match(/<NewModelName>([^<]+)<\/NewModelName>/);
+      const sw = dev.body.match(/<NewSoftwareVersion>([^<]+)<\/NewSoftwareVersion>/);
+      const uptime = dev.body.match(/<NewUpTime>([^<]+)<\/NewUpTime>/);
+      if (model) fritzDataCache.modelName = model[1];
+      if (sw) fritzDataCache.softwareVersion = sw[1];
+      if (uptime) fritzDataCache.uptime = Number(uptime[1]);
+    }
+
+    // 2. WAN Link Properties
+    const link = await callTr064('/upnp/control/wancommonifconfig1', 'urn:dslforum-org:service:WANCommonInterfaceConfig:1', 'GetCommonLinkProperties');
+    if (link.status === 200 && link.body) {
+      const down = link.body.match(/<NewLayer1DownstreamMaxBitRate>([^<]+)<\/NewLayer1DownstreamMaxBitRate>/);
+      const up = link.body.match(/<NewLayer1UpstreamMaxBitRate>([^<]+)<\/NewLayer1UpstreamMaxBitRate>/);
+      const linkStatus = link.body.match(/<NewPhysicalLinkStatus>([^<]+)<\/NewPhysicalLinkStatus>/);
+      if (down) fritzDataCache.maxDown = Number(down[1]);
+      if (up) fritzDataCache.maxUp = Number(up[1]);
+      if (linkStatus) fritzDataCache.linkStatus = linkStatus[1];
+    }
+
+    // 3. Guest WiFi Info
+    const wlan = await callTr064('/upnp/control/wlanconfig3', 'urn:dslforum-org:service:WLANConfiguration:3', 'GetInfo');
+    if (wlan.status === 200 && wlan.body) {
+      const enabled = wlan.body.match(/<NewEnable>([^<]+)<\/NewEnable>/);
+      const ssid = wlan.body.match(/<NewSSID>([^<]+)<\/NewSSID>/);
+      const status = wlan.body.match(/<NewStatus>([^<]+)<\/NewStatus>/);
+      fritzDataCache.guestWifi.enabled = enabled ? enabled[1] === '1' : false;
+      if (ssid) fritzDataCache.guestWifi.ssid = ssid[1];
+      if (status) fritzDataCache.guestWifi.status = status[1];
+    }
+
+    // 4. Guest WiFi Key
+    if (!fritzDataCache.guestWifi.key) {
+      const sec = await callTr064('/upnp/control/wlanconfig3', 'urn:dslforum-org:service:WLANConfiguration:3', 'GetSecurityKeys');
+      if (sec.status === 200 && sec.body) {
+        const key = sec.body.match(/<NewKeyPassphrase>([^<]+)<\/NewKeyPassphrase>/);
+        if (key) fritzDataCache.guestWifi.key = key[1];
+      }
+    }
+
+    // 5. Phonebook (beim ersten Mal oder wenn leer)
+    if (fritzDataCache.phonebook.length === 0) {
+      await refreshPhonebook();
+    }
+
+    fritzDataCache.lastRefreshed = Date.now();
+  } catch (err) {
+    console.warn('[Fritz!Box] Fehler bei refreshFritzData:', err.message);
+  }
+}
+
+async function setGuestWifi(enable) {
+  const fritzConfig = fileStore.fritzConfig;
+  if (!fritzConfig || !fritzConfig.ip) throw new Error('Keine Fritz!Box konfiguriert');
+
+  const res = await callTr064('/upnp/control/wlanconfig3', 'urn:dslforum-org:service:WLANConfiguration:3', 'SetEnable', {
+    NewEnable: enable ? 1 : 0
+  });
+
+  if (res.status === 200) {
+    fritzDataCache.guestWifi.enabled = !!enable;
+    fritzDataCache.guestWifi.status = enable ? 'Enabled' : 'Disabled';
+    if (ioInstance) {
+      ioInstance.emit('fritz-guest-wifi', {
+        enabled: fritzDataCache.guestWifi.enabled,
+        ssid: fritzDataCache.guestWifi.ssid
+      });
+    }
+    return { success: true, enabled: fritzDataCache.guestWifi.enabled, ssid: fritzDataCache.guestWifi.ssid };
+  } else {
+    throw new Error(`TR-064 Fehler: ${res.status}`);
+  }
+}
+
+function getFritzExtraData() {
+  return {
+    modelName: fritzDataCache.modelName || 'FRITZ!Box',
+    softwareVersion: fritzDataCache.softwareVersion,
+    maxDown: fritzDataCache.maxDown,
+    maxUp: fritzDataCache.maxUp,
+    linkStatus: fritzDataCache.linkStatus,
+    guestWifi: {
+      enabled: fritzDataCache.guestWifi.enabled,
+      ssid: fritzDataCache.guestWifi.ssid,
+      status: fritzDataCache.guestWifi.status
+    }
+  };
+}
+
 function addOrUpdateCall(connectionId, data) {
   fileStore.activeCalls[connectionId] = data;
   if (ioInstance) {
@@ -112,7 +309,7 @@ function addCallToLog(call) {
     number: call.number,
     time: call.time,
     duration: call.duration,
-    callerName: call.callerName || 'Unbekannter Anrufer'
+    callerName: call.callerName || resolveCallerName(call.number)
   });
   fileStore.fritzCalls = fileStore.fritzCalls.slice(0, MAX_STORED_CALLS);
   fileStore.saveCallLog();
@@ -127,9 +324,15 @@ function getMergedCalls() {
     number: c.number,
     time: c.time,
     duration: 0,
-    callerName: c.type === 'RING' ? 'Klingelt...' : 'Verbunden'
+    callerName: c.callerName || resolveCallerName(c.number) || (c.type === 'RING' ? 'Klingelt...' : 'Verbunden')
   }));
-  return [...current, ...fileStore.fritzCalls].slice(0, MAX_STORED_CALLS);
+  const history = fileStore.fritzCalls.map(c => ({
+    ...c,
+    callerName: (!c.callerName || c.callerName === 'Unbekannter Anrufer' || c.callerName === c.number)
+      ? resolveCallerName(c.number)
+      : c.callerName
+  }));
+  return [...current, ...history].slice(0, MAX_STORED_CALLS);
 }
 
 function pingTcp(host, port, timeout = TCP_PING_TIMEOUT_MS) {
@@ -193,19 +396,21 @@ function connectFritzCallMonitor() {
       if (type === 'RING') {
         const callerNumber = parts[3];
         const dialedNumber = parts[4];
-        console.log(`[Fritz!Box] RING - Anruf von ${callerNumber}`);
+        const callerName = resolveCallerName(callerNumber);
+        console.log(`[Fritz!Box] RING - Anruf von ${callerNumber} (${callerName})`);
         
         if (ioInstance) {
           ioInstance.emit('fritz-ringing', {
             active: true,
             number: callerNumber,
-            callerName: 'Eingehender Anruf'
+            callerName: callerName !== callerNumber ? callerName : 'Eingehender Anruf'
           });
         }
 
         addOrUpdateCall(connectionId, {
           type: 'RING',
           number: callerNumber,
+          callerName: callerName,
           dialed: dialedNumber,
           time: nowTime,
           duration: 0,
@@ -215,11 +420,13 @@ function connectFritzCallMonitor() {
       else if (type === 'CALL') {
         const dialedNumber = parts[4];
         const internalLine = parts[3];
-        console.log(`[Fritz!Box] CALL - Ausgehend zu ${dialedNumber}`);
+        const callerName = resolveCallerName(dialedNumber);
+        console.log(`[Fritz!Box] CALL - Ausgehend zu ${dialedNumber} (${callerName})`);
 
         addOrUpdateCall(connectionId, {
           type: 'CALL',
           number: dialedNumber,
+          callerName: callerName,
           dialed: internalLine,
           time: nowTime,
           duration: 0,
@@ -256,6 +463,9 @@ function connectFritzCallMonitor() {
           if (duration === 0 && call.type === 'RING') {
             call.type = 'MISSED';
           }
+          if (!call.callerName || call.callerName === 'Eingehender Anruf' || call.callerName === call.number) {
+            call.callerName = resolveCallerName(call.number);
+          }
           
           addCallToLog(call);
           delete fileStore.activeCalls[connectionId];
@@ -278,31 +488,34 @@ function connectFritzCallMonitor() {
   });
 }
 
+let fritzRefreshTimer = null;
+
 function initFritzboxConnections(io) {
   if (io) setIoInstance(io);
   fileStore.loadFritzConfig();
   connectFritzCallMonitor();
+  refreshFritzData();
+
+  if (!fritzRefreshTimer) {
+    fritzRefreshTimer = setInterval(() => {
+      refreshFritzData();
+    }, 60000);
+    if (fritzRefreshTimer && typeof fritzRefreshTimer.unref === 'function') {
+      fritzRefreshTimer.unref();
+    }
+  }
 }
 
 async function queryFritzPresence(mac) {
   const fritzConfig = fileStore.fritzConfig;
-  if (!fritzConfig.ip) return false;
-  const username = fritzConfig.user || 'admin';
-  const password = fritzConfig.pass || '';
+  if (!fritzConfig || !fritzConfig.ip) return false;
   const path = '/upnp/control/hosts';
   const service = 'urn:dslforum-org:service:Hosts:1';
   const action = 'GetSpecificHostEntry';
   const args = { NewMACAddress: mac.trim().toUpperCase() };
 
   try {
-    let res = await soapCall(fritzConfig.ip, path, service, action, args);
-    
-    if (res.status === 401 && res.header) {
-      const params = parseDigestHeader(res.header);
-      const auth = calculateDigest(username, password, params.realm, params.nonce, 'POST', path);
-      res = await soapCall(fritzConfig.ip, path, service, action, args, auth);
-    }
-
+    const res = await callTr064(path, service, action, args);
     if (res.status === 200 && res.body) {
       const activeMatch = res.body.match(/<NewActive>(\d)<\/NewActive>/i);
       if (activeMatch && activeMatch[1] === '1') {
@@ -353,10 +566,17 @@ async function pollPresence() {
 module.exports = {
   setIoInstance,
   soapCall,
+  callTr064,
   getMergedCalls,
   pingTcp,
   connectFritzCallMonitor,
   initFritzboxConnections,
   queryFritzPresence,
-  pollPresence
+  pollPresence,
+  refreshFritzData,
+  refreshPhonebook,
+  getFritzExtraData,
+  getGuestWifi: () => fritzDataCache.guestWifi,
+  setGuestWifi,
+  resolveCallerName
 };

@@ -1,5 +1,5 @@
 const fileStore = require('../utils/fileStore');
-const { getMergedCalls, pingTcp } = require('../services/fritzboxService');
+const { getMergedCalls, pingTcp, getFritzExtraData } = require('../services/fritzboxService');
 const { getSystemStatus } = require('../services/systemService');
 
 let serverTimer = {
@@ -142,11 +142,13 @@ function initSockets(io) {
     try {
       const fritzPing = await pingTcp(fritzConfig.ip, 80, 2500);
       const internetPing = await pingTcp('1.1.1.1', 53, 2500);
+      const extraData = typeof getFritzExtraData === 'function' ? getFritzExtraData() : {};
       io.emit('fritz-status', {
         fritzOnline: fritzPing.online,
         fritzLatency: fritzPing.latency,
         internetOnline: internetPing.online,
-        internetLatency: internetPing.latency
+        internetLatency: internetPing.latency,
+        ...extraData
       });
     } catch(e) {}
   }, 10000);

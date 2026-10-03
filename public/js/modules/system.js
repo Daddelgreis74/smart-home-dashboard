@@ -27,12 +27,26 @@ export function handleSysStatus(d) {
   updateBar('net', d.net, 15, 'MB/s', 2);
 
   const elDown = document.getElementById('valFritzDown');
-  if (elDown && d.netDown !== undefined) {
-    elDown.textContent = formatBitrate(d.netDown);
+  const barDown = document.getElementById('barFritzDown');
+  if (d.netDown !== undefined) {
+    if (elDown) elDown.textContent = formatBitrate(d.netDown);
+    if (barDown) {
+      const bits = (d.netDown || 0) * 8;
+      const maxBits = window.fritzSyncDownBits || 100000000;
+      const pct = Math.min(100, Math.round((bits / maxBits) * 100));
+      barDown.style.width = `${bits > 0 ? Math.max(3, pct) : 0}%`;
+    }
   }
   const elUp = document.getElementById('valFritzUp');
-  if (elUp && d.netUp !== undefined) {
-    elUp.textContent = formatBitrate(d.netUp);
+  const barUp = document.getElementById('barFritzUp');
+  if (d.netUp !== undefined) {
+    if (elUp) elUp.textContent = formatBitrate(d.netUp);
+    if (barUp) {
+      const bits = (d.netUp || 0) * 8;
+      const maxBits = window.fritzSyncUpBits || 40000000;
+      const pct = Math.min(100, Math.round((bits / maxBits) * 100));
+      barUp.style.width = `${bits > 0 ? Math.max(3, pct) : 0}%`;
+    }
   }
 }
 
