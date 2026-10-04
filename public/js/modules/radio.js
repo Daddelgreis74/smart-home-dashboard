@@ -5,59 +5,109 @@ export let isPlaying = false;
 export let hlsCore = null;
 export let activeAudioElement = null;
 
+export const DEFAULT_PRESETS = [
+  { name: 'MDR JUMP', url: 'http://mdr-284320-0.cast.mdr.de/mdr/284320/0/mp3/high/stream.mp3', genre: 'Pop & aktuelle Hits' },
+  { name: 'Antenne TH', url: 'https://top.antennethueringen.de/live/mp3-192/', genre: 'Hits & Regional' },
+  { name: '80s80s', url: 'http://stream.80s80s.de/80s80s/mp3-192/', genre: 'Real 80s Sound' },
+  { name: 'WDR 2', url: 'http://wdr-wdr2-koeln.cast.addradio.de/wdr/wdr2/koeln/mp3/128/stream.mp3', genre: 'News & Pop' }
+];
+
+export function getPresets() {
+  try {
+    const stored = localStorage.getItem('radio_presets');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {}
+  return DEFAULT_PRESETS;
+}
+
+export function highlightActivePreset() {
+  const currentUrl = localStorage.getItem('streamUrl');
+  const pills = document.querySelectorAll('#radioPresetPills .preset-pill');
+  pills.forEach(pill => {
+    const pillUrl = pill.getAttribute('data-url');
+    if (isPlaying && pillUrl === currentUrl) {
+      pill.classList.add('active');
+    } else {
+      pill.classList.remove('active');
+    }
+  });
+}
+
 export function updateRadioUi(playing) {
   isPlaying = playing;
-  const statusLabel = document.getElementById('widgetRadioStatus');
-  const playBtnIcon = document.querySelector('#widgetPlayPauseBtn i');
   const playBtn = document.getElementById('widgetPlayPauseBtn');
-  const visualizer = document.getElementById('radioVisualizer');
-  const towerIcon = document.getElementById('widgetRadioTowerIcon');
-  const towerWrapper = document.querySelector('.radio-ring-wrapper');
+  const playBtnIcon = playBtn ? playBtn.querySelector('i') : null;
+  const badgeLive = document.getElementById('badgeRadioLive');
+  const statusText = document.getElementById('valRadioStatusText');
+  const vinylDisc = document.getElementById('radioVinylDisc');
+  const miniEq = document.getElementById('radioMiniEq');
+  const heroCard = document.querySelector('.radio-card-hero');
+  const genreText = document.getElementById('valRadioGenreText');
   
   if (playBtnIcon) {
     playBtnIcon.className = playing ? 'fas fa-stop' : 'fas fa-play';
   }
   if (playBtn) {
     if (playing) {
-      playBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
-      playBtn.style.boxShadow = '0 4px 10px rgba(239, 68, 68, 0.25)';
+      playBtn.classList.add('playing');
     } else {
-      playBtn.style.background = 'linear-gradient(135deg, var(--primary), #22c55e)';
-      playBtn.style.boxShadow = '0 4px 10px rgba(74, 222, 128, 0.25)';
-    }
-  }
-  
-  if (visualizer) {
-    visualizer.style.opacity = playing ? '0.45' : '0.15';
-    if (playing) {
-      visualizer.classList.add('active');
-    } else {
-      visualizer.classList.remove('active');
+      playBtn.classList.remove('playing');
     }
   }
 
-  if (towerIcon) {
-    towerIcon.style.color = playing ? 'var(--primary)' : 'var(--text-muted)';
-  }
-
-  if (towerWrapper) {
+  if (badgeLive) {
     if (playing) {
-      towerWrapper.style.borderColor = 'var(--primary)';
-      towerWrapper.style.boxShadow = '0 0 15px var(--primary-glow)';
-      towerWrapper.style.background = 'rgba(74, 222, 128, 0.05)';
+      badgeLive.classList.add('live');
     } else {
-      towerWrapper.style.borderColor = 'rgba(255, 255, 255, 0.08)';
-      towerWrapper.style.boxShadow = '0 0 0 rgba(74, 222, 128, 0)';
-      towerWrapper.style.background = 'rgba(255, 255, 255, 0.03)';
+      badgeLive.classList.remove('live');
     }
   }
-  
-  if (statusLabel) {
-    const lang = Config.get('dashboard_lang', 'de');
-    const trans = window.translations || {};
-    statusLabel.textContent = playing ? (trans[lang] ? trans[lang].radio_status_live || 'LIVE' : 'LIVE') : (trans[lang] ? trans[lang].radio_status_choose || 'Sender wählen' : 'Sender wählen');
-    statusLabel.style.color = playing ? 'var(--primary)' : 'var(--accent-blue)';
+
+  const lang = Config.get('dashboard_lang', 'de');
+  const trans = window.translations || {};
+  const t = trans[lang] || {};
+
+  if (statusText) {
+    statusText.textContent = playing ? (t.radio_status_live || 'LIVE') : (t.radio_status_standby || 'STANDBY');
   }
+
+  if (genreText) {
+    if (!playing) {
+      genreText.textContent = t.radio_ready_to_play || 'Bereit zum Abspielen';
+    } else {
+      const activeGenre = localStorage.getItem('streamGenre') || 'Live Web Stream';
+      genreText.textContent = activeGenre;
+    }
+  }
+
+  if (vinylDisc) {
+    if (playing) {
+      vinylDisc.classList.add('spinning');
+    } else {
+      vinylDisc.classList.remove('spinning');
+    }
+  }
+
+  if (miniEq) {
+    if (playing) {
+      miniEq.classList.add('active');
+    } else {
+      miniEq.classList.remove('active');
+    }
+  }
+
+  if (heroCard) {
+    if (playing) {
+      heroCard.classList.add('playing');
+    } else {
+      heroCard.classList.remove('playing');
+    }
+  }
+
+  highlightActivePreset();
 }
 
 export function stopRadioPlayback(removeSource = true) {
@@ -101,7 +151,7 @@ export function initAudioPlayer() {
   // Built-in controls through widget and popup
 }
 
-export function playAudioStream(url, name = '', autoPlay = false) {
+export function playAudioStream(url, name = '', autoPlay = false, genre = '') {
   const container = document.getElementById('audioPlayerContainer');
   if (!container) return;
   if (!autoPlay) return;
@@ -114,6 +164,17 @@ export function playAudioStream(url, name = '', autoPlay = false) {
     const stationLabel = document.getElementById('widgetRadioStation');
     if (stationLabel) stationLabel.textContent = name;
   }
+
+  let selectedGenre = genre;
+  if (!selectedGenre) {
+    const presets = getPresets();
+    const match = presets.find(p => p.url === url || p.name === name);
+    if (match && match.genre) selectedGenre = match.genre;
+    else selectedGenre = 'Live Web Stream';
+  }
+  localStorage.setItem('streamGenre', selectedGenre);
+  const genreEl = document.getElementById('valRadioGenreText');
+  if (genreEl) genreEl.textContent = selectedGenre;
 
   let playUrl = url;
   if (window.location.protocol === 'https:' && url.startsWith('http://')) {
@@ -216,6 +277,92 @@ function setupMediaSession(name) {
   }
 }
 
+let sleepTimerId = null;
+let sleepTimerMinutes = 0;
+
+export function renderPresetPills() {
+  const container = document.getElementById('radioPresetPills');
+  if (!container) return;
+  const presets = getPresets();
+  container.innerHTML = '';
+  
+  presets.slice(0, 4).forEach((preset, idx) => {
+    const pill = document.createElement('div');
+    pill.className = 'preset-pill';
+    pill.setAttribute('data-url', preset.url);
+    pill.setAttribute('data-name', preset.name);
+    pill.setAttribute('data-genre', preset.genre || '');
+    
+    pill.innerHTML = `
+      <span class="pill-num">P${idx + 1}</span>
+      <span class="pill-name" title="${preset.name}">${preset.name}</span>
+    `;
+    
+    pill.addEventListener('click', () => {
+      const currentUrl = localStorage.getItem('streamUrl');
+      if (isPlaying && currentUrl === preset.url) {
+        stopRadioPlayback(true);
+      } else {
+        playAudioStream(preset.url, preset.name, true, preset.genre);
+      }
+    });
+    
+    container.appendChild(pill);
+  });
+  
+  highlightActivePreset();
+}
+
+export function initSleepTimer() {
+  const btn = document.getElementById('btnRadioSleepTimer');
+  const badge = document.getElementById('badgeSleepTimer');
+  if (!btn) return;
+  
+  btn.addEventListener('click', () => {
+    if (sleepTimerMinutes === 0) {
+      sleepTimerMinutes = 15;
+    } else if (sleepTimerMinutes === 15) {
+      sleepTimerMinutes = 30;
+    } else if (sleepTimerMinutes === 30) {
+      sleepTimerMinutes = 60;
+    } else {
+      sleepTimerMinutes = 0;
+    }
+    
+    if (sleepTimerId) {
+      clearTimeout(sleepTimerId);
+      sleepTimerId = null;
+    }
+    
+    if (badge) {
+      if (sleepTimerMinutes > 0) {
+        badge.style.display = 'block';
+        badge.textContent = `${sleepTimerMinutes}m`;
+        btn.style.borderColor = 'var(--accent-blue)';
+        btn.style.color = 'var(--accent-blue)';
+      } else {
+        badge.style.display = 'none';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+      }
+    }
+    
+    if (sleepTimerMinutes > 0) {
+      console.log(`[Radio] Sleep-Timer aktiviert: ${sleepTimerMinutes} Min.`);
+      sleepTimerId = setTimeout(() => {
+        console.log('[Radio] Sleep-Timer abgelaufen: Stoppe Wiedergabe');
+        stopRadioPlayback(true);
+        sleepTimerMinutes = 0;
+        if (badge) badge.style.display = 'none';
+        if (btn) {
+          btn.style.borderColor = '';
+          btn.style.color = '';
+        }
+      }, sleepTimerMinutes * 60 * 1000);
+    }
+  });
+}
+
 export function initRadioWidget(socket) {
   let savedName = localStorage.getItem('streamName');
   const stationLabel = document.getElementById('widgetRadioStation');
@@ -227,6 +374,10 @@ export function initRadioWidget(socket) {
   if (stationLabel) {
     stationLabel.textContent = savedName;
   }
+
+  // Initial Presets & Sleep Timer Setup
+  renderPresetPills();
+  initSleepTimer();
 
   // Register initial Media Session play handler for Bluetooth controllers
   if ('mediaSession' in navigator) {
@@ -240,19 +391,50 @@ export function initRadioWidget(socket) {
   }
 
   const widgetVolume = document.getElementById('widgetVolumeSlider');
+  const volIcon = document.getElementById('iconRadioVolume');
+  let preMuteVolume = 50;
+
   if (widgetVolume) {
     const savedVol = localStorage.getItem('radioVolume') || '50';
     widgetVolume.value = savedVol;
     
+    const updateVolIcon = (vol) => {
+      if (!volIcon) return;
+      const v = Number(vol);
+      if (v === 0) {
+        volIcon.className = 'fas fa-volume-mute';
+      } else if (v < 50) {
+        volIcon.className = 'fas fa-volume-down';
+      } else {
+        volIcon.className = 'fas fa-volume-up';
+      }
+    };
+
+    updateVolIcon(savedVol);
+
     widgetVolume.addEventListener('input', (e) => {
       const vol = e.target.value;
       localStorage.setItem('radioVolume', vol);
+      updateVolIcon(vol);
       if (activeAudioElement) {
         activeAudioElement.volume = vol / 100;
       }
       const popupVolume = document.getElementById('popupVolumeSlider');
       if (popupVolume) popupVolume.value = vol;
     });
+
+    if (volIcon) {
+      volIcon.addEventListener('click', () => {
+        const currentVol = parseInt(widgetVolume.value, 10);
+        if (currentVol > 0) {
+          preMuteVolume = currentVol;
+          widgetVolume.value = 0;
+        } else {
+          widgetVolume.value = preMuteVolume > 0 ? preMuteVolume : 50;
+        }
+        widgetVolume.dispatchEvent(new Event('input'));
+      });
+    }
   }
 
   const widgetPlayBtn = document.getElementById('widgetPlayPauseBtn');
@@ -359,6 +541,15 @@ export function initFritzRadioPopup() {
       } else {
         if (infoCard) infoCard.style.display = 'none';
         if (countBadge) countBadge.textContent = stations.length + ' Sender gefunden';
+        if (!localStorage.getItem('radio_presets')) {
+          const autoPresets = stations.slice(0, 4).map(s => ({
+            name: s.name,
+            url: s.url,
+            genre: 'FRITZ!Box Radio'
+          }));
+          localStorage.setItem('radio_presets', JSON.stringify(autoPresets));
+          renderPresetPills();
+        }
         renderStations(stations, false);
       }
     } catch (e) {

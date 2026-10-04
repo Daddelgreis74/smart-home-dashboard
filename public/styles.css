@@ -1879,112 +1879,369 @@ body::before {
   .widget[data-type="player"] .play-round-btn { width: 40px; height: 40px; }
 }
 
-/* --- COMPACT LIVE RADIO WIDGET CONTROLS (v3.9.0) --- */
-.radio-controls-bar {
+/* --- LIVE RADIO WIDGET - NEO-AURORA STREAMER (v3.23.8) --- */
+.widget[data-type="player"] .player-layout {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: space-between;
-  gap: 8px;
-  margin-top: 8px;
-  padding: 0 4px;
-  height: 42px;
-  width: 100%;
+  gap: 10px;
+  height: calc(100% - 35px);
+  padding: 10px 12px;
 }
 
-.radio-controls-bar #chooseStationBtn {
+/* Live Status Badge in Header */
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  padding: 2px 7px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+
+.live-badge.live {
+  background: rgba(74, 222, 128, 0.12);
+  color: var(--primary, #55f5b1);
+  border-color: var(--primary-glow, rgba(85, 245, 177, 0.4));
+}
+
+.live-badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: all 0.3s ease;
+}
+
+.live-badge.live .dot {
+  background: var(--primary, #55f5b1);
+  box-shadow: 0 0 8px var(--primary, #55f5b1);
+  animation: pulseLiveDot 1.5s infinite;
+}
+
+@keyframes pulseLiveDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.85); }
+}
+
+/* Hero Card: Vinyl Disc + Live Station Info + Mini EQ */
+.radio-card-hero {
+  position: relative;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-md, 14px);
   padding: 10px 12px;
-  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.radio-card-hero::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  width: 90px;
+  height: 90px;
+  background: var(--primary-glow, rgba(85, 245, 177, 0.3));
+  filter: blur(35px);
+  opacity: 0.25;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+.radio-card-hero.playing::before {
+  opacity: 0.5;
+}
+
+/* Vinyl Disc Avatar */
+.vinyl-wrapper {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+}
+
+.vinyl-disc {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #2d3748 18%, #1a202c 19%, #111827 50%, #000 100%);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  position: relative;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.vinyl-disc.spinning {
+  animation: spinVinylDisc 6s linear infinite;
+  border-color: var(--primary, #55f5b1);
+  box-shadow: 0 0 16px var(--primary-glow, rgba(85, 245, 177, 0.4));
+}
+
+@keyframes spinVinylDisc {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.vinyl-center-logo {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--primary, #55f5b1);
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+}
+
+.station-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.station-name-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.3px;
+}
+
+.station-stream-desc {
   font-size: 11px;
+  color: var(--accent-blue, #38bdf8);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   display: flex;
   align-items: center;
   gap: 5px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--text-main);
-  font-weight: 500;
-  height: 38px;
-  min-height: unset; /* override general .btn min-height */
-  cursor: pointer;
-  transition: all 0.2s;
 }
 
-.radio-controls-bar #chooseStationBtn:hover {
+/* Mini Equalizer inside Hero Card */
+.mini-equalizer {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 16px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.mini-bar {
+  width: 3px;
+  background: var(--primary, #55f5b1);
+  border-radius: 2px;
+  height: 3px;
+  transition: height 0.15s ease;
+}
+
+.mini-equalizer.active .mini-bar:nth-child(1) { animation: miniEqAnim 0.7s infinite alternate ease-in-out; }
+.mini-equalizer.active .mini-bar:nth-child(2) { animation: miniEqAnim 0.9s infinite alternate 0.2s ease-in-out; }
+.mini-equalizer.active .mini-bar:nth-child(3) { animation: miniEqAnim 0.6s infinite alternate 0.4s ease-in-out; }
+.mini-equalizer.active .mini-bar:nth-child(4) { animation: miniEqAnim 0.8s infinite alternate 0.1s ease-in-out; }
+
+@keyframes miniEqAnim {
+  0% { height: 3px; }
+  100% { height: 16px; }
+}
+
+/* Quick Presets Section */
+.radio-preset-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.preset-section-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2px;
+}
+
+.preset-pills-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.preset-pill {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 9px;
+  padding: 5px 3px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  user-select: none;
+}
+
+.preset-pill:hover {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.15);
   transform: translateY(-1px);
 }
 
-.radio-controls-bar #chooseStationBtn:active {
+.preset-pill:active {
   transform: translateY(0);
 }
 
-.radio-controls-bar #widgetPlayPauseBtn {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), #22c55e);
-  border: none;
-  color: #000;
-  font-size: 13px;
+.preset-pill.active {
+  background: rgba(74, 222, 128, 0.12);
+  border-color: var(--primary, #55f5b1);
+  box-shadow: 0 0 10px var(--primary-glow, rgba(85, 245, 177, 0.3));
+}
+
+.preset-pill .pill-num {
+  font-size: 8px;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.preset-pill.active .pill-num {
+  color: var(--primary, #55f5b1);
+}
+
+.preset-pill .pill-name {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+/* Audio Controls Bar */
+.audio-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.06);
+}
+
+.btn-secondary-action {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 10px rgba(74, 222, 128, 0.25);
-  transition: all 0.2s;
+  font-size: 13px;
+  position: relative;
+  transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
-.radio-controls-bar #widgetPlayPauseBtn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 14px rgba(74, 222, 128, 0.4);
+.btn-secondary-action:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
 }
 
-.radio-controls-bar #widgetPlayPauseBtn:active {
-  transform: scale(0.95);
+.btn-secondary-action:active {
+  transform: translateY(0);
 }
 
-/* Volume Control Container */
-.widget-volume-control {
+.btn-play-hero {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary, #55f5b1), #22c55e);
+  border: none;
+  color: #000;
+  font-size: 15px;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 4px;
-  flex: 1;
-  max-width: 90px;
-  min-width: 0; /* Let it shrink fully */
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 6px;
-  border-radius: var(--radius-sm);
-  height: 38px;
+  justify-content: center;
+  box-shadow: 0 4px 12px var(--primary-glow, rgba(85, 245, 177, 0.35));
+  transition: all 0.25s ease;
+  flex-shrink: 0;
 }
 
-/* Custom premium slider */
-.widget-volume-control input[type="range"] {
+.btn-play-hero:hover {
+  transform: scale(1.06);
+}
+
+.btn-play-hero:active {
+  transform: scale(0.96);
+}
+
+.btn-play-hero.playing {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+  color: #fff;
+}
+
+.volume-slider-compact {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  padding: 6px 10px;
+  flex: 1;
+  min-width: 70px;
+  max-width: 130px;
+  height: 36px;
+}
+
+.volume-slider-compact input[type="range"] {
   flex: 1;
   width: 100%;
-  min-width: 20px;
+  min-width: 30px;
   -webkit-appearance: none;
   appearance: none;
   height: 3px;
   border-radius: 2px;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.15);
   border: none;
   outline: none;
   transition: background 0.2s;
 }
 
-.widget-volume-control input[type="range"]:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-/* Webkit browser thumb */
-.widget-volume-control input[type="range"]::-webkit-slider-thumb {
+.volume-slider-compact input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 10px;
-  height: 10px;
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
   background: var(--primary, #55f5b1);
   cursor: pointer;
@@ -1992,26 +2249,14 @@ body::before {
   transition: transform 0.1s, background-color 0.2s;
 }
 
-.widget-volume-control input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-  background: #fff;
-}
-
-/* Firefox thumb */
-.widget-volume-control input[type="range"]::-moz-range-thumb {
-  width: 10px;
-  height: 10px;
+.volume-slider-compact input[type="range"]::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
   border: none;
   border-radius: 50%;
   background: var(--primary, #55f5b1);
   cursor: pointer;
   box-shadow: 0 0 6px var(--primary-glow, rgba(85, 245, 177, 0.4));
-  transition: transform 0.1s, background-color 0.2s;
-}
-
-.widget-volume-control input[type="range"]::-moz-range-thumb:hover {
-  transform: scale(1.2);
-  background: #fff;
 }
 
 /* Responsive adjustments for Radio widget inside narrow viewports / cards */
@@ -3124,6 +3369,62 @@ body.theme-nordic .speed-progress-fill.up {
   box-shadow: none;
 }
 body.theme-nordic .fritz-guest-bar {
+  background: #242933;
+  border-color: #3b4252;
+}
+
+/* Theme Overrides for Live Radio Neo-Aurora */
+body.theme-cyberpunk .radio-card-hero {
+  border-radius: 0;
+  border-color: rgba(255, 85, 0, 0.3);
+}
+body.theme-cyberpunk .preset-pill {
+  border-radius: 0;
+}
+body.theme-cyberpunk .preset-pill.active {
+  border-color: #ff5500;
+  box-shadow: 0 0 10px rgba(255, 85, 0, 0.4);
+}
+body.theme-cyberpunk .preset-pill.active .pill-num {
+  color: #ff5500;
+}
+body.theme-cyberpunk .btn-play-hero {
+  background: linear-gradient(135deg, #ff5500, #ff0055);
+  box-shadow: 0 4px 12px rgba(255, 85, 0, 0.4);
+}
+body.theme-cyberpunk .btn-secondary-action {
+  border-radius: 0;
+}
+body.theme-cyberpunk .volume-slider-compact {
+  border-radius: 0;
+}
+
+body.theme-nordic .radio-card-hero {
+  background: #242933;
+  border-color: #3b4252;
+}
+body.theme-nordic .preset-pill {
+  background: #242933;
+  border-color: #3b4252;
+}
+body.theme-nordic .preset-pill.active {
+  background: rgba(136, 192, 208, 0.15);
+  border-color: #88c0d0;
+  box-shadow: none;
+}
+body.theme-nordic .preset-pill.active .pill-num {
+  color: #88c0d0;
+}
+body.theme-nordic .btn-play-hero {
+  background: linear-gradient(135deg, #88c0d0, #81a1c1);
+  box-shadow: none;
+  color: #2e3440;
+}
+body.theme-nordic .btn-secondary-action {
+  background: #242933;
+  border-color: #3b4252;
+}
+body.theme-nordic .volume-slider-compact {
   background: #242933;
   border-color: #3b4252;
 }

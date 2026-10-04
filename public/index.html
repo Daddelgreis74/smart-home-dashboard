@@ -10,7 +10,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="icon" href="icon.png" type="image/png">
   <link rel="apple-touch-icon" href="icon.png">
-  <link rel="stylesheet" href="styles.css?v=3.23.7">
+  <link rel="stylesheet" href="styles.css?v=3.23.8">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
   <script src="translations.js"></script>
@@ -730,54 +730,78 @@
 
       <div class="widget" data-type="player">
         <div class="widget-header">
-          <h3><i class="fas fa-radio" style="color:var(--primary)"></i> <span data-i18n="widget_title_radio">Live Radio</span></h3>
-          <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
+          <h3>
+            <i class="fas fa-radio" style="color:var(--primary)"></i>
+            <span data-i18n="widget_title_radio">Live Radio</span>
+          </h3>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="live-badge" id="badgeRadioLive">
+              <span class="dot"></span>
+              <span id="valRadioStatusText" data-i18n="radio_status_standby">STANDBY</span>
+            </span>
+            <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
+          </div>
         </div>
-        <div class="widget-body player-layout" style="padding: 12px; display: flex; flex-direction: column; align-items: stretch; justify-content: space-between; height: calc(100% - 35px);">
-          
-          <!-- Hauptbedienbereich (Glasmorphismus-Panel) -->
-          <div class="radio-main-panel" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.05); border-radius: var(--radius-md); padding: 15px; overflow: hidden; transition: all 0.3s ease;">
-            
-            <!-- Animated Sound Wave Visualizer Background -->
-            <div id="radioVisualizer" class="visualizer" style="position: absolute; bottom: 0; left: 0; right: 0; height: 100%; display: flex; align-items: flex-end; justify-content: space-around; padding: 0 10px; opacity: 0.15; pointer-events: none; transition: opacity 0.5s;">
-              <div class="bar" style="width: 8%; height: 10%; background: var(--primary); border-radius: 4px 4px 0 0;"></div>
-              <div class="bar" style="width: 8%; height: 15%; background: var(--primary); border-radius: 4px 4px 0 0;"></div>
-              <div class="bar" style="width: 8%; height: 8%; background: var(--primary); border-radius: 4px 4px 0 0;"></div>
-              <div class="bar" style="width: 8%; height: 20%; background: var(--primary); border-radius: 4px 4px 0 0;"></div>
-              <div class="bar" style="width: 8%; height: 12%; background: var(--primary); border-radius: 4px 4px 0 0;"></div>
-              <div class="bar" style="width: 8%; height: 25%; background: var(--primary); border-radius: 4px 4px 0 0;"></div>
-              <div class="bar" style="width: 8%; height: 14%; background: var(--primary); border-radius: 4px 4px 0 0;"></div>
-              <div class="bar" style="width: 8%; height: 6%; background: var(--primary); border-radius: 4px 4px 0 0;"></div>
+        <div class="widget-body player-layout">
+          <!-- Hero Card: Vinyl Disc + Live Station Info + Mini EQ -->
+          <div class="radio-card-hero">
+            <div class="vinyl-wrapper">
+              <div class="vinyl-disc" id="radioVinylDisc">
+                <div class="vinyl-center-logo">
+                  <i class="fas fa-broadcast-tower"></i>
+                </div>
+              </div>
             </div>
 
-            <!-- Tower and Wave Icons inside Glow ring -->
-            <div class="radio-ring-wrapper" style="position: relative; display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); transition: all 0.3s ease; box-shadow: 0 0 0 rgba(74, 222, 128, 0);">
-              <i id="widgetRadioTowerIcon" class="fas fa-broadcast-tower" style="font-size: 22px; color: var(--text-muted); transition: all 0.3s ease;"></i>
+            <div class="station-info">
+              <div class="station-name-title" id="widgetRadioStation">FRITZ!Box Radio</div>
+              <div class="station-stream-desc" id="widgetRadioGenre">
+                <i class="fas fa-music"></i>
+                <span id="valRadioGenreText" data-i18n="radio_ready_to_play">Bereit zum Abspielen</span>
+              </div>
             </div>
-            
-            <!-- Metadata & Station name -->
-            <div style="text-align: center; width: 100%; margin-top: 12px; z-index: 2;">
-              <h4 id="widgetRadioStation" style="font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; margin: 0; padding: 0 5px; color: var(--text-main); letter-spacing: 0.5px;">FRITZ!Box Radio</h4>
-              <small id="widgetRadioStatus" data-i18n="radio_status_choose" style="font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-blue); display: block; margin-top: 4px; font-weight: 700;">Sender wählen</small>
+
+            <!-- Mini Equalizer -->
+            <div class="mini-equalizer" id="radioMiniEq">
+              <div class="mini-bar"></div>
+              <div class="mini-bar"></div>
+              <div class="mini-bar"></div>
+              <div class="mini-bar"></div>
             </div>
           </div>
 
-          <!-- Bottom Control Bar (Compact Audio Controls) -->
-          <div class="radio-controls-bar">
-            <!-- Stationsauswahl-Button -->
-            <button id="chooseStationBtn" class="btn" aria-label="FRITZ!Box Radio öffnen">
-              <i class="fas fa-list-ul" style="font-size: 11px; color: var(--accent-blue);"></i>
-              <span data-i18n="radio_btn_choose">Sender</span>
+          <!-- Quick Presets Section -->
+          <div class="radio-preset-section">
+            <div class="preset-section-title">
+              <span data-i18n="radio_presets_title">Favoriten</span>
+              <span style="font-size: 9px; color: var(--accent-blue); font-weight: 700;">1-KLICK</span>
+            </div>
+            <div class="preset-pills-grid" id="radioPresetPills">
+              <!-- Dynamically populated by radio.js -->
+            </div>
+          </div>
+
+          <!-- Controls Bar -->
+          <div class="audio-controls-row">
+            <!-- Alle Sender Popup Button -->
+            <button class="btn-secondary-action" id="chooseStationBtn" title="FRITZ!Box Senderliste öffnen" aria-label="FRITZ!Box Senderliste öffnen">
+              <i class="fas fa-list-ul"></i>
             </button>
 
-            <!-- Play/Pause Toggle -->
-            <button id="widgetPlayPauseBtn" class="play-round-btn" aria-label="Wiedergabe umschalten">
+            <!-- Sleep Timer -->
+            <button class="btn-secondary-action" id="btnRadioSleepTimer" title="Sleep-Timer" aria-label="Sleep-Timer">
+              <i class="fas fa-moon"></i>
+              <span id="badgeSleepTimer" style="display:none; position: absolute; top: -4px; right: -4px; font-size: 8px; background: var(--accent-blue); color: #000; font-weight: 800; border-radius: 8px; padding: 1px 4px; line-height: 1;"></span>
+            </button>
+
+            <!-- Play/Pause Big Round Button -->
+            <button class="btn-play-hero" id="widgetPlayPauseBtn" aria-label="Wiedergabe umschalten">
               <i class="fas fa-play"></i>
             </button>
 
-            <!-- Compact Direct Volume Slider -->
-            <div class="widget-volume-control">
-              <i class="fas fa-volume-down" style="color: var(--text-muted); font-size: 10px;"></i>
+            <!-- Volume Slider -->
+            <div class="volume-slider-compact">
+              <i class="fas fa-volume-down" id="iconRadioVolume" style="font-size: 11px; color: var(--text-muted); cursor: pointer;" title="Mute umschalten"></i>
               <input type="range" id="widgetVolumeSlider" min="0" max="100" value="50" aria-label="Lautstärke">
             </div>
           </div>
@@ -1337,6 +1361,6 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script type="module" src="app.js?v=3.23.7"></script>
+  <script type="module" src="app.js?v=3.23.8"></script>
 </body>
 </html>
