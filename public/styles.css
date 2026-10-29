@@ -5359,6 +5359,225 @@ body.theme-jarvis input:checked + .toggle-switch::after {
 }
 
 /* ==========================================
+   APPLE HOME / LIQUID GLASS (THEME 9)
+   ========================================== */
+body.theme-apple {
+  --bg-color: #07090e;
+  --panel-bg: rgba(26, 28, 36, 0.62);
+  --panel-border: rgba(255, 255, 255, 0.14);
+  --text-main: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.65);
+  --primary: #ff9f0a;
+  --primary-glow: rgba(255, 159, 10, 0.32);
+  --secondary: #0a84ff;
+  --secondary-glow: rgba(10, 132, 255, 0.28);
+  --accent-blue: #0a84ff;
+  --accent-violet: #bf5af2;
+  --accent-green: #30d158;
+  --radius-lg: 24px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+  --blur: blur(35px) saturate(190%);
+}
+
+body.theme-apple {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  background-color: #06070b !important;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(10, 132, 255, 0.22), transparent 42%),
+    radial-gradient(circle at 88% 15%, rgba(191, 90, 242, 0.16), transparent 38%),
+    radial-gradient(circle at 75% 85%, rgba(255, 159, 10, 0.18), transparent 45%),
+    radial-gradient(circle at 20% 90%, rgba(48, 209, 88, 0.14), transparent 40%),
+    linear-gradient(155deg, #05060a 0%, #0d101a 50%, #060810 100%) !important;
+}
+
+body.theme-apple .bg-orbs {
+  display: block;
+  opacity: 0.55;
+}
+body.theme-apple .orb-1 { background: #0a84ff; }
+body.theme-apple .orb-2 { background: #bf5af2; }
+body.theme-apple .orb-3 { background: #ff9f0a; }
+
+/* Liquid Glass Widgets */
+body.theme-apple .widget {
+  background: rgba(28, 30, 38, 0.62) !important;
+  backdrop-filter: blur(35px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(35px) saturate(190%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.13) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+body.theme-apple .widget:hover {
+  border-color: rgba(255, 255, 255, 0.26) !important;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Headers & Titles */
+body.theme-apple .widget-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  padding-bottom: 10px;
+}
+
+body.theme-apple .widget-header h3 {
+  font-family: inherit !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  font-size: 1.1rem !important;
+  color: #ffffff !important;
+}
+
+body.theme-apple .widget-header i {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Header Clock & Date */
+body.theme-apple .header-time {
+  font-family: inherit !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.03em !important;
+  color: #ffffff !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+body.theme-apple .header-date {
+  font-family: inherit !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.06em !important;
+  color: rgba(255, 255, 255, 0.65) !important;
+  text-transform: uppercase !important;
+}
+
+/* Apple Controls & Buttons */
+body.theme-apple .btn,
+body.theme-apple .btn-secondary,
+body.theme-apple .action-btn {
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+body.theme-apple .btn:hover,
+body.theme-apple .btn-secondary:hover,
+body.theme-apple .action-btn:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
+  transform: scale(1.02) !important;
+}
+
+body.theme-apple .btn-primary {
+  border-radius: 9999px !important;
+  background: #0a84ff !important;
+  border-color: #0a84ff !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(10, 132, 255, 0.35) !important;
+}
+
+/* iOS Toggle Switches */
+body.theme-apple .toggle-switch {
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.18) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+body.theme-apple input:checked + .toggle-switch {
+  background: #30d158 !important;
+  border-color: #30d158 !important;
+  box-shadow: 0 2px 10px rgba(48, 209, 88, 0.4) !important;
+}
+
+body.theme-apple input:checked + .toggle-switch::after {
+  background: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Tasmota / Device Cards (Apple Accessory Tiles) */
+body.theme-apple .tasmota-card {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 18px !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+body.theme-apple .tasmota-card.is-active,
+body.theme-apple .tasmota-card.on {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+  box-shadow: 0 12px 30px rgba(255, 159, 10, 0.3) !important;
+}
+
+body.theme-apple .tasmota-card.is-active .device-name,
+body.theme-apple .tasmota-card.on .device-name,
+body.theme-apple .tasmota-card.is-active .device-meta,
+body.theme-apple .tasmota-card.on .device-meta {
+  color: #000000 !important;
+}
+
+body.theme-apple .tasmota-card.is-active i,
+body.theme-apple .tasmota-card.on i {
+  color: #ff9f0a !important;
+}
+
+/* Radio Widget (Apple Control Center Audio Player) */
+body.theme-apple .radio-cover-wrap,
+body.theme-apple .radio-art {
+  border-radius: 18px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+}
+
+body.theme-apple .radio-btn-play {
+  border-radius: 50% !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.35) !important;
+}
+
+body.theme-apple .radio-btn-play:hover {
+  background: rgba(255, 255, 255, 0.92) !important;
+  transform: scale(1.05) !important;
+}
+
+/* Gauges, Sliders & Metrics */
+body.theme-apple .weather-temp,
+body.theme-apple .sensor-gauge strong {
+  font-family: inherit !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #ffffff !important;
+}
+
+body.theme-apple .w-detail span,
+body.theme-apple .sensor-meta span,
+body.theme-apple .value-mono {
+  font-family: inherit !important;
+  font-weight: 500 !important;
+}
+
+body.theme-apple input[type="range"] {
+  accent-color: #ffffff !important;
+}
+
+/* Modals & Popovers (Liquid Glass) */
+body.theme-apple .modal-content,
+body.theme-apple .settings-modal {
+  background: rgba(30, 32, 42, 0.85) !important;
+  backdrop-filter: blur(40px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: 26px !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* ==========================================
    TIMER WIDGET STYLES
    ========================================== */
 .widget[data-type="timer"] input[type="number"]::-webkit-inner-spin-button,

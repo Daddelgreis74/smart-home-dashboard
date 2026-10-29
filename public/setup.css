@@ -396,6 +396,12 @@ select.form-control {
   background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
 }
 
+.theme-preview.apple {
+  background: radial-gradient(circle at 30% 30%, #0a84ff, #1c1c24);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 12px rgba(10, 132, 255, 0.35);
+}
+
 .theme-preview.jarvis {
   background: linear-gradient(135deg, #00f0ff 0%, #ffb703 100%);
   border-color: #00f0ff;
