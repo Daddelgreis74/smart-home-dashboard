@@ -912,7 +912,7 @@ export async function callJarvisAPI(prompt) {
         }
 
         contents.push({
-          role: 'function',
+          role: 'user',
           parts: [{
             functionResponse: {
               name: functionName,
