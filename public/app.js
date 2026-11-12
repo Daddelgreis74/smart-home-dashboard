@@ -9,7 +9,6 @@ import { initTasmota } from './js/modules/tasmota.js';
 import { initFritzbox } from './js/modules/fritzbox.js';
 import { initPresence } from './js/modules/presence.js';
 import { initCameraWidget } from './js/modules/cameras.js';
-import { initJarvis } from './js/modules/jarvis.js';
 import { initTimer } from './js/modules/timer.js';
 import { initNote, setNoteTheme } from './js/modules/note.js';
 // Global Socket.io instance
@@ -19,7 +18,7 @@ window.socket = socket;
 const WIDGET_TYPES = [
   'weather', 'sensor', 'waste', 'calendar', 'player', 
   'system', 'tasmota', 'fritzbox', 'presence', 'camera', 
-  'jarvis', 'timer', 'note'
+  'timer', 'note'
 ];
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -69,7 +68,6 @@ function init() {
     () => initFritzbox(socket),
     () => initPresence(socket),
     () => initCameraWidget(socket),
-    () => initJarvis(),
     () => initCalendar(socket),
     () => initNote(socket)
   ];
@@ -628,7 +626,6 @@ function updateSettingsSidebarVisibility() {
   const showCalendar = localStorage.getItem('show_calendar') !== 'false';
   const showPresence = localStorage.getItem('show_presence') !== 'false';
   const showCamera = localStorage.getItem('show_camera') !== 'false';
-  const showJarvis = localStorage.getItem('show_jarvis') !== 'false';
   const showFritzbox = localStorage.getItem('show_fritzbox') !== 'false';
   const showTimer = localStorage.getItem('show_timer') !== 'false';
   const showNote = localStorage.getItem('show_note') !== 'false';
@@ -643,7 +640,6 @@ function updateSettingsSidebarVisibility() {
     reminder: showCalendar,
     presence: showPresence,
     camera: showCamera,
-    jarvis: showJarvis,
     fritzbox: showFritzbox,
     timer: showTimer,
     note: showNote

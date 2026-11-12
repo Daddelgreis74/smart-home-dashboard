@@ -2,7 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const { RADIO_FILE } = require('../config/env');
 const { sanitizeStations } = require('../utils/validation');
-const { validateAndStream } = require('../services/proxyService');
+const { validateAndStream, checkStreamStatus } = require('../services/proxyService');
 
 const router = express.Router();
 
@@ -36,6 +36,21 @@ router.post('/', (req, res) => {
 router.get('/proxy-stream', (req, res) => {
   const streamUrl = req.query.url;
   validateAndStream(streamUrl, req, res);
+});
+
+router.post('/check-batch', async (req, res) => {
+  const urls = Array.isArray(req.body?.urls) ? req.body.urls.slice(0, 30) : [];
+  if (urls.length === 0) {
+    return res.json({ results: {} });
+  }
+  const checks = await Promise.all(urls.map(u => checkStreamStatus(u)));
+  const results = {};
+  checks.forEach(item => {
+    if (item && item.url) {
+      results[item.url] = { ok: item.ok, status: item.status, error: item.error || null };
+    }
+  });
+  res.json({ results });
 });
 
 // External control endpoint for webhooks (e.g., Tasker/MacroDroid)

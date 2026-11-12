@@ -72,6 +72,7 @@ export function updateRadioUi(playing) {
 
   if (statusText) {
     statusText.textContent = playing ? (t.radio_status_live || 'LIVE') : (t.radio_status_standby || 'STANDBY');
+    statusText.classList.remove('radio-status-error');
   }
 
   if (genreText) {
@@ -108,6 +109,18 @@ export function updateRadioUi(playing) {
   }
 
   highlightActivePreset();
+}
+
+export function setRadioErrorUi(message = 'Stream nicht erreichbar') {
+  const statusText = document.getElementById('valRadioStatusText');
+  const genreText = document.getElementById('valRadioGenreText');
+  if (statusText) {
+    statusText.textContent = 'OFFLINE';
+    statusText.classList.add('radio-status-error');
+  }
+  if (genreText) {
+    genreText.textContent = message;
+  }
 }
 
 export function stopRadioPlayback(removeSource = true) {
@@ -206,6 +219,14 @@ export function playAudioStream(url, name = '', autoPlay = false, genre = '') {
       navigator.mediaSession.playbackState = 'paused';
     }
   });
+
+  const currentAudioEl = activeAudioElement;
+  activeAudioElement.addEventListener('error', () => {
+    if (activeAudioElement !== currentAudioEl || !currentAudioEl.getAttribute('src')) return;
+    console.warn('[Radio] Stream-Wiedergabefehler für:', name || url);
+    stopRadioPlayback(true);
+    setRadioErrorUi('Stream offline oder nicht erreichbar');
+  });
   
   container.replaceChildren(activeAudioElement);
 
@@ -213,6 +234,13 @@ export function playAudioStream(url, name = '', autoPlay = false, genre = '') {
     const HlsClass = window.Hls;
     if (HlsClass && HlsClass.isSupported()) { 
         hlsCore = new HlsClass({ autoStartLoad: false }); 
+        hlsCore.on(HlsClass.Events.ERROR, (event, data) => {
+          if (data && data.fatal) {
+            console.warn('[Radio] HLS fataler Fehler:', data);
+            stopRadioPlayback(true);
+            setRadioErrorUi('HLS-Stream nicht erreichbar');
+          }
+        });
         hlsCore.loadSource(playUrl); 
         hlsCore.attachMedia(activeAudioElement); 
         hlsCore.startLoad();
@@ -231,6 +259,9 @@ export function playAudioStream(url, name = '', autoPlay = false, genre = '') {
       }).catch(e => {
           console.error("Radio Start", e);
           stopRadioPlayback(true);
+          if (e && e.name !== 'AbortError') {
+            setRadioErrorUi('Stream nicht erreichbar');
+          }
       });
   }
 }
@@ -589,12 +620,14 @@ export function initFritzRadioPopup() {
     list.forEach(st => {
       const card = document.createElement('button');
       card.className = 'station-btn';
+      card.dataset.url = st.url;
       if (isPlaying && currentUrl === st.url) {
         card.classList.add('active');
       }
 
       let innerHTML = '<i class="fas fa-radio" style="font-size:1.3rem;"></i>' +
-        '<span class="station-name" style="display:block; font-size:0.95rem; font-weight:500; color:inherit; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; min-height:1.2em; line-height:1.3;">' + st.name + '</span>';
+        '<span class="station-name" style="display:block; font-size:0.95rem; font-weight:500; color:inherit; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; min-height:1.2em; line-height:1.3;">' + st.name + '</span>' +
+        '<span class="station-health-badge checking">Prüfe...</span>';
       
       if (isDemo) {
         innerHTML += '<small style="font-size: 9px; color: var(--accent-blue); font-weight:600; margin-top:2px;">DEMO</small>';
@@ -610,6 +643,45 @@ export function initFritzRadioPopup() {
 
       grid.appendChild(card);
     });
+
+    checkStationsAvailability(list);
+  }
+
+  async function checkStationsAvailability(list) {
+    if (!grid || !Array.isArray(list) || list.length === 0) return;
+    try {
+      const res = await fetch('/api/radio/check-batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ urls: list.map(s => s.url) })
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const results = data.results || {};
+
+      grid.querySelectorAll('.station-btn[data-url]').forEach(card => {
+        const url = card.dataset.url;
+        const info = results[url];
+        const badge = card.querySelector('.station-health-badge');
+        if (!info || !badge) return;
+
+        badge.classList.remove('checking');
+        if (info.ok) {
+          card.classList.add('station-online');
+          card.classList.remove('station-offline');
+          badge.classList.add('online');
+          badge.textContent = 'Online';
+        } else {
+          card.classList.add('station-offline');
+          card.classList.remove('station-online');
+          badge.classList.add('offline');
+          badge.textContent = info.status ? `Offline (${info.status})` : 'Offline';
+        }
+      });
+    } catch (err) {
+      console.warn('[Radio Overlay] Statusprüfung fehlgeschlagen:', err);
+      grid.querySelectorAll('.station-health-badge.checking').forEach(b => b.remove());
+    }
   }
 
   const closeOverlay = () => overlay.setAttribute('hidden', '');

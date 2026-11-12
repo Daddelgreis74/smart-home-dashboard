@@ -3,7 +3,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   // State
   let currentStep = 1;
-  const totalSteps = 7;
+  const totalSteps = 6;
   
   const config = {
     dashboard_lang: 'de',
@@ -16,13 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     weather_loc_resolved: '',
     temp_sensor_ip: '',
     sensorIp: '', // Duplicate for compatibility
-    tasmota_scan_subnet: '192.168.178',
-    jarvis_provider: 'gemini',
-    jarvis_gemini_api_key: '',
-    jarvis_openrouter_api_key: '',
-    jarvis_eleven_api_key: '',
-    jarvis_speech_output_enabled: false,
-    jarvis_tts_enabled: false
+    tasmota_scan_subnet: '192.168.178'
   };
 
   const fritzbox = {
@@ -345,8 +339,8 @@ document.addEventListener('DOMContentLoaded', () => {
       nextBtn.style.background = '';
     }
 
-    // Skippable steps: FritzBox (3), Tasmota (4), Abfallkalender (5), Jarvis (6)
-    const skippableSteps = [3, 4, 5, 6];
+    // Skippable steps: FritzBox (3), Tasmota (4), Abfallkalender (5)
+    const skippableSteps = [3, 4, 5];
     if (skippableSteps.includes(currentStep)) {
       skipBtn.style.display = 'inline-flex';
     } else {
@@ -371,9 +365,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('setupTasmotaIp').value = '';
     } else if (step === 5) {
       document.getElementById('setupIcsFile').value = '';
-    } else if (step === 6) {
-      document.getElementById('setupJarvisKey').value = '';
-      document.getElementById('setupJarvisElevenKey').value = '';
     }
   }
 
@@ -405,33 +396,6 @@ document.addEventListener('DOMContentLoaded', () => {
         config.sensorIp = '';
       }
       if (subnet) config.tasmota_scan_subnet = subnet;
-    } else if (step === 6) {
-      const provider = document.getElementById('setupJarvisProvider').value;
-      const key = document.getElementById('setupJarvisKey').value.trim();
-      const elevenKey = document.getElementById('setupJarvisElevenKey').value.trim();
-
-      config.jarvis_provider = provider;
-      if (key) {
-        if (provider === 'gemini') {
-          config.jarvis_gemini_api_key = key;
-          config.jarvis_openrouter_api_key = '';
-        } else {
-          config.jarvis_openrouter_api_key = key;
-          config.jarvis_gemini_api_key = '';
-        }
-        config.jarvis_speech_output_enabled = true;
-      } else {
-        config.jarvis_gemini_api_key = '';
-        config.jarvis_openrouter_api_key = '';
-        config.jarvis_speech_output_enabled = false;
-      }
-      if (elevenKey) {
-        config.jarvis_eleven_api_key = elevenKey;
-        config.jarvis_tts_enabled = true;
-      } else {
-        config.jarvis_eleven_api_key = '';
-        config.jarvis_tts_enabled = false;
-      }
     }
   }
 
@@ -466,10 +430,6 @@ document.addEventListener('DOMContentLoaded', () => {
       
     document.getElementById('sumWaste').textContent = icsUploaded 
       ? 'Aktiv (calendar.ics)' 
-      : 'Deaktiviert';
- 
-    document.getElementById('sumJarvis').textContent = (config.jarvis_gemini_api_key || config.jarvis_openrouter_api_key) 
-      ? `Aktiv (${config.jarvis_provider.toUpperCase()})` 
       : 'Deaktiviert';
   }
 

@@ -90,13 +90,7 @@ export class Config {
    */
   static async migrate() {
     const KEYS = [
-      'dashboard_lang', 'jarvis_provider', 'jarvis_gemini_api_key',
-      'jarvis_openrouter_api_key', 'jarvis_model', 'jarvis_custom_model',
-      'jarvis_system_prompt', 'jarvis_tts_enabled', 'jarvis_tts_provider',
-      'jarvis_unified_voice', 'jarvis_local_voice_name', 'jarvis_eleven_api_key',
-      'jarvis_eleven_voice_id', 'jarvis_eleven_voices_cache',
-      'jarvis_search_enabled', 'jarvis_brave_api_key', 'jarvis_chat_history',
-      'jarvis_mic_mode', 'jarvis_wake_word_enabled', 'jarvis_wake_word',
+      'dashboard_lang',
       'sensorIp', 'tasmotaBackup', 'weather_provider', 'weather_api_key',
       'presence_sound_enabled'
     ];

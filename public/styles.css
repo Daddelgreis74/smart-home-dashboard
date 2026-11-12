@@ -4224,6 +4224,50 @@ body.theme-retrowave .fullscreen-title {
   animation: pulsePulse 1.2s infinite alternate ease-in-out;
 }
 
+.station-btn.station-online .station-status-indicator {
+  background: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+}
+
+.station-btn.station-offline {
+  opacity: 0.62;
+  border-color: rgba(239, 68, 68, 0.28) !important;
+}
+
+.station-btn.station-offline .station-status-indicator {
+  background: #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+}
+
+.station-health-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 999px;
+  margin-top: 4px;
+  letter-spacing: 0.02em;
+}
+
+.station-health-badge.checking {
+  color: var(--text-muted);
+  background: rgba(148, 163, 184, 0.14);
+}
+
+.station-health-badge.online {
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.14);
+}
+
+.station-health-badge.offline {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.16);
+}
+
+.radio-status-error {
+  color: #ef4444 !important;
+}
+
 @keyframes pulsePulse {
   0% { opacity: 0.3; transform: scale(0.9); }
   100% { opacity: 1; transform: scale(1.2); }
@@ -4524,277 +4568,7 @@ body.theme-jarvis .radio-select option {
   color: #e0f8ff;
 }
 
-/* ==========================================
-   J.A.R.V.I.S. KI-ASSISTENT WIDGET STYLES
-   ========================================== */
 
-/* Layout */
-.widget[data-type="jarvis"] {
-  grid-column: span 3;
-  grid-row: span 1;
-}
-
-.jarvis-layout {
-  overflow: hidden;
-}
-
-/* Chat bubble styling */
-.jarvis-msg {
-  padding: 6px 10px;
-  border-radius: 10px;
-  word-break: break-word;
-  max-width: 90%;
-}
-
-.jarvis-msg-user {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--text-main);
-  align-self: flex-end;
-  border-bottom-right-radius: 2px;
-}
-
-.jarvis-msg-assistant {
-  background: rgba(74, 222, 128, 0.05);
-  border: 1px solid rgba(74, 222, 128, 0.1);
-  color: var(--text-main);
-  align-self: flex-start;
-  border-bottom-left-radius: 2px;
-}
-
-/* Custom theme overrides for assistant message borders if active theme overrides it */
-body.theme-aurora .jarvis-msg-assistant {
-  background: rgba(74, 222, 128, 0.05);
-  border-color: rgba(74, 222, 128, 0.15);
-}
-body.theme-cyberpunk .jarvis-msg-assistant {
-  background: rgba(255, 159, 28, 0.05);
-  border-color: rgba(255, 159, 28, 0.2);
-}
-body.theme-retrowave .jarvis-msg-assistant {
-  background: rgba(168, 85, 247, 0.05);
-  border-color: rgba(168, 85, 247, 0.2);
-}
-body.theme-terminal .jarvis-msg-assistant {
-  background: rgba(0, 255, 0, 0.03);
-  border-color: rgba(0, 255, 0, 0.2);
-}
-body.theme-jarvis .jarvis-msg-assistant {
-  background: rgba(0, 240, 255, 0.06);
-  border-color: rgba(0, 240, 255, 0.3);
-  color: #e0f8ff;
-}
-
-.jarvis-msg-system {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  font-style: italic;
-  align-self: center;
-  font-size: 10px;
-  text-align: center;
-}
-
-.jarvis-msg-error {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  color: #fca5a5;
-  align-self: center;
-  font-size: 10px;
-}
-
-/* Scrollbar customization for Jarvis chat log */
-.jarvis-chat-log-wrapper::-webkit-scrollbar {
-  width: 4px;
-}
-.jarvis-chat-log-wrapper::-webkit-scrollbar-track {
-  background: transparent;
-}
-.jarvis-chat-log-wrapper::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-}
-.jarvis-chat-log-wrapper::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-/* Arc Reactor Animation Keyframes */
-@keyframes spin-clockwise {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes spin-counterclockwise {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(-360deg); }
-}
-
-@keyframes reactor-pulse {
-  0% { opacity: 0.8; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.06); }
-  100% { opacity: 0.8; transform: scale(1); }
-}
-
-@keyframes reactor-glow-thinking {
-  0% { filter: drop-shadow(0 0 2px var(--primary)); }
-  50% { filter: drop-shadow(0 0 12px var(--primary)); }
-  100% { filter: drop-shadow(0 0 2px var(--primary)); }
-}
-
-/* Default spin speeds */
-/* --- 3D Holographic Orbital Sphere Core --- */
-.jarvis-orbital-container {
-  --reactor-color: #00d2ff;
-  --reactor-glow: rgba(0, 210, 255, 0.6);
-  position: relative;
-  width: 100%;
-  height: 100%;
-  perspective: 1000px;
-  transform-style: preserve-3d;
-  filter: drop-shadow(0 0 8px var(--reactor-glow));
-  transition: filter 0.3s ease;
-}
-
-/* Color states based on class */
-.jarvis-orbital-container.thinking,
-.jarvis-orbital-container.listening {
-  --reactor-color: #ef4444;
-  --reactor-glow: rgba(239, 68, 68, 0.7);
-}
-
-/* Outer/Middle/Inner concentric orbital rings */
-.orbital-ring {
-  position: absolute;
-  top: 5%; left: 5%; width: 90%; height: 90%;
-  border: 1.5px dashed var(--reactor-color);
-  border-radius: 50%;
-  opacity: 0.7;
-  transition: border-color 0.3s ease;
-  transform-style: preserve-3d;
-}
-
-/* Center core globe */
-.orbital-core {
-  position: absolute;
-  top: 35%; left: 35%; width: 30%; height: 30%;
-  background: #fff;
-  border: 2px solid var(--reactor-color);
-  border-radius: 50%;
-  box-shadow: 0 0 16px var(--reactor-color), inset 0 0 8px var(--reactor-color);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  animation: core-pulse 2s ease-in-out infinite alternate;
-}
-
-@keyframes core-pulse {
-  0% { transform: scale(0.9) translateZ(0px); opacity: 0.8; }
-  100% { transform: scale(1.1) translateZ(10px); opacity: 1; }
-}
-
-/* Ring 3D tilts and custom spins */
-.ring-1 {
-  animation: spin-ring-1 12s linear infinite;
-}
-@keyframes spin-ring-1 {
-  from { transform: rotateX(70deg) rotateY(20deg) rotateZ(0deg); }
-  to { transform: rotateX(70deg) rotateY(20deg) rotateZ(360deg); }
-}
-
-.ring-2 {
-  animation: spin-ring-2 8s linear infinite reverse;
-}
-@keyframes spin-ring-2 {
-  from { transform: rotateX(45deg) rotateY(-40deg) rotateZ(0deg); }
-  to { transform: rotateX(45deg) rotateY(-40deg) rotateZ(360deg); }
-}
-
-.ring-3 {
-  border-style: dotted;
-  border-width: 2px;
-  animation: spin-ring-3 16s linear infinite;
-}
-@keyframes spin-ring-3 {
-  from { transform: rotateX(-60deg) rotateY(30deg) rotateZ(0deg); }
-  to { transform: rotateX(-60deg) rotateY(30deg) rotateZ(360deg); }
-}
-
-.ring-4 {
-  border-style: solid;
-  border-width: 1px;
-  opacity: 0.4;
-  animation: spin-ring-4 6s linear infinite;
-}
-@keyframes spin-ring-4 {
-  from { transform: rotateX(85deg) rotateY(10deg) rotateZ(0deg); }
-  to { transform: rotateX(85deg) rotateY(10deg) rotateZ(360deg); }
-}
-
-.ring-5 {
-  border-style: dashed;
-  animation: spin-ring-5 10s linear infinite reverse;
-}
-@keyframes spin-ring-5 {
-  from { transform: rotateX(20deg) rotateY(75deg) rotateZ(0deg); }
-  to { transform: rotateX(20deg) rotateY(75deg) rotateZ(360deg); }
-}
-
-/* Speed ups when thinking (processing) */
-.jarvis-orbital-container.thinking .ring-1 { animation-duration: 3s; }
-.jarvis-orbital-container.thinking .ring-2 { animation-duration: 2s; }
-.jarvis-orbital-container.thinking .ring-3 { animation-duration: 4s; }
-.jarvis-orbital-container.thinking .ring-4 { animation-duration: 1.5s; }
-.jarvis-orbital-container.thinking .ring-5 { animation-duration: 2.5s; }
-.jarvis-orbital-container.thinking .orbital-core { animation: core-pulse 0.4s ease-in-out infinite alternate; }
-
-/* Speed ups when listening (speech in) */
-.jarvis-orbital-container.listening .ring-1 { animation-duration: 4s; }
-.jarvis-orbital-container.listening .ring-2 { animation-duration: 3s; }
-.jarvis-orbital-container.listening .ring-3 { animation-duration: 5s; }
-.jarvis-orbital-container.listening .ring-4 { animation-duration: 2s; }
-.jarvis-orbital-container.listening .ring-5 { animation-duration: 3.5s; }
-.jarvis-orbital-container.listening .orbital-core { animation: core-pulse 0.6s ease-in-out infinite alternate; }
-
-/* Pulse changes when speaking (speech out) */
-.jarvis-orbital-container.speaking .orbital-core { animation: core-pulse 0.7s ease-in-out infinite alternate; }
-
-/* Microphone button animation when listening */
-#jarvisMicBtn.listening {
-  background: rgba(239, 68, 68, 0.2) !important;
-  border-color: #ef4444 !important;
-  color: #ef4444 !important;
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
-  animation: mic-pulse 1s infinite alternate;
-}
-
-#jarvisMicBtn.paused {
-  background: rgba(245, 158, 11, 0.15) !important;
-  border-color: #f59e0b !important;
-  color: #f59e0b !important;
-  opacity: 0.85;
-}
-
-@keyframes mic-pulse {
-  0% { transform: scale(1); opacity: 0.8; }
-  100% { transform: scale(1.08); opacity: 1; }
-}
-
-/* Dropdown selections for provider option hiding */
-.prov-opt {
-  display: none;
-}
-select#jarvisModel option {
-  background-color: #0f172a;
-  color: #fff;
-}
-
-/* J.A.R.V.I.S Status-Textfarben passend zum Reaktorzustand */
-.arc-reactor-container:has(.jarvis-orbital-container.thinking) + #jarvisStatus,
-.arc-reactor-container:has(.jarvis-orbital-container.listening) + #jarvisStatus {
-  color: #ef4444 !important;
-}
-.arc-reactor-container:has(.jarvis-orbital-container.speaking) + #jarvisStatus,
-.arc-reactor-container:has(.jarvis-orbital-container:not(.thinking):not(.listening)) + #jarvisStatus {
-  color: #00d2ff !important;
-}
 
 /* ==== CALENDAR WIDGET & MANUAL ADD FORM ==== */
 

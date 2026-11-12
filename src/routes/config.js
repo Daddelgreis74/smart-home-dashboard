@@ -18,31 +18,6 @@ const ALLOWED_CONFIG_KEYS = new Set([
   'tasmota_scan_subnet',
   'widgetLayout',
   'stations',
-  // J.A.R.V.I.S.
-  'jarvis_api_provider',
-  'jarvis_provider',
-  'jarvis_gemini_api_key',
-  'jarvis_openrouter_api_key',
-  'jarvis_brave_api_key',
-  'jarvis_eleven_api_key',
-  'jarvis_gemini_model',
-  'jarvis_openrouter_model',
-  'jarvis_model',
-  'jarvis_custom_model',
-  'jarvis_eleven_voice_id',
-  'jarvis_system_prompt',
-  'jarvis_search_enabled',
-  'jarvis_speech_output_enabled',
-  'jarvis_tts_enabled',
-  'jarvis_tts_provider',
-  'jarvis_unified_voice',
-  'jarvis_local_voice_name',
-  'jarvis_eleven_voices_cache',
-  'jarvis_mic_mode',
-  'jarvis_wake_word_enabled',
-  'jarvis_wake_word',
-  'jarvis_history',
-  'jarvis_chat_history',
   'sensorIp',
   'sensorList',
   'tasmotaBackup',
@@ -58,10 +33,6 @@ const ALLOWED_CONFIG_KEYS = new Set([
 ]);
 
 const SENSIBLE_KEYS = [
-  'jarvis_gemini_api_key',
-  'jarvis_openrouter_api_key',
-  'jarvis_brave_api_key',
-  'jarvis_eleven_api_key',
   'weather_api_key'
 ];
 

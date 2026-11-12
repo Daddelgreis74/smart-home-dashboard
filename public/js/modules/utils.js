@@ -347,31 +347,6 @@ export function playPresencePing() {
   }
 }
 
-export function playJarvisBeep(freq, duration, volume = 0.15) {
-  try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContext) return;
-    const ctx = new AudioContext();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq, ctx.currentTime);
-    
-    gain.gain.setValueAtTime(0.001, ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(volume, ctx.currentTime + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
-    
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    
-    osc.start();
-    osc.stop(ctx.currentTime + duration);
-  } catch (e) {
-    console.warn("AudioContext blockiert oder nicht unterstützt", e);
-  }
-}
-
 export function getTimestampedUrl(url) {
   try {
     const urlObj = new URL(url);

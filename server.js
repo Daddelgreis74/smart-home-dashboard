@@ -91,9 +91,6 @@ app.use('/api/radio', require('./src/routes/radio'));
 app.use('/api/appointments', require('./src/routes/appointments'));
 app.use('/api/cameras', require('./src/routes/cameras'));
 app.use('/api/weather', require('./src/routes/weather'));
-app.use('/api/search', require('./src/routes/search'));
-app.use('/api/elevenlabs', require('./src/routes/tts'));
-app.use('/api/jarvis', require('./src/routes/jarvis'));
 app.use('/api/note', require('./src/routes/note'));
 
 // Version endpoint – serves current app version from package.json

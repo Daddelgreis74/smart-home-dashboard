@@ -10,7 +10,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="icon" href="icon.png" type="image/png">
   <link rel="apple-touch-icon" href="icon.png">
-  <link rel="stylesheet" href="styles.css?v=3.23.8">
+  <link rel="stylesheet" href="styles.css?v=3.23.11">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
   <script src="translations.js"></script>
@@ -78,9 +78,6 @@
             </button>
             <button class="settings-tab-btn" data-tab="camera">
               <i class="fas fa-video"></i> <span data-i18n="settings_tab_camera">Kameras</span>
-            </button>
-            <button class="settings-tab-btn" data-tab="jarvis">
-              <i class="fas fa-brain"></i> <span data-i18n="settings_tab_jarvis">J.A.R.V.I.S. KI</span>
             </button>
             <button class="settings-tab-btn" data-tab="fritzbox">
               <i class="fas fa-ethernet"></i> <span data-i18n="settings_tab_fritzbox">Fritz!Box</span>
@@ -222,7 +219,6 @@
                   <label class="toggle-label"><span data-i18n="toggle_layout_presence">Anwesenheitserkennung</span><input type="checkbox" id="toggle-presence" checked><div class="toggle-switch"></div></label>
                   <label class="toggle-label"><span data-i18n="toggle_layout_camera">Kamera-Monitor</span><input type="checkbox" id="toggle-camera" checked><div class="toggle-switch"></div></label>
                   <label class="toggle-label"><span data-i18n="toggle_layout_calendar">Terminkalender</span><input type="checkbox" id="toggle-calendar" checked><div class="toggle-switch"></div></label>
-                  <label class="toggle-label"><span data-i18n="toggle_layout_jarvis">J.A.R.V.I.S. KI-Assistent</span><input type="checkbox" id="toggle-jarvis" checked><div class="toggle-switch"></div></label>
                   <label class="toggle-label"><span data-i18n="toggle_layout_timer">Timer</span><input type="checkbox" id="toggle-timer" checked><div class="toggle-switch"></div></label>
                   <label class="toggle-label"><span data-i18n="toggle_layout_note">Notizzettel</span><input type="checkbox" id="toggle-note" checked><div class="toggle-switch"></div></label>
                 </div>
@@ -457,169 +453,7 @@
               </div>
             </div>
 
-            <!-- TAB: JARVIS -->
-            <div class="settings-tab-content" id="tab-jarvis">
-              <!-- 11. J.A.R.V.I.S. KI-ASSISTENT -->
-              <div class="setting-section">
-                <h3 class="section-title"><i class="fas fa-brain"></i> <span data-i18n="jarvis_section_title">J.A.R.V.I.S. KI-Assistent</span></h3>
-                <p data-i18n="jarvis_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Konfiguriere das KI-Modell und die API-Schlüssel für deinen Sprachassistenten.</p>
-                
-                <div class="input-group" style="margin-bottom: 12px;">
-                  <label class="setting-sub-label" data-i18n="jarvis_provider_label">API-Provider:</label>
-                  <select id="jarvisProvider" class="radio-select" style="max-width: 100%; width: 100%;">
-                    <option value="gemini">♊ Google Gemini (Direkt)</option>
-                    <option value="openrouter">📡 OpenRouter (LLaMA, Qwen, etc.)</option>
-                    <option value="simulator">🎮 Simulator-Modus (Lokale Antworten)</option>
-                  </select>
-                </div>
 
-                <div class="input-group" id="jarvisApiKeyGroup" style="margin-bottom: 12px;">
-                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                    <label class="setting-sub-label" data-i18n="jarvis_apikey_label" style="margin-bottom: 0;">API-Schlüssel:</label>
-                    <span id="jarvisKeyStatusDot" title="Kein API-Key gespeichert" style="display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 4px rgba(239,68,68,0.6); flex-shrink: 0; transition: background 0.3s, box-shadow 0.3s;"></span>
-                  </div>
-                  <div style="display: flex; gap: 8px; width: 100%;">
-                    <input type="password" id="jarvisApiKey" placeholder="API Key eintragen" style="flex: 1;">
-                    <button type="button" id="jarvisClearKeyBtn" class="btn" style="padding: 8px 12px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; display: flex; align-items: center; justify-content: center;" title="API-Schlüssel für diesen Provider löschen"><i class="fas fa-trash-alt"></i></button>
-                  </div>
-                </div>
-
-                <div class="input-group" id="jarvisModelGroup" style="margin-bottom: 12px;">
-                  <label class="setting-sub-label" data-i18n="jarvis_model_label">KI-Modell:</label>
-                  <select id="jarvisModel" class="radio-select" style="max-width: 100%; width: 100%;">
-                    <option class="prov-opt gemini-opt" value="gemini-3.5-flash">gemini-3.5-flash (Schnell & Empfohlen)</option>
-                    <option class="prov-opt gemini-opt" value="gemini-2.5-pro">gemini-2.5-pro (Intelligent)</option>
-                    <option class="prov-opt gemini-opt" value="gemini-2.0-flash">gemini-2.0-flash</option>
-                    <option class="prov-opt gemini-opt" value="gemini-1.5-flash">gemini-1.5-flash</option>
-                    <option class="prov-opt openrouter-opt" value="google/gemini-2.5-flash:free">Gemini 2.5 Flash Free</option>
-                    <option class="prov-opt openrouter-opt" value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B Free</option>
-                    <option class="prov-opt openrouter-opt" value="qwen/qwen-2.5-72b-instruct:free">Qwen 2.5 72B Free</option>
-                    <option class="prov-opt openrouter-opt" value="deepseek/deepseek-chat">DeepSeek Chat</option>
-                  </select>
-                  <input type="text" id="jarvisCustomModel" placeholder="Benutzerdefiniertes Modell (optional)" style="width: 100%; margin-top: 8px;">
-                </div>
-
-                <div class="input-group" style="margin-bottom: 12px;">
-                  <label class="setting-sub-label" data-i18n="jarvis_prompt_label">System-Prompt (Charakter):</label>
-                  <textarea id="jarvisSystemPrompt" rows="3" style="width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--panel-border); padding: 10px 15px; border-radius: var(--radius-sm); color: #fff; font-family: inherit; font-size: 13px; outline: none; resize: vertical;" placeholder="Du bist J.A.R.V.I.S., eine hochentwickelte KI. Antworte kurz, präzise und charmant auf Deutsch."></textarea>
-                </div>
-
-                <div style="display: flex; gap: 8px; width: 100%;">
-                  <button class="btn" id="saveJarvisConfig" style="flex: 1;"><i class="fas fa-save"></i> <span data-i18n="jarvis_save">Einstellungen speichern</span></button>
-                  <button type="button" class="btn" id="jarvisClearHistoryBtn" style="padding: 8px 12px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; display: flex; align-items: center; justify-content: center; gap: 6px;" title="Chatverlauf löschen"><i class="fas fa-trash-alt"></i> <span style="font-size: 11px;">Verlauf löschen</span></button>
-                </div>
-              </div>
-
-              <!-- 12. J.A.R.V.I.S. SPRACHAUSGABE (TTS) -->
-              <div class="setting-section" style="margin-top: 30px;">
-                <h3 class="section-title"><i class="fas fa-volume-up"></i> <span data-i18n="jarvis_tts_section_title">J.A.R.V.I.S. Sprachausgabe</span></h3>
-                <p data-i18n="jarvis_tts_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Konfiguriere die Sprachausgabe (Text-to-Speech) deines Assistenten.</p>
-                
-                <div class="toggle-group" style="margin-bottom: 12px;">
-                  <label class="toggle-label">
-                    <span data-i18n="jarvis_tts_label">Sprachausgabe (Text-to-Speech)</span>
-                    <input type="checkbox" id="jarvisTtsEnabled" checked>
-                    <div class="toggle-switch"></div>
-                  </label>
-                </div>
-
-                <div id="jarvisTtsSettingsGroup" style="margin-bottom: 12px; display: none;">
-                  <!-- Unified grouped voice dropdown -->
-                  <div class="input-group" style="margin-bottom: 12px;">
-                    <label class="setting-sub-label" data-i18n="jarvis_voice_label">Stimme auswählen:</label>
-                    <div style="display: flex; gap: 8px; width: 100%;">
-                      <select id="jarvisVoiceSelect" class="radio-select" style="flex: 1;">
-                        <optgroup label="🌐 Browser-Stimmen" id="jarvisLocalVoicesGroup">
-                          <option value="local:auto">Automatisch (Sprach-optimiert)</option>
-                        </optgroup>
-                        <optgroup label="🎙️ ElevenLabs-Stimmen" id="jarvisElevenVoicesGroup">
-                          <option value="eleven:loading" disabled>— API-Key eingeben und laden —</option>
-                        </optgroup>
-                      </select>
-                      <button type="button" class="btn" id="jarvisLoadVoicesBtn" style="padding: 8px 12px; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px;" title="Stimmen aktualisieren"><i class="fas fa-sync-alt"></i></button>
-                    </div>
-                  </div>
-
-                  <!-- ElevenLabs API key - always visible when TTS enabled -->
-                  <div id="jarvisElevenLabsGroup" style="display: none; margin-bottom: 12px; padding: 10px; border: 1px solid rgba(var(--primary-rgb, 0,150,255), 0.2); border-radius: 8px; background: rgba(var(--primary-rgb, 0,150,255), 0.04);">
-                    <div class="input-group">
-                      <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-                        <label class="setting-sub-label" style="margin-bottom: 0; display: flex; align-items: center; gap: 6px;">
-                          <i class="fas fa-key" style="font-size:10px; opacity:0.6;"></i>
-                          ElevenLabs API-Key <span style="font-size:10px; opacity:0.6; font-weight:400;">(für 🎙️ ElevenLabs-Stimmen)</span>
-                        </label>
-                        <span id="jarvisElevenKeyStatusDot" title="Kein ElevenLabs-Key gespeichert" style="display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 4px rgba(239,68,68,0.6); flex-shrink: 0; transition: background 0.3s, box-shadow 0.3s;"></span>
-                      </div>
-                      <div style="display: flex; gap: 8px; width: 100%;">
-                        <input type="password" id="jarvisElevenApiKey" placeholder="ElevenLabs API Key eintragen" style="flex: 1;">
-                        <button type="button" id="jarvisClearElevenKeyBtn" class="btn" style="padding: 8px 12px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; display: flex; align-items: center; justify-content: center;" title="ElevenLabs API-Schlüssel löschen"><i class="fas fa-trash-alt"></i></button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <button class="btn" id="saveJarvisConfigTts" style="width: 100%;"><i class="fas fa-save"></i> <span data-i18n="jarvis_save">Einstellungen speichern</span></button>
-              </div>
-
-              <!-- 12b. J.A.R.V.I.S. SPRACHEINGABE & MIKROFON (STT) -->
-              <div class="setting-section" style="margin-top: 30px;">
-                <h3 class="section-title"><i class="fas fa-microphone"></i> <span data-i18n="jarvis_mic_section_title">J.A.R.V.I.S. Spracheingabe & Mikrofon</span></h3>
-                <p data-i18n="jarvis_mic_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Konfiguriere das Mikrofon-Verhalten, Dauerhören und Weckwort-Erkennung.</p>
-
-                <div class="input-group" style="margin-bottom: 12px;">
-                  <label class="setting-sub-label" data-i18n="jarvis_mic_mode_label">Mikrofon-Modus:</label>
-                  <select id="jarvisMicMode" class="radio-select" style="max-width: 100%; width: 100%;">
-                    <option value="manual">🖐️ Manuell (Klick auf Mikrofon-Symbol)</option>
-                    <option value="continuous">🎙️ Dauerhaft aktiv (Automatischer Reconnect)</option>
-                    <option value="after_response">🔄 Nach jeder Antwort kurz zuhören</option>
-                  </select>
-                </div>
-
-                <div id="jarvisWakeWordGroup" style="margin-bottom: 12px; padding: 10px; border: 1px solid rgba(var(--primary-rgb, 0,150,255), 0.2); border-radius: 8px; background: rgba(var(--primary-rgb, 0,150,255), 0.04);">
-                  <div class="toggle-group" style="margin-bottom: 8px;">
-                    <label class="toggle-label">
-                      <span data-i18n="jarvis_wake_word_label">Weckwort erforderlich</span>
-                      <input type="checkbox" id="jarvisWakeWordEnabled">
-                      <div class="toggle-switch"></div>
-                    </label>
-                  </div>
-                  <div class="input-group" id="jarvisWakeWordInputGroup" style="display: none; margin-top: 8px;">
-                    <label class="setting-sub-label">Weckwort (z. B. „Jarvis“):</label>
-                    <input type="text" id="jarvisWakeWord" placeholder="Jarvis" value="Jarvis" style="width: 100%;">
-                    <p style="font-size: 10px; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">Reagiert nur, wenn der Satz mit dem Weckwort beginnt (z. B. „Jarvis, wie ist das Wetter?“).</p>
-                  </div>
-                </div>
-
-                <button class="btn" id="saveJarvisConfigMic" style="width: 100%;"><i class="fas fa-save"></i> <span data-i18n="jarvis_save">Einstellungen speichern</span></button>
-              </div>
-
-              <!-- 13. J.A.R.V.I.S. WEBSUCHE -->
-              <div class="setting-section" style="margin-top: 30px;">
-                <h3 class="section-title"><i class="fas fa-search"></i> <span data-i18n="jarvis_search_section_title">J.A.R.V.I.S. Websuche</span></h3>
-                <p data-i18n="jarvis_search_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Erlaube J.A.R.V.I.S. bei aktuellen Fragen im Internet zu suchen.</p>
-                
-                <div class="toggle-group" id="jarvisSearchToggleGroup" style="margin-bottom: 12px; display: none;">
-                  <label class="toggle-label">
-                    <span data-i18n="jarvis_search_label">Brave-Websuche erlauben</span>
-                    <input type="checkbox" id="jarvisSearchEnabled">
-                    <div class="toggle-switch"></div>
-                  </label>
-                </div>
-
-                <div class="input-group" id="jarvisBraveKeyGroup" style="margin-bottom: 15px; display: none;">
-                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                    <label class="setting-sub-label" data-i18n="jarvis_bravekey_label" style="margin-bottom: 0;">Brave Search API-Key:</label>
-                    <span id="jarvisBraveKeyStatusDot" title="Kein Brave-Key gespeichert" style="display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 4px rgba(239,68,68,0.6); flex-shrink: 0; transition: background 0.3s, box-shadow 0.3s;"></span>
-                  </div>
-                  <div style="display: flex; gap: 8px; width: 100%;">
-                    <input type="password" id="jarvisBraveApiKey" placeholder="Brave Search API Key eintragen" style="flex: 1;">
-                    <button type="button" id="jarvisClearBraveKeyBtn" class="btn" style="padding: 8px 12px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; display: flex; align-items: center; justify-content: center;" title="Brave Search API-Schlüssel löschen"><i class="fas fa-trash-alt"></i></button>
-                  </div>
-                </div>
-
-                <button class="btn" id="saveJarvisConfigSearch" style="width: 100%;"><i class="fas fa-save"></i> <span data-i18n="jarvis_save">Einstellungen speichern</span></button>
-              </div>
-            </div>
 
             <!-- TAB: FRITZBOX -->
             <div class="settings-tab-content" id="tab-fritzbox">
@@ -1035,42 +869,7 @@
         </div>
       </div>
 
-      <!-- J.A.R.V.I.S. KI-ASSISTENT WIDGET -->
-      <div class="widget" data-type="jarvis">
-        <div class="widget-header">
-          <h3><i class="fas fa-brain" style="color:var(--primary)"></i> <span data-i18n="widget_title_jarvis">J.A.R.V.I.S. Assistent</span></h3>
-          <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
-        </div>
-        <div class="widget-body jarvis-layout" style="display: flex; flex-direction: column; justify-content: space-between; height: calc(100% - 35px); padding: 10px 15px 12px;">
-          <div class="jarvis-widget-content" style="display: flex; flex: 1; min-height: 0; gap: 12px; margin-bottom: 10px;">
-            <!-- Left: SVG Arc Reactor & Status -->
-            <div class="reactor-wrapper" style="width: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0;">
-              <div class="arc-reactor-container" style="position: relative; width: 70px; height: 70px;">
-                <div class="jarvis-orbital-container" id="jarvisReactor">
-                  <div class="orbital-core"></div>
-                  <div class="orbital-ring ring-1"></div>
-                  <div class="orbital-ring ring-2"></div>
-                  <div class="orbital-ring ring-3"></div>
-                  <div class="orbital-ring ring-4"></div>
-                  <div class="orbital-ring ring-5"></div>
-                </div>
-              </div>
-              <span id="jarvisStatus" style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--primary);">Online</span>
-            </div>
-            <!-- Right: Chat Messages -->
-            <div class="jarvis-chat-log-wrapper" style="flex: 1; display: flex; flex-direction: column; background: rgba(0,0,0,0.25); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); padding: 8px; overflow-y: auto; min-width: 0;">
-              <div id="jarvisChatLog" style="display: flex; flex-direction: column; gap: 8px; font-size: 11px; line-height: 1.4;">
-                <div class="jarvis-msg jarvis-msg-system" style="color: var(--primary); font-weight: 500;"><span style="color: var(--primary); font-weight: 700;">J.A.R.V.I.S.:</span> Hallo. Ich stehe zu Ihrer Verfügung.</div>
-              </div>
-            </div>
-          </div>
-          <div class="jarvis-input-area" style="display: flex; gap: 8px; align-items: center; width: 100%;">
-            <input type="text" id="jarvisInput" placeholder="Fragen oder Sprachbefehl..." style="flex: 1; min-width: 0; background: rgba(255,255,255,0.03); border: 1px solid var(--panel-border); padding: 8px 12px; border-radius: 100px; color: #fff; font-family: inherit; font-size: 12px; outline: none;" />
-            <button id="jarvisMicBtn" class="btn" style="padding: 8px 12px; font-size: 12px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border: 1px solid var(--panel-border); color: var(--text-main); flex-shrink: 0;" title="Spracheingabe starten"><i class="fas fa-microphone"></i></button>
-            <button id="jarvisSendBtn" class="btn" style="padding: 8px 16px; font-size: 12px; display: flex; align-items: center; justify-content: center; background: var(--primary); color: #000; flex-shrink: 0;"><i class="fas fa-paper-plane"></i></button>
-          </div>
-        </div>
-      </div>
+
 
       <!-- 11. TIMER-WIDGET -->
       <div class="widget" data-type="timer">
@@ -1394,6 +1193,6 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script type="module" src="app.js?v=3.23.8"></script>
+  <script type="module" src="app.js?v=3.23.11"></script>
 </body>
 </html>

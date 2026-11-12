@@ -1,6 +1,5 @@
 import { Config } from './config.js';
-import { getLangText, playJarvisBeep, playSound } from './utils.js';
-import { speakJarvisReply } from './jarvis.js';
+import { getLangText, playSound } from './utils.js';
 
 export let appointmentsList = [];
 export let checkedCalendarReminders = new Set();

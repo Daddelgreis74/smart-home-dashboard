@@ -74,7 +74,7 @@ describe('Structure Validation Helpers', () => {
   } = require('../src/utils/validation');
 
   test('validateConfigStructure should check config structure', () => {
-    expect(validateConfigStructure({ widgetLayout: ['weather', 'jarvis'] })).toBe(true);
+    expect(validateConfigStructure({ widgetLayout: ['weather', 'timer'] })).toBe(true);
     expect(validateConfigStructure(null)).toBe(false);
     expect(validateConfigStructure([])).toBe(false);
     expect(validateConfigStructure({ widgetLayout: 'invalid' })).toBe(false);

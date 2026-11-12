@@ -52,7 +52,6 @@ describe('API Endpoints Tests', () => {
     await request(app)
       .post('/api/config')
       .send({ 
-        jarvis_gemini_api_key: 'AIzaSyTestKey123',
         weather_api_key: 'wkey123456789'
       })
       .expect(200);
@@ -62,7 +61,6 @@ describe('API Endpoints Tests', () => {
       .get('/api/config')
       .expect(200);
 
-    expect(getRes.body.jarvis_gemini_api_key).toBe('********');
     expect(getRes.body.weather_api_key).toBe('********');
   });
 
