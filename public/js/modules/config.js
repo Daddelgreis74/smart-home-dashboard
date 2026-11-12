@@ -57,6 +57,13 @@ export class Config {
   /** Schreibt mehrere Werte auf einmal zum Server */
   static async setMany(obj) {
     Object.assign(Config._data, obj);
+
+    // Werte lokal im localStorage spiegeln (Fallback)
+    for (const [k, v] of Object.entries(obj)) {
+      try {
+        localStorage.setItem(k, typeof v === 'object' ? JSON.stringify(v) : String(v));
+      } catch (e) {}
+    }
     
     // Read-only Keys für das Senden an den Server herausfiltern
     const toSend = { ...Config._data };
@@ -73,7 +80,7 @@ export class Config {
         console.error('Config.setMany failed:', err.error || res.statusText);
       }
     } catch (e) {
-      console.warn('Config.setMany: Server-Fehler, nur im RAM gespeichert', e.message);
+      console.warn('Config.setMany: Server-Fehler, nur im RAM/LocalStorage gespeichert', e.message);
     }
   }
 
@@ -89,6 +96,7 @@ export class Config {
       'jarvis_unified_voice', 'jarvis_local_voice_name', 'jarvis_eleven_api_key',
       'jarvis_eleven_voice_id', 'jarvis_eleven_voices_cache',
       'jarvis_search_enabled', 'jarvis_brave_api_key', 'jarvis_chat_history',
+      'jarvis_mic_mode', 'jarvis_wake_word_enabled', 'jarvis_wake_word',
       'sensorIp', 'tasmotaBackup', 'weather_provider', 'weather_api_key',
       'presence_sound_enabled'
     ];

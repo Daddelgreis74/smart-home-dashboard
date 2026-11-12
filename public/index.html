@@ -561,6 +561,38 @@
                 <button class="btn" id="saveJarvisConfigTts" style="width: 100%;"><i class="fas fa-save"></i> <span data-i18n="jarvis_save">Einstellungen speichern</span></button>
               </div>
 
+              <!-- 12b. J.A.R.V.I.S. SPRACHEINGABE & MIKROFON (STT) -->
+              <div class="setting-section" style="margin-top: 30px;">
+                <h3 class="section-title"><i class="fas fa-microphone"></i> <span data-i18n="jarvis_mic_section_title">J.A.R.V.I.S. Spracheingabe & Mikrofon</span></h3>
+                <p data-i18n="jarvis_mic_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Konfiguriere das Mikrofon-Verhalten, Dauerhören und Weckwort-Erkennung.</p>
+
+                <div class="input-group" style="margin-bottom: 12px;">
+                  <label class="setting-sub-label" data-i18n="jarvis_mic_mode_label">Mikrofon-Modus:</label>
+                  <select id="jarvisMicMode" class="radio-select" style="max-width: 100%; width: 100%;">
+                    <option value="manual">🖐️ Manuell (Klick auf Mikrofon-Symbol)</option>
+                    <option value="continuous">🎙️ Dauerhaft aktiv (Automatischer Reconnect)</option>
+                    <option value="after_response">🔄 Nach jeder Antwort kurz zuhören</option>
+                  </select>
+                </div>
+
+                <div id="jarvisWakeWordGroup" style="margin-bottom: 12px; padding: 10px; border: 1px solid rgba(var(--primary-rgb, 0,150,255), 0.2); border-radius: 8px; background: rgba(var(--primary-rgb, 0,150,255), 0.04);">
+                  <div class="toggle-group" style="margin-bottom: 8px;">
+                    <label class="toggle-label">
+                      <span data-i18n="jarvis_wake_word_label">Weckwort erforderlich</span>
+                      <input type="checkbox" id="jarvisWakeWordEnabled">
+                      <div class="toggle-switch"></div>
+                    </label>
+                  </div>
+                  <div class="input-group" id="jarvisWakeWordInputGroup" style="display: none; margin-top: 8px;">
+                    <label class="setting-sub-label">Weckwort (z. B. „Jarvis“):</label>
+                    <input type="text" id="jarvisWakeWord" placeholder="Jarvis" value="Jarvis" style="width: 100%;">
+                    <p style="font-size: 10px; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">Reagiert nur, wenn der Satz mit dem Weckwort beginnt (z. B. „Jarvis, wie ist das Wetter?“).</p>
+                  </div>
+                </div>
+
+                <button class="btn" id="saveJarvisConfigMic" style="width: 100%;"><i class="fas fa-save"></i> <span data-i18n="jarvis_save">Einstellungen speichern</span></button>
+              </div>
+
               <!-- 13. J.A.R.V.I.S. WEBSUCHE -->
               <div class="setting-section" style="margin-top: 30px;">
                 <h3 class="section-title"><i class="fas fa-search"></i> <span data-i18n="jarvis_search_section_title">J.A.R.V.I.S. Websuche</span></h3>

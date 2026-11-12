@@ -10,6 +10,139 @@ export let jarvisSpeakingUtterance = null;
 export let elevenLabsAudio = null;
 export let currentTtsRequestId = 0;
 
+export let jarvisIsSpeaking = false;
+export let jarvisIsThinking = false;
+export let isRecognitionRunning = false;
+export let isRecognitionStarting = false;
+export let jarvisMicPaused = false;
+export let jarvisOneShotActive = false;
+export let jarvisWakeUntil = 0;
+export let jarvisRestartTimestamps = [];
+export let jarvisHardwareStream = null;
+
+export async function acquireJarvisHardwareStream() {
+  if (jarvisHardwareStream) return;
+  try {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      jarvisHardwareStream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true }
+      });
+    }
+  } catch (err) {
+    console.warn("[JARVIS] Hardware-Mikrofonstream nicht gestartet:", err);
+  }
+}
+
+export function releaseJarvisHardwareStream() {
+  if (jarvisHardwareStream) {
+    try {
+      jarvisHardwareStream.getTracks().forEach(t => t.stop());
+    } catch (e) {}
+    jarvisHardwareStream = null;
+  }
+}
+
+export function shouldJarvisRecognitionRun() {
+  if (!jarvisRecognition) return false;
+  if (jarvisIsSpeaking || jarvisIsThinking) return false;
+  
+  const micMode = Config.get('jarvis_mic_mode', 'manual');
+  if (micMode === 'continuous') {
+    return !jarvisMicPaused;
+  }
+  if (jarvisOneShotActive) {
+    return true;
+  }
+  return false;
+}
+
+export function updateJarvisMicUI() {
+  const micBtn = document.getElementById('jarvisMicBtn');
+  const reactor = document.getElementById('jarvisReactor');
+  const statusSpan = document.getElementById('jarvisStatus');
+  if (!micBtn) return;
+
+  const micMode = Config.get('jarvis_mic_mode', 'manual');
+  const wakeWordEnabled = Config.get('jarvis_wake_word_enabled', 'false') === 'true';
+  const wakeWord = Config.get('jarvis_wake_word', 'Jarvis') || 'Jarvis';
+
+  if (micMode === 'continuous') {
+    if (jarvisMicPaused) {
+      micBtn.classList.remove('listening');
+      micBtn.classList.add('paused');
+      micBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+      micBtn.title = 'Dauerhören pausiert (Klick zum Fortsetzen)';
+      if (reactor) reactor.classList.remove('listening');
+      if (statusSpan && !jarvisIsThinking && !jarvisIsSpeaking) {
+        statusSpan.textContent = 'Pausiert';
+      }
+    } else {
+      micBtn.classList.remove('paused');
+      micBtn.classList.toggle('listening', isRecognitionRunning);
+      micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+      micBtn.title = 'Dauerhören aktiv (Klick zum Pausieren)';
+      if (reactor && isRecognitionRunning) reactor.classList.add('listening');
+      if (statusSpan && !jarvisIsThinking && !jarvisIsSpeaking) {
+        if (wakeWordEnabled) {
+          statusSpan.textContent = Date.now() < jarvisWakeUntil ? 'Hört zu...' : `Bereit · sag „${wakeWord}“`;
+        } else {
+          statusSpan.textContent = isRecognitionRunning ? 'Hört zu...' : 'Bereit';
+        }
+      }
+    }
+  } else {
+    micBtn.classList.remove('paused');
+    micBtn.classList.toggle('listening', isRecognitionRunning);
+    micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+    micBtn.title = isRecognitionRunning ? 'Spracheingabe stoppen' : 'Spracheingabe starten';
+    if (reactor) {
+      if (isRecognitionRunning) reactor.classList.add('listening');
+      else reactor.classList.remove('listening');
+    }
+    if (statusSpan && !jarvisIsThinking && !jarvisIsSpeaking) {
+      statusSpan.textContent = isRecognitionRunning ? 'Hört zu...' : 'Online';
+    }
+  }
+}
+
+export function syncJarvisRecognition() {
+  if (!jarvisRecognition) return;
+  const shouldRun = shouldJarvisRecognitionRun();
+
+  if (shouldRun && !isRecognitionRunning && !isRecognitionStarting) {
+    try {
+      isRecognitionStarting = true;
+      jarvisRecognition.start();
+      acquireJarvisHardwareStream();
+    } catch (err) {
+      isRecognitionStarting = false;
+      setTimeout(syncJarvisRecognition, 400);
+    }
+  } else if (!shouldRun && (isRecognitionRunning || isRecognitionStarting)) {
+    try {
+      jarvisRecognition.stop();
+    } catch (e) {}
+    isRecognitionStarting = false;
+  }
+  updateJarvisMicUI();
+}
+
+export function triggerOneShotListening() {
+  jarvisOneShotActive = true;
+  syncJarvisRecognition();
+}
+
+export function onJarvisSpeechFinished() {
+  jarvisIsSpeaking = false;
+  jarvisIsThinking = false;
+  const micMode = Config.get('jarvis_mic_mode', 'manual');
+  if (micMode === 'after_response') {
+    triggerOneShotListening();
+  } else {
+    syncJarvisRecognition();
+  }
+}
+
 export function cancelJarvisSpeech() {
   currentTtsRequestId++;
   if ('speechSynthesis' in window) {
@@ -22,12 +155,15 @@ export function cancelJarvisSpeech() {
     } catch(e) {}
     elevenLabsAudio = null;
   }
+  jarvisIsSpeaking = false;
+  jarvisIsThinking = false;
   const reactor = document.getElementById('jarvisReactor');
   if (reactor) reactor.classList.remove('speaking');
   const statusSpan = document.getElementById('jarvisStatus');
   if (statusSpan && (statusSpan.textContent === 'Antwortet...' || statusSpan.textContent === 'Hör zu...')) {
     statusSpan.textContent = 'Online';
   }
+  syncJarvisRecognition();
 }
 
 export function speakLocalSpeech(text) {
@@ -37,6 +173,8 @@ export function speakLocalSpeech(text) {
   jarvisSpeakingUtterance = new SpeechSynthesisUtterance(text);
   
   jarvisSpeakingUtterance.onstart = () => {
+    jarvisIsSpeaking = true;
+    syncJarvisRecognition();
     const statusSpan = document.getElementById('jarvisStatus');
     if (statusSpan) statusSpan.textContent = 'Antwortet...';
     const reactor = document.getElementById('jarvisReactor');
@@ -50,6 +188,7 @@ export function speakLocalSpeech(text) {
     }
     const reactor = document.getElementById('jarvisReactor');
     if (reactor) reactor.classList.remove('speaking');
+    onJarvisSpeechFinished();
   };
   
   jarvisSpeakingUtterance.onend = resetSpeechUI;
@@ -156,6 +295,12 @@ export function speakJarvisReply(text) {
           URL.revokeObjectURL(audioUrl);
           elevenLabsAudio = null;
         }
+        onJarvisSpeechFinished();
+      };
+      
+      elevenLabsAudio.onplay = () => {
+        jarvisIsSpeaking = true;
+        syncJarvisRecognition();
       };
       
       elevenLabsAudio.onended = resetSpeechUI;
@@ -1050,6 +1195,12 @@ export function updateJarvisSettingsUI() {
     elevenLabsGroup.style.display = ttsEnabled ? 'block' : 'none';
   }
 
+  const wakeWordCheckbox = document.getElementById('jarvisWakeWordEnabled');
+  const wakeWordInputGroup = document.getElementById('jarvisWakeWordInputGroup');
+  if (wakeWordCheckbox && wakeWordInputGroup) {
+    wakeWordInputGroup.style.display = wakeWordCheckbox.checked ? 'block' : 'none';
+  }
+
   // --- Key-Status-Indikatoren aktualisieren ---
   const _setDot = (dotId, hasKey) => {
     const dot = document.getElementById(dotId);
@@ -1106,6 +1257,9 @@ export async function sendJarvisMessage() {
   
   cancelJarvisSpeech();
   
+  jarvisIsThinking = true;
+  syncJarvisRecognition();
+  
   appendJarvisMessage('Sir', prompt, 'user');
   
   if (sendBtn) sendBtn.disabled = true;
@@ -1142,8 +1296,12 @@ export async function sendJarvisMessage() {
   } finally {
     if (sendBtn) sendBtn.disabled = false;
     if (reactor) reactor.classList.remove('thinking');
-    if (statusSpan && !speechStarted) {
-      statusSpan.textContent = 'Online';
+    jarvisIsThinking = false;
+    if (!speechStarted) {
+      if (statusSpan) {
+        statusSpan.textContent = 'Online';
+      }
+      syncJarvisRecognition();
     }
   }
 }
@@ -1235,6 +1393,176 @@ export async function loadElevenLabsVoices(apiKeyOverride = null) {
   }
 }
 
+export function setupOrRecreateRecognition() {
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) return;
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (jarvisRecognition) {
+    try {
+      jarvisRecognition.onstart = null;
+      jarvisRecognition.onresult = null;
+      jarvisRecognition.onerror = null;
+      jarvisRecognition.onend = null;
+      jarvisRecognition.abort();
+    } catch (e) {}
+    jarvisRecognition = null;
+  }
+
+  isRecognitionRunning = false;
+  isRecognitionStarting = false;
+
+  const rec = new SpeechRec();
+  const lang = Config.get('dashboard_lang', 'de');
+  rec.lang = lang === 'de' ? 'de-DE' : 'en-US';
+  const micMode = Config.get('jarvis_mic_mode', 'manual');
+  rec.continuous = (micMode === 'continuous');
+  rec.interimResults = true;
+  rec.maxAlternatives = 1;
+
+  let lastRecognizedTranscript = '';
+  let hasSentCurrentUtterance = false;
+
+  function handleRecognizedSpeech(text) {
+    text = (text || '').trim();
+    if (!text || hasSentCurrentUtterance) return;
+
+    const currentMode = Config.get('jarvis_mic_mode', 'manual');
+    const wakeWordEnabled = Config.get('jarvis_wake_word_enabled', 'false') === 'true';
+    const wakeWord = (Config.get('jarvis_wake_word', 'Jarvis') || 'Jarvis').trim().toLowerCase();
+
+    if (currentMode === 'continuous' && wakeWordEnabled && !jarvisOneShotActive) {
+      const low = text.toLowerCase();
+      const idx = low.indexOf(wakeWord);
+
+      if (idx < 0 && Date.now() > jarvisWakeUntil) {
+        return;
+      }
+
+      if (idx >= 0) {
+        text = (text.slice(0, idx) + text.slice(idx + wakeWord.length))
+          .replace(/^[\s,.!?:;]+|[\s,.!?:;]+$/g, '')
+          .trim();
+      }
+
+      if (!text || text.length < 2) {
+        jarvisWakeUntil = Date.now() + 8000;
+        playJarvisBeep(660, 0.08, 0.12);
+        setTimeout(() => playJarvisBeep(880, 0.1, 0.15), 90);
+        const statusSpan = document.getElementById('jarvisStatus');
+        if (statusSpan) statusSpan.textContent = 'Ja, ich höre...';
+        return;
+      }
+    }
+
+    hasSentCurrentUtterance = true;
+    lastRecognizedTranscript = '';
+    jarvisWakeUntil = 0;
+    jarvisOneShotActive = false;
+
+    const input = document.getElementById('jarvisInput');
+    if (input) {
+      input.value = text;
+      input.placeholder = "Fragen oder Sprachbefehl...";
+    }
+    playJarvisBeep(880, 0.08, 0.12);
+    sendJarvisMessage();
+  }
+
+  rec.onstart = () => {
+    isRecognitionStarting = false;
+    isRecognitionRunning = true;
+    lastRecognizedTranscript = '';
+    hasSentCurrentUtterance = false;
+    updateJarvisMicUI();
+    if (Config.get('jarvis_mic_mode', 'manual') === 'continuous') {
+      acquireJarvisHardwareStream();
+    } else if (jarvisOneShotActive) {
+      playJarvisBeep(440, 0.08, 0.12);
+    }
+  };
+
+  rec.onresult = (event) => {
+    let interimText = '';
+    let finalText = '';
+
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const res = event.results[i];
+      const transcript = res[0].transcript;
+      if (res.isFinal) {
+        finalText += transcript;
+      } else {
+        interimText += transcript;
+      }
+    }
+
+    const currentText = (finalText || interimText).trim();
+    if (currentText) {
+      lastRecognizedTranscript = currentText;
+    }
+
+    if (interimText.trim()) {
+      const statusSpan = document.getElementById('jarvisStatus');
+      if (statusSpan && !jarvisIsThinking && !jarvisIsSpeaking) {
+        statusSpan.textContent = interimText.trim();
+      }
+      const input = document.getElementById('jarvisInput');
+      if (input && !input.value) {
+        input.placeholder = interimText.trim();
+      }
+    }
+
+    if (finalText.trim()) {
+      handleRecognizedSpeech(finalText.trim());
+    }
+  };
+
+  rec.onerror = (e) => {
+    const err = e.error;
+    if (err === 'not-allowed' || err === 'service-not-allowed') {
+      jarvisMicPaused = true;
+      releaseJarvisHardwareStream();
+      updateJarvisMicUI();
+      console.warn("[JARVIS] Mikrofon blockiert oder nicht erlaubt:", err);
+    } else if (err === 'no-speech') {
+      // Normal bei Pausen
+    } else {
+      console.warn("[JARVIS] SpeechRecognition Hinweis/Fehler:", err);
+      if (err !== 'network' && jarvisOneShotActive) {
+        playJarvisBeep(220, 0.15, 0.1);
+      }
+    }
+  };
+
+  rec.onend = () => {
+    isRecognitionRunning = false;
+    isRecognitionStarting = false;
+
+    // Falls die Spracherkennung endet und noch unversendeter Text aus interim vorliegt:
+    if (lastRecognizedTranscript && !hasSentCurrentUtterance) {
+      handleRecognizedSpeech(lastRecognizedTranscript);
+      lastRecognizedTranscript = '';
+    }
+
+    jarvisOneShotActive = false;
+    updateJarvisMicUI();
+
+    if (shouldJarvisRecognitionRun()) {
+      const now = Date.now();
+      jarvisRestartTimestamps = jarvisRestartTimestamps.filter(t => now - t < 10000);
+      jarvisRestartTimestamps.push(now);
+      const delay = jarvisRestartTimestamps.length > 6 ? 3000 : 250;
+      setTimeout(syncJarvisRecognition, delay);
+    } else {
+      if (Config.get('jarvis_mic_mode', 'manual') !== 'continuous') {
+        releaseJarvisHardwareStream();
+      }
+    }
+  };
+
+  jarvisRecognition = rec;
+  syncJarvisRecognition();
+}
+
 export function initJarvis() {
   const input = document.getElementById('jarvisInput');
   const sendBtn = document.getElementById('jarvisSendBtn');
@@ -1316,6 +1644,14 @@ export function initJarvis() {
   if (document.getElementById('jarvisBraveApiKey')) document.getElementById('jarvisBraveApiKey').value = savedBraveKey;
   if (document.getElementById('jarvisElevenApiKey')) document.getElementById('jarvisElevenApiKey').value = savedElevenKey;
 
+  const savedMicMode = Config.get('jarvis_mic_mode', 'manual');
+  const savedWakeEnabled = Config.get('jarvis_wake_word_enabled', 'false') === 'true';
+  const savedWakeWord = Config.get('jarvis_wake_word', 'Jarvis');
+
+  if (document.getElementById('jarvisMicMode')) document.getElementById('jarvisMicMode').value = savedMicMode;
+  if (document.getElementById('jarvisWakeWordEnabled')) document.getElementById('jarvisWakeWordEnabled').checked = savedWakeEnabled;
+  if (document.getElementById('jarvisWakeWord')) document.getElementById('jarvisWakeWord').value = savedWakeWord;
+
   const savedVoiceSelection = Config.get('jarvis_unified_voice', 'local:auto');
 
   const doPopulateVoices = () => {
@@ -1384,6 +1720,15 @@ export function initJarvis() {
     ttsCheckbox.addEventListener('change', updateJarvisSettingsUI);
   }
 
+  const wakeToggle = document.getElementById('jarvisWakeWordEnabled');
+  if (wakeToggle) {
+    wakeToggle.addEventListener('change', updateJarvisSettingsUI);
+  }
+  const micModeSel = document.getElementById('jarvisMicMode');
+  if (micModeSel) {
+    micModeSel.addEventListener('change', updateJarvisSettingsUI);
+  }
+
   const unifiedVoiceSelect = document.getElementById('jarvisVoiceSelect');
   if (unifiedVoiceSelect) {
     unifiedVoiceSelect.addEventListener('change', updateJarvisSettingsUI);
@@ -1405,6 +1750,10 @@ export function initJarvis() {
     const braveApiKey = document.getElementById('jarvisBraveApiKey')?.value.trim() || '';
     const elevenApiKey = document.getElementById('jarvisElevenApiKey')?.value.trim() || '';
 
+    const micMode = document.getElementById('jarvisMicMode')?.value || 'manual';
+    const wakeEnabled = document.getElementById('jarvisWakeWordEnabled')?.checked;
+    const wakeWord = document.getElementById('jarvisWakeWord')?.value.trim() || 'Jarvis';
+
     const unifiedVal = document.getElementById('jarvisVoiceSelect')?.value || 'local:auto';
     const ttsProvider = unifiedVal.startsWith('eleven:') ? 'elevenlabs' : 'local';
     const elevenVoice = unifiedVal.startsWith('eleven:') ? unifiedVal.replace('eleven:', '') : '';
@@ -1423,7 +1772,10 @@ export function initJarvis() {
       jarvis_eleven_api_key: elevenApiKey,
       jarvis_eleven_voice_id: elevenVoice,
       jarvis_local_voice_name: localVoiceName,
-      jarvis_unified_voice: unifiedVal
+      jarvis_unified_voice: unifiedVal,
+      jarvis_mic_mode: micMode,
+      jarvis_wake_word_enabled: String(wakeEnabled),
+      jarvis_wake_word: wakeWord
     };
     if (provider === 'gemini') {
       settingsToSave.jarvis_gemini_api_key = apiKey;
@@ -1434,6 +1786,9 @@ export function initJarvis() {
 
     alert('J.A.R.V.I.S. Einstellungen erfolgreich gespeichert.');
     updateJarvisSettingsUI();
+    if (typeof setupOrRecreateRecognition === 'function') {
+      setupOrRecreateRecognition();
+    }
   };
 
   if (saveBtn) {
@@ -1442,6 +1797,10 @@ export function initJarvis() {
   const saveTtsBtn = document.getElementById('saveJarvisConfigTts');
   if (saveTtsBtn) {
     saveTtsBtn.addEventListener('click', saveJarvisSettings);
+  }
+  const saveMicBtn = document.getElementById('saveJarvisConfigMic');
+  if (saveMicBtn) {
+    saveMicBtn.addEventListener('click', saveJarvisSettings);
   }
   const saveSearchBtn = document.getElementById('saveJarvisConfigSearch');
   if (saveSearchBtn) {
@@ -1505,64 +1864,42 @@ export function initJarvis() {
       sendJarvisMessage();
     }
   });
-  
+
   if (micBtn) {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-      jarvisRecognition = new SpeechRec();
-      jarvisRecognition.continuous = false;
-      jarvisRecognition.interimResults = false;
-      
+      setupOrRecreateRecognition();
+
       const updateSpeechLang = () => {
-        const lang = Config.get('dashboard_lang', 'de');
-        jarvisRecognition.lang = lang === 'de' ? 'de-DE' : 'en-US';
+        setupOrRecreateRecognition();
       };
-      updateSpeechLang();
       
       const langSel = document.getElementById('langSelector');
       if (langSel) {
         langSel.addEventListener('change', updateSpeechLang);
       }
       
-      jarvisRecognition.onstart = () => {
-        micBtn.classList.add('listening');
-        const reactor = document.getElementById('jarvisReactor');
-        if (reactor) reactor.classList.add('listening');
-        const statusSpan = document.getElementById('jarvisStatus');
-        if (statusSpan) statusSpan.textContent = 'Hört zu...';
-        playJarvisBeep(440, 0.1, 0.15);
-      };
-      
-      jarvisRecognition.onend = () => {
-        micBtn.classList.remove('listening');
-        const reactor = document.getElementById('jarvisReactor');
-        if (reactor) reactor.classList.remove('listening');
-        const statusSpan = document.getElementById('jarvisStatus');
-        if (statusSpan) statusSpan.textContent = 'Online';
-      };
-      
-      jarvisRecognition.onresult = (event) => {
-        const resultText = event.results[0][0].transcript;
-        input.value = resultText;
-        playJarvisBeep(880, 0.08, 0.12);
-        sendJarvisMessage();
-      };
-      
-      jarvisRecognition.onerror = (e) => {
-        console.error("SpeechRecognition Fehler:", e);
-        playJarvisBeep(220, 0.25, 0.15);
-      };
-      
       micBtn.addEventListener('click', () => {
         try {
-          if (micBtn.classList.contains('listening')) {
-            jarvisRecognition.stop();
+          const micMode = Config.get('jarvis_mic_mode', 'manual');
+          if (micMode === 'continuous') {
+            jarvisMicPaused = !jarvisMicPaused;
+            if (jarvisMicPaused) {
+              playJarvisBeep(330, 0.1, 0.1);
+            } else {
+              playJarvisBeep(660, 0.1, 0.1);
+            }
+            syncJarvisRecognition();
           } else {
-            cancelJarvisSpeech();
-            jarvisRecognition.start();
+            if (isRecognitionRunning) {
+              jarvisOneShotActive = false;
+              if (jarvisRecognition) jarvisRecognition.stop();
+            } else {
+              cancelJarvisSpeech();
+              triggerOneShotListening();
+            }
           }
         } catch (err) {
-          console.warn("Fehler beim Starten der Spracherkennung:", err);
+          console.warn("Fehler bei Klick auf Mikrofon-Button:", err);
         }
       });
     } else {
