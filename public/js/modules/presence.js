@@ -281,7 +281,7 @@ export function renderPresenceWidget(persons) {
         <img src="${p.image || '/sabine.png'}" class="presence-avatar-img" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover;">
         <span class="presence-status-badge ${p.active ? 'active' : ''}" style="position: absolute; bottom: 2px; right: 2px; width: 14px; height: 14px; border-radius: 50%; ${badgeStyle} border: 2.5px solid #0f1225;"></span>
       </div>
-      <span class="presence-avatar-name" style="font-size: 13px; font-weight: 600; color: #fff;">${p.name}</span>
+      <span class="presence-avatar-name" style="font-size: 13px; font-weight: 600; color: var(--text-main);">${p.name}</span>
       <span class="presence-avatar-status" style="font-size: 10px; ${statusColor}">${statusText}</span>
     `;
     grid.appendChild(card);
