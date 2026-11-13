@@ -14,7 +14,9 @@
 
 </div>
 
-![Dashboard Preview](preview.png)
+| 🌙 Dark Mode | ☀️ Light Mode |
+| :---: | :---: |
+| ![Dashboard Dark Mode](preview_dark.png) | ![Dashboard Light Mode](preview_light.png) |
 
 A modern, highly customizable smart home wall panel for tablets (optimized for a **Lenovo Tab M10 FHD Plus (10.3", 1920×1200, 16:10)** in landscape mode). Designed for 24/7 continuous operation inside the **Fully Kiosk Browser**.
 

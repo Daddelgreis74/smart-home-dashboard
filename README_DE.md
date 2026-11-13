@@ -14,7 +14,9 @@
 
 </div>
 
-![Dashboard Vorschau](preview.png)
+| 🌙 Dark Mode | ☀️ Light Mode |
+| :---: | :---: |
+| ![Dashboard Dark Mode](preview_dark.png) | ![Dashboard Light Mode](preview_light.png) |
 
 Ein modernes, hochgradig anpassbares Smart-Home-Wandpanel für Tablets (optimiert für ein **Lenovo Tab M10 FHD Plus (10.3", 1920×1200, 16:10)** im Querformat). Perfekt ausgelegt für den dauerhaften Betrieb im **Fully Kiosk Browser**.
 
