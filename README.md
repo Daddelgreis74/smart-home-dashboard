@@ -44,7 +44,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Daddelgreis74/smart-home-das
 
 ## ✨ Highlights & Features
 
-- **Multi-Theme System:** 6 elegant, switchable premium designs (Neo-Aurora Glassmorphism, Cyberpunk Tactical HUD, Cozy Nordic Dark, Retrowave Laser Synth, Terminal Classic, and OLED Stealth) with persistent storage.
+- **Dark & Light Mode:** Switch seamlessly between the ambient Dark Mode and the bright Frosted-Glass Light Mode via the header toggle or settings menu (persisted in browser storage).
 - **Adaptive Widgets:** Layout adapts dynamically to aspect ratio and Fully Kiosk viewport to prevent cut-off content.
 - **Weather Pro:** Open-Meteo integration containing temperature, feels-like temperature, min/max, humidity, rain probability, wind speed, air pressure, cloud cover, and UV index (no API key required).
 - **Smart Home / Tasmota:** Local device management, private subnet scan, toggle buttons with status indicators, and offline dimming.
@@ -57,19 +57,6 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Daddelgreis74/smart-home-das
 - **Fritz!Box Monitor:** Live latency and connection status (LEDs) and a real-time call monitor (port 1012) with full-screen live caller popup overlay and call history list.
 - **Multi-Language Support (i18n):** Complete client-side UI translations for 🇩🇪 German, 🇬🇧 English, 🇫🇷 French, 🇪🇸 Spanish, 🇮🇹 Italian, 🇳🇱 Dutch, and 🇵🇱 Polish.
 
-
----
-
-## 🎨 Dashboard Themes
-
-You can switch the dashboard theme directly inside the settings gear menu (top right):
-
-| Theme | Preview |
-| :--- | :--- |
-| **Neo-Aurora**<br>Transparent frosted-glass cards with soft ambient auras and glowing widgets. | ![Neo-Aurora](public/themes/neo_aurora.png) |
-| **Cyberpunk HUD**<br>Tactical high-tech look in orange/amber with sharp corners and grid background. | ![Cyberpunk HUD](public/themes/cyberpunk_hud.png) |
-| **Cozy Nordic Dark**<br>Calming, organic aesthetic with sage green accents and soft shadows. | ![Cozy Nordic Dark](public/themes/nordic_dark.png) |
-| **Retrowave Laser Synth**<br>Nostalgic 80s retro look in pink/cyan with a perspective laser floor grid. | ![Retrowave Laser Synth](public/themes/retrowave_synth.png) |
 
 ---
 

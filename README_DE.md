@@ -44,7 +44,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Daddelgreis74/smart-home-das
 
 ## ✨ Highlights & Features
 
-- **Multi-Theme-System:** 6 edle, frei umschaltbare Premium-Designs (Neo-Aurora Glassmorphism, Cyberpunk Tactical HUD, Cozy Nordic Dark, Retrowave Laser Synth, Terminal Classic und OLED Stealth) mit persistentem Speicher.
+- **Dark & Light Mode:** Nahtloser Wechsel zwischen dem stimmungsvollen Dark Mode und dem hellen Frosted-Glass Light Mode direkt über den Header-Schalter oder das Einstellungsmenü (persistent gespeichert).
 - **Adaptive Widgets:** Das Layout passt sich dynamisch an das Seitenverhältnis und den Viewport des Tablets an, um abgeschnittene Inhalte zu verhindern.
 - **Wetter Pro:** Open-Meteo Integration mit Temperatur, Gefühlter Temperatur, Min/Max, Luftfeuchte, Regenwahrscheinlichkeit, Wind, Luftdruck, Wolken und UV-Index (ohne API-Key).
 - **Smart Home / Tasmota:** Lokale Geräteverwaltung, automatischer Netzwerk-Scan und Toggle-Buttons mit Statusanzeige sowie Offline-Dimmung.
@@ -57,19 +57,6 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Daddelgreis74/smart-home-das
 - **Fritz!Box Monitor:** Live-Latenz und Online-Zustand (LEDs) sowie ein Echtzeit-Anruf-Monitor (Port 1012) mit vollflächigem Pop-up-Overlay bei Anruf und historischer Anrufliste.
 - **Mehrsprachigkeit (i18n):** Vollständige Übersetzungen für 🇩🇪 Deutsch, 🇬🇧 Englisch, 🇫🇷 Französisch, 🇪🇸 Spanisch, 🇮🇹 Italienisch, 🇳🇱 Niederländisch und 🇵🇱 Polnisch.
 
-
----
-
-## 🎨 Dashboard Themes
-
-Das Dashboard lässt sich direkt über das Zahnrad-Menü oben rechts zwischen folgenden Designs umschalten:
-
-| Theme | Vorschau |
-| :--- | :--- |
-| **Neo-Aurora**<br>Transparente Frosted-Glass-Karten mit weichen Auras und leuchtenden Widgets. | ![Neo-Aurora](public/themes/neo_aurora.png) |
-| **Cyberpunk HUD**<br>Taktischer High-Tech-Look in Orange/Amber mit scharfen Ecken und Gitter-Hintergrund. | ![Cyberpunk HUD](public/themes/cyberpunk_hud.png) |
-| **Cozy Nordic Dark**<br>Beruhigende, organische Ästhetik mit salbeigrünen Akzenten und weichen Schatten. | ![Cozy Nordic Dark](public/themes/nordic_dark.png) |
-| **Retrowave Laser Synth**<br>Nostalgischer 80er-Retro-Look in Pink/Cyan mit perspektivischer Laser-Bodenlinie. | ![Retrowave Laser Synth](public/themes/retrowave_synth.png) |
 
 ---
 
