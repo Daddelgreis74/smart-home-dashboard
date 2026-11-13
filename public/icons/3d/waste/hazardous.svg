@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="hazBody" x1="15%" y1="0%" x2="85%" y2="100%">
+      <stop offset="0%" stop-color="#fdba74"/>
+      <stop offset="45%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#c2410c"/>
+    </linearGradient>
+    <linearGradient id="hazLid" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%" stop-color="#fed7aa"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </linearGradient>
+  </defs>
+  <rect x="24" y="6" width="16" height="5" rx="2.5" fill="#9a3412"/>
+  <rect x="13" y="10" width="38" height="8" rx="4" fill="url(#hazLid)" stroke="rgba(255,255,255,0.65)" stroke-width="1.3"/>
+  <path d="M16 18h32l-3.5 34a4 4 0 0 1-4 3.5H23.5a4 4 0 0 1-4-3.5L16 18z" fill="url(#hazBody)" stroke="rgba(255,255,255,0.55)" stroke-width="1.3"/>
+  <rect x="22" y="23" width="3" height="24" rx="1.5" fill="rgba(255,255,255,0.28)"/>
+  <rect x="30.5" y="23" width="3" height="24" rx="1.5" fill="rgba(0,0,0,0.14)"/>
+  <rect x="39" y="23" width="3" height="24" rx="1.5" fill="rgba(0,0,0,0.14)"/>
+  <circle cx="21" cy="55" r="5" fill="#1e293b" stroke="rgba(255,255,255,0.45)" stroke-width="1.2"/>
+  <circle cx="21" cy="55" r="2" fill="#94a3b8"/>
+  <circle cx="43" cy="55" r="5" fill="#1e293b" stroke="rgba(255,255,255,0.45)" stroke-width="1.2"/>
+  <circle cx="43" cy="55" r="2" fill="#94a3b8"/>
+</svg>

@@ -25,19 +25,79 @@ body {
   touch-action: none;
 }
 
-/* Background Animated Orbs */
-.bg-orbs { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-.orb {
-  position: absolute; border-radius: 50%; filter: blur(80px);
-  animation: float 20s infinite ease-in-out alternate; opacity: 0.15;
+/* Multi-layered living 3D background scene */
+.bg-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background: var(--bg-mesh, var(--bg-color));
+  transition: background 0.45s ease;
 }
-.orb-1 { width: 600px; height: 600px; background: #3b82f6; top: -100px; left: -100px; }
-.orb-2 { width: 500px; height: 500px; background: #a855f7; bottom: -50px; right: -50px; animation-delay: -5s; }
-.orb-3 { width: 400px; height: 400px; background: #4ade80; top: 40%; left: 40%; animation-delay: -10s; }
+.bg-beams {
+  position: absolute;
+  inset: -25%;
+  background: var(--beam-gradient, none);
+  filter: blur(55px);
+  animation: rotateBeams 34s linear infinite;
+}
+.bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--grid-color, rgba(255, 255, 255, 0.04)) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-color, rgba(255, 255, 255, 0.04)) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 40%, #000 35%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 85% 75% at 50% 40%, #000 35%, transparent 100%);
+}
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(46px);
+  will-change: transform;
+}
+.orb-1 {
+  width: 580px; height: 580px;
+  top: -140px; left: -100px;
+  background: var(--orb-1, rgba(56, 189, 248, 0.45));
+  animation: floatOrb1 18s ease-in-out infinite alternate;
+}
+.orb-2 {
+  width: 540px; height: 540px;
+  top: 6%; right: -120px;
+  background: var(--orb-2, rgba(168, 85, 247, 0.42));
+  animation: floatOrb2 22s ease-in-out infinite alternate;
+}
+.orb-3 {
+  width: 620px; height: 620px;
+  bottom: -180px; left: 32%;
+  background: var(--orb-3, rgba(45, 212, 191, 0.38));
+  animation: floatOrb3 24s ease-in-out infinite alternate;
+}
+.orb-4 {
+  width: 420px; height: 420px;
+  bottom: 8%; left: -80px;
+  background: var(--orb-4, rgba(251, 146, 60, 0.24));
+  animation: floatOrb2 20s ease-in-out infinite alternate-reverse;
+}
 
-@keyframes float {
-  0% { transform: translate(0, 0) rotate(0deg); }
-  100% { transform: translate(100px, 50px) rotate(10deg); }
+@keyframes floatOrb1 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(70px, 50px) scale(1.12); }
+}
+@keyframes floatOrb2 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-65px, 60px) scale(1.08); }
+}
+@keyframes floatOrb3 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(55px, -45px) scale(1.1); }
+}
+@keyframes rotateBeams {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .floating-voice-btn {
@@ -125,7 +185,17 @@ body {
 }
 
 .widget-header { padding: 15px 20px 0px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; }
-.widget-header h3 { font-size: 14px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+.widget-header h3 { font-size: 14px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
+
+.widget-icon-3d {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
 
 /* DRAG HANDLE STYLING (TOUCH AREA VERGRÖSSERT) */
 .drag-handle { 
@@ -974,12 +1044,6 @@ body::before {
   mask-image: radial-gradient(circle at center, black 0%, transparent 78%);
 }
 
-.bg-orbs { opacity: 0.72; mix-blend-mode: screen; }
-.orb { filter: blur(95px); opacity: 0.22; animation-duration: 28s; }
-.orb-1 { background: #00ffa3; width: 520px; height: 520px; top: -170px; left: 6%; }
-.orb-2 { background: #00b7ff; width: 560px; height: 560px; bottom: -190px; right: 9%; }
-.orb-3 { background: #7c3aed; width: 470px; height: 470px; top: 32%; left: 42%; }
-
 .app-container { position: relative; z-index: 2; padding: 0; height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
 
 .header {
@@ -1147,17 +1211,22 @@ body::before {
 .segment.c-yellow.active { background: linear-gradient(90deg, #facc15, #fde68a); }
 .segment.c-red.active { background: linear-gradient(90deg, #ef4444, #fca5a5); }
 
-/* Smart Home: big tactile control bay */
+/* Smart Home: compact tactile control bay */
 .tasmota-layout {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  display: flex !important;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
   align-content: center;
 }
 .tasmota-btn {
-  min-height: 58px;
+  width: 145px;
+  min-width: 125px;
+  flex: 0 1 145px;
+  min-height: 68px;
   justify-content: center;
   flex-direction: column;
-  gap: 7px;
+  gap: 8px;
   border-radius: 20px;
   background: rgba(0,0,0,0.22);
   border-color: rgba(255,255,255,0.08);
@@ -2540,338 +2609,6 @@ body::before {
   .widget[data-type="note"] { grid-column: span 1; }
   .widget[data-type="tasmota"] { grid-column: span 2; }
 }
-
-/* ==========================================================================
-   THEME STYLES APPENDED AT THE BOTTOM
-   ========================================================================== */
-
-/* --- 1. NEO-AURORA GLASSMORPHISM (THEME 1) --- */
-body.theme-aurora {
-  --bg-color: #030711;
-  --panel-bg: rgba(9, 16, 31, 0.58);
-  --panel-border: rgba(170, 214, 255, 0.14);
-  --text-main: #f8fbff;
-  --text-muted: rgba(218, 232, 255, 0.58);
-  --primary: #55f5b1;
-  --primary-glow: rgba(85, 245, 177, 0.28);
-  --accent-blue: #66d9ff;
-  --accent-violet: #9f7aea;
-  --radius-lg: 28px;
-  --radius-md: 18px;
-  --radius-sm: 12px;
-  --blur: blur(34px) saturate(145%);
-}
-
-body.theme-aurora {
-  background:
-    radial-gradient(circle at 18% 0%, rgba(85, 245, 177, 0.18), transparent 28%),
-    radial-gradient(circle at 82% 12%, rgba(102, 217, 255, 0.16), transparent 30%),
-    radial-gradient(circle at 55% 100%, rgba(159, 122, 234, 0.16), transparent 35%),
-    linear-gradient(145deg, #02040a 0%, #07111f 52%, #050816 100%) !important;
-}
-
-body.theme-aurora::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.026) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
-  background-size: 42px 42px;
-  mask-image: radial-gradient(circle at center, black 0%, transparent 78%);
-  transform: none;
-  opacity: 1;
-  display: block;
-}
-
-body.theme-aurora .bg-orbs { display: block; opacity: 0.72; }
-body.theme-aurora .orb-1 { background: #00ffa3; }
-body.theme-aurora .orb-2 { background: #00b7ff; }
-body.theme-aurora .orb-3 { background: #7c3aed; }
-
-
-/* --- 2. CYBERPUNK TACTICAL HUD (THEME 2) --- */
-body.theme-cyberpunk {
-  --bg-color: #08080a;
-  --panel-bg: rgba(16, 15, 19, 0.88);
-  --panel-border: rgba(255, 120, 0, 0.28);
-  --text-main: #ffd1a4;
-  --text-muted: rgba(255, 209, 164, 0.5);
-  --primary: #ff7300;
-  --primary-glow: rgba(255, 115, 0, 0.35);
-  --accent-blue: #00e5ff;
-  --accent-violet: #ff3300;
-  --radius-lg: 0px; /* Sharp technical edges */
-  --radius-md: 0px;
-  --radius-sm: 0px;
-  --blur: none;
-}
-
-body.theme-cyberpunk {
-  background:
-    radial-gradient(circle at 50% 50%, rgba(255, 115, 0, 0.04), transparent 65%),
-    linear-gradient(145deg, #050507 0%, #100d14 100%) !important;
-}
-
-body.theme-cyberpunk::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  background-image:
-    linear-gradient(rgba(255, 115, 0, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 115, 0, 0.04) 1px, transparent 1px);
-  background-size: 24px 24px;
-  mask-image: none;
-  transform: none;
-  opacity: 1;
-  display: block;
-}
-
-body.theme-cyberpunk .widget {
-  background: var(--panel-bg);
-  border-width: 2px;
-  border-color: var(--panel-border);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-}
-body.theme-cyberpunk .widget::before {
-  background:
-    radial-gradient(circle at 10% 10%, rgba(255, 115, 0, 0.06), transparent 30%),
-    radial-gradient(circle at 90% 90%, rgba(0, 229, 255, 0.05), transparent 36%);
-}
-body.theme-cyberpunk .widget::after {
-  background: linear-gradient(90deg, transparent, rgba(255,115,0,0.4), transparent);
-}
-
-body.theme-cyberpunk .bg-orbs { display: block; opacity: 0.35; }
-body.theme-cyberpunk .orb-1 { background: #ff3300; }
-body.theme-cyberpunk .orb-2 { background: #ff7300; }
-body.theme-cyberpunk .orb-3 { background: #4a0000; }
-
-
-/* --- 3. COZY NORDIC DARK (THEME 3) --- */
-body.theme-nordic {
-  --bg-color: #1a1e22;
-  --panel-bg: rgba(30, 36, 42, 0.95);
-  --panel-border: rgba(255, 255, 255, 0.05);
-  --text-main: #eceff4;
-  --text-muted: rgba(180, 190, 202, 0.55);
-  --primary: #8fbcbb;
-  --primary-glow: rgba(143, 188, 187, 0.2);
-  --accent-blue: #a3be8c;
-  --accent-violet: #b48ead;
-  --radius-lg: 20px;
-  --radius-md: 14px;
-  --radius-sm: 8px;
-  --blur: none;
-}
-
-body.theme-nordic {
-  background: #181c20 !important;
-}
-
-body.theme-nordic::before {
-  display: none !important;
-}
-
-body.theme-nordic .bg-orbs { display: none !important; }
-
-body.theme-nordic .widget {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-}
-body.theme-nordic .widget::before, body.theme-nordic .widget::after {
-  display: none !important;
-}
-body.theme-nordic .header-right {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-
-/* --- 4. RETROWAVE LASER SYNTH (THEME 4) --- */
-body.theme-retrowave {
-  --bg-color: #090310;
-  --panel-bg: rgba(14, 4, 24, 0.72);
-  --panel-border: rgba(255, 0, 127, 0.25);
-  --text-main: #ffedf6;
-  --text-muted: rgba(255, 185, 222, 0.52);
-  --primary: #ff007f;
-  --primary-glow: rgba(255, 0, 127, 0.36);
-  --accent-blue: #00f0ff;
-  --accent-violet: #bd00ff;
-  --radius-lg: 16px;
-  --radius-md: 10px;
-  --radius-sm: 6px;
-  --blur: blur(20px);
-}
-
-body.theme-retrowave {
-  background:
-    radial-gradient(circle at 50% 0%, rgba(255, 0, 127, 0.16), transparent 50%),
-    linear-gradient(180deg, #050209 0%, #120520 100%) !important;
-}
-
-body.theme-retrowave::before {
-  content: '';
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  top: auto;
-  height: 220px;
-  pointer-events: none;
-  z-index: 1;
-  background-image:
-    linear-gradient(rgba(0, 240, 255, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 240, 255, 0.08) 1px, transparent 1px);
-  background-size: 36px 36px;
-  transform: perspective(160px) rotateX(60deg);
-  transform-origin: bottom;
-  mask-image: linear-gradient(to bottom, transparent, rgba(0,0,0,0.8));
-  opacity: 0.65;
-  display: block !important;
-}
-
-body.theme-retrowave .bg-orbs { display: block; opacity: 0.65; }
-body.theme-retrowave .orb-1 { background: #ff007f; }
-body.theme-retrowave .orb-2 { background: #bd00ff; }
-body.theme-retrowave .orb-3 { background: #00f0ff; }
-
-body.theme-retrowave .widget {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  box-shadow: 0 10px 40px rgba(255,0,127,0.06), 0 0 15px rgba(255,0,127,0.02);
-}
-body.theme-retrowave .widget::before {
-  background:
-    radial-gradient(circle at 90% 10%, rgba(0, 240, 255, 0.14), transparent 30%),
-    linear-gradient(135deg, rgba(255,255,255,0.04), transparent 40%);
-}
-body.theme-retrowave .widget::after {
-  background: linear-gradient(90deg, transparent, rgba(0,240,255,0.4), transparent);
-}
-
-body.theme-retrowave .play-round-btn, body.theme-retrowave .floating-voice-btn {
-  background: linear-gradient(135deg, #ff007f, #bd00ff) !important;
-  box-shadow: 0 0 24px rgba(255,0,127,0.5) !important;
-}
-body.theme-retrowave .preset-btn.assigned {
-  background: linear-gradient(135deg, #ff007f, #00f0ff) !important;
-  box-shadow: 0 0 20px rgba(255,0,127,0.3) !important;
-}
-body.theme-retrowave .tasmota-btn.active {
-  background: linear-gradient(145deg, rgba(255,0,127,0.18), rgba(255,0,127,0.05));
-  border-color: rgba(255,0,127,0.5);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 24px rgba(255,0,127,0.15);
-}
-body.theme-retrowave .tasmota-btn.active i { color: #ff3399; }
-
-/* --- 5. TERMINAL CLASSIC (THEME 5) --- */
-body.theme-terminal {
-  --bg-color: #030a05;
-  --panel-bg: rgba(5, 18, 8, 0.85);
-  --panel-border: rgba(0, 255, 68, 0.25);
-  --text-main: #33ff33;
-  --text-muted: rgba(51, 255, 51, 0.5);
-  --primary: #00ff44;
-  --primary-glow: rgba(0, 255, 68, 0.3);
-  --accent-blue: #00ff88;
-  --accent-violet: #adff2f;
-  --radius-lg: 4px;
-  --radius-md: 2px;
-  --radius-sm: 0px;
-  --blur: none;
-  font-family: 'Courier New', Courier, monospace !important;
-}
-body.theme-terminal {
-  background: 
-    linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-    linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)),
-    #050e05 !important;
-  background-size: 100% 4px, 6px 100%;
-}
-body.theme-terminal::before {
-  content: " ";
-  display: block;
-  position: fixed;
-  top: 0; left: 0; bottom: 0; right: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-  z-index: 9999;
-  background-size: 100% 3px, 3px 100%;
-  pointer-events: none;
-}
-body.theme-terminal .bg-orbs { display: none !important; }
-body.theme-terminal .widget {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  box-shadow: 0 0 15px rgba(0, 255, 68, 0.1);
-}
-body.theme-terminal .play-round-btn, body.theme-terminal .floating-voice-btn {
-  background: #00ff44 !important;
-  color: #000 !important;
-  box-shadow: 0 0 15px rgba(0, 255, 68, 0.4) !important;
-}
-body.theme-terminal .preset-btn.assigned {
-  background: #00ff88 !important;
-  color: #000 !important;
-  box-shadow: 0 0 12px rgba(0, 255, 136, 0.3) !important;
-}
-body.theme-terminal .tasmota-btn.active {
-  background: rgba(0, 255, 68, 0.15) !important;
-  border-color: #00ff44 !important;
-}
-body.theme-terminal .tasmota-btn.active i { color: #00ff44 !important; }
-
-/* --- 7. OLED STEALTH (THEME 7) --- */
-body.theme-stealth {
-  --bg-color: #000000;
-  --panel-bg: #000000;
-  --panel-border: rgba(255, 255, 255, 0.1);
-  --text-main: #f3f4f6;
-  --text-muted: #6b7280;
-  --primary: #9ca3af;
-  --primary-glow: rgba(255, 255, 255, 0.05);
-  --accent-blue: #4b5563;
-  --accent-violet: #374151;
-  --radius-lg: 14px;
-  --radius-md: 8px;
-  --radius-sm: 4px;
-  --blur: none;
-}
-body.theme-stealth {
-  background: #000000 !important;
-}
-body.theme-stealth::before { display: none !important; }
-body.theme-stealth .bg-orbs { display: none !important; }
-body.theme-stealth .widget {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  box-shadow: none !important;
-}
-body.theme-stealth .widget::before, body.theme-stealth .widget::after { display: none !important; }
-body.theme-stealth .play-round-btn, body.theme-stealth .floating-voice-btn {
-  background: #374151 !important;
-  color: #fff !important;
-  border: 1px solid rgba(255,255,255,0.1) !important;
-  box-shadow: none !important;
-}
-body.theme-stealth .preset-btn.assigned {
-  background: #4b5563 !important;
-  color: #fff !important;
-  box-shadow: none !important;
-}
-body.theme-stealth .tasmota-btn.active {
-  background: rgba(255, 255, 255, 0.06) !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
-}
-body.theme-stealth .tasmota-btn.active i { color: #fff !important; }
-
 
 /* ==========================================================================
    FRITZ!BOX MONITOR WIDGET & CALL-TOAST STYLING
@@ -4851,513 +4588,6 @@ body.theme-jarvis .radio-select option {
   }
 }
 
-/* --- 7. ORBITAL HOLO-DECK (THEME 7) --- */
-body.theme-orbital {
-  --bg-color: #050810;
-  --panel-bg: rgba(10, 16, 28, 0.55);
-  --panel-border: rgba(79, 216, 255, 0.22);
-  --text-main: #eaf6ff;
-  --text-muted: rgba(234, 246, 255, 0.5);
-  --primary: #4fd8ff;
-  --primary-glow: rgba(79, 216, 255, 0.3);
-  --accent-blue: #4fd8ff;
-  --accent-violet: #ff6b4a;
-  --radius-lg: 6px;
-  --radius-md: 4px;
-  --radius-sm: 3px;
-  --blur: blur(8px);
-}
-
-body.theme-orbital {
-  background:
-    radial-gradient(circle at 30% 20%, rgba(79, 216, 255, 0.08), transparent 45%),
-    radial-gradient(circle at 80% 80%, rgba(255, 107, 74, 0.05), transparent 40%),
-    linear-gradient(160deg, #030509 0%, #0a1120 55%, #050810 100%) !important;
-}
-
-body.theme-orbital::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  background-image:
-    radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.6), transparent),
-    radial-gradient(1px 1px at 25% 60%, rgba(255,255,255,0.4), transparent),
-    radial-gradient(1.5px 1.5px at 45% 30%, rgba(255,255,255,0.5), transparent),
-    radial-gradient(1px 1px at 65% 75%, rgba(255,255,255,0.35), transparent),
-    radial-gradient(1.5px 1.5px at 85% 20%, rgba(255,255,255,0.55), transparent),
-    radial-gradient(1px 1px at 92% 65%, rgba(255,255,255,0.4), transparent),
-    radial-gradient(1px 1px at 15% 85%, rgba(255,255,255,0.3), transparent),
-    radial-gradient(1.5px 1.5px at 55% 90%, rgba(255,255,255,0.45), transparent);
-  opacity: 0.85;
-  display: block;
-}
-
-body.theme-orbital .widget {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  border-radius: var(--radius-md);
-  position: relative;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-body.theme-orbital .widget::before,
-body.theme-orbital .widget::after {
-  content: '';
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  border: 1.5px solid var(--primary);
-  opacity: 0.8;
-  pointer-events: none;
-}
-body.theme-orbital .widget::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
-body.theme-orbital .widget::after  { bottom: -1px; right: -1px; border-left: none; border-top: none; }
-
-body.theme-orbital .bg-orbs { display: block; opacity: 0.4; }
-body.theme-orbital .orb-1 { background: #4fd8ff; }
-body.theme-orbital .orb-2 { background: #7c3aed; }
-body.theme-orbital .orb-3 { background: #ff6b4a; }
-
-/* Font Styles for theme-orbital */
-body.theme-orbital .widget-header h3,
-body.theme-orbital .deck-title {
-  font-family: 'Michroma', sans-serif;
-  letter-spacing: 1px;
-}
-
-body.theme-orbital .header-time,
-body.theme-orbital .header-date,
-body.theme-orbital .weather-temp,
-body.theme-orbital .w-detail span,
-body.theme-orbital .sensor-gauge strong,
-body.theme-orbital .sensor-meta span,
-body.theme-orbital .bar-val,
-body.theme-orbital .calendar-item-time,
-body.theme-orbital .calendar-item-date,
-body.theme-orbital .call-time,
-body.theme-orbital .call-duration,
-body.theme-orbital .value-mono {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 500;
-}
-
-/* --- 8. J.A.R.V.I.S. / STARK INDUSTRIES HUD (THEME 8) --- */
-body.theme-jarvis {
-  --bg-color: #02040a;
-  --panel-bg: rgba(4, 12, 24, 0.72);
-  --panel-border: rgba(0, 240, 255, 0.38);
-  --text-main: #e6f9ff;
-  --text-muted: rgba(224, 248, 255, 0.5);
-  --primary: #00f0ff;
-  --primary-glow: rgba(0, 240, 255, 0.5);
-  --secondary: #ffb703;
-  --secondary-glow: rgba(255, 183, 3, 0.4);
-  --accent-blue: #00f0ff;
-  --accent-violet: #ffb703;
-  --radius-lg: 2px;
-  --radius-md: 2px;
-  --radius-sm: 2px;
-  --blur: blur(14px);
-}
-
-/* Background: Holographic Tactical Blueprint Grid */
-body.theme-jarvis {
-  background-color: #02040a !important;
-  background-image:
-    radial-gradient(circle at 50% 25%, rgba(0, 240, 255, 0.12) 0%, transparent 65%),
-    radial-gradient(circle at 85% 85%, rgba(255, 183, 3, 0.06) 0%, transparent 50%),
-    linear-gradient(rgba(0, 240, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 240, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(170deg, #010308 0%, #050e1c 50%, #02050c 100%) !important;
-  background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px, 100% 100% !important;
-}
-
-/* Authentic Holographic Scanlines Overlay */
-body.theme-jarvis::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 999;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.28) 50%);
-  background-size: 100% 3px;
-  opacity: 0.65;
-  display: block;
-}
-
-body.theme-jarvis .bg-orbs { display: block; opacity: 0.45; }
-body.theme-jarvis .orb-1 { background: #00f0ff; filter: blur(90px); }
-body.theme-jarvis .orb-2 { background: #ffb703; filter: blur(100px); }
-body.theme-jarvis .orb-3 { background: #0088ff; filter: blur(90px); }
-
-/* Header: Stark Industries HUD */
-body.theme-jarvis .header {
-  border-bottom: 2px solid var(--primary);
-  box-shadow: 0 4px 20px rgba(0, 240, 255, 0.15);
-  background: rgba(3, 8, 18, 0.85);
-  backdrop-filter: blur(16px);
-}
-
-body.theme-jarvis .deck-title span {
-  font-family: 'Orbitron', monospace !important;
-  font-weight: 900 !important;
-  letter-spacing: 3px !important;
-  color: #ffffff !important;
-  text-shadow: 0 0 12px var(--primary), 0 0 24px rgba(0, 240, 255, 0.4);
-}
-
-body.theme-jarvis .deck-title small {
-  font-family: 'Share Tech Mono', monospace !important;
-  color: var(--secondary) !important;
-  letter-spacing: 2px !important;
-  text-transform: uppercase !important;
-  font-weight: 600 !important;
-}
-
-body.theme-jarvis .header-time {
-  font-family: 'Share Tech Mono', monospace !important;
-  font-size: 32px !important;
-  font-weight: 700 !important;
-  color: #ffffff !important;
-  text-shadow: 0 0 14px var(--primary);
-  letter-spacing: 2px;
-}
-
-body.theme-jarvis .header-date {
-  font-family: 'Share Tech Mono', monospace !important;
-  color: var(--secondary) !important;
-  letter-spacing: 1.5px;
-}
-
-/* Widgets: Stark HUD Chamfered Tech Cards */
-body.theme-jarvis .widget {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  border-left: 3px solid var(--primary);
-  border-radius: 0;
-  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), inset 0 0 20px rgba(0, 240, 255, 0.04);
-  backdrop-filter: var(--blur);
-  position: relative;
-  transition: all 0.25s ease;
-}
-
-body.theme-jarvis .widget:hover {
-  border-color: rgba(0, 240, 255, 0.8);
-  border-left-color: var(--secondary);
-  box-shadow: 0 14px 40px rgba(0, 240, 255, 0.2), inset 0 0 25px rgba(0, 240, 255, 0.08);
-  transform: translateY(-2px);
-}
-
-/* Top-Right Chamfer Corner Accent Indicator */
-body.theme-jarvis .widget::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 12px;
-  height: 12px;
-  background: linear-gradient(135deg, transparent 50%, var(--secondary) 50%);
-  opacity: 0.9;
-  pointer-events: none;
-}
-
-/* Header Icons in Stark Gold */
-body.theme-jarvis .widget-header h3 i {
-  color: var(--secondary) !important;
-  filter: drop-shadow(0 0 6px rgba(255, 183, 3, 0.6));
-}
-
-body.theme-jarvis .widget-header h3 {
-  font-family: 'Orbitron', monospace !important;
-  font-weight: 700 !important;
-  font-size: 13px !important;
-  letter-spacing: 2px !important;
-  text-transform: uppercase !important;
-  color: var(--primary) !important;
-  text-shadow: 0 0 8px rgba(0, 240, 255, 0.35);
-}
-
-body.theme-jarvis .drag-handle {
-  color: var(--secondary);
-  opacity: 0.7;
-}
-
-/* Arc Reactor: Cyan & Stark Gold Multi-Rings */
-body.theme-jarvis .orbital-core {
-  background: #ffffff !important;
-  box-shadow: 0 0 18px #00f0ff, 0 0 35px #00f0ff, 0 0 50px rgba(255, 183, 3, 0.4) !important;
-}
-
-body.theme-jarvis .orbital-ring.ring-1,
-body.theme-jarvis .orbital-ring.ring-3,
-body.theme-jarvis .orbital-ring.ring-5 {
-  border-color: #00f0ff !important;
-  box-shadow: 0 0 10px rgba(0, 240, 255, 0.5) !important;
-}
-
-body.theme-jarvis .orbital-ring.ring-2,
-body.theme-jarvis .orbital-ring.ring-4 {
-  border-color: var(--secondary) !important;
-  border-style: dashed !important;
-  box-shadow: 0 0 10px rgba(255, 183, 3, 0.5) !important;
-}
-
-/* Values & Gauges */
-body.theme-jarvis .weather-temp,
-body.theme-jarvis .sensor-gauge strong {
-  font-family: 'Share Tech Mono', monospace !important;
-  color: #ffffff !important;
-  text-shadow: 0 0 12px var(--primary);
-}
-
-body.theme-jarvis .w-detail span,
-body.theme-jarvis .sensor-meta span,
-body.theme-jarvis .bar-val,
-body.theme-jarvis .call-time,
-body.theme-jarvis .call-duration,
-body.theme-jarvis .value-mono {
-  font-family: 'Share Tech Mono', monospace !important;
-  color: var(--secondary) !important;
-}
-
-/* Toggle Switches & Relais */
-body.theme-jarvis .toggle-switch {
-  border-color: var(--panel-border);
-  background: rgba(0, 240, 255, 0.08);
-}
-
-body.theme-jarvis input:checked + .toggle-switch {
-  background: rgba(0, 240, 255, 0.3) !important;
-  border-color: var(--primary) !important;
-  box-shadow: 0 0 12px rgba(0, 240, 255, 0.5) !important;
-}
-
-body.theme-jarvis input:checked + .toggle-switch::after {
-  background: var(--primary) !important;
-  box-shadow: 0 0 10px var(--primary) !important;
-}
-
-/* ==========================================
-   APPLE HOME / LIQUID GLASS (THEME 9)
-   ========================================== */
-body.theme-apple {
-  --bg-color: #07090e;
-  --panel-bg: rgba(26, 28, 36, 0.62);
-  --panel-border: rgba(255, 255, 255, 0.14);
-  --text-main: #ffffff;
-  --text-muted: rgba(255, 255, 255, 0.65);
-  --primary: #ff9f0a;
-  --primary-glow: rgba(255, 159, 10, 0.32);
-  --secondary: #0a84ff;
-  --secondary-glow: rgba(10, 132, 255, 0.28);
-  --accent-blue: #0a84ff;
-  --accent-violet: #bf5af2;
-  --accent-green: #30d158;
-  --radius-lg: 24px;
-  --radius-md: 18px;
-  --radius-sm: 12px;
-  --blur: blur(35px) saturate(190%);
-}
-
-body.theme-apple {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-  background-color: #06070b !important;
-  background:
-    radial-gradient(circle at 12% 18%, rgba(10, 132, 255, 0.22), transparent 42%),
-    radial-gradient(circle at 88% 15%, rgba(191, 90, 242, 0.16), transparent 38%),
-    radial-gradient(circle at 75% 85%, rgba(255, 159, 10, 0.18), transparent 45%),
-    radial-gradient(circle at 20% 90%, rgba(48, 209, 88, 0.14), transparent 40%),
-    linear-gradient(155deg, #05060a 0%, #0d101a 50%, #060810 100%) !important;
-}
-
-body.theme-apple .bg-orbs {
-  display: block;
-  opacity: 0.55;
-}
-body.theme-apple .orb-1 { background: #0a84ff; }
-body.theme-apple .orb-2 { background: #bf5af2; }
-body.theme-apple .orb-3 { background: #ff9f0a; }
-
-/* Liquid Glass Widgets */
-body.theme-apple .widget {
-  background: rgba(28, 30, 38, 0.62) !important;
-  backdrop-filter: blur(35px) saturate(190%) !important;
-  -webkit-backdrop-filter: blur(35px) saturate(190%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.13) !important;
-  border-radius: 24px !important;
-  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease !important;
-}
-
-body.theme-apple .widget:hover {
-  border-color: rgba(255, 255, 255, 0.26) !important;
-  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
-}
-
-/* Headers & Titles */
-body.theme-apple .widget-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  padding-bottom: 10px;
-}
-
-body.theme-apple .widget-header h3 {
-  font-family: inherit !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.02em !important;
-  font-size: 1.1rem !important;
-  color: #ffffff !important;
-}
-
-body.theme-apple .widget-header i {
-  color: rgba(255, 255, 255, 0.7) !important;
-}
-
-/* Header Clock & Date */
-body.theme-apple .header-time {
-  font-family: inherit !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.03em !important;
-  color: #ffffff !important;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-}
-
-body.theme-apple .header-date {
-  font-family: inherit !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.06em !important;
-  color: rgba(255, 255, 255, 0.65) !important;
-  text-transform: uppercase !important;
-}
-
-/* Apple Controls & Buttons */
-body.theme-apple .btn,
-body.theme-apple .btn-secondary,
-body.theme-apple .action-btn {
-  border-radius: 9999px !important;
-  background: rgba(255, 255, 255, 0.12) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  color: #ffffff !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  font-weight: 600 !important;
-  letter-spacing: -0.01em !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-body.theme-apple .btn:hover,
-body.theme-apple .btn-secondary:hover,
-body.theme-apple .action-btn:hover {
-  background: rgba(255, 255, 255, 0.22) !important;
-  transform: scale(1.02) !important;
-}
-
-body.theme-apple .btn-primary {
-  border-radius: 9999px !important;
-  background: #0a84ff !important;
-  border-color: #0a84ff !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 16px rgba(10, 132, 255, 0.35) !important;
-}
-
-/* iOS Toggle Switches */
-body.theme-apple .toggle-switch {
-  border-radius: 9999px !important;
-  background: rgba(255, 255, 255, 0.18) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-body.theme-apple input:checked + .toggle-switch {
-  background: #30d158 !important;
-  border-color: #30d158 !important;
-  box-shadow: 0 2px 10px rgba(48, 209, 88, 0.4) !important;
-}
-
-body.theme-apple input:checked + .toggle-switch::after {
-  background: #ffffff !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
-}
-
-/* Tasmota / Device Cards (Apple Accessory Tiles) */
-body.theme-apple .tasmota-card {
-  background: rgba(255, 255, 255, 0.06) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 18px !important;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-body.theme-apple .tasmota-card.is-active,
-body.theme-apple .tasmota-card.on {
-  background: rgba(255, 255, 255, 0.92) !important;
-  border-color: #ffffff !important;
-  color: #000000 !important;
-  box-shadow: 0 12px 30px rgba(255, 159, 10, 0.3) !important;
-}
-
-body.theme-apple .tasmota-card.is-active .device-name,
-body.theme-apple .tasmota-card.on .device-name,
-body.theme-apple .tasmota-card.is-active .device-meta,
-body.theme-apple .tasmota-card.on .device-meta {
-  color: #000000 !important;
-}
-
-body.theme-apple .tasmota-card.is-active i,
-body.theme-apple .tasmota-card.on i {
-  color: #ff9f0a !important;
-}
-
-/* Radio Widget (Apple Control Center Audio Player) */
-body.theme-apple .radio-cover-wrap,
-body.theme-apple .radio-art {
-  border-radius: 18px !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
-}
-
-body.theme-apple .radio-btn-play {
-  border-radius: 50% !important;
-  background: #ffffff !important;
-  color: #000000 !important;
-  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.35) !important;
-}
-
-body.theme-apple .radio-btn-play:hover {
-  background: rgba(255, 255, 255, 0.92) !important;
-  transform: scale(1.05) !important;
-}
-
-/* Gauges, Sliders & Metrics */
-body.theme-apple .weather-temp,
-body.theme-apple .sensor-gauge strong {
-  font-family: inherit !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.02em !important;
-  color: #ffffff !important;
-}
-
-body.theme-apple .w-detail span,
-body.theme-apple .sensor-meta span,
-body.theme-apple .value-mono {
-  font-family: inherit !important;
-  font-weight: 500 !important;
-}
-
-body.theme-apple input[type="range"] {
-  accent-color: #ffffff !important;
-}
-
-/* Modals & Popovers (Liquid Glass) */
-body.theme-apple .modal-content,
-body.theme-apple .settings-modal {
-  background: rgba(30, 32, 42, 0.85) !important;
-  backdrop-filter: blur(40px) saturate(200%) !important;
-  -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.16) !important;
-  border-radius: 26px !important;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6) !important;
-}
-
 /* ==========================================
    TIMER WIDGET STYLES
    ========================================== */
@@ -6684,10 +5914,12 @@ body.view-carousel .widget {
   height: 520px !important;
   max-height: 72vh !important;
   margin: 0 !important;
-  border-radius: 20px !important;
-  background: rgba(13, 22, 38, 0.94) !important;
-  border: 1.5px solid var(--panel-border, rgba(0, 242, 254, 0.22)) !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 24px !important;
+  background: var(--panel-bg, rgba(13, 22, 38, 0.85)) !important;
+  border: 1px solid var(--panel-border, rgba(255, 255, 255, 0.18)) !important;
+  box-shadow: var(--panel-shadow, 0 22px 48px rgba(0, 0, 0, 0.5)) !important;
+  backdrop-filter: var(--blur, blur(26px)) !important;
+  -webkit-backdrop-filter: var(--blur, blur(26px)) !important;
   cursor: pointer;
   transform-origin: center center;
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
@@ -7005,4 +6237,490 @@ body.card-fullscreen-mode .widget.fullscreen .widget-body {
   padding: 20px 24px !important;
   overflow-y: auto !important;
 }
+
+/* ==========================================================================
+   UNIFIED 3D-GLASS DESIGN SYSTEM (DARK & LIGHT)
+   ========================================================================== */
+
+body.theme-dark,
+body.theme-light {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Outfit', 'Segoe UI', Roboto, sans-serif;
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+  --blur: blur(28px) saturate(165%);
+}
+
+/* --- DARK: 3D AURORA GLASS --- */
+body.theme-dark {
+  --bg-color: #060913;
+  --bg-mesh:
+    radial-gradient(ellipse 80% 60% at 10% 10%, rgba(14, 165, 233, 0.35), transparent 60%),
+    radial-gradient(ellipse 70% 55% at 90% 15%, rgba(168, 85, 247, 0.32), transparent 60%),
+    radial-gradient(ellipse 75% 65% at 75% 88%, rgba(20, 184, 166, 0.28), transparent 60%),
+    radial-gradient(ellipse 65% 55% at 20% 85%, rgba(244, 63, 94, 0.18), transparent 60%),
+    linear-gradient(135deg, #050814 0%, #0b132b 45%, #111827 100%);
+  --orb-1: radial-gradient(circle, rgba(56, 189, 248, 0.55) 0%, rgba(56, 189, 248, 0) 70%);
+  --orb-2: radial-gradient(circle, rgba(168, 85, 247, 0.50) 0%, rgba(168, 85, 247, 0) 70%);
+  --orb-3: radial-gradient(circle, rgba(45, 212, 191, 0.45) 0%, rgba(45, 212, 191, 0) 70%);
+  --orb-4: radial-gradient(circle, rgba(251, 146, 60, 0.26) 0%, rgba(251, 146, 60, 0) 70%);
+  --grid-color: rgba(255, 255, 255, 0.045);
+  --beam-gradient: conic-gradient(from 210deg at 50% 45%, transparent 0deg, rgba(56, 189, 248, 0.12) 45deg, rgba(168, 85, 247, 0.10) 95deg, transparent 150deg, rgba(45, 212, 191, 0.10) 240deg, transparent 310deg);
+  --panel-bg: linear-gradient(155deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.035));
+  --panel-border: rgba(255, 255, 255, 0.18);
+  --panel-shadow: 0 22px 48px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.24);
+  --pill-bg: rgba(255, 255, 255, 0.08);
+  --pill-border: rgba(255, 255, 255, 0.14);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --primary: #38bdf8;
+  --primary-glow: rgba(56, 189, 248, 0.28);
+}
+
+/* --- LIGHT: 3D DAYLIGHT GLASS --- */
+body.theme-light {
+  --bg-color: #dce8f7;
+  --bg-mesh:
+    radial-gradient(ellipse 80% 60% at 12% 12%, rgba(56, 189, 248, 0.42), transparent 60%),
+    radial-gradient(ellipse 70% 55% at 88% 16%, rgba(167, 139, 250, 0.36), transparent 60%),
+    radial-gradient(ellipse 75% 65% at 78% 88%, rgba(45, 212, 191, 0.34), transparent 60%),
+    radial-gradient(ellipse 65% 55% at 18% 84%, rgba(251, 146, 60, 0.22), transparent 60%),
+    linear-gradient(135deg, #e0ecff 0%, #eef4ff 48%, #e4eef9 100%);
+  --orb-1: radial-gradient(circle, rgba(14, 165, 233, 0.48) 0%, rgba(14, 165, 233, 0) 70%);
+  --orb-2: radial-gradient(circle, rgba(139, 92, 246, 0.42) 0%, rgba(139, 92, 246, 0) 70%);
+  --orb-3: radial-gradient(circle, rgba(20, 184, 166, 0.40) 0%, rgba(20, 184, 166, 0) 70%);
+  --orb-4: radial-gradient(circle, rgba(251, 146, 60, 0.28) 0%, rgba(251, 146, 60, 0) 70%);
+  --grid-color: rgba(15, 23, 42, 0.055);
+  --beam-gradient: conic-gradient(from 210deg at 50% 45%, transparent 0deg, rgba(14, 165, 233, 0.14) 45deg, rgba(139, 92, 246, 0.12) 95deg, transparent 150deg, rgba(20, 184, 166, 0.12) 240deg, transparent 310deg);
+  --panel-bg: linear-gradient(155deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.46));
+  --panel-border: rgba(255, 255, 255, 0.88);
+  --panel-shadow: 0 20px 42px rgba(15, 23, 42, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.96);
+  --pill-bg: rgba(255, 255, 255, 0.62);
+  --pill-border: rgba(15, 23, 42, 0.09);
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --primary: #0284c7;
+  --primary-glow: rgba(2, 132, 199, 0.22);
+}
+
+/* Shared 3D-Glass Widget & Chrome Surfaces */
+body.theme-dark .widget,
+body.theme-light .widget {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 24px;
+  box-shadow: var(--panel-shadow);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+}
+
+body:not(.view-carousel).theme-dark .widget:hover,
+body:not(.view-carousel).theme-light .widget:hover {
+  transform: translateY(-2px);
+}
+
+body.theme-dark .header-right,
+body.theme-light .header-right {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+}
+
+/* Light-Mode Readability & Frost Adjustments */
+body.theme-light .header-time {
+  background: linear-gradient(135deg, #0f172a, #0284c7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: none;
+}
+
+body.theme-light .deck-title span {
+  color: #0f172a;
+}
+
+body.theme-light .deck-title small,
+body.theme-light .widget-header h3,
+body.theme-light .drag-handle {
+  color: #475569;
+}
+
+body.theme-light .header-version-badge {
+  color: rgba(2, 132, 199, 0.85);
+  background: rgba(2, 132, 199, 0.10);
+  border-color: rgba(2, 132, 199, 0.22);
+}
+
+body.theme-light .settings-btn {
+  color: #0f172a !important;
+}
+body.theme-light .settings-btn:hover {
+  color: #0284c7 !important;
+}
+
+body.theme-light .widget-header {
+  border-bottom-color: rgba(15, 23, 42, 0.07);
+}
+
+body.theme-light .weather-temp {
+  color: #0f172a !important;
+}
+body.theme-light .weather-desc,
+body.theme-light .weather-condition {
+  color: #334155 !important;
+}
+body.theme-light .weather-details {
+  background: rgba(255, 255, 255, 0.45) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  border-radius: 14px;
+}
+body.theme-light .w-detail {
+  background: rgba(255, 255, 255, 0.82) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+body.theme-light .w-detail i {
+  color: #0284c7 !important;
+}
+body.theme-light .w-detail small {
+  color: #475569 !important;
+}
+body.theme-light .w-detail span {
+  color: #0f172a !important;
+}
+
+body.theme-light .speed-value,
+body.theme-light .fritz-speed-card .speed-label,
+body.theme-light .speed-unit {
+  color: #0f172a !important;
+}
+body.theme-light .fritz-status-bar,
+body.theme-light .fritz-guest-bar {
+  background: rgba(255, 255, 255, 0.65) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  color: #0f172a !important;
+}
+
+body.theme-light .stat-box,
+body.theme-light .tasmota-btn,
+body.theme-light .tasmota-card,
+body.theme-light .preset-btn,
+body.theme-light .fritz-speed-card,
+body.theme-light .radio-card-hero,
+body.theme-light .sensor-card,
+body.theme-light .waste-item,
+body.theme-light .calendar-event {
+  background: rgba(255, 255, 255, 0.68) !important;
+  border-color: rgba(15, 23, 42, 0.09) !important;
+  color: #0f172a !important;
+}
+
+body.theme-light .tasmota-btn.active,
+body.theme-light .tasmota-card.is-active,
+body.theme-light .tasmota-card.on {
+  background: rgba(2, 132, 199, 0.14) !important;
+  border-color: rgba(2, 132, 199, 0.45) !important;
+}
+
+body.theme-light .settings-panel,
+body.theme-light .modal-content {
+  background: rgba(244, 248, 255, 0.90) !important;
+  border: 1px solid rgba(255, 255, 255, 0.95) !important;
+  color: #0f172a !important;
+  box-shadow: 0 28px 60px rgba(15, 23, 42, 0.18) !important;
+}
+
+body.theme-light .settings-sidebar {
+  background: rgba(255, 255, 255, 0.55) !important;
+  border-right-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+body.theme-light .settings-tab-btn {
+  color: #475569 !important;
+}
+
+body.theme-light .settings-tab-btn.active {
+  background: rgba(2, 132, 199, 0.12) !important;
+  color: #0284c7 !important;
+}
+
+body.theme-light input,
+body.theme-light select,
+body.theme-light textarea,
+body.theme-light .radio-select {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(15, 23, 42, 0.14) !important;
+  color: #0f172a !important;
+}
+
+body.theme-light .settings-header {
+  background: linear-gradient(180deg, rgba(244, 248, 255, 0.96), rgba(244, 248, 255, 0.84)) !important;
+  border-bottom-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+body.theme-light .settings-header h2 {
+  color: #0f172a !important;
+}
+
+body.theme-light .settings-header p {
+  color: #475569 !important;
+}
+
+body.theme-light .setting-section {
+  background: rgba(255, 255, 255, 0.68) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05) !important;
+  color: #0f172a !important;
+}
+
+body.theme-light .accordion-header,
+body.theme-light .section-title {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+body.theme-light .close-btn {
+  background: rgba(15, 23, 42, 0.07) !important;
+  border: 1px solid rgba(15, 23, 42, 0.14) !important;
+  color: #0f172a !important;
+}
+
+body.theme-light .close-btn:hover {
+  background: rgba(2, 132, 199, 0.14) !important;
+  color: #0284c7 !important;
+}
+
+body.theme-light.card-fullscreen-mode .widget.fullscreen .widget-header {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border-bottom-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Light-Mode Timer Widget */
+body.theme-light .timer-tabs {
+  background: rgba(255, 255, 255, 0.52) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+body.theme-light .timer-tab {
+  color: #475569 !important;
+}
+body.theme-light .timer-tab:hover {
+  color: #0f172a !important;
+  background: rgba(255, 255, 255, 0.5) !important;
+}
+body.theme-light .timer-tab.active {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(2, 132, 199, 0.25) !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+body.theme-light .timer-drum-picker {
+  background: rgba(255, 255, 255, 0.65) !important;
+  border-color: rgba(15, 23, 42, 0.09) !important;
+  box-shadow: inset 0 2px 12px rgba(15, 23, 42, 0.06) !important;
+}
+body.theme-light .timer-drum-picker::before {
+  background: linear-gradient(to bottom, rgba(240, 246, 255, 0.95) 0%, rgba(240, 246, 255, 0) 100%) !important;
+}
+body.theme-light .timer-drum-picker::after {
+  background: linear-gradient(to top, rgba(240, 246, 255, 0.95) 0%, rgba(240, 246, 255, 0) 100%) !important;
+}
+body.theme-light .timer-drum-picker-indicator {
+  border-top-color: rgba(2, 132, 199, 0.28) !important;
+  border-bottom-color: rgba(2, 132, 199, 0.28) !important;
+  background: rgba(2, 132, 199, 0.07) !important;
+}
+body.theme-light .timer-drum-label {
+  color: #475569 !important;
+}
+body.theme-light .timer-drum-item {
+  color: #64748b !important;
+}
+body.theme-light .timer-drum-item.active {
+  color: #0284c7 !important;
+  text-shadow: none !important;
+}
+body.theme-light .timer-preset-btn {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border-color: rgba(15, 23, 42, 0.09) !important;
+  color: #0f172a !important;
+}
+body.theme-light .timer-preset-btn:hover {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: #0284c7 !important;
+}
+body.theme-light #timerCountdownText {
+  color: #0f172a !important;
+}
+
+.weather-icon .weather-3d-img {
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.25));
+}
+
+.waste-bin-3d {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.26));
+}
+
+.waste-alert-bin-3d {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* 3D Stainless-Steel LED Power Push Buttons for Smart Home Devices */
+.tasmota-3d-button {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: conic-gradient(
+    from 45deg,
+    #cbd5e1 0deg,
+    #f8fafc 45deg,
+    #64748b 110deg,
+    #e2e8f0 175deg,
+    #475569 240deg,
+    #f1f5f9 305deg,
+    #cbd5e1 360deg
+  );
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.42),
+    inset 0 1px 1px rgba(255, 255, 255, 0.92),
+    inset 0 -2px 4px rgba(15, 23, 42, 0.55);
+  transition: transform 0.16s ease, box-shadow 0.2s ease;
+}
+
+.tasmota-3d-led-ring {
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  background: #0f172a;
+  border: 2.5px solid #ef4444;
+  box-shadow:
+    0 0 10px rgba(239, 68, 68, 0.8),
+    inset 0 0 6px rgba(239, 68, 68, 0.55);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.tasmota-3d-cap {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 32% 28%, #f8fafc 0%, #cbd5e1 48%, #64748b 100%);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.88),
+    0 2px 5px rgba(0, 0, 0, 0.45);
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.tasmota-power-svg {
+  width: 20px;
+  height: 20px;
+  color: #ef4444;
+  filter: drop-shadow(0 0 5px rgba(239, 68, 68, 0.88));
+  transition: color 0.25s ease, filter 0.25s ease;
+}
+
+.tasmota-btn:active .tasmota-3d-cap {
+  transform: scale(0.93);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.55);
+}
+
+.tasmota-btn.active .tasmota-3d-led-ring {
+  border-color: #22c55e;
+  box-shadow:
+    0 0 14px rgba(34, 197, 94, 0.95),
+    inset 0 0 8px rgba(34, 197, 94, 0.72);
+}
+
+.tasmota-btn.active .tasmota-power-svg {
+  color: #22c55e;
+  filter: drop-shadow(0 0 7px rgba(34, 197, 94, 0.95));
+}
+
+body.theme-light .tasmota-3d-button {
+  box-shadow:
+    0 6px 14px rgba(15, 23, 42, 0.22),
+    inset 0 1px 1px rgba(255, 255, 255, 0.95),
+    inset 0 -2px 4px rgba(15, 23, 42, 0.35);
+}
+
+body.theme-light .tasmota-btn.active .tasmota-power-svg {
+  color: #16a34a;
+}
+
+/* Light-Mode 3D-Glass Carousel */
+body.theme-light.view-carousel .widget {
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.62)) !important;
+  border-color: rgba(255, 255, 255, 0.94) !important;
+  box-shadow: 0 20px 44px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.96) !important;
+}
+body.theme-light.view-carousel .widget.active {
+  border-color: rgba(2, 132, 199, 0.58) !important;
+  box-shadow: 0 24px 54px rgba(15, 23, 42, 0.16), 0 0 24px rgba(2, 132, 199, 0.22) !important;
+}
+body.theme-light.view-carousel .widget-header {
+  background: rgba(255, 255, 255, 0.35) !important;
+  border-bottom-color: rgba(15, 23, 42, 0.08) !important;
+}
+body.theme-light.view-carousel .widget-carousel-zoom-btn {
+  background: rgba(15, 23, 42, 0.06);
+  border-color: rgba(15, 23, 42, 0.12);
+  color: #0f172a;
+}
+body.theme-light.view-carousel .widget-carousel-zoom-btn:hover {
+  background: #0284c7;
+  color: #fff;
+}
+body.theme-light .carousel-nav-btn {
+  background: rgba(255, 255, 255, 0.80);
+  border-color: rgba(255, 255, 255, 0.95);
+  color: #0f172a;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.12);
+}
+body.theme-light .carousel-nav-btn:hover {
+  background: #0284c7;
+  color: #fff;
+  border-color: #0284c7;
+}
+body.theme-light .carousel-dock {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+}
+body.theme-light .carousel-pill {
+  color: #475569;
+  background: rgba(15, 23, 42, 0.05);
+}
+body.theme-light .carousel-pill:hover {
+  color: #0f172a;
+  background: rgba(15, 23, 42, 0.10);
+}
+body.theme-light .carousel-pill.active {
+  color: #0284c7;
+  background: rgba(2, 132, 199, 0.14);
+  border-color: #0284c7;
+  box-shadow: 0 0 12px rgba(2, 132, 199, 0.2);
+}
+
+
+
+
+
+
 

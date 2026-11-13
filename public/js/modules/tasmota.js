@@ -159,11 +159,21 @@ export function renderTasmotaButtons() {
     const btn = document.createElement('button');
     btn.className = 'tasmota-btn';
     btn.id = 'tasmota-btn-' + d.ip.replace(/\./g, '-');
-    const icon = document.createElement('i');
-    icon.className = 'fas fa-power-off';
+    const switchEl = document.createElement('span');
+    switchEl.className = 'tasmota-3d-button';
+    switchEl.setAttribute('aria-hidden', 'true');
+    switchEl.innerHTML = `
+      <span class="tasmota-3d-led-ring"></span>
+      <span class="tasmota-3d-cap">
+        <svg viewBox="0 0 24 24" class="tasmota-power-svg" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+          <path d="M12 3v8"/>
+          <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/>
+        </svg>
+      </span>`;
     const label = document.createElement('span');
+    label.className = 'tasmota-label';
     label.textContent = d.name;
-    btn.append(icon, label);
+    btn.append(switchEl, label);
     btn.onclick = () => window.toggleTasmota(d.ip);
     body.appendChild(btn);
   });

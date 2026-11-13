@@ -19,46 +19,28 @@
 }
 
 /* Theme overrides */
-body.theme-aurora {
-  --bg-gradient: linear-gradient(135deg, #022c22 0%, #0f172a 60%, #1e1b4b 100%);
-  --accent-primary: #10b981;
-  --accent-secondary: #3b82f6;
-  --orb-color-1: rgba(16, 185, 129, 0.55);
-  --orb-color-2: rgba(59, 130, 246, 0.45);
-  --orb-color-3: rgba(5, 150, 105, 0.35);
-  --orb-opacity: 0.45;
+body.theme-dark {
+  --bg-gradient: linear-gradient(135deg, #050814 0%, #0b132b 45%, #111827 100%);
+  --accent-primary: #38bdf8;
+  --accent-secondary: #a855f7;
+  --orb-color-1: rgba(56, 189, 248, 0.52);
+  --orb-color-2: rgba(168, 85, 247, 0.45);
+  --orb-color-3: rgba(45, 212, 191, 0.38);
+  --orb-opacity: 0.55;
 }
 
-body.theme-stealth {
-  --bg-gradient: linear-gradient(135deg, #090d16 0%, #050505 100%);
-  --accent-primary: #94a3b8;
-  --accent-secondary: #475569;
-  --panel-bg: rgba(15, 23, 42, 0.25);
-  --panel-border: rgba(255, 255, 255, 0.04);
-  --orb-color-1: rgba(30, 41, 59, 0.4);
-  --orb-color-2: rgba(15, 23, 42, 0.3);
-  --orb-color-3: rgba(17, 17, 17, 0.2);
-  --orb-opacity: 0.2;
-}
-
-body.theme-retrowave {
-  --bg-gradient: linear-gradient(135deg, #2e0854 0%, #000000 70%, #1a0b2e 100%);
-  --accent-primary: #ec4899;
+body.theme-light {
+  --bg-gradient: linear-gradient(135deg, #e0ecff 0%, #eef4ff 48%, #e4eef9 100%);
+  --accent-primary: #0284c7;
   --accent-secondary: #8b5cf6;
-  --orb-color-1: rgba(255, 0, 127, 0.5);
-  --orb-color-2: rgba(189, 0, 255, 0.4);
-  --orb-color-3: rgba(0, 240, 255, 0.3);
-  --orb-opacity: 0.5;
-}
-
-body.theme-jarvis {
-  --bg-gradient: linear-gradient(135deg, #02050e 0%, #060f1e 60%, #030712 100%);
-  --accent-primary: #00f0ff;
-  --accent-secondary: #ffb703;
-  --orb-color-1: rgba(0, 240, 255, 0.4);
-  --orb-color-2: rgba(255, 183, 3, 0.3);
-  --orb-color-3: rgba(0, 240, 255, 0.3);
-  --orb-opacity: 0.5;
+  --panel-bg: rgba(255, 255, 255, 0.72);
+  --panel-border: rgba(255, 255, 255, 0.88);
+  --text-primary: #0f172a;
+  --text-muted: #475569;
+  --orb-color-1: rgba(14, 165, 233, 0.45);
+  --orb-color-2: rgba(139, 92, 246, 0.38);
+  --orb-color-3: rgba(20, 184, 166, 0.35);
+  --orb-opacity: 0.65;
 }
 
 /* Base resets & styles */
@@ -384,28 +366,16 @@ select.form-control {
   border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-.theme-preview.aurora {
-  background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+.theme-preview.glass-dark {
+  background: radial-gradient(circle at 28% 28%, #38bdf8, #a855f7 55%, #070b14 100%);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.38);
 }
 
-.theme-preview.stealth {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-}
-
-.theme-preview.retrowave {
-  background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
-}
-
-.theme-preview.apple {
-  background: radial-gradient(circle at 30% 30%, #0a84ff, #1c1c24);
-  border-color: rgba(255, 255, 255, 0.4);
-  box-shadow: 0 4px 12px rgba(10, 132, 255, 0.35);
-}
-
-.theme-preview.jarvis {
-  background: linear-gradient(135deg, #00f0ff 0%, #ffb703 100%);
-  border-color: #00f0ff;
-  box-shadow: 0 0 10px rgba(0, 240, 255, 0.35);
+.theme-preview.glass-light {
+  background: radial-gradient(circle at 28% 28%, #ffffff, #bae6fd 52%, #a5f3fc 100%);
+  border-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25);
 }
 
 .theme-card span {

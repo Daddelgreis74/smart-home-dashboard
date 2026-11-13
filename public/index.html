@@ -6,20 +6,23 @@
   <title>Neo Deck · Smart Home</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Michroma&family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="icon" href="icon.png" type="image/png">
   <link rel="apple-touch-icon" href="icon.png">
-  <link rel="stylesheet" href="styles.css?v=3.23.11">
+  <link rel="stylesheet" href="styles.css?v=3.24.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-  <script src="translations.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+  <script defer src="translations.js"></script>
 </head>
 <body>
-  <div class="bg-orbs">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
+  <div class="bg-scene" aria-hidden="true">
+    <div class="bg-beams"></div>
+    <div class="bg-grid"></div>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+    <div class="bg-orb orb-4"></div>
   </div>
 
   <div class="app-container">
@@ -35,6 +38,7 @@
       <div class="header-right">
         <span class="header-version-badge" id="headerVersionBadge" title="Dashboard Version"></span>
         <div class="header-date" id="headerDate">---</div>
+        <button class="settings-btn" id="btnThemeToggle" title="Hell / Dunkel umschalten"><i class="fas fa-sun"></i></button>
         <button class="settings-btn" id="btnViewToggle" title="Ansicht umschalten (Kachelraster / Karussell)"><i class="fas fa-layer-group"></i></button>
         <button class="settings-btn" id="settingsBtn"><i class="fas fa-bars"></i></button>
       </div>
@@ -179,15 +183,8 @@
                 <p data-i18n="design_section_desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Wähle das visuelle Thema deines Dashboards aus.</p>
                 <div class="input-group">
                   <select id="themeSelector" class="radio-select" style="max-width: 100%; width: 100%;">
-                    <option value="theme-aurora">🌌 Neo-Aurora (Glas & Glow)</option>
-                    <option value="theme-apple"> Apple Home (Liquid Glass)</option>
-                    <option value="theme-cyberpunk">☣️ Cyberpunk HUD (Neon Orange)</option>
-                    <option value="theme-nordic">🍃 Cozy Nordic Dark (Matte Schiefer)</option>
-                    <option value="theme-retrowave">🏄 Retrowave Synth (80s Neon)</option>
-                    <option value="theme-terminal">📟 Terminal Classic (Matrix Grün)</option>
-                    <option value="theme-stealth">🌑 OLED Stealth (Nachtmodus)</option>
-                    <option value="theme-orbital">🛸 Orbital (Holo-Deck)</option>
-                    <option value="theme-jarvis">🤖 J.A.R.V.I.S. (Stark HUD)</option>
+                    <option value="theme-dark">🌙 Dunkel (3D Aurora Glass)</option>
+                    <option value="theme-light">☀️ Hell (3D Daylight Glass)</option>
                   </select>
                 </div>
                 <div class="input-group" style="margin-top: 15px;">
@@ -539,7 +536,7 @@
       <!-- WIDGET 1: LOKALES WETTER -->
       <div class="widget" data-type="weather">
         <div class="widget-header">
-          <h3><i class="fas fa-cloud-sun" style="color:var(--primary)"></i> <span data-i18n="widget_title_weather">Wetter</span></h3>
+          <h3><img src="icons/3d/weather.png" class="widget-icon-3d" alt=""> <span data-i18n="widget_title_weather">Wetter</span></h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body weather-layout" id="weatherBody">
@@ -547,7 +544,7 @@
             <div class="weather-desc" id="weatherCity">Laden...</div>
           </div>
           <div class="weather-main">
-            <div class="weather-icon"><i class="fas fa-cloud"></i></div>
+            <div class="weather-icon"><img class="weather-3d-img" src="icons/3d/weather/cloudy.svg" alt="Wetter"></div>
             <div class="weather-temp">--°</div>
           </div>
           <div class="weather-condition" id="weatherCondition">--</div>
@@ -565,7 +562,7 @@
       <!-- WIDGET 2: RAUMKLIMA (SENSOREN) -->
       <div class="widget" data-type="sensor">
         <div class="widget-header">
-          <h3><i class="fas fa-temperature-half" style="color:var(--primary)"></i> <span data-i18n="widget_title_sensor">Raumklima</span></h3>
+          <h3><img src="icons/3d/sensor.png" class="widget-icon-3d" alt=""> <span data-i18n="widget_title_sensor">Raumklima</span></h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body sensor-layout" id="sensorBody">
@@ -575,7 +572,7 @@
 
       <div class="widget" data-type="waste">
         <div class="widget-header">
-          <h3><i class="fas fa-trash-can" style="color:var(--primary)"></i> <span data-i18n="widget_title_waste">Abfallkalender</span></h3>
+          <h3><img src="icons/3d/waste.png" class="widget-icon-3d" alt=""> <span data-i18n="widget_title_waste">Abfallkalender</span></h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body" id="wasteBody"></div>
@@ -583,7 +580,7 @@
 
       <div class="widget" data-type="calendar">
         <div class="widget-header">
-          <h3><i class="fas fa-calendar-alt" style="color:var(--primary)"></i> <span data-i18n="widget_title_calendar">Terminkalender</span></h3>
+          <h3><img src="icons/3d/calendar.png" class="widget-icon-3d" alt=""> <span data-i18n="widget_title_calendar">Terminkalender</span></h3>
           <div class="widget-header-right" style="pointer-events: auto; display: flex; align-items: center; gap: 5px;">
             <button class="btn-add-event" id="addEventBtn" title="Termin hinzufügen"><i class="fas fa-plus"></i></button>
             <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
@@ -598,7 +595,7 @@
       <div class="widget" data-type="player">
         <div class="widget-header">
           <h3>
-            <i class="fas fa-radio" style="color:var(--primary)"></i>
+            <img src="icons/3d/radio.png" class="widget-icon-3d" alt="">
             <span data-i18n="widget_title_radio">Live Radio</span>
           </h3>
           <div style="display: flex; align-items: center; gap: 8px;">
@@ -682,7 +679,7 @@
       
       <div class="widget" data-type="system">
         <div class="widget-header">
-          <h3><i class="fas fa-microchip" style="color:var(--primary)"></i> <span data-i18n="widget_title_system">System Status</span></h3>
+          <h3><img src="icons/3d/system.png" class="widget-icon-3d" alt=""> <span data-i18n="widget_title_system">System Status</span></h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body system-layout-circular" id="systemBody">
@@ -752,7 +749,7 @@
 
       <div class="widget" data-type="tasmota">
         <div class="widget-header">
-          <h3><i class="fas fa-plug" style="color:var(--primary)"></i> <span data-i18n="widget_title_tasmota">Smart Home Geräte</span></h3>
+          <h3><img src="icons/3d/tasmota.png" class="widget-icon-3d" alt=""> <span data-i18n="widget_title_tasmota">Smart Home Geräte</span></h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body tasmota-layout" id="tasmotaBody">
@@ -763,7 +760,7 @@
       <div class="widget" data-type="fritzbox">
         <div class="widget-header">
           <h3>
-            <i class="fas fa-network-wired" style="color:var(--primary)"></i>
+            <img src="icons/3d/fritzbox.png" class="widget-icon-3d" alt="">
             <span id="fritzHeaderModel" data-i18n="widget_title_fritzbox">FRITZ!Box Monitor</span>
           </h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
@@ -847,7 +844,7 @@
 
       <div class="widget" data-type="presence">
         <div class="widget-header">
-          <h3><i class="fas fa-users" style="color:var(--primary)"></i> <span data-i18n="widget_title_presence">Anwesenheit</span></h3>
+          <h3><img src="icons/3d/presence.png" class="widget-icon-3d" alt=""> <span data-i18n="widget_title_presence">Anwesenheit</span></h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body presence-layout">
@@ -859,7 +856,7 @@
 
       <div class="widget" data-type="camera">
         <div class="widget-header">
-          <h3><i class="fas fa-video" style="color:var(--primary)"></i> <span data-i18n="widget_title_camera">Kamera-Monitor</span></h3>
+          <h3><img src="icons/3d/camera.png" class="widget-icon-3d" alt=""> <span data-i18n="widget_title_camera">Kamera-Monitor</span></h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body camera-layout">
@@ -874,7 +871,7 @@
       <!-- 11. TIMER-WIDGET -->
       <div class="widget" data-type="timer">
         <div class="widget-header">
-          <h3><i class="fas fa-hourglass-half" style="color:var(--primary)"></i> <span data-i18n="widget_title_timer">Timer</span></h3>
+          <h3><img src="icons/3d/timer.png" class="widget-icon-3d" alt=""> <span data-i18n="widget_title_timer">Timer</span></h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body" id="timerBody" style="height: calc(100% - 30px); padding: 5px; display: flex; flex-direction: column; justify-content: flex-start; position: relative;">
@@ -942,7 +939,7 @@
       <!-- WIDGET 13: NOTIZZETTEL (POST-IT) -->
       <div class="widget" data-type="note">
         <div class="widget-header">
-          <h3><i class="fas fa-sticky-note" style="color:var(--primary)"></i> <span data-i18n="widget_title_note">Notizzettel</span></h3>
+          <h3><img src="icons/3d/note.svg" class="widget-icon-3d" alt=""> <span data-i18n="widget_title_note">Notizzettel</span></h3>
           <span class="drag-handle"><i class="fas fa-ellipsis-h"></i></span>
         </div>
         <div class="widget-body note-widget-body" id="noteWidgetCard">
@@ -1191,8 +1188,8 @@
     </div>
   </div>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script type="module" src="app.js?v=3.23.11"></script>
+  <script defer src="/socket.io/socket.io.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script type="module" src="app.js?v=3.24.0"></script>
 </body>
 </html>

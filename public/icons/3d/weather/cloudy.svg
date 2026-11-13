@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <linearGradient id="cBack" x1="20%" y1="10%" x2="80%" y2="95%">
+      <stop offset="0%" stop-color="#bae6fd" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#60a5fa" stop-opacity="0.65"/>
+    </linearGradient>
+    <linearGradient id="cFront" x1="20%" y1="10%" x2="80%" y2="95%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.96"/>
+      <stop offset="55%" stop-color="#e0f2fe" stop-opacity="0.88"/>
+      <stop offset="100%" stop-color="#93c5fd" stop-opacity="0.78"/>
+    </linearGradient>
+    <linearGradient id="cSpec" x1="25%" y1="0%" x2="75%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <path d="M54 78h44c10 0 18-7.8 18-17.5 0-9-7-16.4-15.8-17.3C97.5 31.8 87.2 24 75 24c-13.5 0-24.4 10.6-25 23.8C42.3 49.4 36.5 56 36.5 64c0 7.7 7.8 14 17.5 14z" fill="url(#cBack)" stroke="rgba(255,255,255,0.55)" stroke-width="1.5"/>
+  <path d="M33 100h58c13.2 0 24-10.3 24-23 0-11.8-9.2-21.5-21-22.8C90.6 39.2 77.2 29 61.5 29 44 29 29.8 42.7 28.9 59.8 18.8 61.8 11 70.7 11 81.4 11 91.7 20.8 100 33 100z" fill="url(#cFront)" stroke="rgba(255,255,255,0.88)" stroke-width="2"/>
+  <ellipse cx="55" cy="49" rx="19" ry="9" transform="rotate(-10 55 49)" fill="url(#cSpec)"/>
+</svg>

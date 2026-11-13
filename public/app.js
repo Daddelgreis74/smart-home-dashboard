@@ -130,10 +130,8 @@ function initSortable() {
 
 function loadSavedSettings() {
   // Farbthema laden und anwenden
-  const savedTheme = localStorage.getItem('dashboard_theme') || 'theme-aurora';
+  const savedTheme = localStorage.getItem('dashboard_theme') || 'theme-dark';
   applyTheme(savedTheme);
-  const themeSelector = document.getElementById('themeSelector');
-  if (themeSelector) themeSelector.value = savedTheme;
 
   // Timer-Sound laden und anwenden
   const savedTimerSound = localStorage.getItem('timer_alarm_sound') || 'sound-gong';
@@ -257,11 +255,19 @@ function initSettings() {
     });
   }
 
-  // Farbthema Selector Event Listener
+  // Farbthema Selector & Header Toggle Event Listener
   const themeSelector = document.getElementById('themeSelector');
   if (themeSelector) {
     themeSelector.addEventListener('change', (e) => {
       applyTheme(e.target.value);
+    });
+  }
+
+  const btnThemeToggle = document.getElementById('btnThemeToggle');
+  if (btnThemeToggle) {
+    btnThemeToggle.addEventListener('click', () => {
+      const nextTheme = document.body.classList.contains('theme-light') ? 'theme-dark' : 'theme-light';
+      applyTheme(nextTheme);
     });
   }
 

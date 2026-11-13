@@ -89,7 +89,7 @@ export async function loadICS() {
         html += `
           <div class="waste-item ${type}">
             <div class="waste-title">
-              <span class="bin-icon bin-${type}" aria-hidden="true"><span class="bin-lid"></span><span class="bin-body"></span><span class="bin-wheel left"></span><span class="bin-wheel right"></span></span>
+              <img class="waste-bin-3d" src="icons/3d/waste/${type}.svg" alt="${type}">
               <span>${e.summary.replace(' in Altenburg', '')}</span>
             </div>
             <span>${dateStr}</span>
@@ -116,14 +116,8 @@ export async function loadICS() {
             const pill = document.createElement('div');
             pill.className = `waste-alert-pill waste-alert-${alert.type}`;
             
-            let icon = 'fa-trash-can';
-            if (alert.type === 'bio') icon = 'fa-leaf';
-            else if (alert.type === 'paper') icon = 'fa-box-open';
-            else if (alert.type === 'plastic') icon = 'fa-recycle';
-            else if (alert.type === 'hazardous') icon = 'fa-skull-crossbones';
-            
             pill.innerHTML = `
-              <i class="fas ${icon} alert-icon-pulse"></i>
+              <img class="waste-alert-bin-3d alert-icon-pulse" src="icons/3d/waste/${alert.type}.svg" alt="">
               <span><strong>${alert.dateStr}:</strong> ${alert.summary}</span>
             `;
             alertContainer.appendChild(pill);

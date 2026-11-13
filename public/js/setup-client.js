@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   const config = {
     dashboard_lang: 'de',
-    dashboard_theme: 'theme-aurora',
+    dashboard_theme: 'theme-dark',
     dashboard_view_mode: 'grid',
     weather_location: '',
     weather_provider: 'openmeteo',
@@ -350,9 +350,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Helper to dynamically apply selected theme to body background
   function applyTheme(themeClass) {
+    const activeTheme = themeClass === 'theme-light' ? 'theme-light' : 'theme-dark';
     document.body.className = '';
-    document.body.classList.add(themeClass);
-    localStorage.setItem('dashboard_theme', themeClass);
+    document.body.classList.add(activeTheme);
+    localStorage.setItem('dashboard_theme', activeTheme);
   }
 
   // Helper to clear step input values on skip
@@ -403,10 +404,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateSummaryCard() {
     document.getElementById('sumLang').textContent = config.dashboard_lang === 'de' ? 'Deutsch' : 'English';
     
-    let themeText = 'Aurora Nordlicht';
-    if (config.dashboard_theme === 'theme-stealth') themeText = 'Stealth Dark';
-    else if (config.dashboard_theme === 'theme-retrowave') themeText = 'Retro Cyberpunk';
-    else if (config.dashboard_theme === 'theme-jarvis') themeText = 'J.A.R.V.I.S. HUD';
+    const themeText = config.dashboard_theme === 'theme-light'
+      ? '3D Daylight Glass (Hell)'
+      : '3D Aurora Glass (Dunkel)';
     document.getElementById('sumTheme').textContent = themeText;
 
     const sumViewMode = document.getElementById('sumViewMode');

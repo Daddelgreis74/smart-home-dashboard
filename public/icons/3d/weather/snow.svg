@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <linearGradient id="snCloud" x1="20%" y1="10%" x2="80%" y2="95%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.96"/>
+      <stop offset="55%" stop-color="#e0f2fe" stop-opacity="0.88"/>
+      <stop offset="100%" stop-color="#bae6fd" stop-opacity="0.82"/>
+    </linearGradient>
+    <linearGradient id="snFlake" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+  </defs>
+  <path d="M35 80h56c12.1 0 22-9.4 22-21 0-10.8-8.5-19.7-19.3-20.9C90.6 24.4 78.3 15 64 15 47.9 15 34.8 27.6 33.9 43.3 24.6 45.1 17.5 53.2 17.5 63c0 9.4 7.8 17 17.5 17z" fill="url(#snCloud)" stroke="rgba(255,255,255,0.88)" stroke-width="2"/>
+  <g stroke="url(#snFlake)" stroke-width="3" stroke-linecap="round">
+    <line x1="44" y1="90" x2="44" y2="108"/>
+    <line x1="36.2" y1="94.5" x2="51.8" y2="103.5"/>
+    <line x1="51.8" y1="94.5" x2="36.2" y2="103.5"/>
+    <line x1="66" y1="96" x2="66" y2="114"/>
+    <line x1="58.2" y1="100.5" x2="73.8" y2="109.5"/>
+    <line x1="73.8" y1="100.5" x2="58.2" y2="109.5"/>
+    <line x1="88" y1="90" x2="88" y2="108"/>
+    <line x1="80.2" y1="94.5" x2="95.8" y2="103.5"/>
+    <line x1="95.8" y1="94.5" x2="80.2" y2="103.5"/>
+  </g>
+</svg>

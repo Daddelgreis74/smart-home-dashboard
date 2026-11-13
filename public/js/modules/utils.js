@@ -283,10 +283,33 @@ export function getLangText(key) {
   return (extraTranslations['de'] && extraTranslations['de'][key]) || localLangMap['de'][key] || key;
 }
 
+export function normalizeTheme(themeClass) {
+  return themeClass === 'theme-light' ? 'theme-light' : 'theme-dark';
+}
+
 export function applyTheme(themeClass) {
-  document.body.classList.remove('theme-aurora', 'theme-cyberpunk', 'theme-nordic', 'theme-retrowave', 'theme-terminal', 'theme-stealth', 'theme-orbital', 'theme-jarvis', 'theme-apple');
-  document.body.classList.add(themeClass);
-  localStorage.setItem('dashboard_theme', themeClass);
+  const activeTheme = normalizeTheme(themeClass);
+  document.body.classList.remove(
+    'theme-dark', 'theme-light',
+    'theme-aurora', 'theme-cyberpunk', 'theme-nordic',
+    'theme-retrowave', 'theme-terminal', 'theme-stealth',
+    'theme-orbital', 'theme-jarvis', 'theme-apple'
+  );
+  document.body.classList.add(activeTheme);
+  localStorage.setItem('dashboard_theme', activeTheme);
+
+  const themeSelector = document.getElementById('themeSelector');
+  if (themeSelector && themeSelector.value !== activeTheme) {
+    themeSelector.value = activeTheme;
+  }
+
+  const toggleBtn = document.getElementById('btnThemeToggle');
+  if (toggleBtn) {
+    const icon = toggleBtn.querySelector('i');
+    if (icon) {
+      icon.className = activeTheme === 'theme-light' ? 'fas fa-moon' : 'fas fa-sun';
+    }
+  }
 }
 
 export function updateDateTime() {

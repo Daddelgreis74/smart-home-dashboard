@@ -70,7 +70,14 @@ app.get(['/', '/index.html', '/setup.html'], (req, res) => {
 
 const compression = require('compression');
 app.use(compression());
-app.use(express.static('public'));
+app.use(express.static('public', {
+  maxAge: '7d',
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
+}));
 app.use('/uploads', express.static(UPLOAD_DIR));
 app.use('/api/note', express.json({ limit: '5mb' }));
 app.use(express.json({ limit: '256kb' }));

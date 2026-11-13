@@ -141,9 +141,22 @@ export async function loadWeather() {
       cond = conditions[d.current.weather_code] || { text: (trans[lang] ? trans[lang].weather_clouds || 'Bedeckt' : 'Bedeckt'), icon: 'fa-cloud', style: 'cloudy' };
     }
     
+    const iconSvgMap = {
+      'fa-sun': 'sunny',
+      'fa-cloud-sun': 'partly-cloudy',
+      'fa-cloud': 'cloudy',
+      'fa-smog': 'fog',
+      'fa-cloud-rain': 'rain',
+      'fa-cloud-showers-heavy': 'rain',
+      'fa-cloud-sun-rain': 'rain',
+      'fa-cloud-bolt': 'storm',
+      'fa-snowflake': 'snow'
+    };
+
     if (condEl) condEl.textContent = cond.text;
     if (iconEl) {
-      iconEl.innerHTML = `<i class="fas ${cond.icon}"></i>`;
+      const svgFile = iconSvgMap[cond.icon] || 'cloudy';
+      iconEl.innerHTML = `<img class="weather-3d-img" src="icons/3d/weather/${svgFile}.svg" alt="${cond.text}">`;
       iconEl.className = `weather-icon ${cond.style}`;
     }
   } catch(e) {
