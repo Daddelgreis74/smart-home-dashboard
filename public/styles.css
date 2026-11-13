@@ -3324,6 +3324,10 @@ body.theme-nordic .volume-slider-compact {
   transition: all 0.5s ease;
 }
 
+.presence-avatar-name {
+  color: var(--text-main) !important;
+}
+
 @keyframes presenceGreenPulse {
   0% {
     box-shadow: 0 0 0 0 rgba(85, 245, 177, 0.4);
