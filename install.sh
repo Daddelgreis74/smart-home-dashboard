@@ -168,7 +168,7 @@ User=$USER
 WorkingDirectory=$INSTALL_DIR
 ExecStart=$(command -v node) server.js
 Restart=on-failure
-Environment=PORT=8443 HOST=0.0.0.0 AUTO_SSL=true
+Environment=PORT=8443 HOST=0.0.0.0
 
 [Install]
 WantedBy=multi-user.target
@@ -204,11 +204,10 @@ if systemctl is-active --quiet smart-home-dashboard.service 2>/dev/null; then
     echo -e "   ➜  Status:        ${WHITE}sudo systemctl status smart-home-dashboard.service${NC}"
 else
     echo -e " Du kannst das Dashboard manuell im Ordner starten mit:"
-    echo -e "   ${WHITE}PORT=8443 AUTO_SSL=true npm start${NC}"
+    echo -e "   ${WHITE}PORT=8443 npm start${NC}"
 fi
 echo ""
 echo -e " ${BOLD}Web-Oberfläche:${NC}"
-echo -e "   ➜  Adresse:       ${CYAN}https://$IP_ADDR:8443${NC} (HTTPS ist für J.A.R.V.I.S. zwingend!)"
-echo -e "   ➜  Redirect:      ${CYAN}http://$IP_ADDR:8080${NC} (leitet automatisch auf HTTPS weiter)"
+echo -e "   ➜  Adresse:       ${CYAN}http://$IP_ADDR:8443${NC}"
 echo ""
 echo -e "${GREEN}==========================================================${NC}"

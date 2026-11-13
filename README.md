@@ -83,7 +83,7 @@ If you prefer not to use the automated One-Liner scripts, you can set up the app
    npm install
    npm start
    ```
-   By default, the manual server runs on `http://localhost:8443` (or `https://localhost:8443` with SSL).
+   By default, the manual server runs on `http://localhost:8443`.
 
 ---
 
@@ -96,12 +96,10 @@ The application can be configured using the following environment variables:
 
 | Variable | Default Value | Description |
 | :--- | :--- | :--- |
-| `PORT` | `8443` | The primary port of the dashboard web server (HTTPS if SSL certificates exist, otherwise HTTP). |
+| `PORT` | `8443` | The primary HTTP port of the dashboard web server. |
 | `HOST` | `0.0.0.0` | The IP address interface the server binds to. |
 | `DATA_DIR` | (App directory) | Path to the directory where configs (`tasmota.json`, etc.) are saved. |
 | `UPLOAD_DIR` | `DATA_DIR/uploads` | Path to the directory where uploaded `.ics` files are saved. |
-| `SSL_DIR` | `DATA_DIR/ssl` | Path to the directory containing SSL/TLS certificates (`key.pem` and `cert.pem`). |
-| `AUTO_SSL` | `false` | Set to `true` to automatically generate a self-signed SSL/TLS certificate if missing in `SSL_DIR`. |
 
 
 

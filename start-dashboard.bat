@@ -25,17 +25,17 @@ set "PROMPT=%PURPLE%[ EING ]%NC%"
 title Neo Deck Smart Home Dashboard
 
 cls
-echo %CYAN%ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿%NC%
-echo %CYAN%³%NC%  %WHITE%%BOLD% _  _ ____ ____    ___  ____ ____ _  _              %NC%%CYAN%³%NC%
-echo %CYAN%³%NC%  %WHITE%%BOLD% ^|\ ^| ^|___ ^|  ^|    ^|  \ ^|___ ^|    ^|_/               %NC%%CYAN%³%NC%
-echo %CYAN%³%NC%  %WHITE%%BOLD% ^| \ ^| ^|___ ^|__^|    ^|__/ ^|___ ^|___ ^| \               %NC%%CYAN%³%NC%
-echo %CYAN%³%NC%                                                        %CYAN%³%NC%
-echo %CYAN%³%NC%        %GREEN%Smart Home Dashboard - Start-Assistent%NC%          %CYAN%³%NC%
-echo %CYAN%ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ%NC%
+echo %CYAN%ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿%NC%
+echo %CYAN%Â³%NC%  %WHITE%%BOLD% _  _ ____ ____    ___  ____ ____ _  _              %NC%%CYAN%Â³%NC%
+echo %CYAN%Â³%NC%  %WHITE%%BOLD% ^|\ ^| ^|___ ^|  ^|    ^|  \ ^|___ ^|    ^|_/               %NC%%CYAN%Â³%NC%
+echo %CYAN%Â³%NC%  %WHITE%%BOLD% ^| \ ^| ^|___ ^|__^|    ^|__/ ^|___ ^|___ ^| \               %NC%%CYAN%Â³%NC%
+echo %CYAN%Â³%NC%                                                        %CYAN%Â³%NC%
+echo %CYAN%Â³%NC%        %GREEN%Smart Home Dashboard - Start-Assistent%NC%          %CYAN%Â³%NC%
+echo %CYAN%Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™%NC%
 echo.
 
-:: Phase 1: Node.js & npm Prfung
-echo %BLUE%%BOLD%=== Phase 1: System-Prfung ===%NC%
+:: Phase 1: Node.js & npm PrÂfung
+echo %BLUE%%BOLD%=== Phase 1: System-PrÂfung ===%NC%
 echo %INFO% Analysiere Systemkomponenten...
 
 where node >nul 2>nul
@@ -51,7 +51,7 @@ echo   ^>  Node.js:  %YELLOW%Fehlt [!]%NC%
 echo.
 echo %WARNING% Node.js konnte auf diesem PC nicht gefunden werden!
 echo.
-echo %PROMPT% M”chtest du Node.js automatisch ber den Windows Package Manager (winget) installieren?
+echo %PROMPT% Mâ€chtest du Node.js automatisch Âber den Windows Package Manager (winget) installieren?
 set /p install_choice="      Installieren? (J/N, Standard: J): "
 if /i "%install_choice%"=="n" goto no_node
 
@@ -64,16 +64,16 @@ if %errorlevel% neq 0 (
     goto no_node
 )
 echo %SUCCESS% Node.js wurde erfolgreich installiert!
-echo %INFO% Aktualisiere System-Pfade fr diese Sitzung...
+echo %INFO% Aktualisiere System-Pfade fÂr diese Sitzung...
 
-:: Pfade neu laden (fr die aktuelle Session)
+:: Pfade neu laden (fÂr die aktuelle Session)
 set "PATH=%PATH%;C:\Program Files\nodejs;%LOCALAPPDATA%\Programs\node\nodejs"
 where node >nul 2>nul
 if %errorlevel% equ 0 goto node_ok
 
 :no_node
 echo.
-echo %ERROR% Node.js ist zwingend erforderlich, um das Dashboard auszufhren!
+echo %ERROR% Node.js ist zwingend erforderlich, um das Dashboard auszufÂhren!
 echo         Bitte installiere Node.js manuell von: https://nodejs.org/
 echo.
 pause
@@ -102,7 +102,7 @@ goto node_ok
 :node_ok
 echo   ^>  Node.js:  %GREEN%Installiert [OK]%NC%
 
-:: 2. Prfen, ob npm erreichbar ist
+:: 2. PrÂfen, ob npm erreichbar ist
 where npm >nul 2>nul
 if %errorlevel% neq 0 (
     echo.
@@ -113,7 +113,7 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 echo   ^>  npm:      %GREEN%Installiert [OK]%NC%
-:: 3. Falls openssl nicht im PATH ist, nach Git-openssl suchen und hinzufgen
+:: 3. Falls openssl nicht im PATH ist, nach Git-openssl suchen und hinzufÂgen
 where openssl >nul 2>nul
 if %errorlevel% neq 0 (
     if exist "C:\Program Files\Git\usr\bin\openssl.exe" (
@@ -128,12 +128,12 @@ if %errorlevel% neq 0 (
 )
 echo.
 
-:: Phase 2: Abh„ngigkeiten prfen (npm install)
-echo %BLUE%%BOLD%=== Phase 2: Abh„ngigkeiten ===%NC%
+:: Phase 2: Abhâ€žngigkeiten prÂfen (npm install)
+echo %BLUE%%BOLD%=== Phase 2: Abhâ€žngigkeiten ===%NC%
 if exist node_modules goto start_server
 
 echo %INFO% "node_modules" wurde nicht gefunden.
-echo %INFO% Installiere ben”tigte JavaScript-Bibliotheken (npm install)...
+echo %INFO% Installiere benâ€tigte JavaScript-Bibliotheken (npm install)...
 echo.
 call npm install
 if %errorlevel% neq 0 (
@@ -150,14 +150,13 @@ echo.
 :start_server
 echo %BLUE%%BOLD%=== Phase 3: Start ===%NC%
 echo %INFO% Starte Webserver auf Port 8443...
-echo %INFO% ™ffne Browser: %CYAN%https://localhost:8443%NC%
+echo %INFO% â„¢ffne Browser: %CYAN%http://localhost:8443%NC%
 echo.
 
-:: Startet den Webbrowser verz”gert (um dem Server Zeit zum Booten zu geben)
-start "" cmd /c "timeout /t 2 >nul && start https://localhost:8443"
+:: Startet den Webbrowser verzâ€gert (um dem Server Zeit zum Booten zu geben)
+start "" cmd /c "timeout /t 2 >nul && start http://localhost:8443"
 
 set PORT=8443
-set AUTO_SSL=true
 call npm start
 
 if %errorlevel% neq 0 (
