@@ -4,7 +4,7 @@
 
 # 🏠 Smart Home Dashboard v3 · Neo Deck 👻
 
-**Modern, highly customizable smart home wall panel with J.A.R.V.I.S. AI, multi-theme engine & TrueNAS SCALE support**
+**Modern, highly customizable smart home wall panel, multi-theme engine & TrueNAS SCALE support**
 
 [![GitHub Release](https://img.shields.io/github/v/release/Daddelgreis74/smart-home-dashboard?color=00f0ff&logo=github&style=flat-square)](https://github.com/Daddelgreis74/smart-home-dashboard/releases)
 [![Docker Pulls](https://img.shields.io/docker/pulls/daddelgreis74/smart-home-dashboard?logo=docker&logoColor=white&color=2496ED&style=flat-square)](https://hub.docker.com/r/daddelgreis74/smart-home-dashboard)
