@@ -77,7 +77,7 @@ export async function refreshSensorWidget() {
   const sensorList = getSensorListFromConfig();
 
   if (sensorList.length === 0) {
-    sensorBody.innerHTML = `<div style="text-align: center; color: rgba(218,232,255,0.4); width: 100%; padding: 20px;">Keine Sensoren konfiguriert</div>`;
+    sensorBody.innerHTML = `<div style="text-align: center; color: var(--text-muted); width: 100%; padding: 20px;">Keine Sensoren konfiguriert</div>`;
     return;
   }
 

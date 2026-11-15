@@ -69,7 +69,7 @@ export async function loadICS() {
       const upcoming = deduped.filter(e => e.date >= todayStr).slice(0, 4);
       
       if(upcoming.length === 0) { 
-        list.innerHTML = (trans[lang] && trans[lang].waste_no_dates) ? `<p style="color:rgba(255,255,255,0.5);">${trans[lang].waste_no_dates}</p>` : '<p style="color:rgba(255,255,255,0.5);">Keine Termine.</p>'; 
+        list.innerHTML = (trans[lang] && trans[lang].waste_no_dates) ? `<p style="color:var(--text-muted);">${trans[lang].waste_no_dates}</p>` : '<p style="color:var(--text-muted);">Keine Termine.</p>'; 
         const alertContainer = document.getElementById('headerWasteAlert');
         if (alertContainer) { alertContainer.style.display = 'none'; alertContainer.innerHTML = ''; }
         return; 

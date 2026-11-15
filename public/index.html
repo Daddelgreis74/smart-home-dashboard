@@ -10,7 +10,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="icon" href="icon.png" type="image/png">
   <link rel="apple-touch-icon" href="icon.png">
-  <link rel="stylesheet" href="styles.css?v=3.24.2">
+  <link rel="stylesheet" href="styles.css?v=3.24.3">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
   <script defer src="translations.js"></script>
@@ -94,7 +94,7 @@
             </button>
             <!-- Suchleiste -->
             <div class="sidebar-search" style="margin-top: auto; padding: 10px 5px 0 5px; border-top: 1px solid rgba(255,255,255,0.06);">
-              <input type="text" id="settingsSearch" data-i18n="settings_search_placeholder" placeholder="Suchen..." style="width: 100%; padding: 8px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); border-radius: 100px; color: #fff; font-size: 11px; outline: none;" />
+              <input type="text" id="settingsSearch" data-i18n="settings_search_placeholder" placeholder="Suchen..." style="width: 100%; padding: 8px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); border-radius: 100px; color: var(--text-main); font-size: 11px; outline: none;" />
             </div>
           </div>
 
@@ -122,7 +122,7 @@
                         <div class="viewmode-mini-tile"></div>
                       </div>
                     </div>
-                    <div style="font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px;" data-i18n="viewmode_grid_title">Kompaktes Kachelraster</div>
+                    <div style="font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;" data-i18n="viewmode_grid_title">Kompaktes Kachelraster</div>
                     <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;" data-i18n="viewmode_grid_desc">Alle aktiven Widgets gleichzeitig auf einem Bildschirm im Überblick. Klassisches Raster – ideal für Desktop-PCs und Monitore.</div>
                   </div>
 
@@ -320,7 +320,7 @@
                 <div class="input-group" style="margin-bottom: 12px;">
                   <label class="setting-sub-label" data-i18n="reminder_sound_label">Alarm-Ton:</label>
                   <div style="display:flex; gap: 8px; width: 100%;">
-                    <select id="reminderSound" class="radio-select" style="flex: 1; padding: 10px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); color: #fff;">
+                    <select id="reminderSound" class="radio-select" style="flex: 1; padding: 10px 12px; border-radius: var(--radius-sm);">
                       <option value="sound-gong">🔔 Deep Gong (Klassisch)</option>
                       <option value="sound-beep">⏰ Digital Beep-Beep (Auffällig)</option>
                       <option value="sound-chime">🎶 Glockenspiel (Modern)</option>
@@ -332,7 +332,7 @@
                 </div>
                 <div class="input-group">
                   <label class="setting-sub-label" data-i18n="reminder_loop_label">Wiederholung:</label>
-                  <select id="reminderLoop" class="radio-select" style="max-width: 100%; width: 100%; padding: 10px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); color: #fff;">
+                  <select id="reminderLoop" class="radio-select" style="max-width: 100%; width: 100%; padding: 10px 12px; border-radius: var(--radius-sm);">
                     <option value="loop-once">▶️ Einmalig abspielen</option>
                     <option value="loop-repeat">🔁 Endlos wiederholen (alle 5 Sek. bis Klick)</option>
                   </select>
@@ -492,7 +492,7 @@
                 <div class="input-group">
                   <label class="setting-sub-label" data-i18n="timer_sound_label">Alarm-Ton:</label>
                   <div style="display:flex; gap: 8px; width: 100%;">
-                    <select id="timerSound" class="radio-select" style="flex: 1; padding: 10px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); color: #fff;">
+                    <select id="timerSound" class="radio-select" style="flex: 1; padding: 10px 12px; border-radius: var(--radius-sm);">
                       <option value="sound-gong">🔔 Deep Gong (Klassisch)</option>
                       <option value="sound-beep">⏰ Digital Beep-Beep (Auffällig)</option>
                       <option value="sound-bell">🔔 Klingel / Wecker (Klassisch)</option>
@@ -1190,6 +1190,6 @@
 
   <script defer src="/socket.io/socket.io.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script type="module" src="app.js?v=3.24.2"></script>
+  <script type="module" src="app.js?v=3.24.3"></script>
 </body>
 </html>
