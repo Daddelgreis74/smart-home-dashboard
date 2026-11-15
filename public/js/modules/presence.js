@@ -170,11 +170,11 @@ export async function initPresence(socket) {
           if (ring) ring.classList.add('active');
           if (badge) {
             badge.classList.add('active');
-            badge.style.backgroundColor = 'var(--green)';
+            badge.style.backgroundColor = 'var(--primary)';
           }
           if (status) {
             status.textContent = getLangText('atHome');
-            status.style.color = 'var(--green)';
+            status.style.color = 'var(--primary)';
           }
         } else {
           card.classList.remove('active');
@@ -272,9 +272,9 @@ export function renderPresenceWidget(persons) {
     card.id = `usr-${p.id}`;
     card.style.cssText = 'display: flex; flex-direction: column; align-items: center; gap: 8px; transition: var(--transition);';
     
-    const badgeStyle = p.active ? 'background-color: var(--green);' : 'background-color: var(--text-muted);';
+    const badgeStyle = p.active ? 'background-color: var(--primary);' : 'background-color: var(--text-muted);';
     const statusText = p.active ? getLangText('atHome') : getLangText('away');
-    const statusColor = p.active ? 'color: var(--green);' : 'color: var(--text-muted);';
+    const statusColor = p.active ? 'color: var(--primary);' : 'color: var(--text-muted);';
 
     card.innerHTML = `
       <div class="presence-avatar-ring ${p.active ? 'active' : ''}" style="position: relative; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">

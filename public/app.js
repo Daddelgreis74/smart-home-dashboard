@@ -7,7 +7,7 @@ import { initSensorWidget, renderSensorSettings, refreshSensorWidget } from './j
 import { initSystemBargraph } from './js/modules/system.js';
 import { initTasmota } from './js/modules/tasmota.js';
 import { initFritzbox } from './js/modules/fritzbox.js';
-import { initPresence } from './js/modules/presence.js';
+import { initPresence } from './js/modules/presence.js?v=3.24.4';
 import { initCameraWidget } from './js/modules/cameras.js';
 import { initTimer } from './js/modules/timer.js';
 import { initNote, setNoteTheme } from './js/modules/note.js';
