@@ -124,7 +124,7 @@ export async function initPresence(socket) {
           body: JSON.stringify({
             name,
             mac,
-            image: uploadedAvatarUrl || selectedAvatarUrl || '/sabine.png'
+            image: uploadedAvatarUrl || selectedAvatarUrl || '/frau1.png'
           })
         });
         const data = await res.json();
@@ -227,7 +227,7 @@ export function renderPresenceSettings(persons) {
     
     row.innerHTML = `
       <div style="display: flex; align-items: center; gap: 10px;">
-        <img src="${p.image || '/sabine.png'}" style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;">
+        <img src="${p.image || '/frau1.png'}" style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;">
         <div style="display: flex; flex-direction: column; text-align: left;">
           <span class="t-name" style="font-weight: 700;">${p.name}</span>
           <span class="t-ip" style="font-size: 9px; color: var(--text-muted);">${p.mac}</span>
@@ -278,7 +278,7 @@ export function renderPresenceWidget(persons) {
 
     card.innerHTML = `
       <div class="presence-avatar-ring ${p.active ? 'active' : ''}" style="position: relative; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-        <img src="${p.image || '/sabine.png'}" class="presence-avatar-img" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover;">
+        <img src="${p.image || '/frau1.png'}" class="presence-avatar-img" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover;">
         <span class="presence-status-badge ${p.active ? 'active' : ''}" style="position: absolute; bottom: 2px; right: 2px; width: 14px; height: 14px; border-radius: 50%; ${badgeStyle} border: 2.5px solid #0f1225;"></span>
       </div>
       <span class="presence-avatar-name" style="font-size: 13px; font-weight: 600; color: var(--text-main);">${p.name}</span>
